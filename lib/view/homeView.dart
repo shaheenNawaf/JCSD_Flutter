@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:jcsd_flutter/widgets/navBar.dart';
 
 class HomeView extends StatelessWidget {
+  const HomeView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: Navbar(),
+        appBar: const Navbar(),
         body: Stack(
           children: [
             Container(
@@ -13,7 +15,7 @@ class HomeView extends StatelessWidget {
               width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/background.png'),
+                  image: const AssetImage('assets/images/background.png'),
                   fit: BoxFit.cover,
                   colorFilter: ColorFilter.mode(
                     Colors.black.withOpacity(0.6),
@@ -42,7 +44,6 @@ class HomeView extends StatelessWidget {
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () {},
-                    child: const Text('Book Now'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 0, 174, 239),
                       foregroundColor: Colors.white,
@@ -53,6 +54,7 @@ class HomeView extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
+                    child: const Text('Book Now'),
                   ),
                 ],
               ),
