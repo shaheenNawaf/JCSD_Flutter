@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:jcsd_flutter/widgets/navBar.dart';
 
 class HomeView extends StatelessWidget {
+  const HomeView({super.key});
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -308,3 +310,4 @@ class HomeView extends StatelessWidget {
     );
   }
 }
+
