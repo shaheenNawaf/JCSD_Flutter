@@ -1,39 +1,63 @@
 import 'package:flutter/material.dart';
 
 class Navbar extends StatelessWidget implements PreferredSizeWidget {
-  @override
-  final Size preferredSize;
+  final String activePage;
 
-  Navbar({Key? key})
-      : preferredSize = Size.fromHeight(kToolbarHeight),
-        super(key: key);
+  const Navbar({super.key, this.activePage = ''});
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
-      title: Image.asset(
-        'assets/images/logo.png',
-        height: 40,
+      automaticallyImplyLeading: false,
+      title: Row(
+        children: [
+          Image.asset('assets/images/logo.png', height: 40),
+          const Spacer(),
+          NavItem(title: 'Home', route: '/', isActive: activePage == 'home'),
+          NavItem(
+              title: 'Services',
+              route: '/services',
+              isActive: activePage == 'services'),
+          NavItem(
+              title: 'About Us',
+              route: '/about',
+              isActive: activePage == 'about'),
+          NavItem(
+              title: 'Login', route: '/login', isActive: activePage == 'login'),
+        ],
       ),
-      actions: <Widget>[
-        TextButton(
-          onPressed: () {},
-          child: Text('Home', style: TextStyle(color: const Color.fromARGB(255, 0, 174, 239))),
+      backgroundColor: Colors.white,
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+}
+
+class NavItem extends StatelessWidget {
+  final String title;
+  final String route;
+  final bool isActive;
+
+  const NavItem(
+      {super.key,
+      required this.title,
+      required this.route,
+      this.isActive = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: () {
+        Navigator.pushNamed(context, route);
+      },
+      child: Text(
+        title,
+        style: TextStyle(
+          fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+          color: isActive ? Colors.blueAccent : Colors.black,
         ),
-        TextButton(
-          onPressed: () {},
-          child: Text('Services', style: TextStyle(color: const Color.fromARGB(255, 0, 174, 239))),
-        ),
-        TextButton(
-          onPressed: () {},
-          child: Text('About Us', style: TextStyle(color: const Color.fromARGB(255, 0, 174, 239))),
-        ),
-        TextButton(
-          onPressed: () {},
-          child: Text('Login', style: TextStyle(color: const Color.fromARGB(255, 0, 174, 239))),
-        ),
-      ],
+      ),
     );
   }
 }

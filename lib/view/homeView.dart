@@ -5,8 +5,10 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: Navbar(),
-      body: Center(
+      appBar: Navbar(
+        activePage: '',
+      ),
+      body: const Center(
         child: Text('Welcome to Home View!'),
       ),
     );

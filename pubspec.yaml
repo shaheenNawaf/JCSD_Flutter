@@ -9,6 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  auto_size_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -18,6 +19,30 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-  - assets/images/logo.png
-  - assets/images/logo_white.png
-  - assets/images/background.png
+    - assets/images/logo.png
+    - assets/images/logo_white.png
+    - assets/images/background.png
+    - assets/fonts/Nunito-Regular.ttf
+    - assets/fonts/Nunito-Bold.ttf
+    - assets/fonts/NunitoSans-Regular.ttf
+    - assets/fonts/NunitoSans-Bold.ttf
+    - assets/fonts/Poppins-Light.ttf
+    - assets/fonts/Poppins-Regular.ttf
+
+  fonts:
+    - family: Nunito
+      fonts:
+        - asset: assets/fonts/Nunito-Regular.ttf
+        - asset: assets/fonts/Nunito-Bold.ttf
+          weight: 700
+    - family: NunitoSans
+      fonts:
+        - asset: assets/fonts/NunitoSans-Regular.ttf
+        - asset: assets/fonts/NunitoSans-Bold.ttf
+          weight: 700
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Poppins-Regular.ttf
+          weight: 400
