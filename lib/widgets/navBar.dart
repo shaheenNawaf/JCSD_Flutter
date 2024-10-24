@@ -11,7 +11,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      backgroundColor: Colors.white,
       title: Image.asset(
         'assets/images/logo.png',
         height: 40,
@@ -19,7 +19,19 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
       actions: <Widget>[
         TextButton(
           onPressed: () {},
-          child: Text('Home', style: TextStyle(color: Colors.white)),
+          child: Text('Home', style: TextStyle(color: const Color.fromARGB(255, 0, 174, 239))),
+        ),
+        TextButton(
+          onPressed: () {},
+          child: Text('Services', style: TextStyle(color: const Color.fromARGB(255, 0, 174, 239))),
+        ),
+        TextButton(
+          onPressed: () {},
+          child: Text('About Us', style: TextStyle(color: const Color.fromARGB(255, 0, 174, 239))),
+        ),
+        TextButton(
+          onPressed: () {},
+          child: Text('Login', style: TextStyle(color: const Color.fromARGB(255, 0, 174, 239))),
         ),
       ],
     );
