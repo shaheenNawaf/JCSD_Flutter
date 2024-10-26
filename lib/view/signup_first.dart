@@ -1,7 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:jcsd_flutter/widgets/navBar.dart';
 
 class SignupPage1 extends StatefulWidget {
@@ -79,156 +78,37 @@ class _SignupPage1State extends State<SignupPage1> {
                                   ),
                                 ),
                                 const SizedBox(height: 20),
-                                const Row(
-                                  children: [
-                                    AutoSizeText(
-                                      'Email Address',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    Text(
-                                      '*',
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 5),
-                                const TextField(
-                                  decoration: InputDecoration(
-                                    hintText: 'Email address',
-                                    hintStyle: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w300,
-                                    ),
-                                    border: OutlineInputBorder(),
-                                  ),
+                                buildTextField(
+                                  label: 'Email Address',
+                                  hintText: 'Email address',
                                 ),
                                 const SizedBox(height: 10),
-                                const Row(
-                                  children: [
-                                    AutoSizeText(
-                                      'Username',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    Text(
-                                      '*',
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 5),
-                                const TextField(
-                                  decoration: InputDecoration(
-                                    hintText: 'Enter your username',
-                                    hintStyle: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w300,
-                                    ),
-                                    border: OutlineInputBorder(),
-                                  ),
+                                buildTextField(
+                                  label: 'Username',
+                                  hintText: 'Enter your username',
                                 ),
                                 const SizedBox(height: 10),
-                                const Row(
-                                  children: [
-                                    AutoSizeText(
-                                      'Password',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    Text(
-                                      '*',
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 5),
-                                TextField(
-                                  obscureText: _isPasswordHidden,
-                                  decoration: InputDecoration(
-                                    hintText: 'Password goes here',
-                                    hintStyle: const TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w300,
-                                    ),
-                                    suffixIcon: IconButton(
-                                      icon: Icon(
-                                        _isPasswordHidden
-                                            ? Icons.visibility_off
-                                            : Icons.visibility,
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          _isPasswordHidden =
-                                              !_isPasswordHidden;
-                                        });
-                                      },
-                                    ),
-                                    border: const OutlineInputBorder(),
-                                  ),
+                                buildPasswordField(
+                                  label: 'Password',
+                                  hintText: 'Password goes here',
+                                  isHidden: _isPasswordHidden,
+                                  onVisibilityToggle: () {
+                                    setState(() {
+                                      _isPasswordHidden = !_isPasswordHidden;
+                                    });
+                                  },
                                 ),
                                 const SizedBox(height: 10),
-                                const Row(
-                                  children: [
-                                    AutoSizeText(
-                                      'Repeat Password',
-                                      style: TextStyle(
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    Text(
-                                      '*',
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 5),
-                                TextField(
-                                  obscureText: _isConfirmPasswordHidden,
-                                  decoration: InputDecoration(
-                                    hintText: 'Repeat your password',
-                                    hintStyle: const TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w300,
-                                    ),
-                                    suffixIcon: IconButton(
-                                      icon: Icon(
-                                        _isConfirmPasswordHidden
-                                            ? Icons.visibility_off
-                                            : Icons.visibility,
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          _isConfirmPasswordHidden =
-                                              !_isConfirmPasswordHidden;
-                                        });
-                                      },
-                                    ),
-                                    border: const OutlineInputBorder(),
-                                  ),
+                                buildPasswordField(
+                                  label: 'Repeat Password',
+                                  hintText: 'Repeat your password',
+                                  isHidden: _isConfirmPasswordHidden,
+                                  onVisibilityToggle: () {
+                                    setState(() {
+                                      _isConfirmPasswordHidden =
+                                          !_isConfirmPasswordHidden;
+                                    });
+                                  },
                                 ),
                                 const SizedBox(height: 20),
                                 SizedBox(
@@ -251,6 +131,7 @@ class _SignupPage1State extends State<SignupPage1> {
                                         color: Colors.white,
                                         fontFamily: 'Nunito',
                                         fontWeight: FontWeight.bold,
+                                        fontSize: 18,
                                       ),
                                     ),
                                   ),
@@ -355,6 +236,92 @@ class _SignupPage1State extends State<SignupPage1> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget buildTextField({required String label, required String hintText}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const Text(
+              '*',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        TextField(
+          decoration: InputDecoration(
+            hintText: hintText,
+            border: const OutlineInputBorder(),
+            hintStyle: const TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w300,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildPasswordField({
+    required String label,
+    required String hintText,
+    required bool isHidden,
+    required VoidCallback onVisibilityToggle,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const Text(
+              '*',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        TextField(
+          obscureText: isHidden,
+          decoration: InputDecoration(
+            hintText: hintText,
+            border: const OutlineInputBorder(),
+            hintStyle: const TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w300,
+              fontSize: 12,
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(isHidden ? Icons.visibility_off : Icons.visibility),
+              onPressed: onVisibilityToggle,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

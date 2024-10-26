@@ -17,7 +17,6 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    // final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       appBar: const Navbar(activePage: 'login'),
@@ -77,40 +76,20 @@ class _LoginState extends State<Login> {
                                   ),
                                 ),
                                 const SizedBox(height: 20),
-                                const TextField(
-                                  decoration: InputDecoration(
-                                    hintText: 'Enter Username or Email',
-                                    hintStyle: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w300,
-                                    ),
-                                    border: OutlineInputBorder(),
-                                  ),
+                                buildTextField(
+                                  label: 'Username or Email',
+                                  hintText: 'Enter Username or Email',
                                 ),
                                 const SizedBox(height: 10),
-                                TextField(
-                                  obscureText: _isPasswordHidden,
-                                  decoration: InputDecoration(
-                                    hintText: 'Password goes here',
-                                    hintStyle: const TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w300,
-                                    ),
-                                    suffixIcon: IconButton(
-                                      icon: Icon(
-                                        _isPasswordHidden
-                                            ? Icons.visibility_off
-                                            : Icons.visibility,
-                                      ),
-                                      onPressed: () {
-                                        setState(() {
-                                          _isPasswordHidden =
-                                              !_isPasswordHidden;
-                                        });
-                                      },
-                                    ),
-                                    border: const OutlineInputBorder(),
-                                  ),
+                                buildPasswordField(
+                                  label: 'Password',
+                                  hintText: 'Password goes here',
+                                  isHidden: _isPasswordHidden,
+                                  onVisibilityToggle: () {
+                                    setState(() {
+                                      _isPasswordHidden = !_isPasswordHidden;
+                                    });
+                                  },
                                 ),
                                 const SizedBox(height: 10),
                                 screenWidth > 600
@@ -202,6 +181,7 @@ class _LoginState extends State<Login> {
                                         color: Colors.white,
                                         fontFamily: 'Nunito',
                                         fontWeight: FontWeight.bold,
+                                        fontSize: 18,
                                       ),
                                     ),
                                   ),
@@ -308,6 +288,92 @@ class _LoginState extends State<Login> {
         ],
       ),
       backgroundColor: const Color(0xFFF5E9EF),
+    );
+  }
+
+  Widget buildTextField({required String label, required String hintText}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const Text(
+              '*',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        TextField(
+          decoration: InputDecoration(
+            hintText: hintText,
+            border: const OutlineInputBorder(),
+            hintStyle: const TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w300,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildPasswordField({
+    required String label,
+    required String hintText,
+    required bool isHidden,
+    required VoidCallback onVisibilityToggle,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const Text(
+              '*',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        TextField(
+          obscureText: isHidden,
+          decoration: InputDecoration(
+            hintText: hintText,
+            border: const OutlineInputBorder(),
+            hintStyle: const TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w300,
+              fontSize: 12,
+            ),
+            suffixIcon: IconButton(
+              icon: Icon(isHidden ? Icons.visibility_off : Icons.visibility),
+              onPressed: onVisibilityToggle,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

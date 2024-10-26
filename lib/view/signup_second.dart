@@ -15,6 +15,7 @@ class _SignupPage2State extends State<SignupPage2> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    bool isMobileView = screenWidth < 600;
     return Scaffold(
       appBar: const Navbar(activePage: 'register'),
       body: Stack(
@@ -66,402 +67,188 @@ class _SignupPage2State extends State<SignupPage2> {
                                 ),
                                 const SizedBox(height: 2),
                                 const Text(
-                                  'Sign-up to fully access the site features',
+                                  'sign-up to fully access the site features',
                                   style: TextStyle(
                                     fontFamily: 'NunitoSans',
                                     fontWeight: FontWeight.normal,
                                   ),
                                 ),
                                 const SizedBox(height: 20),
-                                const Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                if (isMobileView)
+                                  Column(
+                                    children: [
+                                      buildTextField(
+                                        label: 'First Name',
+                                        hintText: 'Enter your first name',
+                                      ),
+                                      const SizedBox(height: 10),
+                                      buildTextField(
+                                        label: 'Address',
+                                        hintText: 'Enter your address',
+                                      ),
+                                      const SizedBox(height: 10),
+                                      buildTextField(
+                                        label: 'Middle Initial (Optional)',
+                                        hintText: 'Enter your middle initial',
+                                      ),
+                                      const SizedBox(height: 10),
+                                      buildTextField(
+                                        label: 'City',
+                                        hintText: 'Enter your city',
+                                      ),
+                                      const SizedBox(height: 10),
+                                      buildTextField(
+                                        label: 'Province',
+                                        hintText: 'Enter your province',
+                                      ),
+                                      const SizedBox(height: 10),
+                                      buildTextField(
+                                        label: 'Last Name',
+                                        hintText: 'Enter your last name',
+                                      ),
+                                      const SizedBox(height: 10),
+                                      buildTextField(
+                                        label: 'Country',
+                                        hintText: 'Enter your country',
+                                      ),
+                                      const SizedBox(height: 10),
+                                      buildTextField(
+                                        label: 'Zip Code',
+                                        hintText: 'Enter your zipcode',
+                                      ),
+                                      const SizedBox(height: 10),
+                                      buildTextField(
+                                        label: 'Date of Birth',
+                                        hintText: 'Enter your date of birth',
+                                      ),
+                                      const SizedBox(height: 10),
+                                      buildTextField(
+                                        label: 'Contact Number',
+                                        hintText: 'Enter your contact number',
+                                      ),
+                                    ],
+                                  )
+                                else
+                                  Column(
+                                    children: [
+                                      Row(
                                         children: [
-                                          Row(
-                                            children: [
-                                              AutoSizeText(
-                                                'First Name',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              Text(
-                                                '*',
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 5),
-                                          TextField(
-                                            decoration: InputDecoration(
+                                          Expanded(
+                                            flex: 1,
+                                            child: buildTextField(
+                                              label: 'First Name',
                                               hintText: 'Enter your first name',
-                                              border: OutlineInputBorder(),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(width: 10),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              AutoSizeText(
-                                                'Address',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              Text(
-                                                '*',
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 5),
-                                          TextField(
-                                            decoration: InputDecoration(
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            flex: 1,
+                                            child: buildTextField(
+                                              label: 'Address',
                                               hintText: 'Enter your address',
-                                              border: OutlineInputBorder(),
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                                const Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                      const SizedBox(height: 10),
+                                      Row(
                                         children: [
-                                          Row(
-                                            children: [
-                                              AutoSizeText(
-                                                'Middle Initial (Optional)',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 5),
-                                          TextField(
-                                            decoration: InputDecoration(
+                                          Expanded(
+                                            flex: 1,
+                                            child: buildTextField(
+                                              label:
+                                                  'Middle Initial (Optional)',
                                               hintText:
                                                   'Enter your middle initial',
-                                              border: OutlineInputBorder(),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            flex: 1,
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  flex: 1,
+                                                  child: buildTextField(
+                                                    label: 'City',
+                                                    hintText: 'Enter your city',
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Expanded(
+                                                  flex: 1,
+                                                  child: buildTextField(
+                                                    label: 'Province',
+                                                    hintText:
+                                                        'Enter your province',
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    SizedBox(width: 10),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                      const SizedBox(height: 10),
+                                      Row(
                                         children: [
-                                          Row(
-                                            children: [
-                                              AutoSizeText(
-                                                'City',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              Text(
-                                                '*',
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 5),
-                                          TextField(
-                                            decoration: InputDecoration(
-                                              hintText: 'Enter your city',
-                                              border: OutlineInputBorder(),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    const Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              AutoSizeText(
-                                                'Last Name',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              Text(
-                                                '*',
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 5),
-                                          TextField(
-                                            decoration: InputDecoration(
+                                          Expanded(
+                                            flex: 1,
+                                            child: buildTextField(
+                                              label: 'Last Name',
                                               hintText: 'Enter your last name',
-                                              border: OutlineInputBorder(),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            flex: 1,
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  flex: 1,
+                                                  child: buildTextField(
+                                                    label: 'Country',
+                                                    hintText:
+                                                        'Enter your country',
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Expanded(
+                                                  flex: 1,
+                                                  child: buildTextField(
+                                                    label: 'Zip Code',
+                                                    hintText:
+                                                        'Enter your zipcode',
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                      const SizedBox(height: 10),
+                                      Row(
                                         children: [
-                                          const Row(
-                                            children: [
-                                              AutoSizeText(
-                                                'Province',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              Text(
-                                                '*',
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 5),
-                                          DropdownButtonFormField<String>(
-                                            items: [
-                                              'Province 1',
-                                              'Province 2',
-                                              'Province 3',
-                                            ]
-                                                .map((province) =>
-                                                    DropdownMenuItem<String>(
-                                                      value: province,
-                                                      child: Text(province),
-                                                    ))
-                                                .toList(),
-                                            onChanged: (value) {},
-                                            decoration: const InputDecoration(
-                                              // hintText: 'Select your province',
-                                              border: OutlineInputBorder(),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                                Row(
-                                  children: [
-                                    const Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              AutoSizeText(
-                                                'Date of Birth',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              Text(
-                                                '*',
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 5),
-                                          TextField(
-                                            decoration: InputDecoration(
+                                          Expanded(
+                                            flex: 1,
+                                            child: buildTextField(
+                                              label: 'Date of Birth',
                                               hintText:
                                                   'Enter your date of birth',
-                                              border: OutlineInputBorder(),
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Row(
-                                            children: [
-                                              AutoSizeText(
-                                                'Country',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              Text(
-                                                '*',
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 5),
-                                          DropdownButtonFormField<String>(
-                                            items: [
-                                              'Country 1',
-                                              'Country 2',
-                                              'Country 3',
-                                            ]
-                                                .map((country) =>
-                                                    DropdownMenuItem<String>(
-                                                      value: country,
-                                                      child: Text(country),
-                                                    ))
-                                                .toList(),
-                                            onChanged: (value) {},
-                                            decoration: const InputDecoration(
-                                              // hintText: 'Select your country',
-                                              border: OutlineInputBorder(),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10),
-                                const Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              AutoSizeText(
-                                                'Zip Code',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              Text(
-                                                '*',
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 5),
-                                          TextField(
-                                            decoration: InputDecoration(
-                                              hintText: 'Enter your zipcode',
-                                              border: OutlineInputBorder(),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(width: 10),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              AutoSizeText(
-                                                'Contact Number',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                              Text(
-                                                '*',
-                                                style: TextStyle(
-                                                  color: Colors.red,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 5),
-                                          TextField(
-                                            decoration: InputDecoration(
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            flex: 1,
+                                            child: buildTextField(
+                                              label: 'Contact Number',
                                               hintText:
                                                   'Enter your contact number',
-                                              border: OutlineInputBorder(),
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ],
-                                ),
+                                    ],
+                                  ),
                                 const SizedBox(height: 20),
                                 SizedBox(
                                   width: double.infinity,
@@ -481,6 +268,7 @@ class _SignupPage2State extends State<SignupPage2> {
                                         color: Colors.white,
                                         fontFamily: 'Nunito',
                                         fontWeight: FontWeight.bold,
+                                        fontSize: 18,
                                       ),
                                     ),
                                   ),
@@ -525,6 +313,44 @@ class _SignupPage2State extends State<SignupPage2> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget buildTextField({required String label, required String hintText}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            AutoSizeText(
+              label,
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const Text(
+              '*',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        TextField(
+          decoration: InputDecoration(
+            hintText: hintText,
+            border: const OutlineInputBorder(),
+            hintStyle: const TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w300,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

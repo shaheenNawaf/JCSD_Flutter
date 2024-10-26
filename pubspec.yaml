@@ -39,7 +39,7 @@ flutter:
       fonts:
         - asset: assets/fonts/NunitoSans-Regular.ttf
         - asset: assets/fonts/NunitoSans-Bold.ttf
-          weight: 700
+          weight: 800
     - family: Poppins
       fonts:
         - asset: assets/fonts/Poppins-Light.ttf
