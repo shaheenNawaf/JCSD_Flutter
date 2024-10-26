@@ -30,17 +30,18 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
               onSelected: (value) {
                 Navigator.pushNamed(context, value);
               },
-              color: Colors.white, // Set the background color of the dropdown
+              color: Colors.white,
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                 PopupMenuItem<String>(
                   value: '/',
                   child: Text(
                     'Home',
                     style: TextStyle(
+                      fontFamily: 'NunitoSans',
                       fontWeight: activePage == 'home'
                           ? FontWeight.bold
                           : FontWeight.normal,
-                      color: const Color(0xFF00AEEF), // Set text color to blue
+                      color: const Color(0xFF00AEEF),
                     ),
                   ),
                 ),
@@ -49,10 +50,11 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                   child: Text(
                     'Services',
                     style: TextStyle(
+                      fontFamily: 'NunitoSans',
                       fontWeight: activePage == 'services'
                           ? FontWeight.bold
                           : FontWeight.normal,
-                      color: const Color(0xFF00AEEF), // Set text color to blue
+                      color: const Color(0xFF00AEEF),
                     ),
                   ),
                 ),
@@ -61,10 +63,11 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                   child: Text(
                     'About Us',
                     style: TextStyle(
+                      fontFamily: 'NunitoSans',
                       fontWeight: activePage == 'about'
                           ? FontWeight.bold
                           : FontWeight.normal,
-                      color: const Color(0xFF00AEEF), // Set text color to blue
+                      color: const Color(0xFF00AEEF),
                     ),
                   ),
                 ),
@@ -73,11 +76,12 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                   child: Text(
                     activePage == 'register' ? 'Register' : 'Login',
                     style: TextStyle(
+                      fontFamily: 'NunitoSans',
                       fontWeight:
                           (activePage == 'login' || activePage == 'register')
                               ? FontWeight.bold
                               : FontWeight.normal,
-                      color: const Color(0xFF00AEEF), // Set text color to blue
+                      color: const Color(0xFF00AEEF),
                     ),
                   ),
                 ),
@@ -133,8 +137,9 @@ class NavItem extends StatelessWidget {
       child: Text(
         title,
         style: TextStyle(
+          fontFamily: 'NunitoSans',
           fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-          color: isActive ? Colors.blueAccent : Colors.black,
+          color: const Color(0xFF00AEEF),
         ),
       ),
     );

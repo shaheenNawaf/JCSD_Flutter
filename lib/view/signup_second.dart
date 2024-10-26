@@ -2,7 +2,7 @@
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:jcsd_flutter/widgets/navBar.dart';
+import 'package:jcsd_flutter/widgets/navbar.dart';
 
 class SignupPage2 extends StatefulWidget {
   const SignupPage2({super.key});
