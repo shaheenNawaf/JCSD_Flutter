@@ -20,7 +20,7 @@ class _SignupPage1State extends State<SignupPage1> {
     const double fixedHeight = 700;
 
     return Scaffold(
-      appBar: const Navbar(activePage: 'signup'),
+      appBar: const Navbar(activePage: 'register'),
       body: Stack(
         children: [
           Positioned.fill(
