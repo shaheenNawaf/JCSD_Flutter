@@ -424,7 +424,7 @@ class _BookingsPageState extends State<BookingsPage>
                   padding: EdgeInsets.only(left: 75),
                   child: Center(
                     child: Text(
-                      'Update',
+                      'Action',
                       style: TextStyle(
                         fontFamily: 'NunitoSans',
                         fontWeight: FontWeight.w600,

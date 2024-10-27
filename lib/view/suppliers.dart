@@ -2,6 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jcsd_flutter/modals/addsupplier.dart';
+import 'package:jcsd_flutter/modals/archivesupplier.dart';
+import 'package:jcsd_flutter/modals/editsupplier.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 class SupplierPage extends StatefulWidget {
@@ -36,6 +39,36 @@ class _SupplierPageState extends State<SupplierPage>
 
   void _closeDrawer() {
     _animationController.reverse();
+  }
+
+  void _showAddSupplierModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AddSupplierModal();
+      },
+    );
+  }
+
+  void _showEditSupplierModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const EditSupplierModal();
+      },
+    );
+  }
+
+  void _showArchiveSupplierModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const ArchiveSupplierModal();
+      },
+    );
   }
 
   @override
@@ -73,9 +106,7 @@ class _SupplierPageState extends State<SupplierPage>
                     Icons.add,
                     color: Colors.white,
                   ),
-                  onPressed: () {
-                    // Add supplier functionality here
-                  },
+                  onPressed: _showAddSupplierModal,
                 ),
               ],
             )
@@ -219,7 +250,7 @@ class _SupplierPageState extends State<SupplierPage>
               ),
               const SizedBox(width: 16),
               ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: _showAddSupplierModal,
                 icon: const Icon(Icons.add, color: Colors.white),
                 label: const Text(
                   'Add',
@@ -250,7 +281,7 @@ class _SupplierPageState extends State<SupplierPage>
 
   Widget _buildMobileListView() {
     return ListView.builder(
-      itemCount: 10, // Example data count
+      itemCount: 10,
       itemBuilder: (context, index) {
         return Column(
           children: [
@@ -262,24 +293,24 @@ class _SupplierPageState extends State<SupplierPage>
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              subtitle: Column(
+              subtitle: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Davao City',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
+                  SizedBox(height: 4),
+                  Text(
                     '092784162',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
+                  SizedBox(height: 4),
+                  Text(
                     'samsung@gmail.com',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
@@ -409,7 +440,7 @@ class _SupplierPageState extends State<SupplierPage>
                   padding: EdgeInsets.only(left: 75),
                   child: Center(
                     child: Text(
-                      'Update',
+                      'Action',
                       style: TextStyle(
                         fontFamily: 'NunitoSans',
                         fontWeight: FontWeight.w600,
@@ -462,7 +493,7 @@ class _SupplierPageState extends State<SupplierPage>
             SizedBox(
               width: 100,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: _showEditSupplierModal,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                 ),
@@ -479,7 +510,7 @@ class _SupplierPageState extends State<SupplierPage>
             SizedBox(
               width: 100,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: _showArchiveSupplierModal,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                 ),

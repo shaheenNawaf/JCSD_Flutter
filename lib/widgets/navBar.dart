@@ -33,7 +33,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
               color: Colors.white,
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
                 PopupMenuItem<String>(
-                  value: '/',
+                  value: '/home',
                   child: Text(
                     'Home',
                     style: TextStyle(
@@ -91,20 +91,25 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
             Row(
               children: [
                 NavItem(
-                    title: 'Home', route: '/', isActive: activePage == 'home'),
+                  title: 'Home',
+                  route: '/home',
+                  isActive: activePage == 'home' || activePage == 'HomeView',
+                ),
                 NavItem(
-                    title: 'Services',
-                    route: '/services',
-                    isActive: activePage == 'services'),
+                  title: 'Services',
+                  route: '/services',
+                  isActive: activePage == 'services',
+                ),
                 NavItem(
-                    title: 'About Us',
-                    route: '/about',
-                    isActive: activePage == 'about'),
+                  title: 'About Us',
+                  route: '/about',
+                  isActive: activePage == 'about',
+                ),
                 NavItem(
-                    title: activePage == 'register' ? 'Register' : 'Login',
-                    route: activePage == 'register' ? '/signup1' : '/login',
-                    isActive:
-                        activePage == 'login' || activePage == 'register'),
+                  title: activePage == 'register' ? 'Register' : 'Login',
+                  route: activePage == 'register' ? '/signup1' : '/login',
+                  isActive: activePage == 'login' || activePage == 'register',
+                ),
               ],
             ),
         ],
@@ -122,11 +127,12 @@ class NavItem extends StatelessWidget {
   final String route;
   final bool isActive;
 
-  const NavItem(
-      {super.key,
-      required this.title,
-      required this.route,
-      this.isActive = false});
+  const NavItem({
+    super.key,
+    required this.title,
+    required this.route,
+    this.isActive = false,
+  });
 
   @override
   Widget build(BuildContext context) {
