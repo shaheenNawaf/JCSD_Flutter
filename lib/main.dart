@@ -18,7 +18,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'JCSD',
-      initialRoute: '/bookings',
+      initialRoute: '/inventory',
       routes: {
         '/login': (context) => const Login(),
         '/signup1': (context) => const SignupPage1(),

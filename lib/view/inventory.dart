@@ -2,6 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jcsd_flutter/modals/additem.dart';
+import 'package:jcsd_flutter/modals/edititem.dart';
+import 'package:jcsd_flutter/modals/archiveitem.dart';
+import 'package:jcsd_flutter/modals/stockinitem.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 class InventoryPage extends StatefulWidget {
@@ -36,6 +40,46 @@ class _InventoryPageState extends State<InventoryPage>
 
   void _closeDrawer() {
     _animationController.reverse();
+  }
+
+  void _showAddItemModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AddItemModal();
+      },
+    );
+  }
+
+  void _showEditItemModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const EditItemModal();
+      },
+    );
+  }
+
+  void _showArchiveItemModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const ArchiveItemModal();
+      },
+    );
+  }
+
+  void _showStockInItemModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const StockInItemModal();
+      },
+    );
   }
 
   @override
@@ -73,9 +117,7 @@ class _InventoryPageState extends State<InventoryPage>
                     Icons.add,
                     color: Colors.white,
                   ),
-                  onPressed: () {
-                    // Add functionality here
-                  },
+                  onPressed: _showAddItemModal,
                 ),
               ],
             )
@@ -91,7 +133,7 @@ class _InventoryPageState extends State<InventoryPage>
           : null,
       onDrawerChanged: (isOpened) {
         if (!isOpened) {
-          _closeDrawer(); // Ensure dimming effect reverses when drawer is closed
+          _closeDrawer();
         }
       },
       body: Stack(
@@ -146,7 +188,6 @@ class _InventoryPageState extends State<InventoryPage>
               ),
             ],
           ),
-          // Dark overlay when drawer is open on mobile
           if (isMobile)
             AnimatedBuilder(
               animation: _animationController,
@@ -220,7 +261,27 @@ class _InventoryPageState extends State<InventoryPage>
               ),
               const SizedBox(width: 16),
               ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: _showStockInItemModal,
+                icon: const Icon(Icons.inventory, color: Colors.white),
+                label: const Text(
+                  'Stock In',
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00AEEF),
+                  minimumSize: const Size(0, 48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              ElevatedButton.icon(
+                onPressed: _showAddItemModal,
                 icon: const Icon(Icons.add, color: Colors.white),
                 label: const Text(
                   'Add',
@@ -251,7 +312,7 @@ class _InventoryPageState extends State<InventoryPage>
 
   Widget _buildMobileListView() {
     return ListView.builder(
-      itemCount: 10, // Example data count
+      itemCount: 10,
       itemBuilder: (context, index) {
         return Column(
           children: [
@@ -286,10 +347,10 @@ class _InventoryPageState extends State<InventoryPage>
                   ),
                 ],
               ),
-              trailing: Column(
+              trailing: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: const [
+                children: [
                   Text(
                     '0126546',
                     style: TextStyle(
@@ -333,7 +394,7 @@ class _InventoryPageState extends State<InventoryPage>
       child: ListView(
         children: [
           DataTable(
-            headingRowColor: WidgetStateProperty.all(
+            headingRowColor: MaterialStateProperty.all(
               const Color(0xFF00AEEF),
             ),
             columns: const [
@@ -470,7 +531,7 @@ class _InventoryPageState extends State<InventoryPage>
   DataRow _buildDataRow(String id, String name, String type, String supplier,
       String quantity, String price, Color quantityColor) {
     return DataRow(
-      color: WidgetStateProperty.all(Colors.white),
+      color: MaterialStateProperty.all(Colors.white),
       cells: [
         DataCell(Align(
           alignment: Alignment.centerLeft,
@@ -515,8 +576,6 @@ class _InventoryPageState extends State<InventoryPage>
             padding: const EdgeInsets.all(5),
             decoration: BoxDecoration(
               color: quantityColor,
-              // border: Border.all(
-              //     color: const Color.fromARGB(255, 225, 225, 225), width: 1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(
@@ -546,7 +605,7 @@ class _InventoryPageState extends State<InventoryPage>
               SizedBox(
                 width: 100,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _showEditItemModal,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                   ),
@@ -563,7 +622,7 @@ class _InventoryPageState extends State<InventoryPage>
               SizedBox(
                 width: 100,
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: _showArchiveItemModal,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                   ),
