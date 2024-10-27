@@ -1,14 +1,22 @@
+//Imports
 import 'package:flutter/material.dart';
-import 'package:jcsd_flutter/view/login.dart';
-import 'package:jcsd_flutter/view/signup_first.dart';
-import 'package:jcsd_flutter/view/signup_second.dart';
-import 'package:jcsd_flutter/view/inventory.dart';
-import 'package:jcsd_flutter/view/bookings.dart';
-import 'package:jcsd_flutter/view/suppliers.dart';
+import 'package:jcsd_flutter/global_variables.dart'; //Stored  
 
-void main() {
+//Pages for routine
+import 'package:jcsd_flutter/view/users/login.dart';
+import 'package:jcsd_flutter/view/generic/signup_first.dart';
+import 'package:jcsd_flutter/view/generic/signup_second.dart';
+import 'package:jcsd_flutter/view/employee/inventory.dart';
+import 'package:jcsd_flutter/view/employee/bookings.dart';
+import 'package:jcsd_flutter/view/employee/suppliers.dart';
+
+
+void main() async {
+  supabase_init(); //Initializing Supabase
   runApp(const MainApp());
 }
+
+
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
