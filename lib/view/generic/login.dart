@@ -174,7 +174,10 @@ class _LoginState extends State<Login> {
                                         borderRadius: BorderRadius.circular(5),
                                       ),
                                     ),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.pushNamed(
+                                          context, '/inventory');
+                                    },
                                     child: const Text(
                                       'Login',
                                       style: TextStyle(

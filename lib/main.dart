@@ -1,6 +1,8 @@
 //Imports
 import 'package:flutter/material.dart';
-import 'package:jcsd_flutter/global_variables.dart'; //Stored  
+import 'package:jcsd_flutter/view/error.dart';
+import 'package:jcsd_flutter/view/generic/homeView.dart';
+import 'package:jcsd_flutter/global_variables.dart';
 
 //Pages for routine
 import 'package:jcsd_flutter/view/users/login.dart';
@@ -11,13 +13,10 @@ import 'package:jcsd_flutter/view/employee/bookings.dart';
 import 'package:jcsd_flutter/view/employee/suppliers.dart';
 import 'package:jcsd_flutter/view/generic/homeView.dart';
 
-
 void main() async {
-  supabase_init(); //Initializing Supabase
+  supabase_init();
   runApp(const MainApp());
 }
-
-
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -27,15 +26,16 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'JCSD',
-      initialRoute: '/',
+      initialRoute: '/home',
       routes: {
-        '/': (context) => const HomeView(),
+        '/home': (context) => const HomeView(),
         '/login': (context) => const Login(),
         '/signup1': (context) => const SignupPage1(),
         '/signup2': (context) => const SignupPage2(),
         '/inventory': (context) => const InventoryPage(),
         '/bookings': (context) => const BookingsPage(),
         '/suppliers': (context) => const SupplierPage(),
+        '/error': (context) => const ErrorPage(),
       },
     );
   }
