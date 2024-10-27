@@ -39,7 +39,7 @@ class HomeView extends StatelessWidget {
           Row(
             children: List.generate(
                 5,
-                (index) => Icon(Icons.star,
+                (index) => const Icon(Icons.star,
                     color: Color.fromARGB(255, 0, 174, 239), size: 20)),
           ),
           Text(review,
@@ -50,7 +50,7 @@ class HomeView extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: Navbar(),
+      appBar: const Navbar(),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -61,7 +61,7 @@ class HomeView extends StatelessWidget {
                   width: size.width,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage('assets/images/background.png'),
+                      image: const AssetImage('assets/images/background.png'),
                       fit: BoxFit.cover,
                       colorFilter: ColorFilter.mode(
                           Colors.black.withOpacity(0.6), BlendMode.darken),
@@ -69,7 +69,7 @@ class HomeView extends StatelessWidget {
                   ),
                 ),
                 Center(
-                  child: Container(
+                  child: SizedBox(
                     height: size.height * .9,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

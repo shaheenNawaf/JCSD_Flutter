@@ -9,6 +9,7 @@ import 'package:jcsd_flutter/view/generic/signup_second.dart';
 import 'package:jcsd_flutter/view/employee/inventory.dart';
 import 'package:jcsd_flutter/view/employee/bookings.dart';
 import 'package:jcsd_flutter/view/employee/suppliers.dart';
+import 'package:jcsd_flutter/view/generic/homeView.dart';
 
 
 void main() async {
@@ -26,8 +27,9 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'JCSD',
-      initialRoute: '/inventory',
+      initialRoute: '/',
       routes: {
+        '/': (context) => const HomeView(),
         '/login': (context) => const Login(),
         '/signup1': (context) => const SignupPage1(),
         '/signup2': (context) => const SignupPage2(),

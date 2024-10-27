@@ -250,10 +250,10 @@ class _BookingsPageState extends State<BookingsPage>
     return ListView.builder(
       itemCount: 1, // Example data count
       itemBuilder: (context, index) {
-        return Column(
+        return const Column(
           children: [
             ListTile(
-              title: const Text(
+              title: Text(
                 'Shaheen Al Adwani',
                 style: TextStyle(
                   fontFamily: 'NunitoSans',
@@ -263,20 +263,20 @@ class _BookingsPageState extends State<BookingsPage>
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     '01/12/2024',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                     ),
                   ),
-                  const Text(
+                  Text(
                     '10:00 AM',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
+                  SizedBox(height: 4),
+                  Text(
                     'Computer Repair - In-Store Service',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
@@ -287,7 +287,7 @@ class _BookingsPageState extends State<BookingsPage>
               trailing: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
-                children: const [
+                children: [
                   Text(
                     '000001',
                     style: TextStyle(
@@ -303,7 +303,7 @@ class _BookingsPageState extends State<BookingsPage>
                 ],
               ),
             ),
-            const Divider(
+            Divider(
               thickness: 1,
               height: 1,
               color: Colors.grey,
@@ -331,7 +331,7 @@ class _BookingsPageState extends State<BookingsPage>
       child: ListView(
         children: [
           DataTable(
-            headingRowColor: MaterialStateProperty.all(
+            headingRowColor: WidgetStateProperty.all(
               const Color(0xFF00AEEF),
             ),
             columns: const [
@@ -464,7 +464,7 @@ class _BookingsPageState extends State<BookingsPage>
     String email,
   ) {
     return DataRow(
-      color: MaterialStateProperty.all(Colors.white),
+      color: WidgetStateProperty.all(Colors.white),
       cells: [
         DataCell(Text(id, overflow: TextOverflow.ellipsis)),
         DataCell(Text(name, overflow: TextOverflow.ellipsis)),

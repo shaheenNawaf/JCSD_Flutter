@@ -262,24 +262,24 @@ class _SupplierPageState extends State<SupplierPage>
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              subtitle: Column(
+              subtitle: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Davao City',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
+                  SizedBox(height: 4),
+                  Text(
                     '092784162',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  const Text(
+                  SizedBox(height: 4),
+                  Text(
                     'samsung@gmail.com',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',

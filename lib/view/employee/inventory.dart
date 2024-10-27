@@ -394,7 +394,7 @@ class _InventoryPageState extends State<InventoryPage>
       child: ListView(
         children: [
           DataTable(
-            headingRowColor: MaterialStateProperty.all(
+            headingRowColor: WidgetStateProperty.all(
               const Color(0xFF00AEEF),
             ),
             columns: const [
@@ -531,7 +531,7 @@ class _InventoryPageState extends State<InventoryPage>
   DataRow _buildDataRow(String id, String name, String type, String supplier,
       String quantity, String price, Color quantityColor) {
     return DataRow(
-      color: MaterialStateProperty.all(Colors.white),
+      color: WidgetStateProperty.all(Colors.white),
       cells: [
         DataCell(Align(
           alignment: Alignment.centerLeft,
