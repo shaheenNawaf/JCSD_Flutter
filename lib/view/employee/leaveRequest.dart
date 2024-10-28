@@ -168,13 +168,13 @@ class _LeaveRequestState extends State<LeaveRequest> with SingleTickerProviderSt
           VerticalDivider(width: 1, color: Colors.grey[300]),
           Expanded(child: Column(
             children: [
-              Row(
+              const Row(
                 children: [
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.fromLTRB(40, 20, 0, 0),
                     child: Text("Leave Request", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                   ),
-                  const Spacer(),
+                  Spacer(),
                 ],
               ),
               Expanded(
