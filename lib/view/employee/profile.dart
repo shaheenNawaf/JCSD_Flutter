@@ -182,7 +182,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                         backgroundColor: Colors.white,
                         side: const BorderSide(color: Colors.black),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12), // Rounded border
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         onPressed: () async {
@@ -205,6 +205,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                 ],
               ),
               Expanded(
+                  flex: 1,
                   child: GridView.builder(
                   padding: const EdgeInsets.fromLTRB(40, 20, 40, 0),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -264,6 +265,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                   ),
               ),
               Expanded(
+                flex: 5,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(40, 0, 40, 10),
                   child: Container(

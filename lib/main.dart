@@ -1,7 +1,6 @@
 //Imports
 import 'package:flutter/material.dart';
 import 'package:jcsd_flutter/view/error.dart';
-import 'package:jcsd_flutter/view/generic/homeView.dart';
 import 'package:jcsd_flutter/global_variables.dart';
 
 //Pages for routine
@@ -12,6 +11,8 @@ import 'package:jcsd_flutter/view/employee/inventory.dart';
 import 'package:jcsd_flutter/view/employee/bookings.dart';
 import 'package:jcsd_flutter/view/employee/suppliers.dart';
 import 'package:jcsd_flutter/view/generic/homeView.dart';
+import 'package:jcsd_flutter/view/employee/profile.dart';
+import 'package:jcsd_flutter/view/employee/leaveRequest.dart';
 
 void main() async {
   supabase_init();
@@ -26,7 +27,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'JCSD',
-      initialRoute: '/home',
+      initialRoute: '/leaveRequest',
       routes: {
         '/home': (context) => const HomeView(),
         '/login': (context) => const Login(),
@@ -35,6 +36,8 @@ class MainApp extends StatelessWidget {
         '/inventory': (context) => const InventoryPage(),
         '/bookings': (context) => const BookingsPage(),
         '/suppliers': (context) => const SupplierPage(),
+        '/profile': (context) => const ProfilePage(),
+        '/leaveRequest': (context) => const LeaveRequest(),
         '/error': (context) => const ErrorPage(),
       },
     );
