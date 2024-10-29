@@ -14,6 +14,7 @@ import 'package:jcsd_flutter/view/generic/homeView.dart';
 import 'package:jcsd_flutter/view/employee/profile.dart';
 import 'package:jcsd_flutter/view/employee/leaveRequest.dart';
 import 'package:jcsd_flutter/view/employee/bookingDetail.dart';
+import 'package:jcsd_flutter/view/employee/bookingReceipt.dart';
 
 void main() async {
   supabase_init();
@@ -28,7 +29,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'JCSD',
-      initialRoute: '/bookingDetail',
+      initialRoute: '/bookingReceipt',
       routes: {
         '/home': (context) => const HomeView(),
         '/login': (context) => const Login(),
@@ -40,6 +41,7 @@ class MainApp extends StatelessWidget {
         '/profile': (context) => const ProfilePage(),
         '/leaveRequest': (context) => const LeaveRequest(),
         '/bookingDetail': (context) => const BookingDetails(),
+        '/bookingReceipt': (context) => const BookingReceipt(),
         '/error': (context) => const ErrorPage(),
       },
     );

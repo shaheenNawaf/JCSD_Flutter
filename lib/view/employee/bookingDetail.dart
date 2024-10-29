@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jcsd_flutter/modals/additemlist.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 class BookingDetails extends StatefulWidget {
@@ -29,6 +30,16 @@ class _BookingDetailsState extends State<BookingDetails> with SingleTickerProvid
 
   void _toggleDrawer(bool isOpen) {
     isOpen ? _animationController.forward() : _animationController.reverse();
+  }
+
+  void _showAddItemListModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AddItemListModal();
+      },
+    );
   }
 
   @override
@@ -128,7 +139,6 @@ class _BookingDetailsState extends State<BookingDetails> with SingleTickerProvid
       child: Column(
         children: [
           Expanded(
-            flex: 2,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -195,7 +205,6 @@ class _BookingDetailsState extends State<BookingDetails> with SingleTickerProvid
           ),
           const SizedBox(height: 20),
           Expanded(
-            flex: 1,
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -255,12 +264,26 @@ class _BookingDetailsState extends State<BookingDetails> with SingleTickerProvid
                         Text('P200',style: TextStyle(fontWeight: FontWeight.w600),),
                       ],
                     ),
-                    Spacer(),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('Additional Items',style: TextStyle(fontWeight: FontWeight.w600),),
-                        Text('P200',style: TextStyle(fontWeight: FontWeight.w600),),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              _showAddItemListModal();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                              backgroundColor: const Color(0xFF00AEEF),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
+                            child: const Text('Item List', style: TextStyle(fontWeight: FontWeight.w600)),
+                          ),
+                        ),
                       ],
                     ),
                     Row(
@@ -270,7 +293,7 @@ class _BookingDetailsState extends State<BookingDetails> with SingleTickerProvid
                           padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                           child: Text('Samsung SSD 500GB'),
                         ),
-                        Text('P200',style: TextStyle(fontWeight: FontWeight.w600),),
+                        Text('P200'),
                       ],
                     ),
                     Row(
@@ -280,7 +303,7 @@ class _BookingDetailsState extends State<BookingDetails> with SingleTickerProvid
                           padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                           child: Text('Samsung SSD 500GB'),
                         ),
-                        Text('P200',style: TextStyle(fontWeight: FontWeight.w600),),
+                        Text('P200'),
                       ],
                     ),
                     Row(
@@ -290,9 +313,10 @@ class _BookingDetailsState extends State<BookingDetails> with SingleTickerProvid
                           padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                           child: Text('Samsung SSD 500GB'),
                         ),
-                        Text('P200',style: TextStyle(fontWeight: FontWeight.w600),),
+                        Text('P200'),
                       ],
                     ),
+                    Spacer(),
                     Divider(
                       color: Colors.black,
                       thickness: 1,
