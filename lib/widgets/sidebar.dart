@@ -36,10 +36,10 @@ class Sidebar extends StatelessWidget {
                       SidebarItem(
                         icon: FontAwesomeIcons.chartLine,
                         title: 'Dashboard',
-                        route: '/',
+                        route: '/dashboard',
                         isActive: activePage == 'dashboard',
                         onTap: () {
-                          Navigator.pushNamed(context, '/');
+                          Navigator.pushNamed(context, '/dashboard');
                           onClose?.call();
                         },
                       ),
@@ -116,10 +116,10 @@ class Sidebar extends StatelessWidget {
                 SidebarItem(
                   icon: FontAwesomeIcons.chartLine,
                   title: 'Dashboard',
-                  route: '/',
+                  route: '/dashboard',
                   isActive: activePage == 'dashboard',
                   onTap: () {
-                    Navigator.pushNamed(context, '/');
+                    Navigator.pushNamed(context, '/dashboard');
                     onClose?.call();
                   },
                 ),
@@ -228,11 +228,13 @@ class _SidebarItemState extends State<SidebarItem> {
             : _isHovered
                 ? hoverColor
                 : Colors.transparent,
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+          contentPadding: const EdgeInsets.symmetric(vertical: 2.0),
           leading: FaIcon(
             widget.icon,
             color: Colors.white,
+            size: 20,
           ),
           title: Text(
             widget.title,

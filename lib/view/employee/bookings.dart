@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
@@ -65,17 +67,6 @@ class _BookingsPageState extends State<BookingsPage>
                   },
                 ),
               ),
-              actions: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.add,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    // Add functionality here
-                  },
-                ),
-              ],
             )
           : null,
       drawer: isMobile
@@ -195,7 +186,7 @@ class _BookingsPageState extends State<BookingsPage>
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
-                width: 250,
+                width: 350,
                 height: 40,
                 child: TextField(
                   decoration: InputDecoration(
@@ -215,26 +206,6 @@ class _BookingsPageState extends State<BookingsPage>
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
-              ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.add, color: Colors.white),
-                label: const Text(
-                  'Add',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00AEEF),
-                  minimumSize: const Size(0, 48),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -248,7 +219,7 @@ class _BookingsPageState extends State<BookingsPage>
 
   Widget _buildMobileListView() {
     return ListView.builder(
-      itemCount: 1, // Example data count
+      itemCount: 1,
       itemBuilder: (context, index) {
         return const Column(
           children: [
@@ -480,44 +451,24 @@ class _BookingsPageState extends State<BookingsPage>
         DataCell(Text(serviceType, overflow: TextOverflow.ellipsis)),
         DataCell(Text(serviceLocation, overflow: TextOverflow.ellipsis)),
         DataCell(Text(email, overflow: TextOverflow.ellipsis)),
-        DataCell(Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: 100,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
-                child: const Text(
-                  'Edit',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    color: Colors.white,
-                  ),
+        DataCell(
+          SizedBox(
+            width: 140,
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+              ),
+              child: const Text(
+                'View Details',
+                style: TextStyle(
+                  fontFamily: 'NunitoSans',
+                  color: Colors.white,
                 ),
               ),
             ),
-            const SizedBox(width: 4),
-            SizedBox(
-              width: 110,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
-                child: const Text(
-                  'Archive',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        )),
+          ),
+        ),
       ],
     );
   }

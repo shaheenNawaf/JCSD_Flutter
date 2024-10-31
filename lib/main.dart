@@ -1,5 +1,6 @@
 //Imports
 import 'package:flutter/material.dart';
+import 'package:jcsd_flutter/view/employee/dashboard.dart';
 import 'package:jcsd_flutter/view/employee/services.dart';
 import 'package:jcsd_flutter/view/generic/error.dart';
 import 'package:jcsd_flutter/global_variables.dart';
@@ -37,16 +38,17 @@ class MainApp extends StatelessWidget {
         '/login': (context) => const Login(),
         '/signup1': (context) => const SignupPage1(),
         '/signup2': (context) => const SignupPage2(),
+        '/error': (context) => const ErrorPage(),
+        '/dashboard': (context) => const DashboardPage(),
         '/inventory': (context) => const InventoryPage(),
-        '/bookings': (context) => const BookingsPage(),
         '/suppliers': (context) => const SupplierPage(),
+        '/bookings': (context) => const BookingsPage(),
         '/services': (context) => const ServicesPage(),
         '/profile': (context) => const ProfilePage(),
         '/leaveRequest': (context) => const LeaveRequest(),
         '/bookingDetail': (context) => const BookingDetails(),
         '/bookingReceipt': (context) => const BookingReceipt(),
         '/payslip': (context) => const Payslip(),
-        '/error': (context) => const ErrorPage(),
       },
     );
   }

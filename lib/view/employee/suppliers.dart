@@ -81,7 +81,7 @@ class _SupplierPageState extends State<SupplierPage>
           ? AppBar(
               backgroundColor: const Color(0xFF00AEEF),
               title: const Text(
-                'Supplier',
+                'Suppliers',
                 style: TextStyle(
                   fontFamily: 'NunitoSans',
                   fontWeight: FontWeight.bold,
@@ -142,7 +142,7 @@ class _SupplierPageState extends State<SupplierPage>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Supplier',
+                              'Suppliers',
                               style: TextStyle(
                                 fontFamily: 'NunitoSans',
                                 fontWeight: FontWeight.bold,
