@@ -114,10 +114,16 @@ class _Header extends StatelessWidget {
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: const Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
+          IconButton(
+            icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: Color(0xFF00AEEF)),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+          const Text(
             'Booking Receipt',
             style: TextStyle(
               fontFamily: 'NunitoSans',
@@ -126,9 +132,21 @@ class _Header extends StatelessWidget {
               fontSize: 20,
             ),
           ),
-          CircleAvatar(
-            radius: 20,
-            backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
+          const Spacer(),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
+            },
+            style: ElevatedButton.styleFrom(
+              shape: const CircleBorder(),
+              padding: const EdgeInsets.all(8),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+            ),
+            child: const CircleAvatar(
+              radius: 20,
+              backgroundImage: AssetImage('assets/avatars/cat2.jpg'), // Replace with your image source
+            ),
           ),
         ],
       ),

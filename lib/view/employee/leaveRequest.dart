@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jcsd_flutter/modals/addleaverequest.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 class LeaveRequest extends StatefulWidget {
@@ -25,6 +26,16 @@ class _LeaveRequestState extends State<LeaveRequest> with SingleTickerProviderSt
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  void _showAddItemListModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return LeaveRequestForm();
+      },
+    );
   }
 
   void _toggleDrawer(bool isOpen) {
@@ -78,10 +89,16 @@ class _LeaveRequestState extends State<LeaveRequest> with SingleTickerProviderSt
                       Container(
                         color: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            IconButton(
+                              icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: Color(0xFF00AEEF)),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                            const Text(
                               'Leave Requests',
                               style: TextStyle(
                                 fontFamily: 'NunitoSans',
@@ -90,9 +107,21 @@ class _LeaveRequestState extends State<LeaveRequest> with SingleTickerProviderSt
                                 fontSize: 20,
                               ),
                             ),
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
+                            const Spacer(),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                shape: const CircleBorder(),
+                                padding: const EdgeInsets.all(8),
+                                backgroundColor: Colors.transparent,
+                                elevation: 0,
+                              ),
+                              child: const CircleAvatar(
+                                radius: 20,
+                                backgroundImage: AssetImage('assets/avatars/cat2.jpg'), // Replace with your image source
+                              ),
                             ),
                           ],
                         ),
@@ -226,7 +255,7 @@ class _LeaveRequestState extends State<LeaveRequest> with SingleTickerProviderSt
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Notes', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
+                                const Text('Notes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
                                 Text(notes[index]),
                               ],
                             ),
@@ -277,7 +306,7 @@ class _LeaveRequestState extends State<LeaveRequest> with SingleTickerProviderSt
                         ),
                       ),
                       onPressed: () {
-                        // Navigate to Leave Requests page
+                        _showAddItemListModal();         
                       },
                       icon: const FaIcon(FontAwesomeIcons.suitcaseRolling),
                       label: const Text('Request for Leave'),
@@ -353,3 +382,4 @@ class _LeaveRequestState extends State<LeaveRequest> with SingleTickerProviderSt
     return Divider(color: Colors.grey[300], indent: 40, endIndent: 40);
   }
 }
+
