@@ -93,19 +93,19 @@ class _AddItemListModalState extends State<AddItemListModal> {
                             },
                           ),
                           const SizedBox(height: 16),
-                          if (_selectedItemType != null )
+                          if (_selectedItemType != null)
                             Table(
                               border: TableBorder.all(color: Colors.grey),
                               columnWidths: const {
                                 0: FlexColumnWidth(1),
                                 1: FlexColumnWidth(2),
                               },
-                              children: [
-                                const TableRow(
-                                  decoration: const BoxDecoration(
+                              children: const [
+                                TableRow(
+                                  decoration: BoxDecoration(
                                     color: Color(0xFF00AEEF),
                                   ),
-                                  children: const [
+                                  children: [
                                     Padding(
                                       padding: EdgeInsets.all(8.0),
                                       child: Text(
@@ -154,7 +154,7 @@ class _AddItemListModalState extends State<AddItemListModal> {
                                 ),
                                 TableRow(
                                   children: [
-                                    const Padding(
+                                    Padding(
                                       padding: EdgeInsets.all(8.0),
                                       child: Text(
                                         'Samsung Galaxy S21',
@@ -164,10 +164,10 @@ class _AddItemListModalState extends State<AddItemListModal> {
                                       ),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.all(8.0),
+                                      padding: EdgeInsets.all(8.0),
                                       child: Text(
                                         'Samsung',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontFamily: 'NunitoSans',
                                         ),
                                       ),
@@ -182,10 +182,10 @@ class _AddItemListModalState extends State<AddItemListModal> {
                                       ),
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.all(8.0),
+                                      padding: EdgeInsets.all(8.0),
                                       child: Text(
                                         '20',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontFamily: 'NunitoSans',
                                         ),
                                       ),

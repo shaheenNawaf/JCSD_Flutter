@@ -1,6 +1,7 @@
 //Imports
 import 'package:flutter/material.dart';
-import 'package:jcsd_flutter/view/error.dart';
+import 'package:jcsd_flutter/view/employee/services.dart';
+import 'package:jcsd_flutter/view/generic/error.dart';
 import 'package:jcsd_flutter/global_variables.dart';
 
 //Pages for routine
@@ -46,6 +47,7 @@ class MainApp extends StatelessWidget {
         '/inventory': (context) => const InventoryPage(),
         '/bookings': (context) => const BookingsPage(),
         '/suppliers': (context) => const SupplierPage(),
+        '/services': (context) => const ServicesPage(),
         '/profile': (context) => const ProfilePage(),
         '/leaveRequest': (context) => const LeaveRequest(),
         '/bookingDetail': (context) => const BookingDetails(),

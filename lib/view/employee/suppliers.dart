@@ -508,14 +508,14 @@ class _SupplierPageState extends State<SupplierPage>
             ),
             const SizedBox(width: 4),
             SizedBox(
-              width: 100,
+              width: 110,
               child: ElevatedButton(
                 onPressed: _showArchiveSupplierModal,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                 ),
                 child: const Text(
-                  'Delete',
+                  'Archive',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     color: Colors.white,

@@ -87,8 +87,7 @@ class Sidebar extends StatelessWidget {
                   ),
                 ),
                 _buildLogoutButton(context),
-                const SizedBox(
-                    height: 16), // Add spacing below the logout button
+                const SizedBox(height: 16),
               ],
             ),
           );
@@ -168,7 +167,7 @@ class Sidebar extends StatelessWidget {
             ),
           ),
           _buildLogoutButton(context),
-          const SizedBox(height: 16), // Add spacing below the logout button
+          const SizedBox(height: 16),
         ],
       ),
     );
