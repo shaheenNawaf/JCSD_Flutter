@@ -89,10 +89,16 @@ class _BookingDetailsState extends State<BookingDetails> with SingleTickerProvid
                       Container(
                         color: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            IconButton(
+                              icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: Color(0xFF00AEEF)),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                            const Text(
                               'Booking Details',
                               style: TextStyle(
                                 fontFamily: 'NunitoSans',
@@ -101,9 +107,21 @@ class _BookingDetailsState extends State<BookingDetails> with SingleTickerProvid
                                 fontSize: 20,
                               ),
                             ),
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
+                            const Spacer(),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                shape: const CircleBorder(),
+                                padding: const EdgeInsets.all(8),
+                                backgroundColor: Colors.transparent,
+                                elevation: 0,
+                              ),
+                              child: const CircleAvatar(
+                                radius: 20,
+                                backgroundImage: AssetImage('assets/avatars/cat2.jpg'), // Replace with your image source
+                              ),
                             ),
                           ],
                         ),
@@ -234,9 +252,11 @@ class _BookingDetailsState extends State<BookingDetails> with SingleTickerProvid
                             'Order Summary',
                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                           ),
-                          Spacer(),
+                          const Spacer(),
                             ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () async {
+                              Navigator.pushNamed(context, '/bookingReceipt');
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Color(0xFF00AEEF),
                               foregroundColor: Colors.white,
@@ -244,20 +264,20 @@ class _BookingDetailsState extends State<BookingDetails> with SingleTickerProvid
                               borderRadius: BorderRadius.circular(5),
                               ),
                             ),
-                            child: Text('View Receipt'),
+                            child: const Text('View Receipt'),
                             ),
                         ],
                       ),
                     ),
-                    Spacer(),
-                    Row(
+                    const Spacer(),
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('Base Price',style: TextStyle(fontWeight: FontWeight.w600),),
                         Text('P200',style: TextStyle(fontWeight: FontWeight.w600),),
                       ],
                     ),
-                    Row(
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('Service Fee',style: TextStyle(fontWeight: FontWeight.w600),),
@@ -266,7 +286,7 @@ class _BookingDetailsState extends State<BookingDetails> with SingleTickerProvid
                     ),
                     Row(
                       children: [
-                        Text('Additional Items',style: TextStyle(fontWeight: FontWeight.w600),),
+                        const Text('Additional Items',style: TextStyle(fontWeight: FontWeight.w600),),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
                           child: ElevatedButton(
@@ -289,66 +309,93 @@ class _BookingDetailsState extends State<BookingDetails> with SingleTickerProvid
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
-                          child: Text('Samsung SSD 500GB'),
+                        IconButton(
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          padding: const EdgeInsets.fromLTRB(0, 2, 10, 0),
+                          constraints: const BoxConstraints(),
+                          icon: const FaIcon(FontAwesomeIcons.x, color: Colors.red, size: 15),
+                          
+                          onPressed: () {
+                          // Add your delete functionality here
+                          },
                         ),
-                        Text('P200'),
+                        const Text('Samsung SSD 500GB'),
+                        const Spacer(),
+                        const Text('P200'),
                       ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
-                          child: Text('Samsung SSD 500GB'),
+                        IconButton(
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          padding: const EdgeInsets.fromLTRB(0, 2, 10, 0),
+                          constraints: const BoxConstraints(),
+                          icon: const FaIcon(FontAwesomeIcons.x, color: Colors.red, size: 15),
+                          
+                          onPressed: () {
+                          // Add your delete functionality here
+                          },
                         ),
-                        Text('P200'),
+                        const Text('Samsung SSD 500GB'),
+                        const Spacer(),
+                        const Text('P200'),
                       ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
-                          child: Text('Samsung SSD 500GB'),
+                        IconButton(
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          padding: const EdgeInsets.fromLTRB(0, 2, 10, 0),
+                          constraints: const BoxConstraints(),
+                          icon: const FaIcon(FontAwesomeIcons.x, color: Colors.red, size: 15),
+                          
+                          onPressed: () {
+                          // Add your delete functionality here
+                          },
                         ),
-                        Text('P200'),
+                        const Text('Samsung SSD 500GB'),
+                        const Spacer(),
+                        const Text('P200'),
                       ],
                     ),
-                    Spacer(),
-                    Divider(
+                    const Spacer(),
+                    const Divider(
                       color: Colors.black,
                       thickness: 1,
 
                     ),
-                    Row(
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text('Total Price',style: TextStyle(fontWeight: FontWeight.w600)),
                         Text('P200',style: TextStyle(fontWeight: FontWeight.w600),),
                       ],
                     ),
-                    Spacer(),
+                    const Spacer(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('Status',style: TextStyle(fontWeight: FontWeight.w600)),
+                        const Text('Status',style: TextStyle(fontWeight: FontWeight.w600)),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(
-                            color: Colors.green, // Change to Colors.red for unpaid
+                            color: Colors.green,
                             width: 2,
                           ),
                           borderRadius: BorderRadius.circular(5),
                           ),
-                          child: Text(
-                          'Paid', // Change to 'Unpaid' for unpaid
+                          child: const Text(
+                          'Paid',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            color: Colors.green, // Change to Colors.red for unpaid
+                            color: Colors.green,
                           ),
                           ),
                         ),

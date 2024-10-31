@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 
 class Payslip extends StatefulWidget {
   const Payslip({super.key});
@@ -11,6 +12,7 @@ class Payslip extends StatefulWidget {
 
 class _PayslipState extends State<Payslip> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -78,10 +80,16 @@ class _PayslipState extends State<Payslip> with SingleTickerProviderStateMixin {
                       Container(
                         color: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            IconButton(
+                              icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: Color(0xFF00AEEF)),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                            const Text(
                               'Payslip',
                               style: TextStyle(
                                 fontFamily: 'NunitoSans',
@@ -90,9 +98,21 @@ class _PayslipState extends State<Payslip> with SingleTickerProviderStateMixin {
                                 fontSize: 20,
                               ),
                             ),
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
+                            const Spacer(),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                shape: const CircleBorder(),
+                                padding: const EdgeInsets.all(8),
+                                backgroundColor: Colors.transparent,
+                                elevation: 0,
+                              ),
+                              child: const CircleAvatar(
+                                radius: 20,
+                                backgroundImage: AssetImage('assets/avatars/cat2.jpg'), // Replace with your image source
+                              ),
                             ),
                           ],
                         ),
@@ -168,7 +188,46 @@ class _PayslipState extends State<Payslip> with SingleTickerProviderStateMixin {
           VerticalDivider(width: 1, color: Colors.grey[300]),
           Expanded(child: Column(
             children: [
-              PayslipHeader(),
+              Row(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(40, 20, 0, 0),
+                    child: Text("Payslip", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                  ),
+                  const Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 20, 40, 0),
+                    child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    side: const BorderSide(color: Colors.black),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () async {
+                      DateTime? pickedDate = await showMonthPicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2101),
+                      );
+                      
+                      if (pickedDate != null) {
+                        setState(() {
+                          selectedDate = pickedDate;
+                        });
+                      }
+                    },
+                    icon: const FaIcon(FontAwesomeIcons.calendar, color: Colors.black), 
+                    label: Text(
+                    '${selectedDate.month}/${selectedDate.year}',
+                    style: const TextStyle(color: Colors.black),
+                    ),
+                  ),
+                  ),
+                ],
+              ),
               Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
               const PayslipRow(label: 'Total Income: ', value: 'P20,000', isBold: true),
               const PayslipRow(label: 'Salary: ', value: 'P20,000'),
@@ -253,49 +312,6 @@ class _PayslipState extends State<Payslip> with SingleTickerProviderStateMixin {
   }
 }
 
-
-class PayslipHeader extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(40, 20, 0, 0),
-          child: Text("Payslip", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-        ),
-        const Spacer(),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(0, 20, 40, 0),
-          child: ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              side: const BorderSide(color: Colors.black),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            onPressed: () async {
-              DateTime? pickedDate = await showDatePicker(
-                context: context,
-                initialDate: DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2101),
-              );
-              if (pickedDate != null) {
-                // Handle date selection
-              }
-            },
-            icon: const FaIcon(FontAwesomeIcons.calendar, color: Colors.black),
-            label: const Text(
-              'January 2020',
-              style: TextStyle(color: Colors.black),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 class PayslipRow extends StatelessWidget {
   final String label;

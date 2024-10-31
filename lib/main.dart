@@ -33,6 +33,13 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'JCSD',
       initialRoute: '/payslip',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF00AEEF),
+          primary: const Color(0xFF00AEEF),
+          secondary: const Color(0xFF00AEEF),
+        ),
+      ),
       routes: {
         '/home': (context) => const HomeView(),
         '/login': (context) => const Login(),

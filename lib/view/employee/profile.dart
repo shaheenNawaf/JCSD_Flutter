@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -11,6 +12,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -78,10 +80,10 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                       Container(
                         color: Colors.white,
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        child: const Row(
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
+                            const Text(
                               'Profile',
                               style: TextStyle(
                                 fontFamily: 'NunitoSans',
@@ -90,9 +92,20 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                                 fontSize: 20,
                               ),
                             ),
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                shape: const CircleBorder(),
+                                padding: const EdgeInsets.all(8),
+                                backgroundColor: Colors.transparent,
+                                elevation: 0,
+                              ),
+                              child: const CircleAvatar(
+                                radius: 20,
+                                backgroundImage: AssetImage('assets/avatars/cat2.jpg'), // Replace with your image source
+                              ),
                             ),
                           ],
                         ),
@@ -186,19 +199,23 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                           ),
                         ),
                         onPressed: () async {
-                          DateTime? pickedDate = await showDatePicker(
+                          DateTime? pickedDate = await showMonthPicker(
                             context: context,
                             initialDate: DateTime.now(),
                             firstDate: DateTime(2000),
                             lastDate: DateTime(2101),
                           );
+                          
                           if (pickedDate != null) {
+                            setState(() {
+                              selectedDate = pickedDate;
+                            });
                           }
                         },
                         icon: const FaIcon(FontAwesomeIcons.calendar, color: Colors.black), 
-                        label: const Text(
-                        'January 2020 - February 2020',
-                        style: TextStyle(color: Colors.black),
+                        label: Text(
+                        '${selectedDate.month}/${selectedDate.year}',
+                        style: const TextStyle(color: Colors.black),
                         ),
                       ),
                   ),
@@ -398,7 +415,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                         ),
                       ),
                       onPressed: () {
-                        // Navigate to Payslips page
+                        Navigator.pushNamed(context, '/payslip');
                       },
                       icon: const FaIcon(FontAwesomeIcons.fileInvoiceDollar),
                       label: const Text('Payslips'),
@@ -414,7 +431,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                         ),
                       ),
                       onPressed: () {
-                        // Navigate to Leave Requests page
+                        Navigator.pushNamed(context, '/leaveRequest');
                       },
                       icon: const FaIcon(FontAwesomeIcons.suitcaseRolling),
                       label: const Text('Leave Requests'),
