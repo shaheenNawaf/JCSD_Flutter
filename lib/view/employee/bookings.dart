@@ -501,14 +501,14 @@ class _BookingsPageState extends State<BookingsPage>
             ),
             const SizedBox(width: 4),
             SizedBox(
-              width: 100,
+              width: 110,
               child: ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                 ),
                 child: const Text(
-                  'Delete',
+                  'Archive',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     color: Colors.white,
