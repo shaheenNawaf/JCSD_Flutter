@@ -18,6 +18,8 @@ import 'package:jcsd_flutter/view/employee/leaveRequest.dart';
 import 'package:jcsd_flutter/view/employee/bookingDetail.dart';
 import 'package:jcsd_flutter/view/employee/bookingReceipt.dart';
 import 'package:jcsd_flutter/view/employee/payslip.dart';
+import 'package:jcsd_flutter/view/admin/accountlist.dart';
+import 'package:jcsd_flutter/view/admin/employeelist.dart';
 
 void main() async {
   supabase_init();
@@ -56,6 +58,8 @@ class MainApp extends StatelessWidget {
         '/bookingDetail': (context) => const BookingDetails(),
         '/bookingReceipt': (context) => const BookingReceipt(),
         '/payslip': (context) => const Payslip(),
+        '/employeeList': (context) => const EmployeeListPage(),
+        '/accountList': (context) => const AccountListPage(),
       },
     );
   }

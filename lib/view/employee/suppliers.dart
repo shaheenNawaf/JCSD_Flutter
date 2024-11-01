@@ -437,7 +437,7 @@ class _SupplierPageState extends State<SupplierPage>
               ),
               DataColumn(
                 label: Padding(
-                  padding: EdgeInsets.only(left: 75),
+                  padding: EdgeInsets.only(left: 80),
                   child: Center(
                     child: Text(
                       'Action',

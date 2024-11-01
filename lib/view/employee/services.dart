@@ -365,13 +365,17 @@ class _ServicesPageState extends State<ServicesPage>
                 ),
               ),
               DataColumn(
-                label: Center(
-                  child: Text(
-                    'Action',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                label: Padding(
+                  padding: EdgeInsets.only(left: 60),
+                  child: Center(
+                    child: Text(
+                      'Action',
+                      style: TextStyle(
+                        fontFamily: 'NunitoSans',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
