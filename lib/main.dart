@@ -20,6 +20,9 @@ import 'package:jcsd_flutter/view/employee/bookingReceipt.dart';
 import 'package:jcsd_flutter/view/employee/payslip.dart';
 import 'package:jcsd_flutter/view/admin/accountlist.dart';
 import 'package:jcsd_flutter/view/admin/employeelist.dart';
+import 'package:jcsd_flutter/view/admin/bookingcalendar.dart';
+import 'package:jcsd_flutter/view/client/booking_first.dart';
+import 'package:jcsd_flutter/view/client/booking_second.dart';
 
 void main() async {
   supabase_init();
@@ -42,12 +45,28 @@ class MainApp extends StatelessWidget {
           secondary: const Color(0xFF00AEEF),
         ),
       ),
+
+      /* Will still need to finalize the segregation of routes but for now
+      segregation here is just based on location of files*/
+
       routes: {
+        //Generic
         '/home': (context) => const HomeView(),
         '/login': (context) => const Login(),
         '/signup1': (context) => const SignupPage1(),
         '/signup2': (context) => const SignupPage2(),
         '/error': (context) => const ErrorPage(),
+
+        //Admin View
+        '/accountList': (context) => const AccountListPage(),
+        '/bookingCalendar': (context) => const BookingCalendarPage(),
+        '/employeeList': (context) => const EmployeeListPage(),
+
+        //Client View
+        '/booking1': (context) => const ClientBooking1(),
+        '/booking2': (context) => const ClientBooking2(),
+
+        //Employee View
         '/dashboard': (context) => const DashboardPage(),
         '/inventory': (context) => const InventoryPage(),
         '/suppliers': (context) => const SupplierPage(),
@@ -58,8 +77,6 @@ class MainApp extends StatelessWidget {
         '/bookingDetail': (context) => const BookingDetails(),
         '/bookingReceipt': (context) => const BookingReceipt(),
         '/payslip': (context) => const Payslip(),
-        '/employeeList': (context) => const EmployeeListPage(),
-        '/accountList': (context) => const AccountListPage(),
       },
     );
   }
