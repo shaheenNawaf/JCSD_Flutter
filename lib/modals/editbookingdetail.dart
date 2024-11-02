@@ -1,54 +1,29 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+// ignore_for_file: library_private_types_in_public_api
 
-class AddItemListModal extends StatefulWidget {
-  const AddItemListModal({super.key});
+import 'package:flutter/material.dart';
+
+class EditBookingModal extends StatefulWidget {
+  const EditBookingModal({super.key});
 
   @override
-  _AddItemListModalState createState() => _AddItemListModalState();
+  _EditBookingModalState createState() => _EditBookingModalState();
 }
 
-class _AddItemListModalState extends State<AddItemListModal> {
-  String? _selectedItem;
-  final TextEditingController _priceController = TextEditingController();
+class _EditBookingModalState extends State<EditBookingModal> {
+  String? _selectedEmployee;
 
-  // Dummy data for dropdowns, insert data from backend
-  final List<String> _itemTypes = [
-    'Samsung 1',
-    'Monitor',
-    'Processor',
-    'Nut'
+  // Dummy data for dropdowns; replace with actual employee data from backend
+  final List<String> _employees = [
+    'Employee A',
+    'Employee B',
+    'Employee C',
   ];
-  final List<String> _itemSuppliers = [
-    'Samsung 1',
-    'Amd',
-    'Intel',
-    'Peanut'
-  ];
-  final List<String> _itemPrice = [
-    'P2,000',
-    'P12,000',
-    'P1,000',
-    'P500'
-  ];
-  final List<String> _itemStock = [
-    '250',
-    '50',
-    '30',
-    '15'
-  ];
-
-  @override
-  void dispose() {
-    _priceController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 700 : screenWidth * 0.9;
-    const double containerHeight = 230;
+    const double containerHeight = 380;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -77,7 +52,7 @@ class _AddItemListModalState extends State<AddItemListModal> {
               ),
               child: const Center(
                 child: Text(
-                  'Item List',
+                  'Booking Details',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontWeight: FontWeight.bold,
@@ -94,24 +69,60 @@ class _AddItemListModalState extends State<AddItemListModal> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      flex: 4,
-                      child: _buildDropdownField(
-                        label: 'Item',
-                        hintText: 'Select item',
-                        value: _selectedItem,
-                        items: _itemTypes,
-                        suppliers: _itemSuppliers,
-                        price: _itemPrice,
-                        stock: _itemStock,
-                        onChanged: (String? value) {
-                          setState(() {
-                            _selectedItem = value;
-                          });
-                        },
+                      flex: 1,
+                      child: Column(
+                        children: [
+                          _buildTextField(
+                            label: 'Booking ID',
+                            hintText: '000001',
+                            enabled: false,
+                          ),
+                          const SizedBox(height: 8),
+                          _buildTextField(
+                            label: 'Customer Name',
+                            hintText: 'Shaheen Al Adwani',
+                            enabled: false,
+                          ),
+                          const SizedBox(height: 8),
+                          _buildTextField(
+                            label: 'Date & Time Booked',
+                            hintText: '01/12/2024 - 10:00 AM',
+                            enabled: false,
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 10,),
-                    Expanded(flex: 1, child: _buildQuantityField())
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        children: [
+                          _buildTextField(
+                            label: 'Service Type',
+                            hintText: 'Computer Repair',
+                            enabled: false,
+                          ),
+                          const SizedBox(height: 8),
+                          _buildTextField(
+                            label: 'Service Location',
+                            hintText: 'In-Store Service',
+                            enabled: false,
+                          ),
+                          const SizedBox(height: 8),
+                          _buildDropdownField(
+                            label: 'Assigned Employee',
+                            hintText: 'Select Employee',
+                            value: _selectedEmployee,
+                            items: _employees,
+                            onChanged: (String? value) {
+                              setState(() {
+                                _selectedEmployee = value;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -158,7 +169,7 @@ class _AddItemListModalState extends State<AddItemListModal> {
                         ),
                       ),
                       child: const Text(
-                        'Submit',
+                        'Save',
                         style: TextStyle(
                           fontFamily: 'NunitoSans',
                           fontWeight: FontWeight.bold,
@@ -176,15 +187,45 @@ class _AddItemListModalState extends State<AddItemListModal> {
     );
   }
 
+  Widget _buildTextField({
+    required String label,
+    required String hintText,
+    bool enabled = true,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'NunitoSans',
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+        const SizedBox(height: 5),
+        TextField(
+          enabled: enabled,
+          decoration: InputDecoration(
+            hintText: hintText,
+            border: const OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.black),
+            ),
+            hintStyle: const TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w300,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   Widget _buildDropdownField({
     required String label,
     required String hintText,
     required String? value,
     required List<String> items,
-    required List<String> suppliers,
-    required List<String> price,
-    required List<String> stock,
     required ValueChanged<String?> onChanged,
   }) {
     return Column(
@@ -221,120 +262,26 @@ class _AddItemListModalState extends State<AddItemListModal> {
             ),
           ),
           decoration: const InputDecoration(
-            border: OutlineInputBorder(),
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.black),
+            ),
           ),
           icon: const Icon(Icons.arrow_drop_down),
           dropdownColor: Colors.white,
-          items: items.asMap().entries.map((entry) {
-            int idx = entry.key;
-            String item = entry.value;
+          items: items.map((String item) {
             return DropdownMenuItem<String>(
               value: item,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        item,
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w300,
-                          fontSize: 12,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        price[idx],
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w300,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        suppliers[idx],
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w300,
-                          fontSize: 9,
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        'In Stock: ${stock[idx]}',
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w300,
-                          fontSize: 9,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-          onChanged: onChanged,
-          selectedItemBuilder: (BuildContext context) {
-            return items.map((String item) {
-              return Text(
+              child: Text(
                 item,
                 style: const TextStyle(
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.w300,
                   fontSize: 12,
                 ),
-              );
-            }).toList();
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildQuantityField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Row(
-          children: [
-            Text(
-              'Quantity',
-              style: TextStyle(
-                fontFamily: 'NunitoSans',
-                fontWeight: FontWeight.normal,
               ),
-            ),
-            Text(
-              '*',
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 5),
-        TextField(
-          controller: _priceController,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-          ],
-          decoration: const InputDecoration(
-            hintText: 'Enter Quantity',
-            border: OutlineInputBorder(),
-            hintStyle: TextStyle(
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w300,
-              fontSize: 12,
-            ),
-          ),
+            );
+          }).toList(),
+          onChanged: onChanged,
         ),
       ],
     );
