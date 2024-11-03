@@ -1,7 +1,5 @@
 //Base imports
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:jcsd_flutter/api/global_variables.dart';
 
 //Page Imports
 import 'package:jcsd_flutter/modals/edititem.dart';

@@ -37,7 +37,7 @@ class _BookingDetailsState extends State<BookingDetails> with SingleTickerProvid
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return AddItemListModal();
+        return const AddItemListModal();
       },
     );
   }
@@ -258,7 +258,7 @@ class _BookingDetailsState extends State<BookingDetails> with SingleTickerProvid
                               Navigator.pushNamed(context, '/bookingReceipt');
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF00AEEF),
+                              backgroundColor: const Color(0xFF00AEEF),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(5),

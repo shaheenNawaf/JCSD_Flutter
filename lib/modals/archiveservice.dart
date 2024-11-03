@@ -29,7 +29,7 @@ class ArchiveServiceModal extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               'Archive Service',
               style: TextStyle(
                 fontFamily: 'NunitoSans',
@@ -42,7 +42,7 @@ class ArchiveServiceModal extends StatelessWidget {
             Text(
               'Are you sure you want to archive "$serviceName"?',
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontFamily: 'NunitoSans',
                 fontWeight: FontWeight.normal,
                 fontSize: 16,

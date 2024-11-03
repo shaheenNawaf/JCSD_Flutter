@@ -8,18 +8,18 @@ class InventoryData {
   final String itemDescription;
   final String itemQuantity;
   final String itemPrice;
-  final bool isHidden;
+  final String isVisible;
 
   //Ensuring that every time this is referenced, there is complete data
   InventoryData({
     required this.itemID,
-    required this.supplierID,
+    required this.supplierID, 
     required this.itemName,
     required this.itemType,
     required this.itemDescription,
     required this.itemQuantity,
     required this.itemPrice,
-    required this.isHidden,
+    required this.isVisible,
   });
 
   //JSON to Inventory classitem
@@ -32,7 +32,7 @@ class InventoryData {
       itemDescription: json['itemDescription'] as String, 
       itemQuantity: json['itemQuantity'] as String, 
       itemPrice: json['itemPrice'] as String, 
-      isHidden: json['isHidden'],
+      isVisible: json['isVisible'] as String,
     );
   }
 
@@ -46,7 +46,7 @@ class InventoryData {
       'itemDescription': itemDescription,
       'itemQuantity': itemQuantity as Int,
       'itemPrice': itemPrice as Float,
-      'isHidden': isHidden,
+      'isVisible': isVisible as bool,
     };
   }
 }

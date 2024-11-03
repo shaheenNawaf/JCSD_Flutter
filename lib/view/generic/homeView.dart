@@ -292,11 +292,11 @@ class HomeView extends StatelessWidget {
                                     child: Visibility(
                                       child: IconButton(
                                         icon:
-                                            Icon(Icons.chevron_left, size: 40),
+                                            const Icon(Icons.chevron_left, size: 40),
                                         onPressed: () {
                                           PageController().previousPage(
                                             duration:
-                                                Duration(milliseconds: 300),
+                                                const Duration(milliseconds: 300),
                                             curve: Curves.easeInOut,
                                           );
                                         },
@@ -310,11 +310,11 @@ class HomeView extends StatelessWidget {
                                     child: Visibility(
                                       child: IconButton(
                                         icon:
-                                            Icon(Icons.chevron_right, size: 40),
+                                            const Icon(Icons.chevron_right, size: 40),
                                         onPressed: () {
                                           PageController().nextPage(
                                             duration:
-                                                Duration(milliseconds: 300),
+                                                const Duration(milliseconds: 300),
                                             curve: Curves.easeInOut,
                                           );
                                         },

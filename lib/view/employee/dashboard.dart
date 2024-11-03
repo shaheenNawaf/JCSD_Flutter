@@ -346,7 +346,7 @@ class _DashboardPageState extends State<DashboardPage>
         shrinkWrap: true,
         children: [
           DataTable(
-            headingRowColor: MaterialStateProperty.all(const Color(0xFF00AEEF)),
+            headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
             columns: const [
               DataColumn(
                 label: Center(

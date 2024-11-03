@@ -318,7 +318,7 @@ class PayslipRow extends StatelessWidget {
   final String value;
   final bool isBold;
 
-  const PayslipRow({
+  const PayslipRow({super.key, 
     required this.label,
     required this.value,
     this.isBold = false,

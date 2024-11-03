@@ -338,7 +338,7 @@ class _ServicesPageState extends State<ServicesPage>
       child: ListView(
         children: [
           DataTable(
-            headingRowColor: MaterialStateProperty.all(const Color(0xFF00AEEF)),
+            headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
             columns: const [
               DataColumn(
                 label: Center(

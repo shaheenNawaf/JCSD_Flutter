@@ -239,7 +239,7 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
                       if (statuses[index] == 'Button') {
                       return ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF00AEEF),
+                          backgroundColor: const Color(0xFF00AEEF),
                           foregroundColor: Colors.white,
                           side: const BorderSide(color: Colors.grey, width: 1),
                           shape: RoundedRectangleBorder(
