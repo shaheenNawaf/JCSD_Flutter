@@ -14,52 +14,96 @@ class InventoryService {
     //For browser console = checking ifEmpty
     if(idItem.isEmpty == true){
       print("Specified ITEM_ID isn't found: $itemID");
+      return null;
     }
     else{
       return InventoryData.fromJson(idItem); //Parsing the data as a JSON-like file for easier access
     }
+  }
 
-    // Method 2: Displaying all Employees from DB
-    Future<List<InventoryData?>> displayAllItems() async{
-      final displayItems = await supabaseDB.from('item_inventory').select();
-       
-      if(displayItems.isEmpty == true ){
-        print("Table 'Items_Inventory' is empty.");
+  //Method 1: Search Function -- all possible results
+  Future<List<InventoryData?>> searchItems({ int? itemID, String? itemName, String? itemType}) async {
+    try{ 
+      final itemSearch = supabaseDB.from('item_inventory').select();
+
+      if(itemID != null){
+        itemSearch.eq('itemID', itemID);
+        print("Specified ITEM_ID isn't found: $itemID");
+      }
+      if(itemName != null){
+        itemSearch.eq('itemName', itemName);
+        print("Specified ITEM_NAME isn't found: $itemName");
+      }
+      if(itemType != null){
+        itemSearch.eq('itemType', itemType);
+        print("Specified ITEM_TYPE doesn't exist: $itemType");
+      }
+
+      final storeSearch = await itemSearch.select(); //Store search results here
+
+      if(storeSearch.isEmpty == true){
+        print("Specified search didn't return any items");
         return [];
       }else{
-        List<InventoryData> inventoryItems = []; //Init state
-        for(var eachItem in displayItems){
-          inventoryItems.add(InventoryData.fromJson(eachItem));
-        }
-        return inventoryItems;
+        //Storing the data as a list
+        List<InventoryData> storeResults = storeSearch.map(
+        (dynamic itemData) {return InventoryData.fromJson(itemData as Map<String, dynamic>);
+        },
+        ).toList();
+
+        return storeResults;
       }
     }
-
-    //Method 3: Adding a new item on the Inventory
-    Future<void> addNewItem(InventoryData newItem) async{
-      try{
-        final addItem = await supabaseDB.from('item_inventory').insert(newItem.toJson());
-      }catch(err){
-        print('Tried adding, caught error in: $err');
-      }
+    catch(err){
+      print('Error fetching data: $err');
+      return [];
     }
+    
+  }
 
-    //Method 4: Updating an Item's Details
-    Future<void> updateItemDetails(InventoryData updateItem) async{
-      try{
-        final updateItemDetails = await supabaseDB.from('item_inventory').insert(updateItem.toJson()).eq('itemID', updateItem.itemID);
-      }catch(err){
-        print("Tried updating, caught error: $err");
+// Method 2: Displaying all Employees from DB
+Future<List<InventoryData?>> displayAllItems() async{
+  final displayItems = await supabaseDB.from('item_inventory').select();
+    
+  if(displayItems.isEmpty == true ){
+      print("Table 'Items_Inventory' is empty.");
+      return [];
+    }else{
+      List<InventoryData> inventoryItems = []; //Init state
+      for(var eachItem in displayItems){
+        inventoryItems.add(InventoryData.fromJson(eachItem));
       }
+      return inventoryItems;
     }
+  }
 
-    //Method 5: Updating Item's visibility/state
-    Future<void> updateItemVisibility(int itemID, bool isVisible) async{
-      try{
-        final updateItemDetails = await supabaseDB.from('item_inventory').update({'isVisible': isVisible}).eq('itemID', itemID);
-      }catch(err){
-        print('Tried updating the visibility of the item: $itemID');
-      }
+  //Method 3: Adding a new item on the Inventory
+  Future<void> addNewItem(InventoryData newItem) async{
+    try{
+      final addItem = await supabaseDB.from('item_inventory').insert(newItem.toJson()); 
+      return addItem;
+    }catch(err){
+      print('Tried adding, caught error in: $err');
+    }
+  }
+
+  //Method 4: Updating an Item's Details
+  Future<void> updateItemDetails(InventoryData updateItem) async{
+    try{
+      final updateItemDetails = await supabaseDB.from('item_inventory').update(updateItem.toJson()).eq('itemID', updateItem.itemID);
+      return updateItemDetails;
+    }catch(err){
+      print("Tried updating, caught error: $err");
+    }
+  }
+
+  //Method 5: Updating Item's visibility/state
+  Future<void> updateItemVisibility(int itemID, bool isVisible) async{
+    try{
+      final updateItemDetails = await supabaseDB.from('item_inventory').update({'isVisible': isVisible}).eq('itemID', itemID);
+      return updateItemDetails;
+    }catch(err){
+      print('Tried updating the visibility of the $itemID, but caught $err');
     }
   }
 }

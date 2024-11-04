@@ -1,8 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/models/inventory_data.dart';
 import 'package:jcsd_flutter/services/inventory_service.dart';
-import 'package:riverpod/riverpod.dart';
-
 // Notes:
 //
 

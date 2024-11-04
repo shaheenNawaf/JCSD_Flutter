@@ -25,7 +25,7 @@ import 'package:jcsd_flutter/view/client/booking_first.dart';
 import 'package:jcsd_flutter/view/client/booking_second.dart';
 
 void main() async {
-  supabase_init();
+  supabase_init(); //Initialize Supabase - DONT TOUCH GUYS
   runApp(const MainApp());
 }
 

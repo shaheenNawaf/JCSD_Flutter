@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart'; //Supabase
 import 'supa_details.dart';
 
 //Initialize Supabase here
-void supabase_init() async{
+void supabaseInit() async{
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
