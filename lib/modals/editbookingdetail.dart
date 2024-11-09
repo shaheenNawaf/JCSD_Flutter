@@ -23,7 +23,7 @@ class _EditBookingModalState extends State<EditBookingModal> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 700 : screenWidth * 0.9;
-    const double containerHeight = 380;
+    const double containerHeight = 450;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -65,63 +65,75 @@ class _EditBookingModalState extends State<EditBookingModal> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Column(
                   children: [
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        children: [
-                          _buildTextField(
-                            label: 'Booking ID',
-                            hintText: '000001',
-                            enabled: false,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            children: [
+                              _buildTextField(
+                                label: 'Booking ID',
+                                hintText: '000001',
+                                enabled: false,
+                              ),
+                              const SizedBox(height: 8),
+                              _buildTextField(
+                                label: 'Customer Name',
+                                hintText: 'Shaheen Al Adwani',
+                                enabled: false,
+                              ),
+                              const SizedBox(height: 8),
+                              _buildTextField(
+                                label: 'Date & Time Booked',
+                                hintText: '01/12/2024 - 10:00 AM',
+                                enabled: false,
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            label: 'Customer Name',
-                            hintText: 'Shaheen Al Adwani',
-                            enabled: false,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          flex: 1,
+                          child: Column(
+                            children: [
+                              _buildTextField(
+                                label: 'Service Type',
+                                hintText: 'Computer Repair',
+                                enabled: false,
+                              ),
+                              const SizedBox(height: 8),
+                              _buildTextField(
+                                label: 'Service Location',
+                                hintText: 'In-Store Service',
+                                enabled: false,
+                              ),
+                              const SizedBox(height: 8),
+                              _buildDropdownField(
+                                label: 'Assigned Employee',
+                                hintText: 'Select Employee',
+                                value: _selectedEmployee,
+                                items: _employees,
+                                onChanged: (String? value) {
+                                  setState(() {
+                                    _selectedEmployee = value;
+                                  });
+                                },
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            label: 'Date & Time Booked',
-                            hintText: '01/12/2024 - 10:00 AM',
-                            enabled: false,
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        children: [
-                          _buildTextField(
-                            label: 'Service Type',
-                            hintText: 'Computer Repair',
-                            enabled: false,
-                          ),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            label: 'Service Location',
-                            hintText: 'In-Store Service',
-                            enabled: false,
-                          ),
-                          const SizedBox(height: 8),
-                          _buildDropdownField(
-                            label: 'Assigned Employee',
-                            hintText: 'Select Employee',
-                            value: _selectedEmployee,
-                            items: _employees,
-                            onChanged: (String? value) {
-                              setState(() {
-                                _selectedEmployee = value;
-                              });
-                            },
-                          ),
-                        ],
-                      ),
+                    const SizedBox(height: 8),
+                    _buildDropdownField(
+                      label: 'Booking Status',
+                      hintText: 'Select Status',
+                      value: 'Pending',
+                      items: ['Pending', 'Completed', 'Cancelled'],
+                      onChanged: (String? value) {},
                     ),
                   ],
                 ),
