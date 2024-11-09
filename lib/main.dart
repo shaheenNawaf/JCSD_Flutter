@@ -1,5 +1,8 @@
 //Imports
 import 'package:flutter/material.dart';
+import 'package:jcsd_flutter/view/admin/accountdetails.dart';
+import 'package:jcsd_flutter/view/admin/leaverequestlist.dart';
+import 'package:jcsd_flutter/view/admin/payroll.dart';
 import 'package:jcsd_flutter/view/employee/dashboard.dart';
 import 'package:jcsd_flutter/view/employee/services.dart';
 import 'package:jcsd_flutter/view/generic/error.dart';
@@ -37,7 +40,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'JCSD',
-      initialRoute: '/payslip',
+      initialRoute: '/payroll',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF00AEEF),
@@ -61,6 +64,9 @@ class MainApp extends StatelessWidget {
         '/accountList': (context) => const AccountListPage(),
         '/bookingCalendar': (context) => const BookingCalendarPage(),
         '/employeeList': (context) => const EmployeeListPage(),
+        '/payroll': (context) => const Payroll(),
+        '/accountDetails': (context) => const ProfileAdminViewPage(),
+        '/leaveRequestList': (context) => const LeaveRequestList(),
 
         //Client View
         '/booking1': (context) => const ClientBooking1(),
