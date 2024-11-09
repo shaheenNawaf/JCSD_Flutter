@@ -200,24 +200,26 @@ class ClientBooking2 extends StatelessWidget {
                       ],
                     ),
                     const Divider(),
-                    const SizedBox(height: 210),
+                    const SizedBox(height: 200),
                     Center(
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00AEEF),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 15, horizontal: 100),
-                          textStyle: const TextStyle(
-                              fontSize: 16, fontFamily: 'Nunito'),
-                        ),
-                        child: const Text(
-                          'Book Now!',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Nunito',
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF00AEEF),
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            textStyle: const TextStyle(
+                                fontSize: 16, fontFamily: 'Nunito'),
+                          ),
+                          child: const Text(
+                            'Book Now!',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Nunito',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                            ),
                           ),
                         ),
                       ),

@@ -145,23 +145,30 @@ class _SignupPage1State extends State<SignupPage1> {
                                   ),
                                 ),
                                 const SizedBox(height: 20),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                      child: OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 20),
-                                          side: const BorderSide(
-                                              color: Color(0xFF00AEEF)),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: OutlinedButton(
+                                    style: OutlinedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 20),
+                                      side: const BorderSide(
+                                          color: Color(0xFF00AEEF)),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5),
+                                      ),
+                                    ),
+                                    onPressed: () {},
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Image.asset(
+                                          'assets/images/Google.png',
+                                          height: 18,
+                                          width: 18,
                                         ),
-                                        onPressed: () {},
-                                        child: const Text(
+                                        const SizedBox(width: 8),
+                                        const Text(
                                           'Google',
                                           style: TextStyle(
                                             fontFamily: 'Nunito',
@@ -169,33 +176,9 @@ class _SignupPage1State extends State<SignupPage1> {
                                             color: Color(0xFF00AEEF),
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 20),
-                                          side: const BorderSide(
-                                              color: Color(0xFF00AEEF)),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                        ),
-                                        onPressed: () {},
-                                        child: const Text(
-                                          'Other option',
-                                          style: TextStyle(
-                                            fontFamily: 'Nunito',
-                                            fontWeight: FontWeight.w500,
-                                            color: Color(0xFF00AEEF),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                                 const SizedBox(height: 20),
                                 Row(

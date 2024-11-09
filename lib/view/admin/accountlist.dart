@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -86,7 +86,7 @@ class _AccountListPageState extends State<AccountListPage> {
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: _buildWebView(),
+                        child: _buildDataTable(),
                       ),
                     ),
                   ],
@@ -96,38 +96,6 @@ class _AccountListPageState extends State<AccountListPage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildWebView() {
-    return Column(
-      children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00AEEF),
-              minimumSize: const Size(120, 48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text(
-              'Leave Requests',
-              style: TextStyle(
-                fontFamily: 'NunitoSans',
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Expanded(
-          child: _buildDataTable(),
-        ),
-      ],
     );
   }
 
@@ -182,7 +150,7 @@ class _AccountListPageState extends State<AccountListPage> {
                 label: Padding(
                   padding: EdgeInsets.symmetric(vertical: 10.0),
                   child: Text(
-                    'Position',
+                    'Role',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                       fontWeight: FontWeight.w600,
@@ -224,21 +192,21 @@ class _AccountListPageState extends State<AccountListPage> {
               _buildDataRow(
                 'Ashley Alexis',
                 'Active',
-                'Computer Repair Technician',
+                'Employee',
                 '@gmail.com',
                 '(***) ***-****',
               ),
               _buildDataRow(
                 'Adrian Sc',
                 'Active',
-                'Technician',
+                'Client',
                 '@gmail.com',
                 '(***) ***-****',
               ),
               _buildDataRow(
                 'Jack Kaplan',
                 'Terminated',
-                'Technician',
+                'Client',
                 '@gmail.com',
                 '(***) ***-****',
               ),
@@ -250,7 +218,7 @@ class _AccountListPageState extends State<AccountListPage> {
   }
 
   DataRow _buildDataRow(
-      String name, String status, String position, String email, String phone) {
+      String name, String status, String role, String email, String phone) {
     return DataRow(
       cells: [
         DataCell(Text(
@@ -266,7 +234,7 @@ class _AccountListPageState extends State<AccountListPage> {
           ),
         )),
         DataCell(Text(
-          position,
+          role,
           style: const TextStyle(
             fontFamily: 'NunitoSans',
           ),
