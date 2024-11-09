@@ -1,5 +1,6 @@
-//Imports
+// Imports
 import 'package:flutter/material.dart';
+import 'package:jcsd_flutter/others/transition.dart';
 import 'package:jcsd_flutter/view/admin/accountdetails.dart';
 import 'package:jcsd_flutter/view/admin/leaverequestlist.dart';
 import 'package:jcsd_flutter/view/admin/payroll.dart';
@@ -8,7 +9,7 @@ import 'package:jcsd_flutter/view/employee/services.dart';
 import 'package:jcsd_flutter/view/generic/error.dart';
 import 'package:jcsd_flutter/global_variables.dart';
 
-//Pages for routine
+// Pages for routine
 import 'package:jcsd_flutter/view/users/login.dart';
 import 'package:jcsd_flutter/view/generic/signup_first.dart';
 import 'package:jcsd_flutter/view/generic/signup_second.dart';
@@ -28,7 +29,7 @@ import 'package:jcsd_flutter/view/client/booking_first.dart';
 import 'package:jcsd_flutter/view/client/booking_second.dart';
 
 void main() async {
-  supabase_init(); //Initialize Supabase - DONT TOUCH GUYS
+  supabase_init(); // Initialize Supabase - DONT TOUCH GUYS
   runApp(const MainApp());
 }
 
@@ -40,27 +41,33 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'JCSD',
-      initialRoute: '/payroll',
+      initialRoute: '/login',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF00AEEF),
           primary: const Color(0xFF00AEEF),
           secondary: const Color(0xFF00AEEF),
         ),
+        pageTransitionsTheme: PageTransitionsTheme(
+          builders: {
+            TargetPlatform.windows: InstantPageTransitionsBuilder(),
+            TargetPlatform.android: InstantPageTransitionsBuilder()
+          },
+        ),
       ),
 
-      /* Will still need to finalize the segregation of routes but for now
-      segregation here is just based on location of files*/
+      // Will still need to finalize the segregation of routes but for now
+      // segregation here is just based on location of files
 
       routes: {
-        //Generic
+        // Generic
         '/home': (context) => const HomeView(),
         '/login': (context) => const Login(),
         '/signup1': (context) => const SignupPage1(),
         '/signup2': (context) => const SignupPage2(),
         '/error': (context) => const ErrorPage(),
 
-        //Admin View
+        // Admin View
         '/accountList': (context) => const AccountListPage(),
         '/bookingCalendar': (context) => const BookingCalendarPage(),
         '/employeeList': (context) => const EmployeeListPage(),
@@ -68,11 +75,11 @@ class MainApp extends StatelessWidget {
         '/accountDetails': (context) => const ProfileAdminViewPage(),
         '/leaveRequestList': (context) => const LeaveRequestList(),
 
-        //Client View
+        // Client View
         '/booking1': (context) => const ClientBooking1(),
         '/booking2': (context) => const ClientBooking2(),
 
-        //Employee View
+        // Employee View
         '/dashboard': (context) => const DashboardPage(),
         '/inventory': (context) => const InventoryPage(),
         '/suppliers': (context) => const SupplierPage(),

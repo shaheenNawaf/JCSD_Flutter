@@ -17,6 +17,7 @@ class _ClientBooking1State extends State<ClientBooking1> {
       appBar: const Navbar(activePage: 'booking'),
       body: Container(
         width: double.infinity,
+        height: double.infinity,
         color: const Color(0xFFDFDFDF),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: SingleChildScrollView(
@@ -265,6 +266,10 @@ class _ClientBooking1State extends State<ClientBooking1> {
                               hintText: 'Add notes for the service',
                               border: OutlineInputBorder(),
                             ),
+                            style: TextStyle(
+                              fontFamily: 'Nunito',
+                              fontSize: 16,
+                            ),
                           ),
                         ],
                       ),
@@ -346,24 +351,27 @@ class _ClientBooking1State extends State<ClientBooking1> {
                           const Divider(),
                           const SizedBox(height: 130),
                           Center(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/booking2');
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF00AEEF),
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 15, horizontal: 100),
-                                textStyle: const TextStyle(
-                                    fontSize: 16, fontFamily: 'Nunito'),
-                              ),
-                              child: const Text(
-                                'Continue',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontFamily: 'Nunito',
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(context, '/booking2');
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF00AEEF),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 15),
+                                  textStyle: const TextStyle(
+                                      fontSize: 16, fontFamily: 'Nunito'),
+                                ),
+                                child: const Text(
+                                  'Continue',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'Nunito',
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
                                 ),
                               ),
                             ),

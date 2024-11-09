@@ -23,8 +23,8 @@ class _EditServiceModalState extends State<EditServiceModal> {
   @override
   void initState() {
     super.initState();
-    _serviceNameController = TextEditingController(text: widget.serviceName);
-    _priceController = TextEditingController(text: widget.price);
+    _serviceNameController = TextEditingController(text: '');
+    _priceController = TextEditingController(text: '');
   }
 
   @override
