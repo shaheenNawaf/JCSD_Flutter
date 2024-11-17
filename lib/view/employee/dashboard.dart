@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
+import 'package:jcsd_flutter/widgets/header.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -36,6 +37,10 @@ class _DashboardPageState extends State<DashboardPage>
 
   void _closeDrawer() {
     _animationController.reverse();
+  }
+
+  void _navigateToProfile() {
+    // Add functionality to navigate to the user's profile page here.
   }
 
   @override
@@ -92,29 +97,9 @@ class _DashboardPageState extends State<DashboardPage>
                 child: Column(
                   children: [
                     if (!isMobile)
-                      Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Dashboard',
-                              style: TextStyle(
-                                fontFamily: 'NunitoSans',
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF00AEEF),
-                                fontSize: 20,
-                              ),
-                            ),
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundImage:
-                                  AssetImage('assets/avatars/cat2.jpg'),
-                            ),
-                          ],
-                        ),
+                      Header(
+                        title: 'Dashboard',
+                        onAvatarTap: _navigateToProfile,
                       ),
                     Expanded(
                       child: Padding(

@@ -5,8 +5,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/modals/additem.dart';
 import 'package:jcsd_flutter/modals/edititem.dart';
 import 'package:jcsd_flutter/modals/archiveitem.dart';
+import 'package:jcsd_flutter/view/employee/archive.dart';
 import 'package:jcsd_flutter/modals/stockinitem.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
+import 'package:jcsd_flutter/widgets/header.dart';
 
 class InventoryPage extends StatefulWidget {
   const InventoryPage({super.key});
@@ -82,6 +84,8 @@ class _InventoryPageState extends State<InventoryPage>
     );
   }
 
+  void _navigateToProfile() {}
+
   @override
   Widget build(BuildContext context) {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
@@ -145,29 +149,9 @@ class _InventoryPageState extends State<InventoryPage>
                 child: Column(
                   children: [
                     if (!isMobile)
-                      Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Inventory',
-                              style: TextStyle(
-                                fontFamily: 'NunitoSans',
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF00AEEF),
-                                fontSize: 20,
-                              ),
-                            ),
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundImage:
-                                  AssetImage('assets/avatars/cat2.jpg'),
-                            ),
-                          ],
-                        ),
+                      Header(
+                        title: 'Inventory',
+                        onAvatarTap: _navigateToProfile,
                       ),
                     Expanded(
                       child: Padding(
@@ -236,35 +220,19 @@ class _InventoryPageState extends State<InventoryPage>
         Align(
           alignment: Alignment.centerRight,
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SizedBox(
-                width: 250,
-                height: 40,
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search',
-                    hintStyle: const TextStyle(
-                      color: Color(0xFFABABAB),
-                      fontFamily: 'NunitoSans',
-                    ),
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 0,
-                      horizontal: 16,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
               ElevatedButton.icon(
-                onPressed: _showStockInItemModal,
-                icon: const Icon(Icons.inventory, color: Colors.white),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ArchiveListPage()),
+                  );
+                },
+                icon: const Icon(Icons.archive, color: Colors.white),
                 label: const Text(
-                  'Stock In',
+                  'Archive List',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontWeight: FontWeight.bold,
@@ -279,25 +247,71 @@ class _InventoryPageState extends State<InventoryPage>
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
-              ElevatedButton.icon(
-                onPressed: _showAddItemModal,
-                icon: const Icon(Icons.add, color: Colors.white),
-                label: const Text(
-                  'Add',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 250,
+                    height: 40,
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Search',
+                        hintStyle: const TextStyle(
+                          color: Color(0xFFABABAB),
+                          fontFamily: 'NunitoSans',
+                        ),
+                        prefixIcon: const Icon(Icons.search),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 0,
+                          horizontal: 16,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00AEEF),
-                  minimumSize: const Size(0, 48),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                  const SizedBox(width: 16),
+                  ElevatedButton.icon(
+                    onPressed: _showStockInItemModal,
+                    icon: const Icon(Icons.inventory, color: Colors.white),
+                    label: const Text(
+                      'Stock In',
+                      style: TextStyle(
+                        fontFamily: 'NunitoSans',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00AEEF),
+                      minimumSize: const Size(0, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(width: 16),
+                  ElevatedButton.icon(
+                    onPressed: _showAddItemModal,
+                    icon: const Icon(Icons.add, color: Colors.white),
+                    label: const Text(
+                      'Add',
+                      style: TextStyle(
+                        fontFamily: 'NunitoSans',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00AEEF),
+                      minimumSize: const Size(0, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
