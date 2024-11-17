@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:jcsd_flutter/others/transition.dart';
 import 'package:jcsd_flutter/view/admin/accountdetails.dart';
+import 'package:jcsd_flutter/view/admin/bookingcalendar.dart';
 import 'package:jcsd_flutter/view/admin/leaverequestlist.dart';
 import 'package:jcsd_flutter/view/admin/payroll.dart';
 import 'package:jcsd_flutter/view/employee/dashboard.dart';
@@ -17,6 +18,7 @@ import 'package:jcsd_flutter/view/employee/inventory.dart';
 import 'package:jcsd_flutter/view/employee/archive.dart';
 import 'package:jcsd_flutter/view/employee/auditLog.dart';
 import 'package:jcsd_flutter/view/employee/bookings.dart';
+import 'package:jcsd_flutter/view/employee/transactions.dart';
 import 'package:jcsd_flutter/view/employee/suppliers.dart';
 import 'package:jcsd_flutter/view/generic/homeView.dart';
 import 'package:jcsd_flutter/view/employee/profile.dart';
@@ -26,7 +28,6 @@ import 'package:jcsd_flutter/view/employee/bookingReceipt.dart';
 import 'package:jcsd_flutter/view/employee/payslip.dart';
 import 'package:jcsd_flutter/view/admin/accountlist.dart';
 import 'package:jcsd_flutter/view/admin/employeelist.dart';
-import 'package:jcsd_flutter/view/admin/bookingcalendar.dart';
 import 'package:jcsd_flutter/view/client/booking_first.dart';
 import 'package:jcsd_flutter/view/client/booking_second.dart';
 
@@ -71,7 +72,7 @@ class MainApp extends StatelessWidget {
 
         // Admin View
         '/accountList': (context) => const AccountListPage(),
-        '/bookingCalendar': (context) => const BookingCalendarPage(),
+        '/bookingsCalendar': (context) => const BookingCalendarPage(),
         '/employeeList': (context) => const EmployeeListPage(),
         '/payroll': (context) => const Payroll(),
         '/accountDetails': (context) => const ProfileAdminViewPage(),
@@ -86,6 +87,7 @@ class MainApp extends StatelessWidget {
         '/inventory': (context) => const InventoryPage(),
         '/suppliers': (context) => const SupplierPage(),
         '/bookings': (context) => const BookingsPage(),
+        '/transactions': (context) => const TransactionsPage(),
         '/archiveList': (context) => const ArchiveListPage(),
         '/auditLog': (context) => const AuditLogPage(),
         '/services': (context) => const ServicesPage(),

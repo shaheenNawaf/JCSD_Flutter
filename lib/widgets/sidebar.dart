@@ -14,16 +14,22 @@ class Sidebar extends StatefulWidget {
 }
 
 class _SidebarState extends State<Sidebar> {
-  bool _isInventoryExpanded = true;
+  bool _isInventoryExpanded = false;
+  bool _isBookingsExpanded = false;
   String _activeSubItem = '';
 
   @override
   void initState() {
     super.initState();
     _activeSubItem = widget.activePage;
+
+    // Expand dropdowns if the active page is within their subitems
     _isInventoryExpanded = widget.activePage.startsWith('/inventory') ||
         widget.activePage == '/archiveList' ||
         widget.activePage == '/auditLog';
+    _isBookingsExpanded = widget.activePage.startsWith('/bookings') ||
+        widget.activePage == '/bookingsCalendar' ||
+        widget.activePage == '/transactions';
   }
 
   @override
@@ -54,7 +60,7 @@ class _SidebarState extends State<Sidebar> {
                         icon: FontAwesomeIcons.chartLine,
                         title: 'Dashboard',
                         route: '/dashboard',
-                        isActive: widget.activePage == 'dashboard',
+                        isActive: widget.activePage == '/dashboard',
                         onTap: () {
                           _navigateToMainPage('/dashboard');
                         },
@@ -62,8 +68,7 @@ class _SidebarState extends State<Sidebar> {
                       SidebarItemWithDropdown(
                         icon: FontAwesomeIcons.boxOpen,
                         title: 'Inventory',
-                        isActive: widget.activePage == '/inventory' &&
-                            _activeSubItem.isEmpty,
+                        isActive: false, // Parent should not be active
                         isExpanded: _isInventoryExpanded,
                         onTap: () {
                           setState(() {
@@ -94,29 +99,54 @@ class _SidebarState extends State<Sidebar> {
                           onTap: () => _navigateTo('/auditLog'),
                         ),
                       ],
+                      SidebarItemWithDropdown(
+                        icon: FontAwesomeIcons.calendarDays,
+                        title: 'Bookings',
+                        isActive: false, // Parent should not be active
+                        isExpanded: _isBookingsExpanded,
+                        onTap: () {
+                          setState(() {
+                            _isBookingsExpanded = !_isBookingsExpanded;
+                          });
+                        },
+                      ),
+                      if (_isBookingsExpanded) ...[
+                        SubSidebarItem(
+                          icon: FontAwesomeIcons.table,
+                          title: 'Table List',
+                          route: '/bookings',
+                          isActive: _activeSubItem == '/bookings',
+                          onTap: () => _navigateTo('/bookings'),
+                        ),
+                        SubSidebarItem(
+                          icon: FontAwesomeIcons.calendar,
+                          title: 'Calendar',
+                          route: '/bookingsCalendar',
+                          isActive: _activeSubItem == '/bookingsCalendar',
+                          onTap: () => _navigateTo('/bookingsCalendar'),
+                        ),
+                        SubSidebarItem(
+                          icon: FontAwesomeIcons.fileInvoiceDollar,
+                          title: 'Transactions',
+                          route: '/transactions',
+                          isActive: _activeSubItem == '/transactions',
+                          onTap: () => _navigateTo('/transactions'),
+                        ),
+                      ],
                       SidebarItem(
                         icon: FontAwesomeIcons.truck,
                         title: 'Suppliers',
                         route: '/suppliers',
-                        isActive: widget.activePage == 'suppliers',
+                        isActive: widget.activePage == '/suppliers',
                         onTap: () {
                           _navigateToMainPage('/suppliers');
-                        },
-                      ),
-                      SidebarItem(
-                        icon: FontAwesomeIcons.calendarDays,
-                        title: 'Bookings',
-                        route: '/bookings',
-                        isActive: widget.activePage == 'bookings',
-                        onTap: () {
-                          _navigateToMainPage('/bookings');
                         },
                       ),
                       SidebarItem(
                         icon: FontAwesomeIcons.gears,
                         title: 'Services',
                         route: '/services',
-                        isActive: widget.activePage == 'services',
+                        isActive: widget.activePage == '/services',
                         onTap: () {
                           _navigateToMainPage('/services');
                         },
@@ -133,12 +163,13 @@ class _SidebarState extends State<Sidebar> {
 
   void _navigateTo(String route) {
     setState(() {
-      _activeSubItem = route; // Update the active subitem
-      if (!route.startsWith('/inventory') &&
-          route != '/archiveList' &&
-          route != '/auditLog') {
-        _isInventoryExpanded =
-            false; // Collapse dropdown only if navigating outside Inventory
+      _activeSubItem = route;
+
+      // Only expand dropdowns if the route belongs to their group
+      if (route.startsWith('/inventory')) {
+        _isInventoryExpanded = true;
+      } else if (route.startsWith('/bookings')) {
+        _isBookingsExpanded = true;
       }
     });
 
@@ -150,8 +181,7 @@ class _SidebarState extends State<Sidebar> {
 
   void _navigateToMainPage(String route) {
     setState(() {
-      _activeSubItem = ''; // Clear subitem highlight
-      _isInventoryExpanded = false; // Close dropdown
+      _activeSubItem = '';
     });
 
     Navigator.pushNamed(context, route);
@@ -182,7 +212,7 @@ class _SidebarState extends State<Sidebar> {
                   icon: FontAwesomeIcons.chartLine,
                   title: 'Dashboard',
                   route: '/dashboard',
-                  isActive: widget.activePage == 'dashboard',
+                  isActive: widget.activePage == '/dashboard',
                   onTap: () {
                     _navigateToMainPage('/dashboard');
                   },
@@ -190,8 +220,7 @@ class _SidebarState extends State<Sidebar> {
                 SidebarItemWithDropdown(
                   icon: FontAwesomeIcons.boxOpen,
                   title: 'Inventory',
-                  isActive: widget.activePage == '/inventory' &&
-                      _activeSubItem.isEmpty,
+                  isActive: false, // Parent should not be active
                   isExpanded: _isInventoryExpanded,
                   onTap: () {
                     setState(() {
@@ -222,29 +251,54 @@ class _SidebarState extends State<Sidebar> {
                     onTap: () => _navigateTo('/auditLog'),
                   ),
                 ],
+                SidebarItemWithDropdown(
+                  icon: FontAwesomeIcons.calendarDays,
+                  title: 'Bookings',
+                  isActive: false, // Parent should not be active
+                  isExpanded: _isBookingsExpanded,
+                  onTap: () {
+                    setState(() {
+                      _isBookingsExpanded = !_isBookingsExpanded;
+                    });
+                  },
+                ),
+                if (_isBookingsExpanded) ...[
+                  SubSidebarItem(
+                    icon: FontAwesomeIcons.table,
+                    title: 'Table List',
+                    route: '/bookings',
+                    isActive: _activeSubItem == '/bookings',
+                    onTap: () => _navigateTo('/bookings'),
+                  ),
+                  SubSidebarItem(
+                    icon: FontAwesomeIcons.calendar,
+                    title: 'Calendar',
+                    route: '/bookingsCalendar',
+                    isActive: _activeSubItem == '/bookingsCalendar',
+                    onTap: () => _navigateTo('/bookingsCalendar'),
+                  ),
+                  SubSidebarItem(
+                    icon: FontAwesomeIcons.fileInvoiceDollar,
+                    title: 'Transactions',
+                    route: '/transactions',
+                    isActive: _activeSubItem == '/transactions',
+                    onTap: () => _navigateTo('/transactions'),
+                  ),
+                ],
                 SidebarItem(
                   icon: FontAwesomeIcons.truck,
                   title: 'Suppliers',
                   route: '/suppliers',
-                  isActive: widget.activePage == 'suppliers',
+                  isActive: widget.activePage == '/suppliers',
                   onTap: () {
                     _navigateToMainPage('/suppliers');
-                  },
-                ),
-                SidebarItem(
-                  icon: FontAwesomeIcons.calendarDays,
-                  title: 'Bookings',
-                  route: '/bookings',
-                  isActive: widget.activePage == 'bookings',
-                  onTap: () {
-                    _navigateToMainPage('/bookings');
                   },
                 ),
                 SidebarItem(
                   icon: FontAwesomeIcons.gears,
                   title: 'Services',
                   route: '/services',
-                  isActive: widget.activePage == 'services',
+                  isActive: widget.activePage == '/services',
                   onTap: () {
                     _navigateToMainPage('/services');
                   },
@@ -290,29 +344,25 @@ class SidebarItemWithDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const activeColor = Color.fromARGB(255, 33, 199, 255);
-
-    return MouseRegion(
-      child: Container(
-        color: isActive ? activeColor : Colors.transparent,
-        child: ListTile(
-          leading: FaIcon(
-            icon,
-            color: Colors.white,
-          ),
-          title: Text(
-            title,
-            style: const TextStyle(color: Colors.white),
-          ),
-          trailing: FaIcon(
-            isExpanded
-                ? FontAwesomeIcons.chevronDown
-                : FontAwesomeIcons.chevronRight,
-            color: Colors.white,
-            size: 14,
-          ),
-          onTap: onTap,
+    return Container(
+      color: Colors.transparent,
+      child: ListTile(
+        leading: FaIcon(
+          icon,
+          color: Colors.white,
         ),
+        title: Text(
+          title,
+          style: const TextStyle(color: Colors.white),
+        ),
+        trailing: FaIcon(
+          isExpanded
+              ? FontAwesomeIcons.chevronDown
+              : FontAwesomeIcons.chevronRight,
+          color: Colors.white,
+          size: 14,
+        ),
+        onTap: onTap,
       ),
     );
   }
@@ -338,20 +388,18 @@ class SidebarItem extends StatelessWidget {
   Widget build(BuildContext context) {
     const activeColor = Color.fromARGB(255, 33, 199, 255);
 
-    return MouseRegion(
-      child: Container(
-        color: isActive ? activeColor : Colors.transparent,
-        child: ListTile(
-          leading: FaIcon(
-            icon,
-            color: Colors.white,
-          ),
-          title: Text(
-            title,
-            style: const TextStyle(color: Colors.white),
-          ),
-          onTap: onTap,
+    return Container(
+      color: isActive ? activeColor : Colors.transparent,
+      child: ListTile(
+        leading: FaIcon(
+          icon,
+          color: Colors.white,
         ),
+        title: Text(
+          title,
+          style: const TextStyle(color: Colors.white),
+        ),
+        onTap: onTap,
       ),
     );
   }
