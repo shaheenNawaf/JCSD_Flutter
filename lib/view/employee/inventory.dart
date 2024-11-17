@@ -1,11 +1,10 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/modals/additem.dart';
 import 'package:jcsd_flutter/modals/edititem.dart';
 import 'package:jcsd_flutter/modals/archiveitem.dart';
-import 'package:jcsd_flutter/view/employee/archive.dart';
 import 'package:jcsd_flutter/modals/stockinitem.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
@@ -20,6 +19,7 @@ class InventoryPage extends StatefulWidget {
 class _InventoryPageState extends State<InventoryPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  final String _activeSubItem = '/inventory';
 
   @override
   void initState() {
@@ -130,7 +130,7 @@ class _InventoryPageState extends State<InventoryPage>
           ? Drawer(
               backgroundColor: const Color(0xFF00AEEF),
               child: Sidebar(
-                activePage: 'inventory',
+                activePage: _activeSubItem,
                 onClose: _closeDrawer,
               ),
             )
@@ -144,7 +144,7 @@ class _InventoryPageState extends State<InventoryPage>
         children: [
           Row(
             children: [
-              if (!isMobile) const Sidebar(activePage: 'inventory'),
+              if (!isMobile) Sidebar(activePage: _activeSubItem),
               Expanded(
                 child: Column(
                   children: [
@@ -220,19 +220,35 @@ class _InventoryPageState extends State<InventoryPage>
         Align(
           alignment: Alignment.centerRight,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              SizedBox(
+                width: 250,
+                height: 40,
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Search',
+                    hintStyle: const TextStyle(
+                      color: Color(0xFFABABAB),
+                      fontFamily: 'NunitoSans',
+                    ),
+                    prefixIcon: const Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 0,
+                      horizontal: 16,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
               ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ArchiveListPage()),
-                  );
-                },
-                icon: const Icon(Icons.archive, color: Colors.white),
+                onPressed: _showStockInItemModal,
+                icon: const Icon(Icons.inventory, color: Colors.white),
                 label: const Text(
-                  'Archive List',
+                  'Stock In',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontWeight: FontWeight.bold,
@@ -247,71 +263,25 @@ class _InventoryPageState extends State<InventoryPage>
                   ),
                 ),
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    width: 250,
-                    height: 40,
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: 'Search',
-                        hintStyle: const TextStyle(
-                          color: Color(0xFFABABAB),
-                          fontFamily: 'NunitoSans',
-                        ),
-                        prefixIcon: const Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 0,
-                          horizontal: 16,
-                        ),
-                      ),
-                    ),
+              const SizedBox(width: 16),
+              ElevatedButton.icon(
+                onPressed: _showAddItemModal,
+                icon: const Icon(Icons.add, color: Colors.white),
+                label: const Text(
+                  'Add',
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
                   ),
-                  const SizedBox(width: 16),
-                  ElevatedButton.icon(
-                    onPressed: _showStockInItemModal,
-                    icon: const Icon(Icons.inventory, color: Colors.white),
-                    label: const Text(
-                      'Stock In',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00AEEF),
-                      minimumSize: const Size(0, 48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00AEEF),
+                  minimumSize: const Size(0, 48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  const SizedBox(width: 16),
-                  ElevatedButton.icon(
-                    onPressed: _showAddItemModal,
-                    icon: const Icon(Icons.add, color: Colors.white),
-                    label: const Text(
-                      'Add',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00AEEF),
-                      minimumSize: const Size(0, 48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
           ),

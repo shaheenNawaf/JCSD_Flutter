@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
-class ArchiveListPage extends StatefulWidget {
-  const ArchiveListPage({super.key});
+class AuditLogPage extends StatefulWidget {
+  const AuditLogPage({super.key});
 
   @override
-  _ArchiveListPageState createState() => _ArchiveListPageState();
+  _AuditLogPageState createState() => _AuditLogPageState();
 }
 
-class _ArchiveListPageState extends State<ArchiveListPage>
+class _AuditLogPageState extends State<AuditLogPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  final String _activeSubItem = '/archiveList';
+  final String _activeSubItem = '/auditLog';
 
   @override
   void initState() {
@@ -39,12 +39,6 @@ class _ArchiveListPageState extends State<ArchiveListPage>
     _animationController.reverse();
   }
 
-  // void _unarchiveItem(String itemId) {
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     SnackBar(content: Text('Item with ID $itemId unarchived!')),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
@@ -55,7 +49,7 @@ class _ArchiveListPageState extends State<ArchiveListPage>
           ? AppBar(
               backgroundColor: const Color(0xFF00AEEF),
               title: const Text(
-                'Archive List',
+                'Audit Log',
                 style: TextStyle(
                   fontFamily: 'NunitoSans',
                   fontWeight: FontWeight.bold,
@@ -102,7 +96,7 @@ class _ArchiveListPageState extends State<ArchiveListPage>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Archive List',
+                              'Audit Log',
                               style: TextStyle(
                                 fontFamily: 'NunitoSans',
                                 fontWeight: FontWeight.bold,
@@ -227,7 +221,7 @@ class _ArchiveListPageState extends State<ArchiveListPage>
           children: [
             ListTile(
               title: const Text(
-                'Samsung SSD 500GB',
+                'Samsung SSD 550GB',
                 style: TextStyle(
                   fontFamily: 'NunitoSans',
                   fontWeight: FontWeight.bold,
@@ -248,17 +242,13 @@ class _ArchiveListPageState extends State<ArchiveListPage>
                       fontFamily: 'NunitoSans',
                     ),
                   ),
+                  Text(
+                    'Date Modified: Item Created',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                    ),
+                  ),
                 ],
-              ),
-              trailing: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
-                onPressed: () {},
-                child: const Text(
-                  'Unarchive',
-                  style: TextStyle(color: Colors.white),
-                ),
               ),
             ),
             const Divider(
@@ -334,41 +324,35 @@ class _ArchiveListPageState extends State<ArchiveListPage>
                 ),
               ),
               DataColumn(
-                label: Padding(
-                  padding: EdgeInsets.only(left: 30),
-                  child: Center(
-                    child: Text(
-                      'Action',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+                label: Text(
+                  'Date Modified',
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              DataColumn(
+                label: Text(
+                  'Action Taken',
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
                   ),
                 ),
               ),
             ],
-            rows: [
+            rows: const [
               DataRow(
                 cells: [
-                  const DataCell(Text('0126546')),
-                  const DataCell(Text('Samsung SSD 500GB')),
-                  const DataCell(Text('Technology')),
-                  const DataCell(Text('Samsung')),
-                  DataCell(
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                      ),
-                      onPressed: () {},
-                      child: const Text(
-                        'Unarchive',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
+                  DataCell(Text('0126546')),
+                  DataCell(Text('Samsung SSD 550GB')),
+                  DataCell(Text('Technology')),
+                  DataCell(Text('Samsung')),
+                  DataCell(Text('11/01/2024')),
+                  DataCell(Text('Item Created')),
                 ],
               ),
             ],

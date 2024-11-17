@@ -15,6 +15,7 @@ import 'package:jcsd_flutter/view/generic/signup_first.dart';
 import 'package:jcsd_flutter/view/generic/signup_second.dart';
 import 'package:jcsd_flutter/view/employee/inventory.dart';
 import 'package:jcsd_flutter/view/employee/archive.dart';
+import 'package:jcsd_flutter/view/employee/auditLog.dart';
 import 'package:jcsd_flutter/view/employee/bookings.dart';
 import 'package:jcsd_flutter/view/employee/suppliers.dart';
 import 'package:jcsd_flutter/view/generic/homeView.dart';
@@ -86,6 +87,7 @@ class MainApp extends StatelessWidget {
         '/suppliers': (context) => const SupplierPage(),
         '/bookings': (context) => const BookingsPage(),
         '/archiveList': (context) => const ArchiveListPage(),
+        '/auditLog': (context) => const AuditLogPage(),
         '/services': (context) => const ServicesPage(),
         '/profile': (context) => const ProfilePage(),
         '/leaveRequest': (context) => const LeaveRequest(),

@@ -1,13 +1,30 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class Sidebar extends StatelessWidget {
+class Sidebar extends StatefulWidget {
   final String activePage;
   final VoidCallback? onClose;
 
   const Sidebar({super.key, this.activePage = '', this.onClose});
+
+  @override
+  _SidebarState createState() => _SidebarState();
+}
+
+class _SidebarState extends State<Sidebar> {
+  bool _isInventoryExpanded = true;
+  String _activeSubItem = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _activeSubItem = widget.activePage;
+    _isInventoryExpanded = widget.activePage.startsWith('/inventory') ||
+        widget.activePage == '/archiveList' ||
+        widget.activePage == '/auditLog';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,50 +54,71 @@ class Sidebar extends StatelessWidget {
                         icon: FontAwesomeIcons.chartLine,
                         title: 'Dashboard',
                         route: '/dashboard',
-                        isActive: activePage == 'dashboard',
+                        isActive: widget.activePage == 'dashboard',
                         onTap: () {
-                          Navigator.pushNamed(context, '/dashboard');
-                          onClose?.call();
+                          _navigateToMainPage('/dashboard');
                         },
                       ),
-                      SidebarItem(
+                      SidebarItemWithDropdown(
                         icon: FontAwesomeIcons.boxOpen,
                         title: 'Inventory',
-                        route: '/inventory',
-                        isActive: activePage == 'inventory',
+                        isActive: widget.activePage == '/inventory' &&
+                            _activeSubItem.isEmpty,
+                        isExpanded: _isInventoryExpanded,
                         onTap: () {
-                          Navigator.pushNamed(context, '/inventory');
-                          onClose?.call();
+                          setState(() {
+                            _isInventoryExpanded = !_isInventoryExpanded;
+                          });
                         },
                       ),
+                      if (_isInventoryExpanded) ...[
+                        SubSidebarItem(
+                          icon: FontAwesomeIcons.table,
+                          title: 'Table List',
+                          route: '/inventory',
+                          isActive: _activeSubItem == '/inventory',
+                          onTap: () => _navigateTo('/inventory'),
+                        ),
+                        SubSidebarItem(
+                          icon: FontAwesomeIcons.boxArchive,
+                          title: 'Archive List',
+                          route: '/archiveList',
+                          isActive: _activeSubItem == '/archiveList',
+                          onTap: () => _navigateTo('/archiveList'),
+                        ),
+                        SubSidebarItem(
+                          icon: FontAwesomeIcons.clockRotateLeft,
+                          title: 'Audit Log',
+                          route: '/auditLog',
+                          isActive: _activeSubItem == '/auditLog',
+                          onTap: () => _navigateTo('/auditLog'),
+                        ),
+                      ],
                       SidebarItem(
                         icon: FontAwesomeIcons.truck,
                         title: 'Suppliers',
                         route: '/suppliers',
-                        isActive: activePage == 'suppliers',
+                        isActive: widget.activePage == 'suppliers',
                         onTap: () {
-                          Navigator.pushNamed(context, '/suppliers');
-                          onClose?.call();
+                          _navigateToMainPage('/suppliers');
                         },
                       ),
                       SidebarItem(
                         icon: FontAwesomeIcons.calendarDays,
                         title: 'Bookings',
                         route: '/bookings',
-                        isActive: activePage == 'bookings',
+                        isActive: widget.activePage == 'bookings',
                         onTap: () {
-                          Navigator.pushNamed(context, '/bookings');
-                          onClose?.call();
+                          _navigateToMainPage('/bookings');
                         },
                       ),
                       SidebarItem(
                         icon: FontAwesomeIcons.gears,
                         title: 'Services',
                         route: '/services',
-                        isActive: activePage == 'services',
+                        isActive: widget.activePage == 'services',
                         onTap: () {
-                          Navigator.pushNamed(context, '/services');
-                          onClose?.call();
+                          _navigateToMainPage('/services');
                         },
                       ),
                     ],
@@ -91,6 +129,33 @@ class Sidebar extends StatelessWidget {
               ],
             ),
           );
+  }
+
+  void _navigateTo(String route) {
+    setState(() {
+      _activeSubItem = route; // Update the active subitem
+      if (!route.startsWith('/inventory') &&
+          route != '/archiveList' &&
+          route != '/auditLog') {
+        _isInventoryExpanded =
+            false; // Collapse dropdown only if navigating outside Inventory
+      }
+    });
+
+    Future.delayed(const Duration(milliseconds: 200), () {
+      Navigator.pushNamed(context, route);
+      widget.onClose?.call();
+    });
+  }
+
+  void _navigateToMainPage(String route) {
+    setState(() {
+      _activeSubItem = ''; // Clear subitem highlight
+      _isInventoryExpanded = false; // Close dropdown
+    });
+
+    Navigator.pushNamed(context, route);
+    widget.onClose?.call();
   }
 
   Widget _buildDrawer(BuildContext context) {
@@ -117,50 +182,71 @@ class Sidebar extends StatelessWidget {
                   icon: FontAwesomeIcons.chartLine,
                   title: 'Dashboard',
                   route: '/dashboard',
-                  isActive: activePage == 'dashboard',
+                  isActive: widget.activePage == 'dashboard',
                   onTap: () {
-                    Navigator.pushNamed(context, '/dashboard');
-                    onClose?.call();
+                    _navigateToMainPage('/dashboard');
                   },
                 ),
-                SidebarItem(
+                SidebarItemWithDropdown(
                   icon: FontAwesomeIcons.boxOpen,
                   title: 'Inventory',
-                  route: '/inventory',
-                  isActive: activePage == 'inventory',
+                  isActive: widget.activePage == '/inventory' &&
+                      _activeSubItem.isEmpty,
+                  isExpanded: _isInventoryExpanded,
                   onTap: () {
-                    Navigator.pushNamed(context, '/inventory');
-                    onClose?.call();
+                    setState(() {
+                      _isInventoryExpanded = !_isInventoryExpanded;
+                    });
                   },
                 ),
+                if (_isInventoryExpanded) ...[
+                  SubSidebarItem(
+                    icon: FontAwesomeIcons.table,
+                    title: 'Table List',
+                    route: '/inventory',
+                    isActive: _activeSubItem == '/inventory',
+                    onTap: () => _navigateTo('/inventory'),
+                  ),
+                  SubSidebarItem(
+                    icon: FontAwesomeIcons.boxArchive,
+                    title: 'Archive List',
+                    route: '/archiveList',
+                    isActive: _activeSubItem == '/archiveList',
+                    onTap: () => _navigateTo('/archiveList'),
+                  ),
+                  SubSidebarItem(
+                    icon: FontAwesomeIcons.clockRotateLeft,
+                    title: 'Audit Log',
+                    route: '/auditLog',
+                    isActive: _activeSubItem == '/auditLog',
+                    onTap: () => _navigateTo('/auditLog'),
+                  ),
+                ],
                 SidebarItem(
                   icon: FontAwesomeIcons.truck,
                   title: 'Suppliers',
                   route: '/suppliers',
-                  isActive: activePage == 'suppliers',
+                  isActive: widget.activePage == 'suppliers',
                   onTap: () {
-                    Navigator.pushNamed(context, '/suppliers');
-                    onClose?.call();
+                    _navigateToMainPage('/suppliers');
                   },
                 ),
                 SidebarItem(
                   icon: FontAwesomeIcons.calendarDays,
                   title: 'Bookings',
                   route: '/bookings',
-                  isActive: activePage == 'bookings',
+                  isActive: widget.activePage == 'bookings',
                   onTap: () {
-                    Navigator.pushNamed(context, '/bookings');
-                    onClose?.call();
+                    _navigateToMainPage('/bookings');
                   },
                 ),
                 SidebarItem(
                   icon: FontAwesomeIcons.gears,
                   title: 'Services',
                   route: '/services',
-                  isActive: activePage == 'services',
+                  isActive: widget.activePage == 'services',
                   onTap: () {
-                    Navigator.pushNamed(context, '/services');
-                    onClose?.call();
+                    _navigateToMainPage('/services');
                   },
                 ),
               ],
@@ -180,14 +266,59 @@ class Sidebar extends StatelessWidget {
       route: '/login',
       isActive: false,
       onTap: () {
-        Navigator.pushNamed(context, '/login');
-        onClose?.call();
+        _navigateToMainPage('/login');
       },
     );
   }
 }
 
-class SidebarItem extends StatefulWidget {
+class SidebarItemWithDropdown extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final bool isActive;
+  final bool isExpanded;
+  final VoidCallback? onTap;
+
+  const SidebarItemWithDropdown({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.isActive,
+    required this.isExpanded,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const activeColor = Color.fromARGB(255, 33, 199, 255);
+
+    return MouseRegion(
+      child: Container(
+        color: isActive ? activeColor : Colors.transparent,
+        child: ListTile(
+          leading: FaIcon(
+            icon,
+            color: Colors.white,
+          ),
+          title: Text(
+            title,
+            style: const TextStyle(color: Colors.white),
+          ),
+          trailing: FaIcon(
+            isExpanded
+                ? FontAwesomeIcons.chevronDown
+                : FontAwesomeIcons.chevronRight,
+            color: Colors.white,
+            size: 14,
+          ),
+          onTap: onTap,
+        ),
+      ),
+    );
+  }
+}
+
+class SidebarItem extends StatelessWidget {
   final IconData icon;
   final String title;
   final String route;
@@ -204,47 +335,62 @@ class SidebarItem extends StatefulWidget {
   });
 
   @override
-  _SidebarItemState createState() => _SidebarItemState();
-}
-
-class _SidebarItemState extends State<SidebarItem> {
-  bool _isHovered = false;
-
-  @override
   Widget build(BuildContext context) {
-    final hoverColor = const Color.fromARGB(255, 93, 211, 254).withOpacity(0.2);
     const activeColor = Color.fromARGB(255, 33, 199, 255);
 
     return MouseRegion(
-      onEnter: (_) => setState(() {
-        _isHovered = true;
-      }),
-      onExit: (_) => setState(() {
-        _isHovered = false;
-      }),
       child: Container(
-        color: widget.isActive
-            ? activeColor
-            : _isHovered
-                ? hoverColor
-                : Colors.transparent,
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        color: isActive ? activeColor : Colors.transparent,
         child: ListTile(
-          contentPadding: const EdgeInsets.symmetric(vertical: 2.0),
           leading: FaIcon(
-            widget.icon,
+            icon,
             color: Colors.white,
-            size: 20,
           ),
           title: Text(
-            widget.title,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.normal,
-              color: Colors.white,
-            ),
+            title,
+            style: const TextStyle(color: Colors.white),
           ),
-          onTap: widget.onTap,
+          onTap: onTap,
+        ),
+      ),
+    );
+  }
+}
+
+class SubSidebarItem extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String route;
+  final bool isActive;
+  final VoidCallback? onTap;
+
+  const SubSidebarItem({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.route,
+    this.isActive = false,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const activeColor = Color.fromARGB(255, 33, 199, 255);
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 40.0),
+      child: Container(
+        color: isActive ? activeColor : Colors.transparent,
+        child: ListTile(
+          leading: FaIcon(
+            icon,
+            color: Colors.white,
+          ),
+          title: Text(
+            title,
+            style: const TextStyle(color: Colors.white),
+          ),
+          onTap: onTap,
         ),
       ),
     );
