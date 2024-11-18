@@ -84,10 +84,7 @@ class InventoryService {
   // UPDATE
   Future<void> updateItemDetails(InventoryData updatedItem) async {
     try {
-      await supabaseDB
-          .from('item_inventory')
-          .update(updatedItem.toJson())
-          .eq('itemID', updatedItem.itemID);
+      await supabaseDB.from('item_inventory').update(updatedItem.toJson()).eq('itemID', updatedItem.itemID);
     } catch (err) {
       print('Error updating item details: $err');
     }
