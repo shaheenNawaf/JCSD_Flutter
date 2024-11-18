@@ -24,11 +24,8 @@ class InventoryService {
   }
 
   // General Search Function - searches itemID, itemName, and itemType
-  Future<List<InventoryData>> searchItems({
-    int? itemID, // ? = null assignable in Dart, kay it may return empty
-    String? itemName, 
-    String? itemType,
-  }) async {
+  // Dart allows ? as assigned null, added nako here para ma handle sa function if may empty na parameter when called
+  Future<List<InventoryData>> searchItems({ int? itemID, String? itemName, String? itemType}) async {
     try {
       final query = supabaseDB.from('item_inventory').select();
       
@@ -82,9 +79,9 @@ class InventoryService {
   }
 
   // UPDATE
-  Future<void> updateItemDetails(InventoryData updatedItem) async {
+  Future<void> updateItemDetails(InventoryData updatedtem) async {
     try {
-      await supabaseDB.from('item_inventory').update(updatedItem.toJson()).eq('itemID', updatedItem.itemID);
+      await supabaseDB.from('item_inventory').update(updatedtem.toJson()).eq('itemID', updatedtem.itemID);
     } catch (err) {
       print('Error updating item details: $err');
     }
