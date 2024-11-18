@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -115,7 +115,7 @@ class _SupplierPageState extends State<SupplierPage>
           ? Drawer(
               backgroundColor: const Color(0xFF00AEEF),
               child: Sidebar(
-                activePage: 'suppliers',
+                activePage: '/suppliers',
                 onClose: _closeDrawer,
               ),
             )
@@ -129,7 +129,7 @@ class _SupplierPageState extends State<SupplierPage>
         children: [
           Row(
             children: [
-              if (!isMobile) const Sidebar(activePage: 'suppliers'),
+              if (!isMobile) const Sidebar(activePage: '/suppliers'),
               Expanded(
                 child: Column(
                   children: [
@@ -481,7 +481,6 @@ class _SupplierPageState extends State<SupplierPage>
   DataRow _buildDataRow(
       String name, String address, String contact, String email) {
     return DataRow(
-      color: WidgetStateProperty.all(Colors.white),
       cells: [
         DataCell(Text(name)),
         DataCell(Text(address)),

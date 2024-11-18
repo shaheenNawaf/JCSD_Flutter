@@ -212,19 +212,92 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
                                         ),
                                       ),
                                     ),
-                                    // Day Columns
-                                    ...weekDays.map((_) {
+                                    ...weekDays.map((day) {
+                                      bool hasContent = index == 0 &&
+                                          day.weekday == DateTime.monday;
                                       return Container(
                                         width: columnWidth,
                                         height: columnWidth,
-                                        decoration: const BoxDecoration(
-                                          border: Border(
+                                        alignment: Alignment.center,
+                                        padding: const EdgeInsets.all(8.0),
+                                        decoration: BoxDecoration(
+                                          color: hasContent
+                                              ? const Color(0xFFBFEBFB)
+                                              : Colors.transparent,
+                                          border: const Border(
                                             bottom:
                                                 BorderSide(color: Colors.grey),
                                             right:
                                                 BorderSide(color: Colors.grey),
                                           ),
                                         ),
+                                        child: hasContent
+                                            ? const Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Computer Repair',
+                                                    style: TextStyle(
+                                                      fontFamily: 'NunitoSans',
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Text(
+                                                    'Home Service',
+                                                    style: TextStyle(
+                                                      fontFamily: 'NunitoSans',
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 8),
+                                                  Text(
+                                                    'Booking ID:',
+                                                    style: TextStyle(
+                                                      fontFamily: 'NunitoSans',
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    '016245953',
+                                                    style: TextStyle(
+                                                      fontFamily: 'NunitoSans',
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 8),
+                                                  Text(
+                                                    'Assigned:',
+                                                    style: TextStyle(
+                                                      fontFamily: 'NunitoSans',
+                                                      fontWeight:
+                                                          FontWeight.normal,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    'Guevara, Mike B.',
+                                                    style: TextStyle(
+                                                      fontFamily: 'NunitoSans',
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            : null,
                                       );
                                     }),
                                   ],

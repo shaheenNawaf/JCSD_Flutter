@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -39,9 +39,7 @@ class _DashboardPageState extends State<DashboardPage>
     _animationController.reverse();
   }
 
-  void _navigateToProfile() {
-    // Add functionality to navigate to the user's profile page here.
-  }
+  void _navigateToProfile() {}
 
   @override
   Widget build(BuildContext context) {
@@ -78,7 +76,7 @@ class _DashboardPageState extends State<DashboardPage>
           ? Drawer(
               backgroundColor: const Color(0xFF00AEEF),
               child: Sidebar(
-                activePage: 'dashboard',
+                activePage: '/dashboard',
                 onClose: _closeDrawer,
               ),
             )
@@ -92,7 +90,7 @@ class _DashboardPageState extends State<DashboardPage>
         children: [
           Row(
             children: [
-              if (!isMobile) const Sidebar(activePage: 'dashboard'),
+              if (!isMobile) const Sidebar(activePage: '/dashboard'),
               Expanded(
                 child: Column(
                   children: [
