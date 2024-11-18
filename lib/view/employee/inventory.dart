@@ -7,6 +7,7 @@ import 'package:jcsd_flutter/modals/additem.dart';
 import 'package:jcsd_flutter/modals/edititem.dart';
 import 'package:jcsd_flutter/modals/archiveitem.dart';
 import 'package:jcsd_flutter/modals/stockinitem.dart';
+import 'package:jcsd_flutter/view/employee/suppliers.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 
@@ -414,7 +415,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
 
   Widget _buildHeaderRow() {
     return Container(
-      color: const Color.fromRGBO(0, 134, 239, 1),
+      color: const Color.fromRGBO(0, 174, 239, 1),
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -516,7 +517,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
               style: const TextStyle(
                 fontFamily: 'NunitoSans',
               ),
-              textAlign: TextAlign.center, // Center-align Item ID
+              textAlign: TextAlign.center,
             ),
           ),
           Expanded(
@@ -533,6 +534,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
               style: const TextStyle(
                 fontFamily: 'NunitoSans',
               ),
+              textAlign: TextAlign.center,
             ),
           ),
           Expanded(
@@ -541,6 +543,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
               style: const TextStyle(
                 fontFamily: 'NunitoSans',
               ),
+              textAlign: TextAlign.center,
             ),
           ),
           Expanded(
@@ -551,7 +554,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
-                'P ${items[index].itemQuantity.toString()}',
+                '${items[index].itemQuantity.toString()} pcs',
                 style: const TextStyle(
                   fontFamily: 'NunitoSans',
                   color: Colors.white,
@@ -562,10 +565,9 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
           ),
           Expanded(
             child: Text(
-              items[index].itemQuantity.toString(),
-              style: const TextStyle(
-                fontFamily: 'NunitoSans',
-              ),
+              'P ${items[index].itemPrice.toString()}',
+              style: const TextStyle(fontFamily: 'NunitoSans'),
+              textAlign: TextAlign.center,
             ),
           ),
           Expanded(
@@ -584,6 +586,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
                       style: TextStyle(
                         fontFamily: 'NunitoSans',
                         color: Colors.white,
+                        fontSize: 8,
                       ),
                     ),
                   ),
@@ -600,6 +603,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
                       style: TextStyle(
                         fontFamily: 'NunitoSans',
                         color: Colors.white,
+                        fontSize: 8,
                       ),
                     ),
                   ),
@@ -622,4 +626,9 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
       return Colors.green;
     }
   }
+
+  //Fetch Supppliers List
+  // String _fetchSupplierName (int supplierID, List<SupplierPage>){
+  //   return '';
+  // }
 }
