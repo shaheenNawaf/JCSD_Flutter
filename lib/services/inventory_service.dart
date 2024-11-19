@@ -15,10 +15,10 @@ class InventoryService {
         return null;
       }else{
         print("ITEM_ID is present in the table: $itemID");
+        return InventoryData.fromJson(fetchItem);
       }
-      return InventoryData.fromJson(fetchItem);
     } catch (err) {
-      print('Error fetching item by ID: $err');
+      print('Error accessing table: $err');
       return null;
     }
   }
