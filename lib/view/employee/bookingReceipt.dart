@@ -181,22 +181,15 @@ class _WebView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  const Row(
                     children: [
-                      const Text(
+                      Text(
                         'Receipt',
                         style: TextStyle(
                           fontFamily: 'NunitoSans',
                           fontWeight: FontWeight.bold,
                           fontSize: 30,
                         ),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Color(0xFF00AEEF)),
-                        onPressed: () {
-                          // Add your edit functionality here
-                        },
                       ),
                     ],
                   ),

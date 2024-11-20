@@ -217,7 +217,7 @@ class _BookingDetailsState extends State<BookingDetails>
             child: SizedBox(
               width: double.infinity,
               child: Padding(
-                padding: const EdgeInsets.all(30),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -259,7 +259,25 @@ class _BookingDetailsState extends State<BookingDetails>
                       'Assigned Employee',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const Text('John Paul'),
+                    Row(
+                      children: [
+                        const Text('John Paul'),
+                        const Spacer(),
+                        ElevatedButton(
+                          onPressed: () {
+                            _showBookingRequestModal();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF00AEEF),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                          child: const Text('Finalize'),
+                        )
+                      ],
+                    ),
                   ],
                 ),
               ),
