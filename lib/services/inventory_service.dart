@@ -5,105 +5,94 @@ import 'package:jcsd_flutter/api/global_variables.dart';
 import 'package:jcsd_flutter/models/inventory_data.dart';
 
 class InventoryService {
-  // ? included for possibility that it may be null
 
-  // Method 1: Searching by ID
-  Future<InventoryData?> getItemByID(int itemID) async{
-    final idItem = await supabaseDB.from('item_inventory').select().eq('itemID', itemID).single(); //Gets specific not 
-
-    //For browser console = checking ifEmpty
-    if(idItem.isEmpty == true){
-      print("Specified ITEM_ID isn't found: $itemID");
+  //Single Item - for loading their details (NOT SEARCH)
+  Future<InventoryData?> getItemByID(int itemID) async {
+    try {
+      final fetchItem = await supabaseDB.from('item_inventory').select().eq('itemID', itemID).single();
+      if (fetchItem.isEmpty == true) {
+        print("ITEM_ID not found: $itemID");
+        return null;
+      }else{
+        print("ITEM_ID is present in the table: $itemID");
+        return InventoryData.fromJson(fetchItem);
+      }
+    } catch (err) {
+      print('Error accessing table: $err');
       return null;
     }
-    else{
-      return InventoryData.fromJson(idItem); //Parsing the data as a JSON-like file for easier access
-    }
   }
 
-  //Method 1: Search Function -- all possible results
-  Future<List<InventoryData?>> searchItems({ int? itemID, String? itemName, String? itemType}) async {
-    try{ 
-      final itemSearch = supabaseDB.from('item_inventory').select();
-
-      if(itemID != null){
-        itemSearch.eq('itemID', itemID);
-        print("Specified ITEM_ID isn't found: $itemID");
+  // General Search Function - searches itemID, itemName, and itemType
+  // Dart allows ? as assigned null, added nako here para ma handle sa function if may empty na parameter when called
+  Future<List<InventoryData>> searchItems({ int? itemID, String? itemName, String? itemType}) async {
+    try {
+      final query = supabaseDB.from('item_inventory').select();
+      
+      if (itemID != null){
+        query.eq('itemID', itemID);
       }
-      if(itemName != null){
-        itemSearch.eq('itemName', itemName);
-        print("Specified ITEM_NAME isn't found: $itemName");
+      if (itemName != null){
+        query.eq('itemName', itemName);
       }
-      if(itemType != null){
-        itemSearch.eq('itemType', itemType);
-        print("Specified ITEM_TYPE doesn't exist: $itemType");
+      if (itemType != null){
+        query.eq('itemType', itemType);
       }
 
-      final storeSearch = await itemSearch.select(); //Store search results here
-
-      if(storeSearch.isEmpty == true){
-        print("Specified search didn't return any items");
+      final results = await query;
+      if (results.isEmpty) {
+        print("No Items found in the database.");
+        //Add widget
         return [];
-      }else{
-        //Storing the data as a list
-        List<InventoryData> storeResults = storeSearch.map(
-        (dynamic itemData) {return InventoryData.fromJson(itemData as Map<String, dynamic>);
-        },
-        ).toList();
-
-        return storeResults;
       }
-    }
-    catch(err){
-      print('Error fetching data: $err');
+      return results.map<InventoryData>((item) => InventoryData.fromJson(item)).toList();
+    } catch (err) {
+      print('Error Searching Items. Refer to error here: $err');
       return [];
     }
-    
   }
 
-// Method 2: Displaying all Employees from DB
-Future<List<InventoryData?>> displayAllItems() async{
-  final displayItems = await supabaseDB.from('item_inventory').select();
-    
-  if(displayItems.isEmpty == true ){
-      print("Table 'Items_Inventory' is empty.");
-      return [];
-    }else{
-      List<InventoryData> inventoryItems = []; //Init state
-      for(var eachItem in displayItems){
-        inventoryItems.add(InventoryData.fromJson(eachItem));
+  // Just fetching all the items inside the database
+  Future<List<InventoryData>> displayAllItems() async {
+    try {
+      final results = await supabaseDB.from('item_inventory').select();
+      if (results.isEmpty) {
+        print("No items inside the database");
+        return [];
       }
-      return inventoryItems;
+      //Notes ni Shaheen para di malibog HASHDUAJKDAD
+      //Returns a FutureList - break down using the .when property
+      return results.map<InventoryData>((item) => InventoryData.fromJson(item)).toList(); 
+    } catch (err) {
+      print('Error fetching all items: $err');
+      return [];
     }
   }
 
-  //Method 3: Adding a new item on the Inventory
-  Future<void> addNewItem(InventoryData newItem) async{
-    try{
-      final addItem = await supabaseDB.from('item_inventory').insert(newItem.toJson()); 
-      return addItem;
-    }catch(err){
-      print('Tried adding, caught error in: $err');
+  // ADD ITEM - double check entry, might need to update fields from InventoryData
+  Future<void> addNewItem(InventoryData newItem) async {
+    try {
+      await supabaseDB.from('item_inventory').insert(newItem.toJson());
+    } catch (err) {
+      print('Error adding new item: $err');
     }
   }
 
-  //Method 4: Updating an Item's Details
-  Future<void> updateItemDetails(InventoryData updateItem) async{
-    try{
-      final updateItemDetails = await supabaseDB.from('item_inventory').update(updateItem.toJson()).eq('itemID', updateItem.itemID);
-      return updateItemDetails;
-    }catch(err){
-      print("Tried updating, caught error: $err");
+  // UPDATE
+  Future<void> updateItemDetails(InventoryData updatedtem) async {
+    try {
+      await supabaseDB.from('item_inventory').update(updatedtem.toJson()).eq('itemID', updatedtem.itemID);
+    } catch (err) {
+      print('Error updating item details: $err');
     }
   }
 
-  //Method 5: Updating Item's visibility/state
-  Future<void> updateItemVisibility(int itemID, bool isVisible) async{
-    try{
-      final updateItemDetails = await supabaseDB.from('item_inventory').update({'isVisible': isVisible}).eq('itemID', itemID);
-      return updateItemDetails;
-    }catch(err){
-      print('Tried updating the visibility of the $itemID, but caught $err');
+  // Updating Item Visibility/Soft-delete
+  Future<void> updateItemVisibility(int itemID, bool isVisible) async {
+    try {
+      await supabaseDB.from('item_inventory').update({'isVisible': isVisible}).eq('itemID', itemID);
+    } catch (err) {
+      print('Error updating Item:$itemID visibility. Error Message: $err');
     }
   }
 }

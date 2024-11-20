@@ -1,5 +1,6 @@
 // Imports
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/others/transition.dart';
 import 'package:jcsd_flutter/view/admin/accountdetails.dart';
 import 'package:jcsd_flutter/view/admin/bookingcalendar.dart';
@@ -36,7 +37,7 @@ import 'package:jcsd_flutter/view/client/booking_second.dart';
 
 void main() async {
   supabase_init(); // Initialize Supabase - DONT TOUCH GUYS
-  runApp(const MainApp());
+  runApp(ProviderScope (child: MainApp()));
 }
 
 class MainApp extends StatelessWidget {
@@ -88,7 +89,7 @@ class MainApp extends StatelessWidget {
 
         // Employee View
         '/dashboard': (context) => const DashboardPage(),
-        '/inventory': (context) => const InventoryPage(),
+        '/inventory': (context) => InventoryPage(),
         '/suppliers': (context) => const SupplierPage(),
         '/supplierArchive': (context) => const SupplierArchivePage(),
         '/bookings': (context) => const BookingsPage(),

@@ -1,22 +1,33 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/modals/additem.dart';
 import 'package:jcsd_flutter/modals/edititem.dart';
 import 'package:jcsd_flutter/modals/archiveitem.dart';
 import 'package:jcsd_flutter/modals/stockinitem.dart';
+import 'package:jcsd_flutter/view/employee/suppliers.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 
-class InventoryPage extends StatefulWidget {
+//Inventory Backend Imports -- Please don't touch
+import 'package:jcsd_flutter/api/supa_details.dart';
+import 'package:jcsd_flutter/providers/inventory_state.dart';
+import 'package:jcsd_flutter/services/inventory_service.dart';
+import 'package:jcsd_flutter/models/inventory_data.dart';
+
+//Suppliers Mini-Service
+// To be added later
+
+class InventoryPage extends ConsumerStatefulWidget {
   const InventoryPage({super.key});
 
   @override
-  _InventoryPageState createState() => _InventoryPageState();
+  ConsumerState createState() => _InventoryPageState();
 }
 
-class _InventoryPageState extends State<InventoryPage>
+class _InventoryPageState extends ConsumerState<InventoryPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   final String _activeSubItem = '/inventory';
@@ -288,7 +299,7 @@ class _InventoryPageState extends State<InventoryPage>
         ),
         const SizedBox(height: 16),
         Expanded(
-          child: _buildDataTable(),
+          child: _buildDataTable(context),
         ),
       ],
     );
@@ -360,269 +371,264 @@ class _InventoryPageState extends State<InventoryPage>
       },
     );
   }
+  
+  Widget _buildDataTable(BuildContext context) {
+  final fetchInventory = ref.watch(fetchInventoryList);
 
-  Widget _buildDataTable() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: ListView(
-        children: [
-          DataTable(
-            headingRowColor: WidgetStateProperty.all(
-              const Color(0xFF00AEEF),
+  return fetchInventory.when(
+    data: (items) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            )
+          ],
+        ),
+        child: Column(
+          children: [
+            _buildHeaderRow(),
+            const Divider(height: 1, color: Colors.grey),
+            Expanded(
+              child: ListView.builder(
+                itemCount: items.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return _buildItemRow(items, index);
+                },
+              ),
             ),
-            columns: const [
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Item ID',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Item Name',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Item Type',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Supplier',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Quantity',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Price',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Padding(
-                  padding: EdgeInsets.only(left: 75),
-                  child: Center(
-                    child: Text(
-                      'Action',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-            rows: [
-              _buildDataRow(
-                '0126546',
-                'Samsung SSD 500GB',
-                'Technology',
-                'Samsung',
-                '12 pcs',
-                'P500',
-                Colors.green,
-              ),
-              _buildDataRow(
-                '0126546',
-                'Samsung SSD 500GB',
-                'Technology',
-                'Samsung',
-                '2 pcs',
-                'P500',
-                Colors.red,
-              ),
-              _buildDataRow(
-                '0126546',
-                'Samsung SSD 500GB',
-                'Technology',
-                'Samsung',
-                '5 pcs',
-                'P500',
-                Colors.yellow,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    },
+    error: (err, stackTrace) => Text('Error fetching data from table: $err'),
+    loading: () => const LinearProgressIndicator(
+      backgroundColor: Color.fromRGBO(0, 134, 239, 1),
+    ),
+  );
   }
 
-  DataRow _buildDataRow(String id, String name, String type, String supplier,
-      String quantity, String price, Color quantityColor) {
-    return DataRow(
-      color: WidgetStateProperty.all(Colors.white),
-      cells: [
-        DataCell(Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            id,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ),
-          ),
-        )),
-        DataCell(Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            name,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ),
-          ),
-        )),
-        DataCell(Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            type,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ),
-          ),
-        )),
-        DataCell(Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            supplier,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ),
-          ),
-        )),
-        DataCell(Align(
-          alignment: Alignment.centerLeft,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              color: quantityColor,
-              borderRadius: BorderRadius.circular(10),
-            ),
+  Widget _buildHeaderRow() {
+    return Container(
+      color: const Color.fromRGBO(0, 174, 239, 1),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
             child: Text(
-              quantity,
-              style: const TextStyle(
+              'Item ID',
+              style: TextStyle(
                 fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
               textAlign: TextAlign.center,
             ),
           ),
-        )),
-        DataCell(Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            price,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
+          Expanded(
+            child: Text(
+              'Item Name',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
-        )),
-        DataCell(Align(
-          alignment: Alignment.centerLeft,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: 100,
-                child: ElevatedButton(
-                  onPressed: _showEditItemModal,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                  ),
-                  child: const Text(
-                    'Edit',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+          Expanded(
+            child: Text(
+              'Item Type',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
-              const SizedBox(width: 4),
-              SizedBox(
-                width: 110,
-                child: ElevatedButton(
-                  onPressed: _showArchiveItemModal,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                  ),
-                  child: const Text(
-                    'Archive',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ],
+              textAlign: TextAlign.center,
+            ),
           ),
-        )),
-      ],
+          Expanded(
+            child: Text(
+              'Supplier',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Quantity',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Price',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Actions',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
     );
   }
+
+  Widget _buildItemRow(List<InventoryData> items, int index) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      decoration: BoxDecoration(
+        color: index % 2 == 0 ? Colors.grey[100] : Colors.white,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              items[index].itemID.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              items[index].itemName.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              items[index].itemType.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              items[index].supplierID.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: _itemQuantityColor(items[index].itemQuantity),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                '${items[index].itemQuantity.toString()} pcs',
+                style: const TextStyle(
+                  fontFamily: 'NunitoSans',
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'P ${items[index].itemPrice.toString()}',
+              style: const TextStyle(fontFamily: 'NunitoSans'),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(
+                  width: 80,
+                  child: ElevatedButton(
+                    onPressed: _showEditItemModal,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
+                    child: const Text(
+                      'Edit',
+                      style: TextStyle(
+                        fontFamily: 'NunitoSans',
+                        color: Colors.white,
+                        fontSize: 8,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 80,
+                  child: ElevatedButton(
+                    onPressed: _showArchiveItemModal,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    child: const Text(
+                      'Archive',
+                      style: TextStyle(
+                        fontFamily: 'NunitoSans',
+                        color: Colors.white,
+                        fontSize: 8,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+  Color _itemQuantityColor (int itemQuantity){
+    if (itemQuantity < 10){
+      return Colors.red;
+    }else if(itemQuantity < 20){
+      return Colors.yellow;
+    }else{
+      return Colors.green;
+    }
+  }
+
+  //Fetch Supppliers List
+  // String _fetchSupplierName (int supplierID, List<SupplierPage>){
+  //   return '';
+  // }
 }
