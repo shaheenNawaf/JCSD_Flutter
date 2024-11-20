@@ -46,7 +46,7 @@ class _AccountListPageState extends State<AccountListPage> {
           ? const Drawer(
               backgroundColor: Color(0xFF00AEEF),
               child: Sidebar(
-                activePage: 'account_list',
+                activePage: '/accountList',
               ),
             )
           : null,
@@ -54,7 +54,7 @@ class _AccountListPageState extends State<AccountListPage> {
         children: [
           Row(
             children: [
-              if (!isMobile) const Sidebar(activePage: 'account_list'),
+              if (!isMobile) const Sidebar(activePage: '/accountList'),
               Expanded(
                 child: Column(
                   children: [

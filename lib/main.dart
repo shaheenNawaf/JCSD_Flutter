@@ -5,8 +5,11 @@ import 'package:jcsd_flutter/view/admin/accountdetails.dart';
 import 'package:jcsd_flutter/view/admin/bookingcalendar.dart';
 import 'package:jcsd_flutter/view/admin/leaverequestlist.dart';
 import 'package:jcsd_flutter/view/admin/payroll.dart';
+import 'package:jcsd_flutter/view/client/profile_client.dart';
 import 'package:jcsd_flutter/view/employee/dashboard.dart';
 import 'package:jcsd_flutter/view/employee/services.dart';
+import 'package:jcsd_flutter/view/employee/services_archive.dart';
+import 'package:jcsd_flutter/view/employee/suppliers_archive.dart';
 import 'package:jcsd_flutter/view/generic/error.dart';
 import 'package:jcsd_flutter/global_variables.dart';
 
@@ -15,7 +18,7 @@ import 'package:jcsd_flutter/view/users/login.dart';
 import 'package:jcsd_flutter/view/generic/signup_first.dart';
 import 'package:jcsd_flutter/view/generic/signup_second.dart';
 import 'package:jcsd_flutter/view/employee/inventory.dart';
-import 'package:jcsd_flutter/view/employee/archive.dart';
+import 'package:jcsd_flutter/view/employee/inventory_archive.dart';
 import 'package:jcsd_flutter/view/employee/auditLog.dart';
 import 'package:jcsd_flutter/view/employee/bookings.dart';
 import 'package:jcsd_flutter/view/employee/transactions.dart';
@@ -81,16 +84,19 @@ class MainApp extends StatelessWidget {
         // Client View
         '/booking1': (context) => const ClientBooking1(),
         '/booking2': (context) => const ClientBooking2(),
+        '/profileClient': (context) => const ProfilePageClient(),
 
         // Employee View
         '/dashboard': (context) => const DashboardPage(),
         '/inventory': (context) => const InventoryPage(),
         '/suppliers': (context) => const SupplierPage(),
+        '/supplierArchive': (context) => const SupplierArchivePage(),
         '/bookings': (context) => const BookingsPage(),
         '/transactions': (context) => const TransactionsPage(),
         '/archiveList': (context) => const ArchiveListPage(),
         '/auditLog': (context) => const AuditLogPage(),
         '/services': (context) => const ServicesPage(),
+        '/servicesArchive': (context) => const ServicesArchivePage(),
         '/profile': (context) => const ProfilePage(),
         '/leaveRequest': (context) => const LeaveRequest(),
         '/bookingDetail': (context) => const BookingDetails(),

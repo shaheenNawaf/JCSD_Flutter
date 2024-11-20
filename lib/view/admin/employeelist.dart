@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -46,7 +46,7 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
           ? const Drawer(
               backgroundColor: Color(0xFF00AEEF),
               child: Sidebar(
-                activePage: 'employee_list',
+                activePage: '/employeeList',
               ),
             )
           : null,
@@ -54,7 +54,7 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
         children: [
           Row(
             children: [
-              if (!isMobile) const Sidebar(activePage: 'employee_list'),
+              if (!isMobile) const Sidebar(activePage: '/employeeList'),
               Expanded(
                 child: Column(
                   children: [

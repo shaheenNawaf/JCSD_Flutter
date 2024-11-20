@@ -2,21 +2,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:jcsd_flutter/modals/addservice.dart';
-import 'package:jcsd_flutter/modals/editservice.dart';
-import 'package:jcsd_flutter/modals/archiveservice.dart';
+import 'package:jcsd_flutter/modals/unarchivesupplier.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
-class ServicesPage extends StatefulWidget {
-  const ServicesPage({super.key});
+class SupplierArchivePage extends StatefulWidget {
+  const SupplierArchivePage({super.key});
 
   @override
-  _ServicesPageState createState() => _ServicesPageState();
+  _SupplierArchivePageState createState() => _SupplierArchivePageState();
 }
 
-class _ServicesPageState extends State<ServicesPage>
+class _SupplierArchivePageState extends State<SupplierArchivePage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  final String _activeSubItem = '/supplierArchive';
 
   @override
   void initState() {
@@ -41,35 +40,12 @@ class _ServicesPageState extends State<ServicesPage>
     _animationController.reverse();
   }
 
-  void _showAddServiceModal() {
+  void _showUnarchiveSupplierModal() {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return const AddServiceModal();
-      },
-    );
-  }
-
-  void _showEditServiceModal(String serviceName, String price) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return EditServiceModal(
-          serviceName: serviceName,
-          price: price,
-        );
-      },
-    );
-  }
-
-  void _showArchiveServiceModal() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const ArchiveServiceModal();
+        return const UnarchiveSupplierModal();
       },
     );
   }
@@ -84,7 +60,7 @@ class _ServicesPageState extends State<ServicesPage>
           ? AppBar(
               backgroundColor: const Color(0xFF00AEEF),
               title: const Text(
-                'Services',
+                'Archive List',
                 style: TextStyle(
                   fontFamily: 'NunitoSans',
                   fontWeight: FontWeight.bold,
@@ -103,36 +79,22 @@ class _ServicesPageState extends State<ServicesPage>
                   },
                 ),
               ),
-              actions: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.add,
-                    color: Colors.white,
-                  ),
-                  onPressed: _showAddServiceModal,
-                ),
-              ],
             )
           : null,
       drawer: isMobile
           ? Drawer(
               backgroundColor: const Color(0xFF00AEEF),
               child: Sidebar(
-                activePage: '/services',
+                activePage: _activeSubItem,
                 onClose: _closeDrawer,
               ),
             )
           : null,
-      onDrawerChanged: (isOpened) {
-        if (!isOpened) {
-          _closeDrawer();
-        }
-      },
       body: Stack(
         children: [
           Row(
             children: [
-              if (!isMobile) const Sidebar(activePage: '/services'),
+              if (!isMobile) Sidebar(activePage: _activeSubItem),
               Expanded(
                 child: Column(
                   children: [
@@ -145,7 +107,7 @@ class _ServicesPageState extends State<ServicesPage>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Services',
+                              'Archive List',
                               style: TextStyle(
                                 fontFamily: 'NunitoSans',
                                 fontWeight: FontWeight.bold,
@@ -227,51 +189,26 @@ class _ServicesPageState extends State<ServicesPage>
       children: [
         Align(
           alignment: Alignment.centerRight,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: 250,
-                height: 40,
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search',
-                    hintStyle: const TextStyle(
-                      color: Color(0xFFABABAB),
-                      fontFamily: 'NunitoSans',
-                    ),
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 0,
-                      horizontal: 16,
-                    ),
-                  ),
+          child: SizedBox(
+            width: 350,
+            height: 40,
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search',
+                hintStyle: const TextStyle(
+                  color: Color(0xFFABABAB),
+                  fontFamily: 'NunitoSans',
+                ),
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 16,
                 ),
               ),
-              const SizedBox(width: 16),
-              ElevatedButton.icon(
-                onPressed: _showAddServiceModal,
-                icon: const Icon(Icons.add, color: Colors.white),
-                label: const Text(
-                  'Add',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00AEEF),
-                  minimumSize: const Size(0, 48),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
         const SizedBox(height: 16),
@@ -284,35 +221,58 @@ class _ServicesPageState extends State<ServicesPage>
 
   Widget _buildMobileListView() {
     return ListView.builder(
-      itemCount: 3,
+      itemCount: 1,
       itemBuilder: (context, index) {
-        return ListTile(
-          title: const Text(
-            'Service Name',
-            style: TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          subtitle: const Text(
-            'P600',
-            style: TextStyle(
-              fontFamily: 'NunitoSans',
-            ),
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit, color: Colors.green),
-                onPressed: () => _showEditServiceModal,
+        return Column(
+          children: [
+            ListTile(
+              title: const Text(
+                'Samsung',
+                style: TextStyle(
+                  fontFamily: 'NunitoSans',
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: _showArchiveServiceModal,
+              subtitle: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Davao City',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                    ),
+                  ),
+                  Text(
+                    '092784162',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                    ),
+                  ),
+                  Text(
+                    'samsung@gmail.com',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+              trailing: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                ),
+                onPressed: _showUnarchiveSupplierModal,
+                child: const Text(
+                  'Unarchive',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            const Divider(
+              thickness: 1,
+              height: 1,
+              color: Colors.grey,
+            ),
+          ],
         );
       },
     );
@@ -335,12 +295,14 @@ class _ServicesPageState extends State<ServicesPage>
       child: ListView(
         children: [
           DataTable(
-            headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
+            headingRowColor: WidgetStateProperty.all(
+              const Color(0xFF00AEEF),
+            ),
             columns: const [
               DataColumn(
                 label: Center(
                   child: Text(
-                    'Service Name',
+                    'Supplier Name',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                       fontWeight: FontWeight.w600,
@@ -352,7 +314,31 @@ class _ServicesPageState extends State<ServicesPage>
               DataColumn(
                 label: Center(
                   child: Text(
-                    'Price',
+                    'Address',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              DataColumn(
+                label: Center(
+                  child: Text(
+                    'Contact Number',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              DataColumn(
+                label: Center(
+                  child: Text(
+                    'Email',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                       fontWeight: FontWeight.w600,
@@ -363,7 +349,7 @@ class _ServicesPageState extends State<ServicesPage>
               ),
               DataColumn(
                 label: Padding(
-                  padding: EdgeInsets.only(left: 60),
+                  padding: EdgeInsets.only(left: 40),
                   child: Center(
                     child: Text(
                       'Action',
@@ -372,16 +358,30 @@ class _ServicesPageState extends State<ServicesPage>
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
               ),
             ],
             rows: [
-              _buildDataRow('Computer Repair', 'P600'),
-              _buildDataRow('Computer Cleaning', 'P600'),
-              _buildDataRow('Computer Diagnosis', 'P600'),
+              _buildDataRow(
+                'Samsung',
+                'Davao City',
+                '092784162',
+                'samsung@gmail.com',
+              ),
+              _buildDataRow(
+                'LG',
+                'Cebu City',
+                '091234567',
+                'lg@gmail.com',
+              ),
+              _buildDataRow(
+                'Sony',
+                'Manila City',
+                '092987654',
+                'sony@gmail.com',
+              ),
             ],
           ),
         ],
@@ -389,43 +389,24 @@ class _ServicesPageState extends State<ServicesPage>
     );
   }
 
-  DataRow _buildDataRow(String serviceName, String price) {
+  DataRow _buildDataRow(
+      String name, String address, String contact, String email) {
     return DataRow(
       cells: [
-        DataCell(Text(serviceName,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
-        DataCell(Text(price,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
+        DataCell(Text(name)),
+        DataCell(Text(address)),
+        DataCell(Text(contact)),
+        DataCell(Text(email)),
         DataCell(
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              ElevatedButton(
-                onPressed: () => _showEditServiceModal(serviceName, price),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
-                child: const Text('Edit',
-                    style: TextStyle(
-                      color: Colors.white,
-                    )),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: _showArchiveServiceModal,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
-                child: const Text('Archive',
-                    style: TextStyle(
-                      color: Colors.white,
-                    )),
-              ),
-            ],
+          ElevatedButton(
+            onPressed: _showUnarchiveSupplierModal,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+            ),
+            child: const Text(
+              'Unarchive',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ),
       ],

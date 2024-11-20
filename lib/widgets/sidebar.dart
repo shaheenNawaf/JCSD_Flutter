@@ -16,6 +16,9 @@ class Sidebar extends StatefulWidget {
 class _SidebarState extends State<Sidebar> {
   bool _isInventoryExpanded = false;
   bool _isBookingsExpanded = false;
+  bool _isSuppliersExpanded = false;
+  bool _isServicesExpanded = false;
+  bool _isProfilingExpanded = false;
   String _activeSubItem = '';
 
   @override
@@ -23,13 +26,54 @@ class _SidebarState extends State<Sidebar> {
     super.initState();
     _activeSubItem = widget.activePage;
 
-    // Expand dropdowns if the active page is within their subitems
     _isInventoryExpanded = widget.activePage.startsWith('/inventory') ||
         widget.activePage == '/archiveList' ||
         widget.activePage == '/auditLog';
     _isBookingsExpanded = widget.activePage.startsWith('/bookings') ||
         widget.activePage == '/bookingsCalendar' ||
         widget.activePage == '/transactions';
+    _isSuppliersExpanded = widget.activePage.startsWith('/suppliers') ||
+        widget.activePage == '/supplierArchive';
+    _isServicesExpanded = widget.activePage.startsWith('/services') ||
+        widget.activePage == '/servicesArchive';
+    _isProfilingExpanded = widget.activePage.startsWith('/accountList') ||
+        widget.activePage.startsWith('/employeeList');
+  }
+
+  void _toggleDropdown(String dropdown) {
+    setState(() {
+      if (dropdown == 'inventory') {
+        _isInventoryExpanded = !_isInventoryExpanded;
+        _isBookingsExpanded = false;
+        _isSuppliersExpanded = false;
+        _isServicesExpanded = false;
+        _isProfilingExpanded = false;
+      } else if (dropdown == 'bookings') {
+        _isBookingsExpanded = !_isBookingsExpanded;
+        _isInventoryExpanded = false;
+        _isSuppliersExpanded = false;
+        _isServicesExpanded = false;
+        _isProfilingExpanded = false;
+      } else if (dropdown == 'suppliers') {
+        _isSuppliersExpanded = !_isSuppliersExpanded;
+        _isInventoryExpanded = false;
+        _isBookingsExpanded = false;
+        _isServicesExpanded = false;
+        _isProfilingExpanded = false;
+      } else if (dropdown == 'services') {
+        _isServicesExpanded = !_isServicesExpanded;
+        _isInventoryExpanded = false;
+        _isBookingsExpanded = false;
+        _isSuppliersExpanded = false;
+        _isProfilingExpanded = false;
+      } else if (dropdown == 'profiling') {
+        _isProfilingExpanded = !_isProfilingExpanded;
+        _isInventoryExpanded = false;
+        _isBookingsExpanded = false;
+        _isSuppliersExpanded = false;
+        _isServicesExpanded = false;
+      }
+    });
   }
 
   @override
@@ -68,13 +112,9 @@ class _SidebarState extends State<Sidebar> {
                       SidebarItemWithDropdown(
                         icon: FontAwesomeIcons.boxOpen,
                         title: 'Inventory',
-                        isActive: false, // Parent should not be active
+                        isActive: false,
                         isExpanded: _isInventoryExpanded,
-                        onTap: () {
-                          setState(() {
-                            _isInventoryExpanded = !_isInventoryExpanded;
-                          });
-                        },
+                        onTap: () => _toggleDropdown('inventory'),
                       ),
                       if (_isInventoryExpanded) ...[
                         SubSidebarItem(
@@ -102,13 +142,9 @@ class _SidebarState extends State<Sidebar> {
                       SidebarItemWithDropdown(
                         icon: FontAwesomeIcons.calendarDays,
                         title: 'Bookings',
-                        isActive: false, // Parent should not be active
+                        isActive: false,
                         isExpanded: _isBookingsExpanded,
-                        onTap: () {
-                          setState(() {
-                            _isBookingsExpanded = !_isBookingsExpanded;
-                          });
-                        },
+                        onTap: () => _toggleDropdown('bookings'),
                       ),
                       if (_isBookingsExpanded) ...[
                         SubSidebarItem(
@@ -133,24 +169,75 @@ class _SidebarState extends State<Sidebar> {
                           onTap: () => _navigateTo('/transactions'),
                         ),
                       ],
-                      SidebarItem(
+                      SidebarItemWithDropdown(
                         icon: FontAwesomeIcons.truck,
                         title: 'Suppliers',
-                        route: '/suppliers',
-                        isActive: widget.activePage == '/suppliers',
-                        onTap: () {
-                          _navigateToMainPage('/suppliers');
-                        },
+                        isActive: false,
+                        isExpanded: _isSuppliersExpanded,
+                        onTap: () => _toggleDropdown('suppliers'),
                       ),
-                      SidebarItem(
+                      if (_isSuppliersExpanded) ...[
+                        SubSidebarItem(
+                          icon: FontAwesomeIcons.table,
+                          title: 'Table List',
+                          route: '/suppliers',
+                          isActive: _activeSubItem == '/suppliers',
+                          onTap: () => _navigateTo('/suppliers'),
+                        ),
+                        SubSidebarItem(
+                          icon: FontAwesomeIcons.boxArchive,
+                          title: 'Archive List',
+                          route: '/supplierArchive',
+                          isActive: _activeSubItem == '/supplierArchive',
+                          onTap: () => _navigateTo('/supplierArchive'),
+                        ),
+                      ],
+                      SidebarItemWithDropdown(
                         icon: FontAwesomeIcons.gears,
                         title: 'Services',
-                        route: '/services',
-                        isActive: widget.activePage == '/services',
-                        onTap: () {
-                          _navigateToMainPage('/services');
-                        },
+                        isActive: false,
+                        isExpanded: _isServicesExpanded,
+                        onTap: () => _toggleDropdown('services'),
                       ),
+                      if (_isServicesExpanded) ...[
+                        SubSidebarItem(
+                          icon: FontAwesomeIcons.table,
+                          title: 'Table List',
+                          route: '/services',
+                          isActive: _activeSubItem == '/services',
+                          onTap: () => _navigateTo('/services'),
+                        ),
+                        SubSidebarItem(
+                          icon: FontAwesomeIcons.boxArchive,
+                          title: 'Archive List',
+                          route: '/servicesArchive',
+                          isActive: _activeSubItem == '/servicesArchive',
+                          onTap: () => _navigateTo('/servicesArchive'),
+                        ),
+                      ],
+                      SidebarItemWithDropdown(
+                        icon: FontAwesomeIcons.solidUser,
+                        title: 'Profiling',
+                        isActive: false,
+                        isExpanded: _isProfilingExpanded,
+                        onTap: () => _toggleDropdown('profiling'),
+                      ),
+                      if (_isProfilingExpanded) ...[
+                        SubSidebarItem(
+                          icon: FontAwesomeIcons.userGroup,
+                          title: 'Accounts List',
+                          route: '/accountList',
+                          isActive: _activeSubItem == '/accountList',
+                          onTap: () => _navigateTo('/accountList'),
+                        ),
+                        SubSidebarItem(
+                          icon: FontAwesomeIcons.userGroup,
+                          title: 'Employee List',
+                          route: '/employeeList',
+                          isActive: _activeSubItem == '/employeeList',
+                          onTap: () => _navigateTo('/employeeList'),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -164,13 +251,6 @@ class _SidebarState extends State<Sidebar> {
   void _navigateTo(String route) {
     setState(() {
       _activeSubItem = route;
-
-      // Only expand dropdowns if the route belongs to their group
-      if (route.startsWith('/inventory')) {
-        _isInventoryExpanded = true;
-      } else if (route.startsWith('/bookings')) {
-        _isBookingsExpanded = true;
-      }
     });
 
     Future.delayed(const Duration(milliseconds: 200), () {
@@ -220,13 +300,9 @@ class _SidebarState extends State<Sidebar> {
                 SidebarItemWithDropdown(
                   icon: FontAwesomeIcons.boxOpen,
                   title: 'Inventory',
-                  isActive: false, // Parent should not be active
+                  isActive: false,
                   isExpanded: _isInventoryExpanded,
-                  onTap: () {
-                    setState(() {
-                      _isInventoryExpanded = !_isInventoryExpanded;
-                    });
-                  },
+                  onTap: () => _toggleDropdown('inventory'),
                 ),
                 if (_isInventoryExpanded) ...[
                   SubSidebarItem(
@@ -254,13 +330,9 @@ class _SidebarState extends State<Sidebar> {
                 SidebarItemWithDropdown(
                   icon: FontAwesomeIcons.calendarDays,
                   title: 'Bookings',
-                  isActive: false, // Parent should not be active
+                  isActive: false,
                   isExpanded: _isBookingsExpanded,
-                  onTap: () {
-                    setState(() {
-                      _isBookingsExpanded = !_isBookingsExpanded;
-                    });
-                  },
+                  onTap: () => _toggleDropdown('bookings'),
                 ),
                 if (_isBookingsExpanded) ...[
                   SubSidebarItem(
@@ -285,24 +357,75 @@ class _SidebarState extends State<Sidebar> {
                     onTap: () => _navigateTo('/transactions'),
                   ),
                 ],
-                SidebarItem(
+                SidebarItemWithDropdown(
                   icon: FontAwesomeIcons.truck,
                   title: 'Suppliers',
-                  route: '/suppliers',
-                  isActive: widget.activePage == '/suppliers',
-                  onTap: () {
-                    _navigateToMainPage('/suppliers');
-                  },
+                  isActive: false,
+                  isExpanded: _isSuppliersExpanded,
+                  onTap: () => _toggleDropdown('suppliers'),
                 ),
-                SidebarItem(
+                if (_isSuppliersExpanded) ...[
+                  SubSidebarItem(
+                    icon: FontAwesomeIcons.table,
+                    title: 'Table List',
+                    route: '/suppliers',
+                    isActive: _activeSubItem == '/suppliers',
+                    onTap: () => _navigateTo('/suppliers'),
+                  ),
+                  SubSidebarItem(
+                    icon: FontAwesomeIcons.boxArchive,
+                    title: 'Archive List',
+                    route: '/supplierArchive',
+                    isActive: _activeSubItem == '/supplierArchive',
+                    onTap: () => _navigateTo('/supplierArchive'),
+                  ),
+                ],
+                SidebarItemWithDropdown(
                   icon: FontAwesomeIcons.gears,
                   title: 'Services',
-                  route: '/services',
-                  isActive: widget.activePage == '/services',
-                  onTap: () {
-                    _navigateToMainPage('/services');
-                  },
+                  isActive: false,
+                  isExpanded: _isServicesExpanded,
+                  onTap: () => _toggleDropdown('services'),
                 ),
+                if (_isServicesExpanded) ...[
+                  SubSidebarItem(
+                    icon: FontAwesomeIcons.table,
+                    title: 'Table List',
+                    route: '/services',
+                    isActive: _activeSubItem == '/services',
+                    onTap: () => _navigateTo('/services'),
+                  ),
+                  SubSidebarItem(
+                    icon: FontAwesomeIcons.boxArchive,
+                    title: 'Archive List',
+                    route: '/servicesArchive',
+                    isActive: _activeSubItem == '/servicesArchive',
+                    onTap: () => _navigateTo('/servicesArchive'),
+                  ),
+                ],
+                SidebarItemWithDropdown(
+                  icon: FontAwesomeIcons.user,
+                  title: 'Profiling',
+                  isActive: false,
+                  isExpanded: _isProfilingExpanded,
+                  onTap: () => _toggleDropdown('profiling'),
+                ),
+                if (_isProfilingExpanded) ...[
+                  SubSidebarItem(
+                    icon: FontAwesomeIcons.table,
+                    title: 'Accounts List',
+                    route: '/accountList',
+                    isActive: _activeSubItem == '/accountList',
+                    onTap: () => _navigateTo('/accountList'),
+                  ),
+                  SubSidebarItem(
+                    icon: FontAwesomeIcons.table,
+                    title: 'Employee List',
+                    route: '/employeeList',
+                    isActive: _activeSubItem == '/employeeList',
+                    onTap: () => _navigateTo('/employeeList'),
+                  ),
+                ],
               ],
             ),
           ),

@@ -2,19 +2,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jcsd_flutter/modals/unarchiveservice.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
-class ArchiveListPage extends StatefulWidget {
-  const ArchiveListPage({super.key});
+class ServicesArchivePage extends StatefulWidget {
+  const ServicesArchivePage({super.key});
 
   @override
-  _ArchiveListPageState createState() => _ArchiveListPageState();
+  _ServicesArchivePageState createState() => _ServicesArchivePageState();
 }
 
-class _ArchiveListPageState extends State<ArchiveListPage>
+class _ServicesArchivePageState extends State<ServicesArchivePage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  final String _activeSubItem = '/archiveList';
+  final String _activeSubItem = '/servicesArchive';
 
   @override
   void initState() {
@@ -39,11 +40,15 @@ class _ArchiveListPageState extends State<ArchiveListPage>
     _animationController.reverse();
   }
 
-  // void _unarchiveItem(String itemId) {
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     SnackBar(content: Text('Item with ID $itemId unarchived!')),
-  //   );
-  // }
+  void _showUnarchiveServiceModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const UnarchiveServiceModal();
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +60,7 @@ class _ArchiveListPageState extends State<ArchiveListPage>
           ? AppBar(
               backgroundColor: const Color(0xFF00AEEF),
               title: const Text(
-                'Archive List',
+                'Services Archive',
                 style: TextStyle(
                   fontFamily: 'NunitoSans',
                   fontWeight: FontWeight.bold,
@@ -102,7 +107,7 @@ class _ArchiveListPageState extends State<ArchiveListPage>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Archive List',
+                              'Services Archive',
                               style: TextStyle(
                                 fontFamily: 'NunitoSans',
                                 fontWeight: FontWeight.bold,
@@ -184,31 +189,26 @@ class _ArchiveListPageState extends State<ArchiveListPage>
       children: [
         Align(
           alignment: Alignment.centerRight,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: 350,
-                height: 40,
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search',
-                    hintStyle: const TextStyle(
-                      color: Color(0xFFABABAB),
-                      fontFamily: 'NunitoSans',
-                    ),
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 0,
-                      horizontal: 16,
-                    ),
-                  ),
+          child: SizedBox(
+            width: 350,
+            height: 40,
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search',
+                hintStyle: const TextStyle(
+                  color: Color(0xFFABABAB),
+                  fontFamily: 'NunitoSans',
+                ),
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 16,
                 ),
               ),
-            ],
+            ),
           ),
         ),
         const SizedBox(height: 16),
@@ -221,52 +221,32 @@ class _ArchiveListPageState extends State<ArchiveListPage>
 
   Widget _buildMobileListView() {
     return ListView.builder(
-      itemCount: 1,
+      itemCount: 3,
       itemBuilder: (context, index) {
-        return Column(
-          children: [
-            ListTile(
-              title: const Text(
-                'Samsung SSD 500GB',
-                style: TextStyle(
-                  fontFamily: 'NunitoSans',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              subtitle: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Type: Technology',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                    ),
-                  ),
-                  Text(
-                    'Supplier: Samsung',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                    ),
-                  ),
-                ],
-              ),
-              trailing: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
-                onPressed: () {},
-                child: const Text(
-                  'Unarchive',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
+        return ListTile(
+          title: const Text(
+            'Service Name',
+            style: TextStyle(
+              fontFamily: 'NunitoSans',
+              fontWeight: FontWeight.bold,
             ),
-            const Divider(
-              thickness: 1,
-              height: 1,
-              color: Colors.grey,
+          ),
+          subtitle: const Text(
+            'P600',
+            style: TextStyle(
+              fontFamily: 'NunitoSans',
             ),
-          ],
+          ),
+          trailing: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+            ),
+            onPressed: _showUnarchiveServiceModal,
+            child: const Text(
+              'Unarchive',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
         );
       },
     );
@@ -294,87 +274,77 @@ class _ArchiveListPageState extends State<ArchiveListPage>
             ),
             columns: const [
               DataColumn(
-                label: Text(
-                  'Item ID',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                label: Center(
+                  child: Text(
+                    'Service Name',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
               DataColumn(
-                label: Text(
-                  'Item Name',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                label: Center(
+                  child: Text(
+                    'Price',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
               DataColumn(
-                label: Text(
-                  'Item Type',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Text(
-                  'Supplier',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Padding(
-                  padding: EdgeInsets.only(left: 30),
-                  child: Center(
-                    child: Text(
-                      'Action',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
+                label: Center(
+                  child: Text(
+                    'Action',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
                     ),
                   ),
                 ),
               ),
             ],
             rows: [
-              DataRow(
-                cells: [
-                  const DataCell(Text('0126546')),
-                  const DataCell(Text('Samsung SSD 500GB')),
-                  const DataCell(Text('Technology')),
-                  const DataCell(Text('Samsung')),
-                  DataCell(
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                      ),
-                      onPressed: () {},
-                      child: const Text(
-                        'Unarchive',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              _buildDataRow('Computer Repair', 'P600'),
+              _buildDataRow('Computer Cleaning', 'P600'),
+              _buildDataRow('Computer Diagnosis', 'P600'),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  DataRow _buildDataRow(String serviceName, String price) {
+    return DataRow(
+      cells: [
+        DataCell(Text(serviceName,
+            style: const TextStyle(
+              fontFamily: 'NunitoSans',
+            ))),
+        DataCell(Text(price,
+            style: const TextStyle(
+              fontFamily: 'NunitoSans',
+            ))),
+        DataCell(
+          ElevatedButton(
+            onPressed: _showUnarchiveServiceModal,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.green,
+            ),
+            child: const Text(
+              'Unarchive',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

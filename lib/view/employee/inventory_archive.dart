@@ -2,21 +2,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:jcsd_flutter/modals/addservice.dart';
-import 'package:jcsd_flutter/modals/editservice.dart';
-import 'package:jcsd_flutter/modals/archiveservice.dart';
+import 'package:jcsd_flutter/modals/unarchiveitem.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
-class ServicesPage extends StatefulWidget {
-  const ServicesPage({super.key});
+class ArchiveListPage extends StatefulWidget {
+  const ArchiveListPage({super.key});
 
   @override
-  _ServicesPageState createState() => _ServicesPageState();
+  _ArchiveListPageState createState() => _ArchiveListPageState();
 }
 
-class _ServicesPageState extends State<ServicesPage>
+class _ArchiveListPageState extends State<ArchiveListPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  final String _activeSubItem = '/archiveList';
 
   @override
   void initState() {
@@ -41,35 +40,12 @@ class _ServicesPageState extends State<ServicesPage>
     _animationController.reverse();
   }
 
-  void _showAddServiceModal() {
+  void _showUnarchiveItemModal() {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return const AddServiceModal();
-      },
-    );
-  }
-
-  void _showEditServiceModal(String serviceName, String price) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return EditServiceModal(
-          serviceName: serviceName,
-          price: price,
-        );
-      },
-    );
-  }
-
-  void _showArchiveServiceModal() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const ArchiveServiceModal();
+        return const UnarchiveItemModal();
       },
     );
   }
@@ -84,7 +60,7 @@ class _ServicesPageState extends State<ServicesPage>
           ? AppBar(
               backgroundColor: const Color(0xFF00AEEF),
               title: const Text(
-                'Services',
+                'Archive List',
                 style: TextStyle(
                   fontFamily: 'NunitoSans',
                   fontWeight: FontWeight.bold,
@@ -103,36 +79,22 @@ class _ServicesPageState extends State<ServicesPage>
                   },
                 ),
               ),
-              actions: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.add,
-                    color: Colors.white,
-                  ),
-                  onPressed: _showAddServiceModal,
-                ),
-              ],
             )
           : null,
       drawer: isMobile
           ? Drawer(
               backgroundColor: const Color(0xFF00AEEF),
               child: Sidebar(
-                activePage: '/services',
+                activePage: _activeSubItem,
                 onClose: _closeDrawer,
               ),
             )
           : null,
-      onDrawerChanged: (isOpened) {
-        if (!isOpened) {
-          _closeDrawer();
-        }
-      },
       body: Stack(
         children: [
           Row(
             children: [
-              if (!isMobile) const Sidebar(activePage: '/services'),
+              if (!isMobile) Sidebar(activePage: _activeSubItem),
               Expanded(
                 child: Column(
                   children: [
@@ -145,7 +107,7 @@ class _ServicesPageState extends State<ServicesPage>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Services',
+                              'Archive List',
                               style: TextStyle(
                                 fontFamily: 'NunitoSans',
                                 fontWeight: FontWeight.bold,
@@ -231,7 +193,7 @@ class _ServicesPageState extends State<ServicesPage>
             mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
-                width: 250,
+                width: 350,
                 height: 40,
                 child: TextField(
                   decoration: InputDecoration(
@@ -251,26 +213,6 @@ class _ServicesPageState extends State<ServicesPage>
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
-              ElevatedButton.icon(
-                onPressed: _showAddServiceModal,
-                icon: const Icon(Icons.add, color: Colors.white),
-                label: const Text(
-                  'Add',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00AEEF),
-                  minimumSize: const Size(0, 48),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -284,35 +226,52 @@ class _ServicesPageState extends State<ServicesPage>
 
   Widget _buildMobileListView() {
     return ListView.builder(
-      itemCount: 3,
+      itemCount: 1,
       itemBuilder: (context, index) {
-        return ListTile(
-          title: const Text(
-            'Service Name',
-            style: TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          subtitle: const Text(
-            'P600',
-            style: TextStyle(
-              fontFamily: 'NunitoSans',
-            ),
-          ),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit, color: Colors.green),
-                onPressed: () => _showEditServiceModal,
+        return Column(
+          children: [
+            ListTile(
+              title: const Text(
+                'Samsung SSD 500GB',
+                style: TextStyle(
+                  fontFamily: 'NunitoSans',
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: _showArchiveServiceModal,
+              subtitle: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Type: Technology',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                    ),
+                  ),
+                  Text(
+                    'Supplier: Samsung',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+              trailing: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                ),
+                onPressed: _showUnarchiveItemModal,
+                child: const Text(
+                  'Unarchive',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            const Divider(
+              thickness: 1,
+              height: 1,
+              color: Colors.grey,
+            ),
+          ],
         );
       },
     );
@@ -335,35 +294,53 @@ class _ServicesPageState extends State<ServicesPage>
       child: ListView(
         children: [
           DataTable(
-            headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
+            headingRowColor: WidgetStateProperty.all(
+              const Color(0xFF00AEEF),
+            ),
             columns: const [
               DataColumn(
-                label: Center(
-                  child: Text(
-                    'Service Name',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+                label: Text(
+                  'Item ID',
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
                   ),
                 ),
               ),
               DataColumn(
-                label: Center(
-                  child: Text(
-                    'Price',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+                label: Text(
+                  'Item Name',
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              DataColumn(
+                label: Text(
+                  'Item Type',
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              DataColumn(
+                label: Text(
+                  'Supplier',
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
                   ),
                 ),
               ),
               DataColumn(
                 label: Padding(
-                  padding: EdgeInsets.only(left: 60),
+                  padding: EdgeInsets.only(left: 30),
                   child: Center(
                     child: Text(
                       'Action',
@@ -379,56 +356,30 @@ class _ServicesPageState extends State<ServicesPage>
               ),
             ],
             rows: [
-              _buildDataRow('Computer Repair', 'P600'),
-              _buildDataRow('Computer Cleaning', 'P600'),
-              _buildDataRow('Computer Diagnosis', 'P600'),
+              DataRow(
+                cells: [
+                  const DataCell(Text('0126546')),
+                  const DataCell(Text('Samsung SSD 500GB')),
+                  const DataCell(Text('Technology')),
+                  const DataCell(Text('Samsung')),
+                  DataCell(
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                      ),
+                      onPressed: _showUnarchiveItemModal,
+                      child: const Text(
+                        'Unarchive',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ],
       ),
-    );
-  }
-
-  DataRow _buildDataRow(String serviceName, String price) {
-    return DataRow(
-      cells: [
-        DataCell(Text(serviceName,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
-        DataCell(Text(price,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
-        DataCell(
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              ElevatedButton(
-                onPressed: () => _showEditServiceModal(serviceName, price),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
-                child: const Text('Edit',
-                    style: TextStyle(
-                      color: Colors.white,
-                    )),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: _showArchiveServiceModal,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
-                child: const Text('Archive',
-                    style: TextStyle(
-                      color: Colors.white,
-                    )),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

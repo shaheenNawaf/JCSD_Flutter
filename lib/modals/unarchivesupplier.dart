@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 
-class ArchiveServiceModal extends StatelessWidget {
-  const ArchiveServiceModal({super.key});
+class UnarchiveSupplierModal extends StatelessWidget {
+  const UnarchiveSupplierModal({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +52,7 @@ class ArchiveServiceModal extends StatelessWidget {
               padding: EdgeInsets.all(16.0),
               child: Center(
                 child: Text(
-                  'Are you sure you want to archive service?',
+                  'Are you sure you want to restore item?',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontSize: 16,
