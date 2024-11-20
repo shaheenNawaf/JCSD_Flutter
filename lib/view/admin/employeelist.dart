@@ -2,16 +2,29 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jcsd_flutter/modals/addemployee.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 class EmployeeListPage extends StatefulWidget {
   const EmployeeListPage({super.key});
+  
 
   @override
   _EmployeeListPageState createState() => _EmployeeListPageState();
 }
 
+
 class _EmployeeListPageState extends State<EmployeeListPage> {
+    void _AddEmployeeModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AddEmployeeModal();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
@@ -137,7 +150,7 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
                               // Will still need to create UI & implement for this
                               ElevatedButton.icon(
                                 onPressed: () {
-                                  Navigator.pushNamed(context, '/addEmployee');
+                                  _AddEmployeeModal();
                                 },
                                 icon:
                                     const Icon(Icons.add, color: Colors.white),

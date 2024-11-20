@@ -181,9 +181,15 @@ class _WebView extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                   Row(
                     children: [
-                      Text(
+                      IconButton(
+                        icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: Color(0xFF00AEEF)),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      const Text(
                         'Receipt',
                         style: TextStyle(
                           fontFamily: 'NunitoSans',
@@ -242,6 +248,7 @@ class _ReceiptDetails extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('Booking ID : 01624395345', style: TextStyle(fontSize: 20)),
+        Text('Invoice ID : 01624395345', style: TextStyle(fontSize: 20)),
         Text('Purok 4 Block 3', style: TextStyle(fontSize: 20)),
         Text('Panacan Relcoation', style: TextStyle(fontSize: 20)),
         Text('8000 Davao City, Philippines', style: TextStyle(fontSize: 20)),
