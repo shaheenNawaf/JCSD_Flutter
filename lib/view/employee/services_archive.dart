@@ -60,7 +60,7 @@ class _ServicesArchivePageState extends State<ServicesArchivePage>
           ? AppBar(
               backgroundColor: const Color(0xFF00AEEF),
               title: const Text(
-                'Services Archive',
+                'Archive List',
                 style: TextStyle(
                   fontFamily: 'NunitoSans',
                   fontWeight: FontWeight.bold,
@@ -107,7 +107,7 @@ class _ServicesArchivePageState extends State<ServicesArchivePage>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Services Archive',
+                              'Archive List',
                               style: TextStyle(
                                 fontFamily: 'NunitoSans',
                                 fontWeight: FontWeight.bold,

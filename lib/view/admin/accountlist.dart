@@ -86,7 +86,46 @@ class _AccountListPageState extends State<AccountListPage> {
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: _buildDataTable(),
+                        child: isMobile
+                            ? Column(
+                                children: [
+                                  _buildMobileSearchBar(),
+                                  const SizedBox(height: 16),
+                                  Expanded(child: _buildDataTable()),
+                                ],
+                              )
+                            : Column(
+                                children: [
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: SizedBox(
+                                      width: 350,
+                                      height: 40,
+                                      child: TextField(
+                                        decoration: InputDecoration(
+                                          hintText: 'Search',
+                                          hintStyle: const TextStyle(
+                                            color: Color(0xFFABABAB),
+                                            fontFamily: 'NunitoSans',
+                                          ),
+                                          prefixIcon: const Icon(Icons.search),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                            vertical: 0,
+                                            horizontal: 16,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Expanded(child: _buildDataTable()),
+                                ],
+                              ),
                       ),
                     ),
                   ],
@@ -95,6 +134,29 @@ class _AccountListPageState extends State<AccountListPage> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildMobileSearchBar() {
+    return SizedBox(
+      width: double.infinity,
+      child: TextField(
+        decoration: InputDecoration(
+          hintText: 'Search',
+          hintStyle: const TextStyle(
+            color: Color(0xFFABABAB),
+            fontFamily: 'NunitoSans',
+          ),
+          prefixIcon: const Icon(Icons.search),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 0,
+            horizontal: 16,
+          ),
+        ),
       ),
     );
   }
@@ -190,23 +252,9 @@ class _AccountListPageState extends State<AccountListPage> {
             ],
             rows: [
               _buildDataRow(
-                'Ashley Alexis',
+                'Amy D. Polie',
                 'Active',
                 'Employee',
-                '@gmail.com',
-                '(***) ***-****',
-              ),
-              _buildDataRow(
-                'Adrian Sc',
-                'Active',
-                'Client',
-                '@gmail.com',
-                '(***) ***-****',
-              ),
-              _buildDataRow(
-                'Jack Kaplan',
-                'Terminated',
-                'Client',
                 '@gmail.com',
                 '(***) ***-****',
               ),
@@ -263,7 +311,9 @@ class _AccountListPageState extends State<AccountListPage> {
             child: SizedBox(
               width: 140,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(context, '/accountDetails');
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00AEEF),
                 ),

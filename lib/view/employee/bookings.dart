@@ -1,9 +1,8 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
-import 'package:jcsd_flutter/modals/bookingrequest.dart';
 
 class BookingsPage extends StatefulWidget {
   const BookingsPage({super.key});
@@ -38,16 +37,6 @@ class _BookingsPageState extends State<BookingsPage>
 
   void _closeDrawer() {
     _animationController.reverse();
-  }
-
-  void _showBookingRequestModal() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const BookingRequestModal();
-      },
-    );
   }
 
   @override
@@ -287,7 +276,9 @@ class _BookingsPageState extends State<BookingsPage>
                     textAlign: TextAlign.left,
                   ),
                   TextButton(
-                    onPressed: _showBookingRequestModal,
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/bookingDetail');
+                    },
                     child: const Text(
                       'View Details',
                       style: TextStyle(
@@ -494,7 +485,9 @@ class _BookingsPageState extends State<BookingsPage>
             child: SizedBox(
               width: 140,
               child: ElevatedButton(
-                onPressed: _showBookingRequestModal, // Open the modal
+                onPressed: () {
+                  Navigator.pushNamed(context, '/bookingDetail');
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00AEEF),
                 ),

@@ -11,9 +11,7 @@ class EditProfileModal extends StatefulWidget {
 }
 
 class _EditProfileModalState extends State<EditProfileModal> {
-
   final TextEditingController _priceController = TextEditingController();
-
 
   @override
   void dispose() {
@@ -54,7 +52,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
               ),
               child: const Center(
                 child: Text(
-                  'Edit Item',
+                  'Edit Profile',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontWeight: FontWeight.bold,
@@ -100,8 +98,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
                           ),
                           const SizedBox(height: 8),
                           _buildDropdownField(
-                            onChanged: (String? value) {
-                            },
+                            onChanged: (String? value) {},
                           ),
                         ],
                       ),
@@ -250,7 +247,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
     );
   }
 
-   Widget _buildDropdownField({
+  Widget _buildDropdownField({
     required ValueChanged<String?> onChanged,
   }) {
     return Column(
@@ -296,12 +293,12 @@ class _EditProfileModalState extends State<EditProfileModal> {
             return DropdownMenuItem<String>(
               value: item,
               child: Text(
-          item,
-          style: const TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w300,
-            fontSize: 12,
-          ),
+                item,
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w300,
+                  fontSize: 12,
+                ),
               ),
             );
           }).toList(),

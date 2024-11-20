@@ -83,10 +83,89 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
                           ],
                         ),
                       ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/leaveRequestList');
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF00AEEF),
+                              minimumSize: const Size(120, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: const Text(
+                              'Leave Requests',
+                              style: TextStyle(
+                                fontFamily: 'NunitoSans',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(
+                                width: 250,
+                                height: 40,
+                                child: TextField(
+                                  decoration: InputDecoration(
+                                    hintText: 'Search',
+                                    hintStyle: const TextStyle(
+                                      color: Color(0xFFABABAB),
+                                      fontFamily: 'NunitoSans',
+                                    ),
+                                    prefixIcon: const Icon(Icons.search),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 0,
+                                      horizontal: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              // Will still need to create UI & implement for this
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.pushNamed(context, '/addEmployee');
+                                },
+                                icon:
+                                    const Icon(Icons.add, color: Colors.white),
+                                label: const Text(
+                                  'Add',
+                                  style: TextStyle(
+                                    fontFamily: 'NunitoSans',
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF00AEEF),
+                                  minimumSize: const Size(0, 48),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: _buildWebView(),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: _buildDataTable(),
                       ),
                     ),
                   ],
@@ -96,38 +175,6 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildWebView() {
-    return Column(
-      children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF00AEEF),
-              minimumSize: const Size(120, 48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text(
-              'Leave Requests',
-              style: TextStyle(
-                fontFamily: 'NunitoSans',
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Expanded(
-          child: _buildDataTable(),
-        ),
-      ],
     );
   }
 
@@ -222,22 +269,8 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
             ],
             rows: [
               _buildDataRow(
-                'Ashley Alexis',
+                'Amy D. Polie',
                 'Active',
-                'Computer Repair Technician',
-                '@gmail.com',
-                '(***) ***-****',
-              ),
-              _buildDataRow(
-                'Adrian Sc',
-                'Active',
-                'Technician',
-                '@gmail.com',
-                '(***) ***-****',
-              ),
-              _buildDataRow(
-                'Jack Kaplan',
-                'Terminated',
                 'Technician',
                 '@gmail.com',
                 '(***) ***-****',
@@ -295,7 +328,9 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
             child: SizedBox(
               width: 140,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pushNamed(context, '/profile');
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00AEEF),
                 ),

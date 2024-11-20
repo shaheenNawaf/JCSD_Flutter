@@ -37,7 +37,7 @@ import 'package:jcsd_flutter/view/client/booking_second.dart';
 
 void main() async {
   supabase_init(); // Initialize Supabase - DONT TOUCH GUYS
-  runApp(ProviderScope (child: MainApp()));
+  runApp(const ProviderScope(child: MainApp()));
 }
 
 class MainApp extends StatelessWidget {
@@ -89,7 +89,7 @@ class MainApp extends StatelessWidget {
 
         // Employee View
         '/dashboard': (context) => const DashboardPage(),
-        '/inventory': (context) => InventoryPage(),
+        '/inventory': (context) => const InventoryPage(),
         '/suppliers': (context) => const SupplierPage(),
         '/supplierArchive': (context) => const SupplierArchivePage(),
         '/bookings': (context) => const BookingsPage(),
