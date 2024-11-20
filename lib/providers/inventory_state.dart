@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/models/inventory_data.dart';
 import 'package:jcsd_flutter/services/inventory_service.dart';
-// Notes: Please don't touch any of this
 
 // Provider for the Inventory System -- USED FOR THE ENTIRE STATE MANAGEMENT -- DON'T TOUCH
 final inventoryServiceProv = Provider<InventoryService>((ref){

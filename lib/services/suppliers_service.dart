@@ -28,6 +28,7 @@ class SuppliersService {
       print('Error adding new supplier. Error message: $err');
     }
   }
+
   //Updating a supplier
   Future<void> updateSupplierDetails(SuppliersData updateSupplier) async {
     try {
@@ -36,6 +37,16 @@ class SuppliersService {
       print('Error updating supplier details. Error Message: $err');
     }
   }
+
+  //Updating Service's Visibility - soft-delete
+  Future<void> updateServiceVisbility(int supplierID, bool isActive) async {
+    try {
+      await supabaseDB.from('suppliers').update({'isActive': isActive}).eq('supplierID', supplierID);
+    } catch (err) {
+      print('Error updating service visibility. Error Message: $err');
+    }
+  }
+
   //Searching a supplier
   Future<List<SuppliersData>> searchSuppliers({int? supplierID, String? supplierName, String? supplierEmail}) async {
     try {
@@ -77,6 +88,7 @@ class SuppliersService {
 
     }catch (err){
       print('Error accessing table. Error message: $err');
+      return null;
     }
   }
 }
