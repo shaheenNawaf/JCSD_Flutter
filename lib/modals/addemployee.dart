@@ -36,7 +36,7 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 700 : screenWidth * 0.9;
-    const double containerHeight = 550;
+    const double containerHeight = 650;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -100,10 +100,14 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
                             hintText: 'Enter middle initial',
                           ),
                           const SizedBox(height: 8),
-                          _buildDatePickerField(
-                            label: 'Birthday',
-                            controller: _birthdayController,
-                            onTap: () => _selectDate(context),
+                          _buildTextField(
+                            label: 'Username',
+                            hintText: 'Enter username',
+                          ),
+                          const SizedBox(height: 8),
+                          _buildTextField(
+                            label: 'Password',
+                            hintText: 'Enter password',
                           ),
                           const SizedBox(height: 8),
                           _buildDropdownField(
@@ -125,6 +129,12 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
                           _buildTextField(
                             label: 'Phone',
                             hintText: 'Enter phone number',
+                          ),
+                          const SizedBox(height: 8),
+                          _buildDatePickerField(
+                            label: 'Birthday',
+                            controller: _birthdayController,
+                            onTap: () => _selectDate(context),
                           ),
                           const SizedBox(height: 8),
                           _buildTextField(
