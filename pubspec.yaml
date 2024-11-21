@@ -16,12 +16,34 @@ dependencies:
   flutter_riverpod: ^2.6.1
   datepicker_dropdown: ^0.1.5
   month_picker_dialog: ^5.1.3
-  syncfusion_flutter_calendar: ^27.1.57
+  flutter_launcher_icons: ^0.14.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo_mobile.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/logo_mobile.png"
+
+  web:
+    generate: true
+    image_path: "assets/images/logo_mobile.png"
+    background_color: "#FFFFFF"
+    theme_color: "#FFFFFF"
+
+  windows:
+    generate: true
+    image_path: "assets/images/logo_mobile.png"
+    icon_size: 48
+  
+  macos:
+    generate: true
+    image_path: "assets/images/logo_mobile.png"
 
 flutter:
   uses-material-design: true
