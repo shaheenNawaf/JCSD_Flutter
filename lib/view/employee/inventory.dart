@@ -653,9 +653,4 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
       return Colors.green;
     }
   }
-
-  //Fetch Supppliers List
-  // String _fetchSupplierName (int supplierID, List<SupplierPage>){
-  //   return '';
-  // }
 }

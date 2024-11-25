@@ -29,7 +29,7 @@ class SuppliersService {
     }
   }
 
-  //Updating a supplier
+  //Updating a supplier by Supplier ID
   Future<void> updateSupplierDetails(SuppliersData updateSupplier) async {
     try {
       await supabaseDB.from('suppliers').update(updateSupplier.toJson()).eq('itemID', updateSupplier.supplierID);
@@ -38,8 +38,8 @@ class SuppliersService {
     }
   }
 
-  //Updating Service's Visibility - soft-delete
-  Future<void> updateServiceVisbility(int supplierID, bool isActive) async {
+  //Updating Supplier's Visibility - soft-delete
+  Future<void> updateSupplierVisbility(int supplierID, bool isActive) async {
     try {
       await supabaseDB.from('suppliers').update({'isActive': isActive}).eq('supplierID', supplierID);
     } catch (err) {
@@ -91,6 +91,7 @@ class SuppliersService {
       return null;
     }
   }
+
 
   Future<String> getSupplierNameByID(int supplierID) async {
     final fetchService = await supabaseDB.from('suppliers').select('supplierName').eq('supplierID', supplierID).single(); 
