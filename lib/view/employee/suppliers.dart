@@ -1,20 +1,23 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/modals/addsupplier.dart';
 import 'package:jcsd_flutter/modals/archivesupplier.dart';
 import 'package:jcsd_flutter/modals/editsupplier.dart';
+import 'package:jcsd_flutter/models/suppliers_data.dart';
+import 'package:jcsd_flutter/providers/suppliers_state.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
-class SupplierPage extends StatefulWidget {
+class SupplierPage extends ConsumerStatefulWidget {
   const SupplierPage({super.key});
 
   @override
-  _SupplierPageState createState() => _SupplierPageState();
+  ConsumerState createState() => _SupplierPageState();
 }
 
-class _SupplierPageState extends State<SupplierPage>
+class _SupplierPageState extends ConsumerState<SupplierPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
 
@@ -273,7 +276,7 @@ class _SupplierPageState extends State<SupplierPage>
         ),
         const SizedBox(height: 16),
         Expanded(
-          child: _buildDataTable(),
+          child: _buildDataTable(context),
         ),
       ],
     );
@@ -362,169 +365,201 @@ class _SupplierPageState extends State<SupplierPage>
     );
   }
 
-  Widget _buildDataTable() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: ListView(
-        children: [
-          DataTable(
-            headingRowColor: WidgetStateProperty.all(
-              const Color(0xFF00AEEF),
+  Widget _buildDataTable(BuildContext context) {
+    final fetchSuppliers = ref.watch(fetchSupplierList);
+
+    return fetchSuppliers.when(
+    data: (suppliers) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            )
+          ],
+        ),
+        child: Column(
+          children: [
+            _buildHeaderRow(),
+            const Divider(height: 1, color: Colors.grey),
+            Expanded(
+              child: ListView.builder(
+                itemCount: suppliers.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return _buildSuppliersRow(suppliers, index);
+                },
+              ),
             ),
-            columns: const [
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Supplier Name',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+          ],
+        ),
+      );
+    },
+    error: (err, stackTrace) => Text('Error fetching data from table: $err'),
+    loading: () => const LinearProgressIndicator(
+      backgroundColor: Color.fromRGBO(0, 134, 239, 1),
+    ),
+  );
+  }
+
+  Widget _buildHeaderRow() {
+    return Container(
+      color: const Color.fromRGBO(0, 174, 239, 1),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              'Supplier ID',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Address',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Name',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Contact Number',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Email',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Email',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Contact Number',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
-              DataColumn(
-                label: Padding(
-                  padding: EdgeInsets.only(left: 80),
-                  child: Center(
-                    child: Text(
-                      'Action',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Actions',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
-            ],
-            rows: [
-              _buildDataRow(
-                'Samsung',
-                'Davao City',
-                '092784162',
-                'samsung@gmail.com',
-              ),
-              _buildDataRow(
-                'Samsung',
-                'Davao City',
-                '092784162',
-                'samsung@gmail.com',
-              ),
-              _buildDataRow(
-                'Samsung',
-                'Davao City',
-                '092784162',
-                'samsung@gmail.com',
-              ),
-            ],
+              textAlign: TextAlign.center,
+            ),
           ),
         ],
       ),
     );
   }
 
-  DataRow _buildDataRow(
-      String name, String address, String contact, String email) {
-    return DataRow(
-      cells: [
-        DataCell(Text(name)),
-        DataCell(Text(address)),
-        DataCell(Text(contact)),
-        DataCell(Text(email)),
-        DataCell(Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: 100,
-              child: ElevatedButton(
-                onPressed: _showEditSupplierModal,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
-                child: const Text(
-                  'Edit',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    color: Colors.white,
-                  ),
-                ),
+  Widget _buildSuppliersRow(List<SuppliersData> suppliers, int index) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      decoration: BoxDecoration(
+        color: index % 2 == 0 ? Colors.grey[100] : Colors.white,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              suppliers[index].supplierID.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              suppliers[index].supplierName.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
               ),
             ),
-            const SizedBox(width: 4),
-            SizedBox(
-              width: 110,
-              child: ElevatedButton(
-                onPressed: _showArchiveSupplierModal,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
-                child: const Text(
-                  'Archive',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    color: Colors.white,
+          ),
+          Expanded(
+            child: Text(
+              suppliers[index].supplierEmail.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              suppliers[index].contactNumber.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(
+                  width: 80,
+                  child: ElevatedButton(
+                    onPressed: _showEditSupplierModal,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
+                    child: const Text(
+                      'Edit',
+                      style: TextStyle(
+                        fontFamily: 'NunitoSans',
+                        color: Colors.white,
+                        fontSize: 8,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                SizedBox(
+                  width: 80,
+                  child: ElevatedButton(
+                    onPressed: _showArchiveSupplierModal,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    child: const Text(
+                      'Archive',
+                      style: TextStyle(
+                        fontFamily: 'NunitoSans',
+                        color: Colors.white,
+                        fontSize: 8,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        )),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }

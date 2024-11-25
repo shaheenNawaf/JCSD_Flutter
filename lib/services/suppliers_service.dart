@@ -91,4 +91,14 @@ class SuppliersService {
       return null;
     }
   }
+
+  Future<String> getSupplierNameByID(int supplierID) async {
+    final fetchService = await supabaseDB.from('suppliers').select('supplierName').eq('supplierID', supplierID).single(); 
+
+    if(fetchService.isNotEmpty == true){
+      return fetchService['supplierName'] as String;
+    }else {
+      return "Supplier not found.";
+    }
+  }
 }

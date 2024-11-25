@@ -1,24 +1,27 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
+//Packages for usage
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+//Pages
 import 'package:jcsd_flutter/modals/additem.dart';
 import 'package:jcsd_flutter/modals/edititem.dart';
 import 'package:jcsd_flutter/modals/archiveitem.dart';
 import 'package:jcsd_flutter/modals/stockinitem.dart';
-import 'package:jcsd_flutter/view/employee/suppliers.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 
-//Inventory Backend Imports -- Please don't touch
+//Inventory
 import 'package:jcsd_flutter/api/supa_details.dart';
 import 'package:jcsd_flutter/providers/inventory_state.dart';
-import 'package:jcsd_flutter/services/inventory_service.dart';
 import 'package:jcsd_flutter/models/inventory_data.dart';
 
-//Suppliers Mini-Service
-// To be added later
+//Suppliers
+import 'package:jcsd_flutter/view/employee/suppliers.dart';
+import 'package:jcsd_flutter/services/suppliers_service.dart';
 
 class InventoryPage extends ConsumerStatefulWidget {
   const InventoryPage({super.key});
@@ -503,6 +506,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
   }
 
   Widget _buildItemRow(List<InventoryData> items, int index) {
+    final SuppliersService suppliersService = SuppliersService();
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
       decoration: BoxDecoration(
@@ -538,12 +542,35 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
             ),
           ),
           Expanded(
-            child: Text(
-              items[index].supplierID.toString(),
-              style: const TextStyle(
-                fontFamily: 'NunitoSans',
-              ),
-              textAlign: TextAlign.center,
+            child: FutureBuilder<String>(
+              future: suppliersService.getSupplierNameByID(items[index].supplierID.toInt()),
+              builder: (context, supplierName) {
+                if (supplierName.hasData){
+                  return Text(
+                    supplierName.data!,
+                    style: const TextStyle(
+                      fontFamily: 'NunitoSans',
+                    ),
+                    textAlign: TextAlign.center,
+                  );
+                }else if(supplierName.hasError){
+                  return const Text(
+                    "Error fetching",
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                    ),
+                    textAlign: TextAlign.center,
+                  );
+                }else{
+                  return const Text(
+                    "No supplier found",
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                    ),
+                    textAlign: TextAlign.center,
+                  );
+                }
+              },
             ),
           ),
           Expanded(

@@ -2,8 +2,7 @@ class SuppliersData {
   final int supplierID;
   final String supplierEmail;
   final String supplierName;
-  final int contactNumber;
-  final DateTime createdDate;
+  final String contactNumber;
   final bool isActive;
 
   SuppliersData({
@@ -11,18 +10,16 @@ class SuppliersData {
     required this.supplierEmail,
     required this.supplierName,
     required this.contactNumber,
-    required this.createdDate,
     required this.isActive,
   });
 
   //fromJSON Method - receive
   factory SuppliersData.fromJson(Map<String, dynamic> json) {
-    return SuppliersData
-    (supplierID: json['supplierID'], 
+    return SuppliersData(
+    supplierID: json['supplierID'], 
     supplierEmail: json['supplierEmail'], 
     supplierName: json['supplierName'], 
     contactNumber: json['contactNumber'], 
-    createdDate: json['createdDate'], 
     isActive: json['isActive']
     );
   }
@@ -34,7 +31,6 @@ class SuppliersData {
       'supplierEmail': supplierEmail,
       'supplierName': supplierName,
       'contactNumber': contactNumber,
-      'createdDate': createdDate,
       'isActive': isActive,
     };
   }
