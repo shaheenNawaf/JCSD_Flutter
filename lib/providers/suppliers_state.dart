@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/models/suppliers_data.dart';
-import 'package:jcsd_flutter/services/inventory_service.dart';
 import 'package:jcsd_flutter/services/suppliers_service.dart';
 
 //Base Provider for the Suppliers Mini-System -- USED FOR THE ENTIRE STATE MANAGEMENT -- DON'T TOUCH
@@ -65,14 +64,12 @@ final updateSupplierProvider = FutureProvider.family<void, SuppliersData>((ref, 
 
 
 //Visibility/Soft-delete
-
-
 final updateServiceVisibilityProvider = FutureProvider.family<void, SuppliersData>((ref, updateSupplier) async {
     final supplierService = ref.read(supplierServiceProv);
     ref.read(supplierLoadingStateProvider.notifier).state = true;
 
     try {
-        await supplierService.updateServiceVisbility(updateSupplier.supplierID, updateSupplier.isActive);
+        await supplierService.updateSupplierVisbility(updateSupplier.supplierID, updateSupplier.isActive);
     }catch(err){
     ref.read(supplierLoadingStateProvider.notifier).state = false;
     print('Failed to update Service: ${updateSupplier.supplierName} \n View message: $err');

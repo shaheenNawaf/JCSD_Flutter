@@ -1,5 +1,3 @@
-import 'package:jcsd_flutter/models/suppliers_data.dart';
-
 class ServicesData {
   final int serviceID;
   final String serviceName;
