@@ -1,12 +1,91 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
+import 'dart:html' as html;
+import 'dart:typed_data';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 
 class BookingReceipt extends StatefulWidget {
   const BookingReceipt({super.key});
 
   @override
   _BookingReceiptState createState() => _BookingReceiptState();
+}
+
+Future<void> generatePdfReceipt() async {
+  final pdf = pw.Document();
+
+  pdf.addPage(
+    pw.Page(
+      build: (pw.Context context) => pw.Align(
+        alignment: pw.Alignment.topLeft,
+        child: pw.Column(
+          mainAxisAlignment: pw.MainAxisAlignment.start,
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text("Booking ID : 01624395345", style: const pw.TextStyle(fontSize: 20)),
+            pw.Text("Invoice ID : 01624395345", style: const pw.TextStyle(fontSize: 20)),
+            pw.Text("Purok 4 Block 3", style: const pw.TextStyle(fontSize: 15)),
+            pw.Text("Panacan Relcoation", style: const pw.TextStyle(fontSize: 15)),
+            pw.Text("8000 Davao City, Philippines", style: const pw.TextStyle(fontSize: 15)),
+            pw.Text("0976 074 7797", style: const pw.TextStyle(fontSize: 15)),
+            pw.Text("JCSD", style: const pw.TextStyle(fontSize: 15)),
+            pw.SizedBox(height: 20),
+            pw.TableHelper.fromTextArray(
+              context: context, 
+              cellHeight: 20,
+              headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              headers: <String>['Item', 'Description', 'Quantity', 'Amount'],
+              data: <List<String>>[
+                <String>['1', 'Service Charge', '3', 'P400'],
+                <String>['2', 'Service Charge', '3', 'P400'],
+                <String>['3', 'Service Charge', '3', 'P400'],
+                <String>['4', 'Service Charge', '3', 'P400'],
+                <String>['5', 'Service Charge', '3', 'P400'],
+                <String>['6', 'Service Charge', '3', 'P400'],
+                <String>['7', 'Service Charge', '3', 'P400'],
+                <String>['8', 'Service Charge', '3', 'P400'],
+                <String>['9', 'Service Charge', '3', 'P400'],
+                <String>['10', 'Service Charge', '3', 'P400'],
+                <String>['','','Subtotal', 'P2,000'],
+                <String>['','','Tax', 'P1,000'],
+                <String>['','','Other', 'P1,000'],
+                <String>['','','Total', 'P5,000'],
+            ]),
+          ],
+        )
+      ),
+    ),
+  );
+
+  final Uint8List pdfData = await pdf.save();
+  final blob = html.Blob([pdfData], 'application/pdf');
+  final url = html.Url.createObjectUrlFromBlob(blob);
+
+  final anchor = html.AnchorElement(href: url)
+    ..target = '_blank'
+    ..download = 'receipt.pdf'
+    ..click();
+
+  html.Url.revokeObjectUrl(url);
+}
+
+Future<void> sendEmailWithAttachment(File attachment) async {
+  final Email email = Email(
+    body: 'Here is the PDF file you requested.',
+    subject: 'PDF File',
+    recipients: ['mebguevara@addu.edu.ph'], // Replace with the recipient's email
+    attachmentPaths: [attachment.path],
+    isHTML: false,
+  );
+
+  try {
+    await FlutterEmailSender.send(email);
+  } catch (error) {
+    print('Failed to send email: $error');
+  }
 }
 
 class _BookingReceiptState extends State<BookingReceipt> with SingleTickerProviderStateMixin {
@@ -210,7 +289,7 @@ class _WebView extends StatelessWidget {
                     alignment: Alignment.centerRight,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                      // Add your print functionality here
+                        generatePdfReceipt();
                       },
                       icon: const Icon(Icons.print),
                       label: const Text('Print Receipt'),
