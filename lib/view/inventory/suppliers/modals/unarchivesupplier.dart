@@ -1,9 +1,32 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jcsd_flutter/models/suppliers_data.dart';
+import 'package:jcsd_flutter/providers/inventory_state.dart';
+import 'package:jcsd_flutter/services/suppliers_service.dart';
 
-class UnarchiveSupplierModal extends StatelessWidget {
-  const UnarchiveSupplierModal({super.key});
+class UnarchiveSupplierModal extends ConsumerStatefulWidget {
+  final SuppliersData supplierData;
+  final int supplierID;
+
+  const UnarchiveSupplierModal({super.key, required this.supplierData, required this.supplierID});
+
+  @override
+  ConsumerState<UnarchiveSupplierModal> createState() => _UnarchiveSupplierModalState();
+}
+
+class _UnarchiveSupplierModalState extends ConsumerState<UnarchiveSupplierModal> {
+  late int _supplierID;
+  late SuppliersData _supplierData;
+
+  @override
+  void initState(){
+    super.initState();
+    print('Unarchive Suppliers - initState()');
+    _supplierID = widget.supplierID;
+    _supplierData = widget.supplierData;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +93,7 @@ class UnarchiveSupplierModal extends StatelessWidget {
                   Expanded(
                     child: TextButton(
                       onPressed: () {
+                        ref.invalidate(fetchHiddenList);
                         Navigator.pop(context);
                       },
                       style: TextButton.styleFrom(
@@ -94,7 +118,17 @@ class UnarchiveSupplierModal extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        print('Archive Item - Save changes');
+                        try{
+                          final SuppliersService updateVisibility = SuppliersService();
+                          await updateVisibility.updateSupplierVisbility(_supplierID, false);
+
+                          print('Successfully hid the item. ${_supplierData.supplierName}');
+                        }catch(err){
+                          print('Error archiving an item. $_supplierData');
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
                         padding: const EdgeInsets.symmetric(vertical: 14.0),

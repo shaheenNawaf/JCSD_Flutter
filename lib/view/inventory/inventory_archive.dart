@@ -7,33 +7,28 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 //Pages
-import 'package:jcsd_flutter/modals/additem.dart';
-import 'package:jcsd_flutter/modals/edititem.dart';
-import 'package:jcsd_flutter/modals/archiveitem.dart';
-import 'package:jcsd_flutter/modals/stockinitem.dart';
+import 'package:jcsd_flutter/view/inventory/modals/unarchiveitem.dart';
+import 'package:jcsd_flutter/services/itemtypes_service.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
-import 'package:jcsd_flutter/widgets/header.dart';
 
 //Inventory
-import 'package:jcsd_flutter/api/supa_details.dart';
 import 'package:jcsd_flutter/providers/inventory_state.dart';
 import 'package:jcsd_flutter/models/inventory_data.dart';
 
 //Suppliers
-import 'package:jcsd_flutter/view/employee/suppliers.dart';
 import 'package:jcsd_flutter/services/suppliers_service.dart';
 
-class InventoryPage extends ConsumerStatefulWidget {
-  const InventoryPage({super.key});
+class ArchiveListPage extends ConsumerStatefulWidget {
+  const ArchiveListPage({super.key});
 
   @override
-  ConsumerState createState() => _InventoryPageState();
+  ConsumerState createState() => _ArchiveListPageState();
 }
 
-class _InventoryPageState extends ConsumerState<InventoryPage>
+class _ArchiveListPageState extends ConsumerState<ArchiveListPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  final String _activeSubItem = '/inventory';
+  final String _activeSubItem = '/archiveList';
 
   @override
   void initState() {
@@ -58,48 +53,16 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
     _animationController.reverse();
   }
 
-  void _showAddItemModal() {
+  _showUnarchiveItemModal(InventoryData items, int itemID) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return const AddItemModal();
+        return UnarchiveItemModal(itemData: items, itemID: itemID);
       },
     );
   }
-
-  void _showEditItemModal() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const EditItemModal();
-      },
-    );
-  }
-
-  void _showArchiveItemModal() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const ArchiveItemModal();
-      },
-    );
-  }
-
-  void _showStockInItemModal() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const StockInItemModal();
-      },
-    );
-  }
-
-  void _navigateToProfile() {}
-
+  
   @override
   Widget build(BuildContext context) {
     final bool isMobile = MediaQuery.of(context).size.width < 600;
@@ -110,7 +73,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
           ? AppBar(
               backgroundColor: const Color(0xFF00AEEF),
               title: const Text(
-                'Inventory',
+                'Archive List',
                 style: TextStyle(
                   fontFamily: 'NunitoSans',
                   fontWeight: FontWeight.bold,
@@ -129,15 +92,6 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
                   },
                 ),
               ),
-              actions: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.add,
-                    color: Colors.white,
-                  ),
-                  onPressed: _showAddItemModal,
-                ),
-              ],
             )
           : null,
       drawer: isMobile
@@ -149,11 +103,6 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
               ),
             )
           : null,
-      onDrawerChanged: (isOpened) {
-        if (!isOpened) {
-          _closeDrawer();
-        }
-      },
       body: Stack(
         children: [
           Row(
@@ -163,9 +112,29 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
                 child: Column(
                   children: [
                     if (!isMobile)
-                      Header(
-                        title: 'Inventory',
-                        onAvatarTap: _navigateToProfile,
+                      Container(
+                        color: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Archive List',
+                              style: TextStyle(
+                                fontFamily: 'NunitoSans',
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF00AEEF),
+                                fontSize: 20,
+                              ),
+                            ),
+                            CircleAvatar(
+                              radius: 20,
+                              backgroundImage:
+                                  AssetImage('assets/avatars/cat2.jpg'),
+                            ),
+                          ],
+                        ),
                       ),
                     Expanded(
                       child: Padding(
@@ -234,10 +203,10 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
         Align(
           alignment: Alignment.centerRight,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
             children: [
               SizedBox(
-                width: 250,
+                width: 350,
                 height: 40,
                 child: TextField(
                   decoration: InputDecoration(
@@ -257,46 +226,6 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
-              ElevatedButton.icon(
-                onPressed: _showStockInItemModal,
-                icon: const Icon(Icons.inventory, color: Colors.white),
-                label: const Text(
-                  'Stock In',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00AEEF),
-                  minimumSize: const Size(0, 48),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              ElevatedButton.icon(
-                onPressed: _showAddItemModal,
-                icon: const Icon(Icons.add, color: Colors.white),
-                label: const Text(
-                  'Add',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00AEEF),
-                  minimumSize: const Size(0, 48),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -310,7 +239,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
 
   Widget _buildMobileListView() {
     return ListView.builder(
-      itemCount: 10,
+      itemCount: 1,
       itemBuilder: (context, index) {
         return Column(
           children: [
@@ -322,46 +251,32 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              subtitle: Column(
+              subtitle: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Samsung',
+                  Text(
+                    'Type: Technology',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    color: Colors.yellow,
-                    child: const Text(
-                      'In stock: 50',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        color: Colors.white,
-                      ),
+                  Text(
+                    'Supplier: Samsung',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
                     ),
                   ),
                 ],
               ),
-              trailing: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '0126546',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                    ),
-                  ),
-                  Text(
-                    'Technology',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                    ),
-                  ),
-                ],
+              trailing: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                ),
+                onPressed: () {},
+                child: const Text(
+                  'Unarchive',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
             const Divider(
@@ -374,9 +289,9 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
       },
     );
   }
-  
+
   Widget _buildDataTable(BuildContext context) {
-  final fetchInventory = ref.watch(fetchInventoryList);
+  final fetchInventory = ref.watch(fetchHiddenList);
 
   return fetchInventory.when(
     data: (items) {
@@ -396,7 +311,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
         child: Column(
           children: [
             _buildHeaderRow(),
-            const Divider(height: 1, color: Colors.grey),
+            const Divider(height: 1, color: Color.fromARGB(255, 188, 188, 188)),
             Expanded(
               child: ListView.builder(
                 itemCount: items.length,
@@ -504,9 +419,41 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
       ),
     );
   }
+  
+  Future<String> fetchTypeName(int typeID) async {
+    final fetchTypes = ItemtypesService();
+    String typeName = await fetchTypes.getTypeNameByID(typeID);
+
+    return typeName;
+  }
+
+  Widget _buildItemTypeCell (int typeID, BuildContext context){
+    final itemTypesProvider = ItemtypesService();
+
+    return FutureBuilder(
+      future: itemTypesProvider.getTypeNameByID(typeID), 
+      builder: (context, snapshot){
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator()); // Center the loading indicator
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          String typeName = snapshot.data ?? '';
+          return Text(
+            typeName,
+            style: const TextStyle(
+                fontFamily: 'NunitoSans',
+            ),
+            textAlign: TextAlign.center,
+          );
+        }
+      },
+    );
+  }
 
   Widget _buildItemRow(List<InventoryData> items, int index) {
     final SuppliersService suppliersService = SuppliersService();
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
       decoration: BoxDecoration(
@@ -533,13 +480,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
             ),
           ),
           Expanded(
-            child: Text(
-              items[index].itemType.toString(),
-              style: const TextStyle(
-                fontFamily: 'NunitoSans',
-              ),
-              textAlign: TextAlign.center,
-            ),
+            child: _buildItemTypeCell(items[index].itemTypeID, context),
           ),
           Expanded(
             child: FutureBuilder<String>(
@@ -602,35 +543,18 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 SizedBox(
-                  width: 80,
+                  width: 150,
                   child: ElevatedButton(
-                    onPressed: _showEditItemModal,
+                    onPressed: () => _showUnarchiveItemModal(items[index], items[index].itemID),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: const Color.fromARGB(255, 26, 118, 60),
                     ),
                     child: const Text(
-                      'Edit',
+                      'Unarchive',
                       style: TextStyle(
                         fontFamily: 'NunitoSans',
                         color: Colors.white,
-                        fontSize: 8,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  width: 80,
-                  child: ElevatedButton(
-                    onPressed: _showArchiveItemModal,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                    ),
-                    child: const Text(
-                      'Archive',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        color: Colors.white,
-                        fontSize: 8,
+                        fontSize: 12,
                       ),
                     ),
                   ),
@@ -642,7 +566,6 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
       ),
     );
   }
-
 
   Color _itemQuantityColor (int itemQuantity){
     if (itemQuantity < 10){

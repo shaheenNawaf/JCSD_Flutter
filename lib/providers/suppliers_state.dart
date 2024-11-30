@@ -17,6 +17,22 @@ final fetchSupplierList = FutureProvider<List<SuppliersData>>((ref) async {
     return allSuppliers;
 });
 
+//Available Suppliers
+final fetchAvailableSuppliers = FutureProvider<List<SuppliersData>>((ref) async {
+    final baseSupplier = ref.read(supplierServiceProv);
+
+    List<SuppliersData> allSuppliers = await baseSupplier.displayAvailableSupplierts();
+    return allSuppliers;
+});
+
+//Arvhived Suppliers
+final fetchHiddenSuppliers = FutureProvider<List<SuppliersData>>((ref) async {
+    final baseSupplier = ref.read(supplierServiceProv);
+
+    List<SuppliersData> allSuppliers = await baseSupplier.displayHiddenSuppliers();
+    return allSuppliers;
+});
+
 //Hold Query Search - can be null/empty
 final supplierQuery = StateProvider<String?>((ref) => null);
 

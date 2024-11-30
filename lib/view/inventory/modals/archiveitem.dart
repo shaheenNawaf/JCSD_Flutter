@@ -1,9 +1,32 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jcsd_flutter/models/inventory_data.dart';
+import 'package:jcsd_flutter/providers/inventory_state.dart';
+import 'package:jcsd_flutter/services/inventory_service.dart';
 
-class ArchiveItemModal extends StatelessWidget {
-  const ArchiveItemModal({super.key});
+class ArchiveItemModal extends ConsumerStatefulWidget {
+  final InventoryData itemData;
+  final int itemID;
+
+  const ArchiveItemModal({super.key, required this.itemData, required this.itemID});
+
+  @override
+  ConsumerState<ArchiveItemModal> createState() => _ArchiveItemModalState();
+}
+
+class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
+  late int _intItemID;
+  late InventoryData _itemData;
+
+ @override
+  void initState(){
+    super.initState();
+    print('Archive Item - initState()');
+   _intItemID = widget.itemID;
+   _itemData = widget.itemData;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +93,8 @@ class ArchiveItemModal extends StatelessWidget {
                   Expanded(
                     child: TextButton(
                       onPressed: () {
+                        ref.invalidate(fetchAvailableList);
+                        ref.invalidate(fetchHiddenList);
                         Navigator.pop(context);
                       },
                       style: TextButton.styleFrom(
@@ -94,7 +119,21 @@ class ArchiveItemModal extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        print('Archive Item - Save changes');
+                        try{
+                          final InventoryService updateVisibility = InventoryService();
+                          await updateVisibility.updateItemVisibility(_intItemID, false);
+
+                          print('Successfully hid the item. ${_itemData.itemName}');
+                        }catch(err){
+                          print('Error archiving an item. $_itemData');
+                        }
+                        
+                        //For rebuilding the 
+                        ref.invalidate(fetchHiddenList);
+                        Navigator.pop(context);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
                         padding: const EdgeInsets.symmetric(vertical: 14.0),

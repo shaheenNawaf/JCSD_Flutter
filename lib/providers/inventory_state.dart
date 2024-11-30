@@ -17,6 +17,22 @@ final fetchInventoryList = FutureProvider<List<InventoryData>>((ref) async {
   return allItems;
 });
 
+//Grabbing all hidden items
+final fetchHiddenList = FutureProvider<List<InventoryData>>((ref) async {
+  final baseInventory = ref.read(inventoryServiceProv);
+
+  List<InventoryData> allItems = await baseInventory.displayAllHidden();
+  return allItems;
+});
+
+//Grabbing all available items
+final fetchAvailableList = FutureProvider<List<InventoryData>>((ref) async {
+  final baseInventory = ref.read(inventoryServiceProv);
+
+  List<InventoryData> allItems = await baseInventory.displayAllAvailable();
+  return allItems;
+});
+
 //Just to hold Query State (which might be empty)
 final inventoryQuery = StateProvider<String?>((ref) => null);
 

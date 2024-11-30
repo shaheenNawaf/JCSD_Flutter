@@ -4,10 +4,42 @@ import 'package:jcsd_flutter/models/suppliers_data.dart';
 
 class SuppliersService {  
 
-  //Fetching the Supplier List
+  //Fetching All the Supplier
   Future<List<SuppliersData>> displayAllSuppliers() async {
     try {
       final suppliers = await supabaseDB.from('suppliers').select();
+      if(suppliers.isEmpty){
+        print("No suppliers are on the list");
+        return [];
+      }
+      //If there are entries inside the table, auto-convert as a list
+      return suppliers.map<SuppliersData>((item) => SuppliersData.fromJson(item)).toList();
+    }catch (err){
+      print('Error fetching items from Suppliers table. Error Message: $err');
+      return [];
+    }
+  }
+
+  //Fetching All the Supplier
+  Future<List<SuppliersData>> displayAvailableSupplierts() async {
+    try {
+      final suppliers = await supabaseDB.from('suppliers').select().eq('isActive', true);
+      if(suppliers.isEmpty){
+        print("No suppliers are on the list");
+        return [];
+      }
+      //If there are entries inside the table, auto-convert as a list
+      return suppliers.map<SuppliersData>((item) => SuppliersData.fromJson(item)).toList();
+    }catch (err){
+      print('Error fetching items from Suppliers table. Error Message: $err');
+      return [];
+    }
+  }
+
+  //Fetching Hidden Supplier
+  Future<List<SuppliersData>> displayHiddenSuppliers() async {
+    try {
+      final suppliers = await supabaseDB.from('suppliers').select().eq('isActive', false);
       if(suppliers.isEmpty){
         print("No suppliers are on the list");
         return [];
@@ -92,6 +124,20 @@ class SuppliersService {
     }
   }
 
+  Future<List<String>> getListOfSupplierNames() async {
+    final fetchSuppliers = await supabaseDB.from('suppliers').select('supplierName').eq('isActive', true).select();
+
+    try {
+      if(fetchSuppliers.isEmpty == true){
+        print('There are no active services in the table.');
+      }
+
+      return List<String>.from(fetchSuppliers.map((item) => item['supplierName'] as String ));
+    }catch(err){
+      print('Error fetching supplier names. $err');
+      return [];
+    }
+  }
 
   Future<String> getSupplierNameByID(int supplierID) async {
     final fetchService = await supabaseDB.from('suppliers').select('supplierName').eq('supplierID', supplierID).single(); 
@@ -102,4 +148,15 @@ class SuppliersService {
       return "Supplier not found.";
     }
   }
+  
+  Future<int> getNameByID(String supplierName) async {
+    try{
+      final fetchID = await supabaseDB.from('suppliers').select('supplierID').eq('supplierName', supplierName).single();
+      return fetchID['supplierID'] as int;
+    }catch(err){
+      print('Error fetching Supplier ID. $err');
+      return -1;
+    }
+  }
+
 }

@@ -1,9 +1,36 @@
 // ignore_for_file: library_private_types_in_public_api
 
+//Packages for Usage
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ArchiveSupplierModal extends StatelessWidget {
-  const ArchiveSupplierModal({super.key});
+//Pages
+import 'package:jcsd_flutter/services/suppliers_service.dart';
+
+// Suppliers
+import 'package:jcsd_flutter/models/suppliers_data.dart';
+import 'package:jcsd_flutter/providers/suppliers_state.dart';
+class ArchiveSupplierModal extends ConsumerStatefulWidget {
+  final SuppliersData supplierData;
+  final int supplierID;
+
+  const ArchiveSupplierModal({super.key, required this.supplierData, required this.supplierID});
+
+  @override
+  ConsumerState<ArchiveSupplierModal> createState() => _ArchiveSupplierModalState();
+}
+
+class _ArchiveSupplierModalState extends ConsumerState<ArchiveSupplierModal> {
+  late int _supplierID;
+  late SuppliersData _supplierData;
+
+  @override
+  void initState(){
+    super.initState();
+    print('Archive Supplier - initState()');
+    _supplierID = widget.supplierID;
+    _supplierData = widget.supplierData;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,6 +97,7 @@ class ArchiveSupplierModal extends StatelessWidget {
                   Expanded(
                     child: TextButton(
                       onPressed: () {
+                        ref.invalidate(fetchAvailableSuppliers);
                         Navigator.pop(context);
                       },
                       style: TextButton.styleFrom(
@@ -94,7 +122,17 @@ class ArchiveSupplierModal extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        print('Archive Item - Save changes');
+                        try{
+                          final SuppliersService updateVisibility = SuppliersService();
+                          await updateVisibility.updateSupplierVisbility(_supplierID, false);
+
+                          print('Successfully hid the item. ${_supplierData.supplierName}');
+                        }catch(err){
+                          print('Error archiving an item. $_supplierData');
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
                         padding: const EdgeInsets.symmetric(vertical: 14.0),
