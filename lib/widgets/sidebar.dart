@@ -28,7 +28,8 @@ class _SidebarState extends State<Sidebar> {
 
     _isInventoryExpanded = widget.activePage.startsWith('/inventory') ||
         widget.activePage == '/archiveList' ||
-        widget.activePage == '/auditLog';
+        widget.activePage == '/auditLog' ||
+        widget.activePage == '/itemTypes';
     _isBookingsExpanded = widget.activePage.startsWith('/bookings') ||
         widget.activePage == '/bookingsCalendar' ||
         widget.activePage == '/transactions';
@@ -137,6 +138,13 @@ class _SidebarState extends State<Sidebar> {
                           route: '/auditLog',
                           isActive: _activeSubItem == '/auditLog',
                           onTap: () => _navigateTo('/auditLog'),
+                        ),
+                        SubSidebarItem(
+                          icon: FontAwesomeIcons.tags,
+                          title: 'Item Types',
+                          route: '/itemTypes',
+                          isActive: _activeSubItem == '/itemTypes',
+                          onTap: () => _navigateTo('/itemTypes'),
                         ),
                       ],
                       SidebarItemWithDropdown(
@@ -325,6 +333,13 @@ class _SidebarState extends State<Sidebar> {
                     route: '/auditLog',
                     isActive: _activeSubItem == '/auditLog',
                     onTap: () => _navigateTo('/auditLog'),
+                  ),
+                  SubSidebarItem(
+                    icon: FontAwesomeIcons.tags,
+                    title: 'Item Types',
+                    route: '/itemTypes',
+                    isActive: _activeSubItem == '/itemTypes',
+                    onTap: () => _navigateTo('/itemTypes'),
                   ),
                 ],
                 SidebarItemWithDropdown(
