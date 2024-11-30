@@ -1,32 +1,45 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
+//Packages for usage
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:jcsd_flutter/modals/addsupplier.dart';
-import 'package:jcsd_flutter/modals/archivesupplier.dart';
-import 'package:jcsd_flutter/modals/editsupplier.dart';
-import 'package:jcsd_flutter/models/suppliers_data.dart';
-import 'package:jcsd_flutter/providers/suppliers_state.dart';
-import 'package:jcsd_flutter/widgets/sidebar.dart';
 
-class SupplierPage extends ConsumerStatefulWidget {
-  const SupplierPage({super.key});
+//Pages
+import 'package:jcsd_flutter/view/inventory/modals/additem.dart';
+import 'package:jcsd_flutter/view/inventory/modals/edititem.dart';
+import 'package:jcsd_flutter/view/inventory/modals/archiveitem.dart';
+import 'package:jcsd_flutter/view/inventory/modals/stockinitem.dart';
+import 'package:jcsd_flutter/services/itemtypes_service.dart';
+import 'package:jcsd_flutter/widgets/sidebar.dart';
+import 'package:jcsd_flutter/widgets/header.dart';
+
+//Inventory
+import 'package:jcsd_flutter/providers/inventory_state.dart';
+import 'package:jcsd_flutter/models/inventory_data.dart';
+
+//Suppliers
+import 'package:jcsd_flutter/services/suppliers_service.dart';
+
+class InventoryPage extends ConsumerStatefulWidget {
+  const InventoryPage({super.key});
 
   @override
-  ConsumerState createState() => _SupplierPageState();
+  ConsumerState<InventoryPage> createState() => _InventoryPageState();
 }
 
-class _SupplierPageState extends ConsumerState<SupplierPage>
+class _InventoryPageState extends ConsumerState<InventoryPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
+  final String _activeSubItem = '/inventory';
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
+    vsync: this,
+    duration: const Duration(milliseconds: 300),
     );
   }
 
@@ -44,35 +57,48 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
     _animationController.reverse();
   }
 
-  void _showAddSupplierModal() {
+  void _showAddItemModal() {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return const AddSupplierModal();
+        return const AddItemModal();
       },
     );
   }
 
-  void _showEditSupplierModal() {
+  _showEditItemModal(InventoryData items, int itemID) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return const EditSupplierModal();
+        return EditItemModal(itemData: items, itemInventoryID: itemID);
       },
     );
   }
 
-  void _showArchiveSupplierModal() {
+  _showArchiveItemModal(InventoryData items, int itemID) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return const ArchiveSupplierModal();
+        print('Archive Item - Part 1');
+        return ArchiveItemModal(itemID: itemID, itemData: items);
       },
     );
   }
+
+  void _showStockInItemModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const StockInItemModal();
+      },
+    );
+  }
+
+  void _navigateToProfile() {}
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +110,7 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
           ? AppBar(
               backgroundColor: const Color(0xFF00AEEF),
               title: const Text(
-                'Suppliers',
+                'Inventory',
                 style: TextStyle(
                   fontFamily: 'NunitoSans',
                   fontWeight: FontWeight.bold,
@@ -109,7 +135,7 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
                     Icons.add,
                     color: Colors.white,
                   ),
-                  onPressed: _showAddSupplierModal,
+                  onPressed: _showAddItemModal,
                 ),
               ],
             )
@@ -118,7 +144,7 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
           ? Drawer(
               backgroundColor: const Color(0xFF00AEEF),
               child: Sidebar(
-                activePage: '/suppliers',
+                activePage: _activeSubItem,
                 onClose: _closeDrawer,
               ),
             )
@@ -132,34 +158,14 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
         children: [
           Row(
             children: [
-              if (!isMobile) const Sidebar(activePage: '/suppliers'),
+              if (!isMobile) Sidebar(activePage: _activeSubItem),
               Expanded(
                 child: Column(
                   children: [
                     if (!isMobile)
-                      Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Suppliers',
-                              style: TextStyle(
-                                fontFamily: 'NunitoSans',
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF00AEEF),
-                                fontSize: 20,
-                              ),
-                            ),
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundImage:
-                                  AssetImage('assets/avatars/cat2.jpg'),
-                            ),
-                          ],
-                        ),
+                      Header(
+                        title: 'Inventory',
+                        onAvatarTap: _navigateToProfile,
                       ),
                     Expanded(
                       child: Padding(
@@ -228,7 +234,7 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
         Align(
           alignment: Alignment.centerRight,
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
               SizedBox(
                 width: 250,
@@ -253,7 +259,27 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
               ),
               const SizedBox(width: 16),
               ElevatedButton.icon(
-                onPressed: _showAddSupplierModal,
+                onPressed: _showStockInItemModal,
+                icon: const Icon(Icons.inventory, color: Colors.white),
+                label: const Text(
+                  'Stock In',
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00AEEF),
+                  minimumSize: const Size(0, 48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              ElevatedButton.icon(
+                onPressed: _showAddItemModal,
                 icon: const Icon(Icons.add, color: Colors.white),
                 label: const Text(
                   'Add',
@@ -290,65 +316,49 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
           children: [
             ListTile(
               title: const Text(
-                'Samsung',
+                'Samsung SSD 500GB',
                 style: TextStyle(
                   fontFamily: 'NunitoSans',
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              subtitle: const Column(
+              subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Davao City',
+                  const Text(
+                    'Samsung',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                     ),
                   ),
-                  SizedBox(height: 4),
-                  Text(
-                    '092784162',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                    ),
-                  ),
-                  SizedBox(height: 4),
-                  Text(
-                    'samsung@gmail.com',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    color: Colors.yellow,
+                    child: const Text(
+                      'In stock: 50',
+                      style: TextStyle(
+                        fontFamily: 'NunitoSans',
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],
               ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
+              trailing: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                    ),
-                    child: const Text(
-                      'Edit',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        color: Colors.white,
-                      ),
+                  Text(
+                    '0126546',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                    ),
-                    child: const Text(
-                      'Delete',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        color: Colors.white,
-                      ),
+                  Text(
+                    'Technology',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
                     ),
                   ),
                 ],
@@ -364,12 +374,12 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
       },
     );
   }
-
+  
   Widget _buildDataTable(BuildContext context) {
-    final fetchSuppliers = ref.watch(fetchSupplierList);
+  final fetchInventory = ref.watch(fetchAvailableList);
 
-    return fetchSuppliers.when(
-    data: (suppliers) {
+  return fetchInventory.when(
+    data: (items) {
       return Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -386,12 +396,12 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
         child: Column(
           children: [
             _buildHeaderRow(),
-            const Divider(height: 1, color: Colors.grey),
+            const Divider(height: 1, color: Color.fromARGB(255, 188, 188, 188)),
             Expanded(
               child: ListView.builder(
-                itemCount: suppliers.length,
+                itemCount: items.length,
                 itemBuilder: (BuildContext context, int index) {
-                  return _buildSuppliersRow(suppliers, index);
+                  return _buildItemRow(items, index);
                 },
               ),
             ),
@@ -415,7 +425,7 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
         children: [
           Expanded(
             child: Text(
-              'Supplier ID',
+              'Item ID',
               style: TextStyle(
                 fontFamily: 'NunitoSans',
                 fontWeight: FontWeight.w600,
@@ -426,7 +436,7 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
           ),
           Expanded(
             child: Text(
-              'Name',
+              'Item Name',
               style: TextStyle(
                 fontFamily: 'NunitoSans',
                 fontWeight: FontWeight.w600,
@@ -437,7 +447,7 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
           ),
           Expanded(
             child: Text(
-              'Email',
+              'Item Type',
               style: TextStyle(
                 fontFamily: 'NunitoSans',
                 fontWeight: FontWeight.w600,
@@ -448,7 +458,29 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
           ),
           Expanded(
             child: Text(
-              'Contact Number',
+              'Supplier',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Quantity',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Price',
               style: TextStyle(
                 fontFamily: 'NunitoSans',
                 fontWeight: FontWeight.w600,
@@ -473,7 +505,40 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
     );
   }
 
-  Widget _buildSuppliersRow(List<SuppliersData> suppliers, int index) {
+  Future<String> fetchTypeName(int typeID) async {
+    final fetchTypes = ItemtypesService();
+    String typeName = await fetchTypes.getTypeNameByID(typeID);
+
+    return typeName;
+  }
+
+  Widget _buildItemTypeCell (int typeID, BuildContext context){
+    final itemTypesProvider = ItemtypesService();
+
+    return FutureBuilder(
+      future: itemTypesProvider.getTypeNameByID(typeID), 
+      builder: (context, snapshot){
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator()); // Center the loading indicator
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else {
+          String typeName = snapshot.data ?? '';
+          return Text(
+            typeName,
+            style: const TextStyle(
+                fontFamily: 'NunitoSans',
+            ),
+            textAlign: TextAlign.center,
+          );
+        }
+      },
+    );
+  }
+
+  Widget _buildItemRow(List<InventoryData> items, int index) {
+    final SuppliersService suppliersService = SuppliersService();
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
       decoration: BoxDecoration(
@@ -484,7 +549,7 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
         children: [
           Expanded(
             child: Text(
-              suppliers[index].supplierID.toString(),
+              items[index].itemID.toString(),
               style: const TextStyle(
                 fontFamily: 'NunitoSans',
               ),
@@ -493,27 +558,68 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
           ),
           Expanded(
             child: Text(
-              suppliers[index].supplierName.toString(),
+              items[index].itemName.toString(),
               style: const TextStyle(
                 fontFamily: 'NunitoSans',
               ),
             ),
           ),
           Expanded(
-            child: Text(
-              suppliers[index].supplierEmail.toString(),
-              style: const TextStyle(
-                fontFamily: 'NunitoSans',
+            child: _buildItemTypeCell(items[index].itemTypeID, context),
+          ),
+          Expanded(
+            child: FutureBuilder<String>(
+              future: suppliersService.getSupplierNameByID(items[index].supplierID.toInt()),
+              builder: (context, supplierName) {
+                if (supplierName.hasData){
+                  return Text(
+                    supplierName.data!,
+                    style: const TextStyle(
+                      fontFamily: 'NunitoSans',
+                    ),
+                    textAlign: TextAlign.center,
+                  );
+                }else if(supplierName.hasError){
+                  return const Text(
+                    "Error fetching",
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                    ),
+                    textAlign: TextAlign.center,
+                  );
+                }else{
+                  return const Text(
+                    "No supplier found",
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                    ),
+                    textAlign: TextAlign.center,
+                  );
+                }
+              },
+            ),
+          ),
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                color: _itemQuantityColor(items[index].itemQuantity),
+                borderRadius: BorderRadius.circular(10),
               ),
-              textAlign: TextAlign.center,
+              child: Text(
+                '${items[index].itemQuantity.toString()} pcs',
+                style: const TextStyle(
+                  fontFamily: 'NunitoSans',
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
           ),
           Expanded(
             child: Text(
-              suppliers[index].contactNumber.toString(),
-              style: const TextStyle(
-                fontFamily: 'NunitoSans',
-              ),
+              'P ${items[index].itemPrice.toString()}',
+              style: const TextStyle(fontFamily: 'NunitoSans'),
               textAlign: TextAlign.center,
             ),
           ),
@@ -524,7 +630,9 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
                 SizedBox(
                   width: 80,
                   child: ElevatedButton(
-                    onPressed: _showEditSupplierModal,
+                    onPressed: () {
+                      _showEditItemModal(items[index], items[index].itemID);
+                    } ,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                     ),
@@ -541,7 +649,9 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
                 SizedBox(
                   width: 80,
                   child: ElevatedButton(
-                    onPressed: _showArchiveSupplierModal,
+                    onPressed: () { 
+                      _showArchiveItemModal(items[index], items[index].itemID);
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                     ),
@@ -561,5 +671,16 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
         ],
       ),
     );
+  }
+
+
+  Color _itemQuantityColor (int itemQuantity){
+    if (itemQuantity < 10){
+      return Colors.red;
+    }else if(itemQuantity < 20){
+      return Colors.yellow;
+    }else{
+      return Colors.green;
+    }
   }
 }

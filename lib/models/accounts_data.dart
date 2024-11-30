@@ -48,7 +48,7 @@ class AccountsData {
   //Returning the data to a JSON format
   Map<String, dynamic> toJson() {
     return {
-      'userID': userID as Int8,
+      'userID': userID,
       'firstName': firstName,
       'middleName': middleName,
       'lastName': lastname,

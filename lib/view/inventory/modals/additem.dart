@@ -1,32 +1,41 @@
 // ignore_for_file: library_private_types_in_public_api
 
+//Default Imports
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class EditItemModal extends StatefulWidget {
-  const EditItemModal({super.key});
+//Backend Imports
+import 'package:jcsd_flutter/providers/inventory_state.dart';
+import 'package:jcsd_flutter/providers/itemtypes_state.dart';
+import 'package:jcsd_flutter/providers/suppliers_state.dart';
+
+//Inventory and Supplier Imports
+import 'package:jcsd_flutter/services/inventory_service.dart';
+
+class AddItemModal extends ConsumerStatefulWidget {
+  const AddItemModal({super.key});
 
   @override
-  _EditItemModalState createState() => _EditItemModalState();
+  ConsumerState<AddItemModal> createState() => _AddItemModalState();
 }
 
-class _EditItemModalState extends State<EditItemModal> {
+class _AddItemModalState extends ConsumerState<AddItemModal> {
   String? _selectedItemType;
   String? _selectedSupplier;
-  final TextEditingController _priceController = TextEditingController();
+  int itemTypeID = -1;
 
-  // Dummy data for dropdowns, insert data from backend
-  final List<String> _itemTypes = [
-    'Electronics',
-    'Furniture',
-    'Clothing',
-    'Food'
-  ];
-  final List<String> _suppliers = ['Supplier A', 'Supplier B', 'Supplier C'];
-
+  //Fetching data inside the different fields
+  final TextEditingController _addItemName = TextEditingController();
+  final TextEditingController _addItemDescription = TextEditingController();
+  final TextEditingController _addItemType = TextEditingController();
+  final TextEditingController _addItemSupplier = TextEditingController();
+  final TextEditingController _addItemPrice = TextEditingController();
+  final TextEditingController _addItemQuantity = TextEditingController();
+  
   @override
   void dispose() {
-    _priceController.dispose();
+    _addItemPrice.dispose();
     super.dispose();
   }
 
@@ -63,7 +72,7 @@ class _EditItemModalState extends State<EditItemModal> {
               ),
               child: const Center(
                 child: Text(
-                  'Edit Item',
+                  'Add Item',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontWeight: FontWeight.bold,
@@ -86,13 +95,23 @@ class _EditItemModalState extends State<EditItemModal> {
                           _buildTextField(
                             label: 'Item Name',
                             hintText: 'Enter item name',
+                            setController: _addItemName,
+                            maxLines: 1,
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 12),
                           _buildTextField(
                             label: 'Item Description',
                             hintText: 'Enter item description here',
-                            maxLines: 5,
+                            maxLines: 1,
+                            setController: _addItemDescription
                           ),
+                          const SizedBox(height: 8),
+                          _buildTextField(
+                            label: 'Item Quantity',
+                            hintText: 'Enter item quantity',
+                            setController: _addItemQuantity,
+                            maxLines: 1,
+                          )
                         ],
                       ),
                     ),
@@ -101,23 +120,22 @@ class _EditItemModalState extends State<EditItemModal> {
                       flex: 1,
                       child: Column(
                         children: [
-                          _buildDropdownField(
+                          _buildItemTypeList(
                             label: 'Item Type',
                             hintText: 'Select item type',
                             value: _selectedItemType,
-                            items: _itemTypes,
                             onChanged: (String? value) {
                               setState(() {
                                 _selectedItemType = value;
                               });
                             },
                           ),
-                          const SizedBox(height: 16),
-                          _buildDropdownField(
+                          const SizedBox(height: 12),
+                          //Supplier Fields
+                          _buildSupliersList(
                             label: 'Supplier',
                             hintText: 'Select supplier',
                             value: _selectedSupplier,
-                            items: _suppliers,
                             onChanged: (String? value) {
                               setState(() {
                                 _selectedSupplier = value;
@@ -166,7 +184,21 @@ class _EditItemModalState extends State<EditItemModal> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        String itemName = _addItemName.text;
+                        String itemDescription = _addItemDescription.text;
+                        int itemQuantity = int.parse(_addItemQuantity.text);
+                        int supplierID = int.parse(_addItemSupplier.text);
+                        double itemPrice = double.parse(_addItemPrice.text);
+                        bool isVisible = true;
+
+                        final InventoryService addItem = InventoryService();
+
+                        await addItem.addItem(itemName, itemTypeID, itemDescription, itemQuantity, supplierID, itemPrice, isVisible);
+
+                        ref.invalidate(fetchAvailableList );
+                        Navigator.pop(context);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -175,7 +207,7 @@ class _EditItemModalState extends State<EditItemModal> {
                         ),
                       ),
                       child: const Text(
-                        'Save Changes',
+                        'Submit',
                         style: TextStyle(
                           fontFamily: 'NunitoSans',
                           fontWeight: FontWeight.bold,
@@ -197,6 +229,7 @@ class _EditItemModalState extends State<EditItemModal> {
     required String label,
     required String hintText,
     int maxLines = 1,
+    required TextEditingController setController,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,6 +254,7 @@ class _EditItemModalState extends State<EditItemModal> {
         ),
         const SizedBox(height: 5),
         TextField(
+          controller: setController,
           maxLines: maxLines,
           decoration: InputDecoration(
             hintText: hintText,
@@ -236,6 +270,7 @@ class _EditItemModalState extends State<EditItemModal> {
     );
   }
 
+  
   Widget _buildDropdownField({
     required String label,
     required String hintText,
@@ -294,9 +329,178 @@ class _EditItemModalState extends State<EditItemModal> {
               ),
             );
           }).toList(),
-          onChanged: onChanged,
+          onChanged: (String? getItemType){
+            print(getItemType);
+            _addItemType.text = getItemType ?? '';
+          },
         ),
       ],
+    );
+  }
+
+  Widget _buildItemTypeList({
+    required String label,
+    required String hintText,
+    required String? value,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return FutureBuilder(
+      future: ref.read(fetchItemTypesList.future),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting){
+          return const CircularProgressIndicator();
+        }
+        if (snapshot.hasError){
+          return Text('Error fetching: ${snapshot.error}');
+        }
+
+        final typeList = snapshot.data!;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                const Text(
+                  '*',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 5),
+            DropdownButtonFormField<String>(
+              value: value,
+              hint: Text(
+                hintText,
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w300,
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+              ),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+              icon: const Icon(Icons.arrow_drop_down),
+              dropdownColor: Colors.white,
+              items: typeList.map((itemTypes) {
+                return DropdownMenuItem<String>(
+                  value: itemTypes.itemType,
+                  child: Text(
+                    itemTypes.itemType,
+                    style: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w300,
+                      fontSize: 12,
+                    ),
+                  ),
+                );
+              }).toList(),
+              onChanged: (String? getTypeName) async {
+                print(getTypeName);
+
+                if(getTypeName != null){
+                  int fetchID = await ref.read(itemTypesProvider).getIdByName(getTypeName); 
+                  if(fetchID != -1){
+                    itemTypeID = fetchID;
+                  }
+                }
+              },
+            ),
+          ]
+        ); 
+      }
+    );
+  }
+
+  Widget _buildSupliersList({
+    required String label,
+    required String hintText,
+    required String? value,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return FutureBuilder(
+      future: ref.read(fetchAvailableSuppliers.future),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting){
+          return const CircularProgressIndicator();
+        }
+        if (snapshot.hasError){
+          return Text('Error fetching: ${snapshot.error}');
+        }
+
+        final supplierList = snapshot.data!;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                const Text(
+                  '*',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 5),
+            DropdownButtonFormField<String>(
+              value: value,
+              hint: Text(
+                hintText,
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w300,
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+              ),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+              icon: const Icon(Icons.arrow_drop_down),
+              dropdownColor: Colors.white,
+              items: supplierList.map((supplier) {
+                return DropdownMenuItem<String>(
+                  value: supplier.supplierID.toString(),
+                  child: Text(
+                    supplier.supplierName,
+                    style: const TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w300,
+                      fontSize: 12,
+                    ),
+                  ),
+                );
+              }).toList(),
+              onChanged: (String? getSupplierText){
+                print(getSupplierText);
+                _addItemSupplier.text = getSupplierText ?? '';
+              },
+            ),
+          ]
+        ); 
+      }
     );
   }
 
@@ -324,7 +528,7 @@ class _EditItemModalState extends State<EditItemModal> {
         ),
         const SizedBox(height: 5),
         TextField(
-          controller: _priceController,
+          controller: _addItemPrice,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),

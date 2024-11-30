@@ -2,7 +2,7 @@ class InventoryData {
   final int itemID;
   final int supplierID;
   final String itemName;
-  final String itemType;
+  final int itemTypeID;
   final String itemDescription;
   final int itemQuantity;
   final double itemPrice;
@@ -13,7 +13,7 @@ class InventoryData {
     required this.itemID,
     required this.supplierID, 
     required this.itemName,
-    required this.itemType,
+    required this.itemTypeID,
     required this.itemDescription,
     required this.itemQuantity,
     required this.itemPrice,
@@ -26,7 +26,7 @@ class InventoryData {
       itemID: json['itemID'], 
       supplierID: json['supplierID'], 
       itemName: json['itemName'] as String, 
-      itemType: json['itemType'] as String, 
+      itemTypeID: json['itemTypeID'], 
       itemDescription: json['itemDescription'] as String, 
       itemQuantity: json['itemQuantity'], 
       itemPrice: json['itemPrice'], 
@@ -40,7 +40,7 @@ class InventoryData {
       'itemID': itemID,
       'supplierID': supplierID,
       'itemName': itemName,
-      'itemType': itemType,
+      'itemTypeID': itemTypeID,
       'itemDescription': itemDescription,
       'itemQuantity': itemQuantity,
       'itemPrice': itemPrice,

@@ -1,21 +1,24 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:jcsd_flutter/modals/unarchiveitem.dart';
+import 'package:jcsd_flutter/view/inventory/suppliers/modals/unarchivesupplier.dart';
+import 'package:jcsd_flutter/models/suppliers_data.dart';
+import 'package:jcsd_flutter/providers/suppliers_state.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
-class ArchiveListPage extends StatefulWidget {
-  const ArchiveListPage({super.key});
+class SupplierArchivePage extends ConsumerStatefulWidget {
+  const SupplierArchivePage({super.key});
 
   @override
-  _ArchiveListPageState createState() => _ArchiveListPageState();
+  ConsumerState createState() => _SupplierArchivePageState();
 }
 
-class _ArchiveListPageState extends State<ArchiveListPage>
+class _SupplierArchivePageState extends ConsumerState<SupplierArchivePage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
-  final String _activeSubItem = '/archiveList';
+  final String _activeSubItem = '/supplierArchive';
 
   @override
   void initState() {
@@ -40,12 +43,12 @@ class _ArchiveListPageState extends State<ArchiveListPage>
     _animationController.reverse();
   }
 
-  void _showUnarchiveItemModal() {
+  _showUnarchiveSupplierModal(SuppliersData suppliers, int supplierID) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return const UnarchiveItemModal();
+        return UnarchiveSupplierModal(supplierData: suppliers, supplierID: supplierID);
       },
     );
   }
@@ -189,36 +192,31 @@ class _ArchiveListPageState extends State<ArchiveListPage>
       children: [
         Align(
           alignment: Alignment.centerRight,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: 350,
-                height: 40,
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Search',
-                    hintStyle: const TextStyle(
-                      color: Color(0xFFABABAB),
-                      fontFamily: 'NunitoSans',
-                    ),
-                    prefixIcon: const Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      vertical: 0,
-                      horizontal: 16,
-                    ),
-                  ),
+          child: SizedBox(
+            width: 350,
+            height: 40,
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search',
+                hintStyle: const TextStyle(
+                  color: Color(0xFFABABAB),
+                  fontFamily: 'NunitoSans',
+                ),
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                  vertical: 0,
+                  horizontal: 16,
                 ),
               ),
-            ],
+            ),
           ),
         ),
         const SizedBox(height: 16),
         Expanded(
-          child: _buildDataTable(),
+          child: _buildDataTable(context),
         ),
       ],
     );
@@ -232,7 +230,7 @@ class _ArchiveListPageState extends State<ArchiveListPage>
           children: [
             ListTile(
               title: const Text(
-                'Samsung SSD 500GB',
+                'Samsung',
                 style: TextStyle(
                   fontFamily: 'NunitoSans',
                   fontWeight: FontWeight.bold,
@@ -242,13 +240,19 @@ class _ArchiveListPageState extends State<ArchiveListPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Type: Technology',
+                    'Davao City',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                     ),
                   ),
                   Text(
-                    'Supplier: Samsung',
+                    '092784162',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                    ),
+                  ),
+                  Text(
+                    'samsung@gmail.com',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                     ),
@@ -259,7 +263,7 @@ class _ArchiveListPageState extends State<ArchiveListPage>
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                 ),
-                onPressed: _showUnarchiveItemModal,
+                onPressed: () {},
                 child: const Text(
                   'Unarchive',
                   style: TextStyle(color: Colors.white),
@@ -277,106 +281,181 @@ class _ArchiveListPageState extends State<ArchiveListPage>
     );
   }
 
-  Widget _buildDataTable() {
+  Widget _buildDataTable(BuildContext context) {
+    final fetchSuppliers = ref.watch(fetchHiddenSuppliers);
+
+    return fetchSuppliers.when(
+    data: (suppliers) {
+      return Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            )
+          ],
+        ),
+        child: Column(
+          children: [
+            _buildHeaderRow(),
+            const Divider(height: 1, color: Colors.grey),
+            Expanded(
+              child: ListView.builder(
+                itemCount: suppliers.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return _buildSuppliersRow(suppliers, index);
+                },
+              ),
+            ),
+          ],
+        ),
+      );
+    },
+    error: (err, stackTrace) => Text('Error fetching data from table: $err'),
+    loading: () => const LinearProgressIndicator(
+      backgroundColor: Color.fromRGBO(0, 134, 239, 1),
+    ),
+  );
+  }
+
+  Widget _buildHeaderRow() {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
+      color: const Color.fromRGBO(0, 174, 239, 1),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              'Supplier ID',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Name',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Email',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Contact Number',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Actions',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
         ],
       ),
-      child: ListView(
+    );
+  }
+
+  Widget _buildSuppliersRow(List<SuppliersData> suppliers, int index) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      decoration: BoxDecoration(
+        color: index % 2 == 0 ? Colors.grey[100] : Colors.white,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          DataTable(
-            headingRowColor: WidgetStateProperty.all(
-              const Color(0xFF00AEEF),
+          Expanded(
+            child: Text(
+              suppliers[index].supplierID.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+              textAlign: TextAlign.center,
             ),
-            columns: const [
-              DataColumn(
-                label: Text(
-                  'Item ID',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
+          ),
+          Expanded(
+            child: Text(
+              suppliers[index].supplierName.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
               ),
-              DataColumn(
-                label: Text(
-                  'Item Name',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              suppliers[index].supplierEmail.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
               ),
-              DataColumn(
-                label: Text(
-                  'Item Type',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              suppliers[index].contactNumber.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
               ),
-              DataColumn(
-                label: Text(
-                  'Supplier',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Padding(
-                  padding: EdgeInsets.only(left: 30),
-                  child: Center(
-                    child: Text(
-                      'Action',
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(
+                  width: 150,
+                  child: ElevatedButton(
+                    onPressed: () => _showUnarchiveSupplierModal(suppliers[index], suppliers[index].supplierID),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 26, 118, 60),
+                    ),
+                    child: const Text(
+                      'Unarchive',
                       style: TextStyle(
                         fontFamily: 'NunitoSans',
-                        fontWeight: FontWeight.w600,
                         color: Colors.white,
+                        fontSize: 12,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
-              ),
-            ],
-            rows: [
-              DataRow(
-                cells: [
-                  const DataCell(Text('0126546')),
-                  const DataCell(Text('Samsung SSD 500GB')),
-                  const DataCell(Text('Technology')),
-                  const DataCell(Text('Samsung')),
-                  DataCell(
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                      ),
-                      onPressed: _showUnarchiveItemModal,
-                      child: const Text(
-                        'Unarchive',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
