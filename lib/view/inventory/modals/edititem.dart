@@ -244,10 +244,9 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
                         double itemPrice = double.parse(_itemPrice.text);
                         bool isVisible = true;
 
-                        final InventoryService addItem = InventoryService();
-
-                       await addItem.updateItem(itemID, itemName, itemTypeID, itemDescription, itemQuantity, supplierID, itemPrice, isVisible);
-
+                        final InventoryService items = InventoryService();
+                        await items.updateItem(itemID, itemName, itemTypeID, itemDescription, itemQuantity, supplierID, itemPrice, isVisible);
+                        
                         ref.invalidate(fetchAvailableList);
                         Navigator.pop(context);
                       },

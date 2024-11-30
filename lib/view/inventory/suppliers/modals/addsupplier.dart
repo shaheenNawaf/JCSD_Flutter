@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jcsd_flutter/backend/providers/suppliers_state.dart';
 import 'package:jcsd_flutter/backend/services/suppliers_service.dart';
+import 'package:jcsd_flutter/view/generic/error_dialog.dart';
 // import 'package:flutter/services.dart';
 
 class AddSupplierModal extends ConsumerStatefulWidget {
@@ -80,12 +81,25 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
                     label: 'Supplier Name',
                     hintText: 'Enter supplier name',
                     controller: _supplierNameController,
+                    keyboardType: TextInputType.text,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your name';
+                      }
+                        return null;
+                    }, 
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
                     label: 'Address',
                     hintText: 'Enter supplier address',
                     controller: _addressController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your name';
+                      }
+                        return null;
+                    }, 
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
@@ -93,6 +107,15 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
                     hintText: 'Enter supplier contact number',
                     controller: _contactNumberController,
                     keyboardType: TextInputType.phone,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your phone number';
+                      }
+                      if (!RegExp(r'^(0\d{10}|\+639\d{10})$').hasMatch(value)){
+                        return 'Please enter a valid phone number';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
@@ -100,6 +123,16 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
                     hintText: 'Enter supplier email',
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+                        return 'Please enter a valid email'; 
+
+                      }
+                      return null;
+                    },
                   ),
                 ],
               ),
@@ -139,17 +172,26 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
                     child: ElevatedButton(
                       onPressed: () async {
                         try{
-                          String supplierName = _supplierNameController.text;
-                          String supplierEmail = _emailController.text;
-                          String contactNumber = _contactNumberController.text;
-                          String address = _addressController.text;
-                          bool isActive = true;
-                          final addNewSupplier = SuppliersService();
-                          await addNewSupplier.addNewSupplier(supplierName, supplierEmail, contactNumber, address, isActive);
 
-                          ref.invalidate(fetchAvailableSuppliers);
-                          Navigator.pop(context);
-                          
+                          if (_supplierNameController.text.isEmpty || _emailController.text.isEmpty || _contactNumberController.text.isEmpty || _addressController.text.isEmpty){
+                            showDialog(
+                            context: context,
+                            builder: (context) => const ErrorDialog(
+                              title: 'Empty Fields',
+                              content: 'Please fill in all the required fields.',
+                              ),
+                            );
+                          }else{
+                            String supplierName = _supplierNameController.text;
+                            String supplierEmail = _emailController.text;
+                            String contactNumber = _contactNumberController.text;
+                            String address = _addressController.text;
+                            bool isActive = true;
+                            final addNewSupplier = SuppliersService();
+                            await addNewSupplier.addNewSupplier(supplierName, supplierEmail, contactNumber, address, isActive);
+                            ref.invalidate(fetchAvailableSuppliers);
+                             Navigator.pop(context);
+                          }
                         }catch(err){
                           print('Error adding supplier. $err');
                         }
@@ -184,6 +226,7 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
     required String label,
     required String hintText,
     required TextEditingController controller,
+    String? Function(String?)? validator,
     TextInputType keyboardType = TextInputType.text,
   }) {
     return Column(
@@ -208,9 +251,10 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
           ],
         ),
         const SizedBox(height: 5),
-        TextField(
+        TextFormField(
           controller: controller,
           keyboardType: keyboardType,
+          validator: validator,
           decoration: InputDecoration(
             hintText: hintText,
             border: const OutlineInputBorder(),

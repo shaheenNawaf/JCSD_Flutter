@@ -12,7 +12,7 @@ import 'package:jcsd_flutter/view/bookings/services/services.dart';
 import 'package:jcsd_flutter/view/bookings/services/services_archive.dart';
 import 'package:jcsd_flutter/view/inventory/item_types.dart';
 import 'package:jcsd_flutter/view/inventory/suppliers/suppliers_archive.dart';
-import 'package:jcsd_flutter/view/generic/error.dart';
+import 'package:jcsd_flutter/view/generic/error_page.dart';
 import 'package:jcsd_flutter/api/global_variables.dart';
 
 // Pages for routine

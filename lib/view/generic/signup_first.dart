@@ -225,7 +225,6 @@ class _SignupPage1State extends State<SignupPage1> {
   Widget buildTextField({
     required String label, 
     required String hintText,
-    required TextEditingController controller
     }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,7 +249,6 @@ class _SignupPage1State extends State<SignupPage1> {
         ),
         const SizedBox(height: 5),
         TextField(
-          controller: controller,
           decoration: InputDecoration(
             hintText: hintText,
             border: const OutlineInputBorder(),
