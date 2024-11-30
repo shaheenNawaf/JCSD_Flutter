@@ -1,6 +1,6 @@
 //Imports for Supabase and Service data type
 import 'package:jcsd_flutter/api/global_variables.dart';
-import 'package:jcsd_flutter/models/services_data.dart';
+import 'package:jcsd_flutter/backend/models/services_data.dart';
 
 class JcsdServices {
 

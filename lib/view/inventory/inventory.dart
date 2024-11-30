@@ -11,16 +11,16 @@ import 'package:jcsd_flutter/view/inventory/modals/additem.dart';
 import 'package:jcsd_flutter/view/inventory/modals/edititem.dart';
 import 'package:jcsd_flutter/view/inventory/modals/archiveitem.dart';
 import 'package:jcsd_flutter/view/inventory/modals/stockinitem.dart';
-import 'package:jcsd_flutter/services/itemtypes_service.dart';
+import 'package:jcsd_flutter/backend/services/itemtypes_service.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 
 //Inventory
-import 'package:jcsd_flutter/providers/inventory_state.dart';
-import 'package:jcsd_flutter/models/inventory_data.dart';
+import 'package:jcsd_flutter/backend/providers/inventory_state.dart';
+import 'package:jcsd_flutter/backend/models/inventory_data.dart';
 
 //Suppliers
-import 'package:jcsd_flutter/services/suppliers_service.dart';
+import 'package:jcsd_flutter/backend/services/suppliers_service.dart';
 
 class InventoryPage extends ConsumerStatefulWidget {
   const InventoryPage({super.key});

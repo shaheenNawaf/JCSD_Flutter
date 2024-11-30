@@ -1,6 +1,6 @@
 //Imports for Supabase and Suppliers data model
 import 'package:jcsd_flutter/api/global_variables.dart';
-import 'package:jcsd_flutter/models/suppliers_data.dart';
+import 'package:jcsd_flutter/backend/models/suppliers_data.dart';
 
 class SuppliersService {  
 

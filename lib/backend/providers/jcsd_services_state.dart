@@ -1,7 +1,7 @@
 //Imports for Supabase and Service data type
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jcsd_flutter/models/services_data.dart';
-import 'package:jcsd_flutter/services/jcsd_services.dart';
+import 'package:jcsd_flutter/backend/models/services_data.dart';
+import 'package:jcsd_flutter/backend/services/jcsd_services.dart';
 
 
 //Base Provider

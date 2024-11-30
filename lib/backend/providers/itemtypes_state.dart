@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jcsd_flutter/models/itemtypes_data.dart';
-import 'package:jcsd_flutter/services/itemtypes_service.dart';
+import 'package:jcsd_flutter/backend/models/itemtypes_data.dart';
+import 'package:jcsd_flutter/backend/services/itemtypes_service.dart';
 
 //Base Provider - One instance of the entire itemTypes service
 final itemTypesProvider = Provider<ItemtypesService>((ref){

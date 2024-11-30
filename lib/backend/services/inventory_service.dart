@@ -2,7 +2,7 @@
 //For the Supabase implementation - usage of single SB 
 import 'package:jcsd_flutter/api/global_variables.dart';
 // Inventory Data model to store all the relevant data per instance of that model
-import 'package:jcsd_flutter/models/inventory_data.dart';
+import 'package:jcsd_flutter/backend/models/inventory_data.dart';
 
 class InventoryService {
 
@@ -26,7 +26,7 @@ class InventoryService {
   // General Search Function - searches itemID, itemName, and itemType
   // Dart allows ? as assigned null, added nako here para ma handle sa function if may empty na parameter when called
   Future<List<InventoryData>> searchItems({ int? itemID, String? itemName, String? itemType}) async {
-    try {
+    try { 
       final query = supabaseDB.from('item_inventory').select();
       
       if (itemID != null){
