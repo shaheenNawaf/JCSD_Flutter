@@ -16,6 +16,8 @@ class _BookingsPageState extends State<BookingsPage>
   late AnimationController _animationController;
   final String _activeSubItem = '/bookings';
 
+  String _selectedFilter = 'All';
+
   @override
   void initState() {
     super.initState();
@@ -184,8 +186,46 @@ class _BookingsPageState extends State<BookingsPage>
         Align(
           alignment: Alignment.centerRight,
           child: Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.max,
             children: [
+              Container(
+                height: 40,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF00AEEF),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: DropdownButton<String>(
+                  value: _selectedFilter,
+                  items: <String>[
+                    'All',
+                    'Confirmed',
+                    'Unconfirmed',
+                    'Done',
+                    'Replacement',
+                    'Pending'
+                  ].map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(
+                        value,
+                        style: const TextStyle(
+                          fontFamily: 'NunitoSans',
+                          color: Colors.white,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedFilter = newValue!;
+                    });
+                  },
+                  underline: Container(),
+                  dropdownColor: const Color(0xFF00AEEF),
+                ),
+              ),
+              const Spacer(),
               SizedBox(
                 width: 350,
                 height: 40,
