@@ -12,6 +12,7 @@ import 'package:jcsd_flutter/view/inventory/modals/edititem.dart';
 import 'package:jcsd_flutter/view/inventory/modals/archiveitem.dart';
 import 'package:jcsd_flutter/view/inventory/modals/stockinitem.dart';
 import 'package:jcsd_flutter/backend/services/itemtypes_service.dart';
+import 'package:jcsd_flutter/view/inventory/modals/viewborroweditem.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 
@@ -63,6 +64,16 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
       barrierDismissible: false,
       builder: (BuildContext context) {
         return const AddItemModal();
+      },
+    );
+  }
+
+  void _showBorrowedItemsModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const BorrowedItems();
       },
     );
   }
@@ -236,6 +247,26 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              ElevatedButton.icon(
+                onPressed: _showBorrowedItemsModal,
+                icon: const Icon(Icons.inventory, color: Colors.white),
+                label: const Text(
+                  'Borrowed Items',
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00AEEF),
+                  minimumSize: const Size(0, 48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              const Spacer(),
               SizedBox(
                 width: 250,
                 height: 40,
