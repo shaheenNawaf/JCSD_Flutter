@@ -96,7 +96,7 @@ class _ArchiveSupplierModalState extends ConsumerState<ArchiveSupplierModal> {
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: () {
+                      onPressed: () async {
                         ref.invalidate(fetchAvailableSuppliers);
                         Navigator.pop(context);
                       },
@@ -129,6 +129,8 @@ class _ArchiveSupplierModalState extends ConsumerState<ArchiveSupplierModal> {
                           await updateVisibility.updateSupplierVisbility(_supplierID, false);
 
                           print('Successfully hid the item. ${_supplierData.supplierName}');
+                          ref.invalidate(fetchAvailableSuppliers);
+                          Navigator.pop(context);
                         }catch(err){
                           print('Error archiving an item. $_supplierData');
                         }

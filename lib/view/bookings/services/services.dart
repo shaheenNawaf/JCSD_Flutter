@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:jcsd_flutter/modals/addservice.dart';
-import 'package:jcsd_flutter/modals/editservice.dart';
-import 'package:jcsd_flutter/modals/archiveservice.dart';
+import 'package:jcsd_flutter/view/services/addservice.dart';
+import 'package:jcsd_flutter/view/services/editservice.dart';
+import 'package:jcsd_flutter/view/services/archiveservice.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 class ServicesPage extends StatefulWidget {
