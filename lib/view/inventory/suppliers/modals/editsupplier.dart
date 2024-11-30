@@ -1,19 +1,29 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jcsd_flutter/backend/models/suppliers_data.dart';
 
-class EditSupplierModal extends StatefulWidget {
-  const EditSupplierModal({super.key});
+//Backend Imports
+import 'package:jcsd_flutter/backend/providers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/services/suppliers_service.dart';
+
+
+class EditSupplierModal extends ConsumerStatefulWidget {
+  final SuppliersData supplierData;
+  final int supplierID;
+  const EditSupplierModal({super.key, required this.supplierData, required this.supplierID});
 
   @override
-  _EditSupplierModalState createState() => _EditSupplierModalState();
+  ConsumerState<EditSupplierModal> createState() => _EditSupplierModalState();
 }
 
-class _EditSupplierModalState extends State<EditSupplierModal> {
+class _EditSupplierModalState extends ConsumerState<EditSupplierModal> {
+
+  // Controllers
   final TextEditingController _supplierNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _contactNumberController =
-      TextEditingController();
+  final TextEditingController _contactNumberController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
   @override
@@ -26,10 +36,22 @@ class _EditSupplierModalState extends State<EditSupplierModal> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    SuppliersData _supplierData = widget.supplierData;
+
+    _supplierNameController.text = _supplierData.supplierName;
+    _addressController.text = _supplierData.supplierAddress;
+    _emailController.text =   _supplierData.supplierEmail;
+    _contactNumberController.text = _supplierData.contactNumber;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 300 ? 400 : screenWidth * 0.9;
-    const double containerHeight = 480;
+    const double containerHeight = 550;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -133,7 +155,25 @@ class _EditSupplierModalState extends State<EditSupplierModal> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        try{
+                          int supplierID = widget.supplierID;
+                          String supplierName = _supplierNameController.text;
+                          String supplierAddress = _addressController.text; 
+                          String contactNumber = _contactNumberController.text;
+                          String supplierEmail = _emailController.text;
+                          bool isActive = true;
+
+                          final editSupplier = SuppliersService();
+                          await editSupplier.updateSupplier(supplierID, supplierName, supplierEmail, contactNumber, supplierAddress, isActive);
+
+                          ref.invalidate(fetchAvailableSuppliers);
+                          print('Edited supplier $supplierName');
+                          Navigator.pop(context);
+                        }catch(err){
+                          print('Error editing supplier. $err');
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
                         padding: const EdgeInsets.symmetric(vertical: 16.0),

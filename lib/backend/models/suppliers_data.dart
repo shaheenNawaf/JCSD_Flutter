@@ -3,6 +3,7 @@ class SuppliersData {
   final String supplierEmail;
   final String supplierName;
   final String contactNumber;
+  final String supplierAddress;
   final bool isActive;
 
   SuppliersData({
@@ -11,6 +12,7 @@ class SuppliersData {
     required this.supplierName,
     required this.contactNumber,
     required this.isActive,
+    required this.supplierAddress,
   });
 
   //fromJSON Method - receive
@@ -18,7 +20,8 @@ class SuppliersData {
     return SuppliersData(
     supplierID: json['supplierID'], 
     supplierEmail: json['supplierEmail'], 
-    supplierName: json['supplierName'], 
+    supplierName: json['supplierName'],
+    supplierAddress: json['address'], 
     contactNumber: json['contactNumber'], 
     isActive: json['isActive']
     );
@@ -31,6 +34,7 @@ class SuppliersData {
       'supplierEmail': supplierEmail,
       'supplierName': supplierName,
       'contactNumber': contactNumber,
+      'address': supplierAddress,
       'isActive': isActive,
     };
   }

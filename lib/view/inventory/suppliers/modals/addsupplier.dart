@@ -1,16 +1,19 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jcsd_flutter/backend/providers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/services/suppliers_service.dart';
 // import 'package:flutter/services.dart';
 
-class AddSupplierModal extends StatefulWidget {
+class AddSupplierModal extends ConsumerStatefulWidget {
   const AddSupplierModal({super.key});
 
   @override
-  _AddSupplierModalState createState() => _AddSupplierModalState();
+  ConsumerState<AddSupplierModal> createState() => _AddSupplierModalState();
 }
 
-class _AddSupplierModalState extends State<AddSupplierModal> {
+class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
   final TextEditingController _supplierNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _contactNumberController =
@@ -134,7 +137,23 @@ class _AddSupplierModalState extends State<AddSupplierModal> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        try{
+                          String supplierName = _supplierNameController.text;
+                          String supplierEmail = _emailController.text;
+                          String contactNumber = _contactNumberController.text;
+                          String address = _addressController.text;
+                          bool isActive = true;
+                          final addNewSupplier = SuppliersService();
+                          await addNewSupplier.addNewSupplier(supplierName, supplierEmail, contactNumber, address, isActive);
+
+                          ref.invalidate(fetchAvailableSuppliers);
+                          Navigator.pop(context);
+                          
+                        }catch(err){
+                          print('Error adding supplier. $err');
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
                         padding: const EdgeInsets.symmetric(vertical: 16.0),

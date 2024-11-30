@@ -21,7 +21,7 @@ final fetchSupplierList = FutureProvider<List<SuppliersData>>((ref) async {
 final fetchAvailableSuppliers = FutureProvider<List<SuppliersData>>((ref) async {
     final baseSupplier = ref.read(supplierServiceProv);
 
-    List<SuppliersData> allSuppliers = await baseSupplier.displayAvailableSupplierts();
+    List<SuppliersData> allSuppliers = await baseSupplier.displayAvailableSuppliers();
     return allSuppliers;
 });
 
@@ -51,33 +51,6 @@ final supplierSearchResult = FutureProvider<List<SuppliersData>>((ref) async {
 
 //Loading Visual
 final supplierLoadingStateProvider = StateProvider<bool>((ref) => false);
-
-//Adding
-final addSupplierProvider = FutureProvider.family<void, SuppliersData>((ref, newSupplier) async {
-    final supplierService = ref.read(supplierServiceProv);
-    ref.read(supplierLoadingStateProvider.notifier).state = true;
-
-    try{
-        await supplierService.addNewSupplier(newSupplier);
-    }catch (err){
-    ref.read(supplierLoadingStateProvider.notifier).state = false;
-    print('Error at addSupplierProvider, cant add a new service. View message: $err');
-    }
-});
-
-//Update Service
-final updateSupplierProvider = FutureProvider.family<void, SuppliersData>((ref, updateSupplier) async {
-    final supplierService = ref.read(supplierServiceProv);
-    ref.read(supplierLoadingStateProvider.notifier).state = true;
-
-    try {
-        await supplierService.updateSupplierDetails(updateSupplier);
-    }catch(err){
-    ref.read(supplierLoadingStateProvider.notifier).state = false;
-    print('Error at updateSupplier, cant update supplier details. \n View message: $err');
-    }
-});
-
 
 //Visibility/Soft-delete
 final updateServiceVisibilityProvider = FutureProvider.family<void, SuppliersData>((ref, updateSupplier) async {

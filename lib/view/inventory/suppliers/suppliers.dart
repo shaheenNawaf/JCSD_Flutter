@@ -7,7 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 //Pages
 import 'package:jcsd_flutter/view/inventory/suppliers/modals/addsupplier.dart';
-import 'package:jcsd_flutter/modals/archivesupplier.dart';
+import 'package:jcsd_flutter/view/inventory/suppliers/modals/archivesupplier.dart';
 import 'package:jcsd_flutter/view/inventory/suppliers/modals/editsupplier.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
@@ -64,7 +64,7 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return EditSupplierModal();
+        return EditSupplierModal(supplierData: suppliers, supplierID: supplierID);
       },
     );
   }
