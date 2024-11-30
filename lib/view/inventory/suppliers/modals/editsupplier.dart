@@ -205,6 +205,7 @@ class _EditSupplierModalState extends ConsumerState<EditSupplierModal> {
     required String hintText,
     required TextEditingController controller,
     TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator, 
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,7 +229,7 @@ class _EditSupplierModalState extends ConsumerState<EditSupplierModal> {
           ],
         ),
         const SizedBox(height: 5),
-        TextField(
+        TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           decoration: InputDecoration(
@@ -240,6 +241,7 @@ class _EditSupplierModalState extends ConsumerState<EditSupplierModal> {
               fontSize: 12,
             ),
           ),
+          validator: validator,
         ),
       ],
     );
