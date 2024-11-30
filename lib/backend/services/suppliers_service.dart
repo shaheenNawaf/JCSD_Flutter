@@ -21,7 +21,7 @@ class SuppliersService {
   }
 
   //Fetching All the Supplier
-  Future<List<SuppliersData>> displayAvailableSupplierts() async {
+  Future<List<SuppliersData>> displayAvailableSuppliers() async {
     try {
       final suppliers = await supabaseDB.from('suppliers').select().eq('isActive', true);
       if(suppliers.isEmpty){
@@ -49,33 +49,6 @@ class SuppliersService {
     }catch (err){
       print('Error fetching items from Suppliers table. Error Message: $err');
       return [];
-    }
-  }
-
-  //Adding a new supplier
-  Future<void> addNewSupplier(SuppliersData newSupplier) async {
-    try {
-      await supabaseDB.from('suppliers').insert(newSupplier.toJson());
-    }catch (err){
-      print('Error adding new supplier. Error message: $err');
-    }
-  }
-
-  //Updating a supplier by Supplier ID
-  Future<void> updateSupplierDetails(SuppliersData updateSupplier) async {
-    try {
-      await supabaseDB.from('suppliers').update(updateSupplier.toJson()).eq('itemID', updateSupplier.supplierID);
-    } catch (err) {
-      print('Error updating supplier details. Error Message: $err');
-    }
-  }
-
-  //Updating Supplier's Visibility - soft-delete
-  Future<void> updateSupplierVisbility(int supplierID, bool isActive) async {
-    try {
-      await supabaseDB.from('suppliers').update({'isActive': isActive}).eq('supplierID', supplierID);
-    } catch (err) {
-      print('Error updating service visibility. Error Message: $err');
     }
   }
 
@@ -158,5 +131,49 @@ class SuppliersService {
       return -1;
     }
   }
+
+  //Other methods for adding, editing
+  Future<void> addNewSupplier(String supplierName, String supplierEmail, String contactNumber, String address, bool isActive) async {
+    try{
+      await supabaseDB.from('suppliers').insert({
+        'supplierName': supplierName,
+        'supplierEmail': supplierEmail,
+        'contactNumber': contactNumber,
+        'address': address,
+        'isActive': isActive,
+      });
+
+      print('Added new supplier. $supplierName');
+    }catch(err){
+      print('Error adding new supplier. $err');
+    }
+  }
+
+  //Update Supplier
+  Future<void> updateSupplier(int supplierID, String supplierName, String supplierEmail, String contactNumber, String address, bool isActive) async {
+    try{
+      await supabaseDB.from('suppliers').update({
+        'supplierName': supplierName,
+        'supplierEmail': supplierEmail,
+        'contactNumber': contactNumber,
+        'address': address,
+        'isActive': isActive,
+      }).eq('supplierID', supplierID);
+
+      print('Added new supplier. $supplierName');
+    }catch(err){
+      print('Error adding new supplier. $err');
+    }
+  }
+
+  //Updating Supplier's Visibility - soft-delete
+  Future<void> updateSupplierVisbility(int supplierID, bool isActive) async {
+    try {
+      await supabaseDB.from('suppliers').update({'isActive': isActive}).eq('supplierID', supplierID);
+    } catch (err) {
+      print('Error updating service visibility. Error Message: $err');
+    }
+  }
+
 
 }

@@ -12,7 +12,7 @@ import 'package:jcsd_flutter/view/bookings/services/services.dart';
 import 'package:jcsd_flutter/view/bookings/services/services_archive.dart';
 import 'package:jcsd_flutter/view/inventory/suppliers/suppliers_archive.dart';
 import 'package:jcsd_flutter/view/generic/error.dart';
-import 'package:jcsd_flutter/global_variables.dart';
+import 'package:jcsd_flutter/api/global_variables.dart';
 
 // Pages for routine
 import 'package:jcsd_flutter/view/users/login.dart';
@@ -36,7 +36,7 @@ import 'package:jcsd_flutter/view/client/booking_first.dart';
 import 'package:jcsd_flutter/view/client/booking_second.dart';
 
 void main() async {
-  supabase_init(); // Initialize Supabase - DONT TOUCH GUYS
+  supabaseInit(); // Initialize Supabase - DONT TOUCH GUYS
   runApp(const ProviderScope(child: MainApp()));
 }
 

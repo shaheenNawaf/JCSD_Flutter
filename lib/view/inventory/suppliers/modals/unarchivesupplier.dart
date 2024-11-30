@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/models/suppliers_data.dart';
 import 'package:jcsd_flutter/backend/providers/inventory_state.dart';
+import 'package:jcsd_flutter/backend/providers/suppliers_state.dart';
 import 'package:jcsd_flutter/backend/services/suppliers_service.dart';
 
 class UnarchiveSupplierModal extends ConsumerStatefulWidget {
@@ -121,13 +122,17 @@ class _UnarchiveSupplierModalState extends ConsumerState<UnarchiveSupplierModal>
                       onPressed: () async {
                         print('Archive Item - Save changes');
                         try{
-                          final SuppliersService updateVisibility = SuppliersService();
-                          await updateVisibility.updateSupplierVisbility(_supplierID, false);
-
-                          print('Successfully hid the item. ${_supplierData.supplierName}');
+                          final updateVisibility = SuppliersService();
+                          await updateVisibility.updateSupplierVisbility(_supplierID, true);
+                          
+                          ref.invalidate(fetchHiddenSuppliers);
+                          ref.invalidate(fetchAvailableSuppliers);
+                          
+                          print('Successfully restored the supplier. ${_supplierData.supplierName}');
                         }catch(err){
-                          print('Error archiving an item. $_supplierData');
+                          print('Error UNarchiving an item. $_supplierData');
                         }
+                        Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
