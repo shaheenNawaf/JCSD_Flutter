@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 
 class HomeView extends StatelessWidget {
@@ -16,6 +17,7 @@ class HomeView extends StatelessWidget {
           children: [
             Image.asset(imagePath, height: isMobile ? 50 : 100),
             Text(text,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: isMobile ? 10 : 20, fontWeight: FontWeight.bold)),
           ],
@@ -53,7 +55,7 @@ class HomeView extends StatelessWidget {
     }
 
     return LayoutBuilder(builder: (context, constraints) {
-      var isMobile = size.width < 600;
+      var isMobile = size.width < 900;
       return Scaffold(
         appBar: const Navbar(activePage: 'home'),
         body: SingleChildScrollView(
@@ -90,6 +92,7 @@ class HomeView extends StatelessWidget {
                                 color: Colors.white,
                                 fontSize: isMobile ? 20 : 30,
                                 fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center
                           ),
                           const SizedBox(height: 20),
                           ElevatedButton(
@@ -123,7 +126,7 @@ class HomeView extends StatelessWidget {
               ),
               SizedBox(
                 width: size.width,
-                height: isMobile ? size.height * 1.1 : size.height,
+                height: isMobile ? 1000 * 1.2 : 1000,
                 child: Column(
                   mainAxisAlignment: isMobile
                       ? MainAxisAlignment.center
@@ -237,16 +240,18 @@ class HomeView extends StatelessWidget {
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.all(isMobile ? 8.0 : 16.0),
-                      child: Text(
-                        'JCSD has been trusted by over 200+ customers and businesses nationwide, plus over 205 5-Star reviews on Facebook!',
-                        style: TextStyle(
-                          fontSize: isMobile ? 15 : 20,
-                          fontWeight: FontWeight.bold,
-                          color: const Color.fromARGB(255, 0, 174, 239),
+                    Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(isMobile ? 8.0 : 16.0),
+                        child: Text(
+                          'JCSD has been trusted by over 200+ customers and businesses nationwide, plus over 205 5-Star reviews on Facebook!',
+                          style: TextStyle(
+                            fontSize: isMobile ? 15 : 20,
+                            fontWeight: FontWeight.bold,
+                            color: const Color.fromARGB(255, 0, 174, 239),
+                          ),
+                          textAlign: TextAlign.center
                         ),
-                        textAlign: TextAlign.center,
                       ),
                     ),
                     if (isMobile)
@@ -291,12 +296,12 @@ class HomeView extends StatelessWidget {
                                     bottom: 0,
                                     child: Visibility(
                                       child: IconButton(
-                                        icon:
-                                            const Icon(Icons.chevron_left, size: 40),
+                                        icon: const Icon(Icons.chevron_left,
+                                            size: 40),
                                         onPressed: () {
                                           PageController().previousPage(
-                                            duration:
-                                                const Duration(milliseconds: 300),
+                                            duration: const Duration(
+                                                milliseconds: 300),
                                             curve: Curves.easeInOut,
                                           );
                                         },
@@ -309,12 +314,12 @@ class HomeView extends StatelessWidget {
                                     bottom: 0,
                                     child: Visibility(
                                       child: IconButton(
-                                        icon:
-                                            const Icon(Icons.chevron_right, size: 40),
+                                        icon: const Icon(Icons.chevron_right,
+                                            size: 40),
                                         onPressed: () {
                                           PageController().nextPage(
-                                            duration:
-                                                const Duration(milliseconds: 300),
+                                            duration: const Duration(
+                                                milliseconds: 300),
                                             curve: Curves.easeInOut,
                                           );
                                         },
@@ -351,7 +356,7 @@ class HomeView extends StatelessWidget {
               if (isMobile)
                 SizedBox(
                   width: size.width,
-                  height: size.height * .6,
+                  height: 450,
                   child: Container(
                     decoration: const BoxDecoration(
                         color: Color.fromARGB(255, 5, 31, 40)),
@@ -465,18 +470,24 @@ class HomeView extends StatelessWidget {
                                   ),
                                   IconButton(
                                     onPressed: () {},
-                                    icon: Icon(Icons.facebook,
-                                        color: Colors.white.withOpacity(.7)),
+                                    icon: FaIcon(
+                                      FontAwesomeIcons.facebook,
+                                      color: Colors.white.withOpacity(.7),
+                                    ),
                                   ),
                                   IconButton(
                                     onPressed: () {},
-                                    icon: Icon(Icons.one_x_mobiledata,
-                                        color: Colors.white.withOpacity(.7)),
+                                    icon: FaIcon(
+                                      FontAwesomeIcons.instagram,
+                                      color: Colors.white.withOpacity(.7),
+                                    ),
                                   ),
                                   IconButton(
                                     onPressed: () {},
-                                    icon: Icon(Icons.play_circle_fill,
-                                        color: Colors.white.withOpacity(.7)),
+                                    icon: FaIcon(
+                                      FontAwesomeIcons.youtube,
+                                      color: Colors.white.withOpacity(.7),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -490,7 +501,7 @@ class HomeView extends StatelessWidget {
               else
                 SizedBox(
                   width: size.width,
-                  height: size.height * .3,
+                  height: 300,
                   child: Container(
                     decoration: const BoxDecoration(
                         color: Color.fromARGB(255, 5, 31, 40)),
@@ -624,18 +635,24 @@ class HomeView extends StatelessWidget {
                                   ),
                                   IconButton(
                                     onPressed: () {},
-                                    icon: Icon(Icons.facebook,
-                                        color: Colors.white.withOpacity(.7)),
+                                    icon: FaIcon(
+                                      FontAwesomeIcons.facebook,
+                                      color: Colors.white.withOpacity(.7),
+                                    ),
                                   ),
                                   IconButton(
                                     onPressed: () {},
-                                    icon: Icon(Icons.one_x_mobiledata,
-                                        color: Colors.white.withOpacity(.7)),
+                                    icon: FaIcon(
+                                      FontAwesomeIcons.instagram,
+                                      color: Colors.white.withOpacity(.7),
+                                    ),
                                   ),
                                   IconButton(
                                     onPressed: () {},
-                                    icon: Icon(Icons.play_circle_fill,
-                                        color: Colors.white.withOpacity(.7)),
+                                    icon: FaIcon(
+                                      FontAwesomeIcons.youtube,
+                                      color: Colors.white.withOpacity(.7),
+                                    ),
                                   ),
                                 ],
                               ),
