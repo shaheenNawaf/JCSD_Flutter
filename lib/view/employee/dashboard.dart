@@ -5,10 +5,17 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
+  @override
+  _DashboardPageState createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  DateTime selectedDate = DateTime.now();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,33 +59,34 @@ class DashboardPage extends StatelessWidget {
                 fontSize: 15,
               ),
             ),
-            SizedBox(
-              height: 40,
-              child: OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.calendar_today,
-                  color: Colors.black,
+            ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                side: const BorderSide(color: Colors.black),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-                label: const Row(
-                  children: [
-                    Text(
-                      'January 2024 - February 2024',
-                      style: TextStyle(color: Colors.black),
-                    ),
-                    SizedBox(width: 8),
-                    FaIcon(
-                      FontAwesomeIcons.chevronDown,
-                      color: Colors.black,
-                      size: 16,
-                    ),
-                  ],
-                ),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.black),
+                onPressed: () async {
+                  DateTime? pickedDate = await showMonthPicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2101),
+                  );
+                  
+                  if (pickedDate != null) {
+                    setState(() {
+                      selectedDate = pickedDate;
+                    });
+                  }
+                },
+                icon: const FaIcon(FontAwesomeIcons.calendar, color: Colors.black), 
+                label: Text(
+                '${selectedDate.month}/${selectedDate.year}',
+                style: const TextStyle(color: Colors.black),
                 ),
               ),
-            ),
           ],
         ),
         const SizedBox(height: 16),
