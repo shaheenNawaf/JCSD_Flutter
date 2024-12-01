@@ -4,16 +4,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
+//Backend Imports
 import 'package:jcsd_flutter/backend/services/jcsd_services_state.dart';
+import 'package:jcsd_flutter/backend/services/services_data.dart';
 
 //Pages
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/view/services/addservice.dart';
 import 'package:jcsd_flutter/view/services/editservice.dart';
 import 'package:jcsd_flutter/view/services/archiveservice.dart';
-
-//Services
-
 
 class ServicesPage extends ConsumerStatefulWidget {
   const ServicesPage({super.key});
@@ -59,25 +59,25 @@ class _ServicesPageState extends ConsumerState<ServicesPage>
     );
   }
 
-  void _showEditServiceModal(String serviceName, String price) {
+  _showEditServiceModal(ServicesData service, int serviceID) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return EditServiceModal(
-          serviceName: serviceName,
-          price: price,
+          servicesData: service,
+          serviceID: serviceID,
         );
       },
     );
   }
 
-  void _showArchiveServiceModal() {
+  _showArchiveServiceModal(ServicesData service, int supplierID) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return const ArchiveServiceModal();
+        return ArchiveServiceModal();
       },
     );
   }
@@ -317,7 +317,7 @@ class _ServicesPageState extends ConsumerState<ServicesPage>
               ),
               IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: _showArchiveServiceModal,
+                onPressed: () {},
               ),
             ],
           ),
@@ -329,7 +329,7 @@ class _ServicesPageState extends ConsumerState<ServicesPage>
   Widget _buildDataTable(BuildContext context) {
     final fetchServices = ref.watch(fetchAvailableServices);
 
-    fetchServices.when(
+    return fetchServices.when(
       data: (services) {
         return Container(
           decoration: BoxDecoration(
@@ -344,60 +344,20 @@ class _ServicesPageState extends ConsumerState<ServicesPage>
               ),
             ],
           ),
-          child: ListView(
-            children: [
-              DataTable(
-                headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
-                columns: const [
-                  DataColumn(
-                    label: Center(
-                      child: Text(
-                        'Service Name',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Center(
-                      child: Text(
-                        'Price',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Padding(
-                      padding: EdgeInsets.only(left: 60),
-                      child: Center(
-                        child: Text(
-                          'Action',
-                          style: TextStyle(
-                            fontFamily: 'NunitoSans',
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-                rows: [
-                  _buildDataRow('Computer Repair', 'P600'),
-                  _buildDataRow('Computer Cleaning', 'P600'),
-                  _buildDataRow('Computer Diagnosis', 'P600'),
-                ],
+          child: Column(
+          children: [
+            _buildHeaderRow(),
+            const Divider(height: 1, color: Colors.grey),
+            Expanded(
+              child: ListView.builder(
+                itemCount: services.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return _buildServicesRow(services, index);
+                },
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
         );
       }, 
       error: (err, stackTrace) => Text('Error fetching data from services table: $err'), 
@@ -407,7 +367,7 @@ class _ServicesPageState extends ConsumerState<ServicesPage>
   );  
   }
 
-  Widget _buildHeader(){
+  Widget _buildHeaderRow(){
     return Container(
       color: const Color.fromRGBO(0, 174, 239, 1),
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
@@ -474,46 +434,94 @@ class _ServicesPageState extends ConsumerState<ServicesPage>
     );
   }
 
-  DataRow _buildDataRow(String serviceName, String price) {
-    return DataRow(
-      cells: [
-        DataCell(Text(serviceName,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
-        DataCell(Text(price,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
-        DataCell(
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              ElevatedButton(
-                onPressed: () => _showEditServiceModal(serviceName, price),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
-                child: const Text('Edit',
-                    style: TextStyle(
-                      color: Colors.white,
-                    )),
+  Widget _buildServicesRow(List<ServicesData> services, int index) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      decoration: BoxDecoration(
+        color: index % 2 == 0 ? Colors.grey[100] : Colors.white,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              services[index].serviceID.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
               ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: _showArchiveServiceModal,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                ),
-                child: const Text('Archive',
-                    style: TextStyle(
-                      color: Colors.white,
-                    )),
-              ),
-            ],
+              textAlign: TextAlign.center,
+            ),
           ),
-        ),
-      ],
+          Expanded(
+            child: Text(
+              services[index].serviceName.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              services[index].minPrice.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              services[index].maxPrice.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(
+                  width: 80,
+                  child: ElevatedButton(
+                    onPressed:() => _showEditServiceModal(services[index], services[index].serviceID),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
+                    child: const Text(
+                      'Edit',
+                      style: TextStyle(
+                        fontFamily: 'NunitoSans',
+                        color: Colors.white,
+                        fontSize: 8,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 80,
+                  child: ElevatedButton(
+                    onPressed: () => _showArchiveServiceModal(services[index], services[index].serviceID),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    child: const Text(
+                      'Archive',
+                      style: TextStyle(
+                        fontFamily: 'NunitoSans',
+                        color: Colors.white,
+                        fontSize: 8,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
+  
 }

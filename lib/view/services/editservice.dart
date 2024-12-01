@@ -1,36 +1,49 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class EditServiceModal extends StatefulWidget {
-  final String serviceName;
-  final String price;
+//Backend Imports
+import 'package:jcsd_flutter/backend/services/jcsd_services.dart';
+import 'package:jcsd_flutter/backend/services/jcsd_services_state.dart';
+import 'package:jcsd_flutter/backend/services/services_data.dart';
+
+class EditServiceModal extends ConsumerStatefulWidget {
+  final ServicesData servicesData;
+  final int serviceID;
 
   const EditServiceModal({
     super.key,
-    required this.serviceName,
-    required this.price,
+    required this.serviceID,
+    required this.servicesData,
   });
 
   @override
-  _EditServiceModalState createState() => _EditServiceModalState();
+  ConsumerState<EditServiceModal> createState() => _EditServiceModalState();
 }
 
-class _EditServiceModalState extends State<EditServiceModal> {
-  late TextEditingController _serviceNameController;
-  late TextEditingController _priceController;
+class _EditServiceModalState extends ConsumerState<EditServiceModal> {
+  final TextEditingController _serviceNameController = TextEditingController();
+  final TextEditingController _minPriceController = TextEditingController();
+  final TextEditingController _maxPriceController= TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _serviceNameController = TextEditingController(text: '');
-    _priceController = TextEditingController(text: '');
+    
+    ServicesData _serviceData = widget.servicesData;
+
+    _serviceNameController.text = _serviceData.serviceName;
+    _minPriceController.text = _serviceData.minPrice.toString();
+    _maxPriceController.text = _serviceData.maxPrice.toString();
   }
 
   @override
   void dispose() {
     _serviceNameController.dispose();
-    _priceController.dispose();
+    _minPriceController.dispose();
+    _maxPriceController.dispose();
+
     super.dispose();
   }
 
@@ -89,9 +102,16 @@ class _EditServiceModalState extends State<EditServiceModal> {
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
-                    label: 'Price',
-                    hintText: 'Enter price',
-                    controller: _priceController,
+                    label: 'Minimum Price',
+                    hintText: 'Enter minimum price',
+                    controller: _minPriceController,
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    label: 'Maximum Price',
+                    hintText: 'Enter Maximum price',
+                    controller: _maxPriceController,
                     keyboardType: TextInputType.number,
                   ),
                 ],
@@ -130,8 +150,23 @@ class _EditServiceModalState extends State<EditServiceModal> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Implement update functionality here
+                      onPressed: ()  async {
+                        try{
+                          int serviceID = widget.serviceID;
+                          String serviceName = _serviceNameController.text;
+                          double minPrice = double.parse(_minPriceController.text);
+                          double maxPrice = double.parse(_maxPriceController.text);
+                          bool isActive = true;
+
+                          final editService = JcsdServices();
+                          await editService.updateServiceDetails(serviceID, serviceName, minPrice, maxPrice, isActive);
+
+                          ref.invalidate(fetchAvailableServices);
+                          print('Edited service. $serviceID');
+                          Navigator.pop(context);
+                        }catch(err){
+                          print('Error editing service. $err');
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),

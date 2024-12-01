@@ -35,6 +35,20 @@ Future<List<ServicesData>> displayAvailableServices() async {
   }
 }
 
+Future<List<ServicesData>> displayHiddenServices() async {
+  try {
+    final services = await supabaseDB.from('services').select().eq('isActive', false);
+    if(services.isEmpty == true){
+      print('Empty Service table.');
+      return [];
+    }
+    return services.map<ServicesData>((item) => ServicesData.fromJson(item)).toList();
+  }catch (err){
+    print('Error fetching services from the table. Error Message: $err');
+    return [];
+  }
+}
+
 //Adding a new services
 Future<void> addNewService(ServicesData newService) async {
   try {
@@ -45,15 +59,21 @@ Future<void> addNewService(ServicesData newService) async {
   }
 }
 
-//Updating a service by Service ID
-Future<void> updateServiceDetails(ServicesData updateSerivce) async {
-    try {
-      await supabaseDB.from('services').update(updateSerivce.toJson()).eq('itemID', updateSerivce.serviceID);
-      print('Updated ${updateSerivce.serviceName}.');
-    } catch (err) {
-      print('Error updating service details. $err');
-    }
+//Update a service by Service ID
+Future<void> updateServiceDetails(int serviceID, String serviceName, double minPrice, double maxPrice, bool isActive) async {
+  try{
+      await supabaseDB.from('services').update({
+        'serviceName': serviceName,
+        'minPrice': minPrice,
+        'maxPrice': maxPrice,
+        'isActive': isActive,
+      }).eq('serviceID', serviceID);
+
+      print('Added new supplier. $serviceID');
+  }catch(err){
+    print('Error udpating service details: $err');
   }
+}
 
 //Updating a Service's availability
 Future<void> updateServiceVisibility(int serviceID, bool isActive) async {
