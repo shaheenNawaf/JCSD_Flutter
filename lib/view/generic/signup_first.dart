@@ -1,7 +1,8 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../../../api/global_variables.dart';
 
 class SignupPage1 extends StatefulWidget {
   const SignupPage1({super.key});
@@ -11,14 +12,77 @@ class SignupPage1 extends StatefulWidget {
 }
 
 class _SignupPage1State extends State<SignupPage1> {
+  // Controllers for the input fields
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _repeatPasswordController =
+      TextEditingController();
+
+  // State variables for password visibility
   bool _isPasswordHidden = true;
   bool _isConfirmPasswordHidden = true;
+
+  // Error string to display on the modal
+  String? errorText;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _repeatPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _signUp() async {
+    // Get the email, username, and password from the controllers
+    final email = _emailController.text.trim();
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text.trim();
+    final repeatPassword = _repeatPasswordController.text.trim();
+
+    // Basic validation for the fields on the first page
+    if (email.isEmpty ||
+        username.isEmpty ||
+        password.isEmpty ||
+        repeatPassword.isEmpty) {
+      setState(() {
+        errorText = 'Please fill in all fields.';
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      setState(() {
+        errorText = 'Password must be at least 6 characters.';
+      });
+      return;
+    }
+
+    if (password != repeatPassword) {
+      setState(() {
+        errorText = 'Passwords do not match.';
+      });
+      return;
+    }
+
+    try {
+      // Calling the signUp method to proceed with the signup
+      await supabaseDB.auth.signUp(email: email, password: password);
+      // Navigate to the next page
+      Navigator.pushNamed(context, '/signup2');
+    } on AuthException catch (error) {
+      setState(() {
+        errorText = error.message;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     const double fixedHeight = 700;
-
     return Scaffold(
       appBar: const Navbar(activePage: 'register'),
       body: Stack(
@@ -79,16 +143,19 @@ class _SignupPage1State extends State<SignupPage1> {
                                 ),
                                 const SizedBox(height: 20),
                                 buildTextField(
+                                  controller: _emailController,
                                   label: 'Email Address',
                                   hintText: 'Email address',
                                 ),
                                 const SizedBox(height: 10),
                                 buildTextField(
+                                  controller: _usernameController,
                                   label: 'Username',
                                   hintText: 'Enter your username',
                                 ),
                                 const SizedBox(height: 10),
                                 buildPasswordField(
+                                  controller: _passwordController,
                                   label: 'Password',
                                   hintText: 'Password goes here',
                                   isHidden: _isPasswordHidden,
@@ -100,6 +167,7 @@ class _SignupPage1State extends State<SignupPage1> {
                                 ),
                                 const SizedBox(height: 10),
                                 buildPasswordField(
+                                  controller: _repeatPasswordController,
                                   label: 'Repeat Password',
                                   hintText: 'Repeat your password',
                                   isHidden: _isConfirmPasswordHidden,
@@ -110,7 +178,14 @@ class _SignupPage1State extends State<SignupPage1> {
                                     });
                                   },
                                 ),
-                                const SizedBox(height: 20),
+                                const SizedBox(height: 10),
+                                if (errorText != null)
+                                  Text(
+                                    errorText!,
+                                    style: const TextStyle(
+                                        color: Colors.red, fontSize: 16),
+                                  ),
+                                const SizedBox(height: 10),
                                 SizedBox(
                                   width: double.infinity,
                                   child: ElevatedButton(
@@ -123,7 +198,7 @@ class _SignupPage1State extends State<SignupPage1> {
                                       ),
                                     ),
                                     onPressed: () {
-                                      Navigator.pushNamed(context, '/signup2');
+                                      _signUp();
                                     },
                                     child: const Text(
                                       'Continue',
@@ -223,51 +298,9 @@ class _SignupPage1State extends State<SignupPage1> {
   }
 
   Widget buildTextField({
-    required String label, 
-    required String hintText,
-    }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontFamily: 'NunitoSans',
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            const Text(
-              '*',
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 5),
-        TextField(
-          decoration: InputDecoration(
-            hintText: hintText,
-            border: const OutlineInputBorder(),
-            hintStyle: const TextStyle(
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w300,
-              fontSize: 12,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildPasswordField({
     required String label,
     required String hintText,
-    required bool isHidden,
-    required VoidCallback onVisibilityToggle,
+    required TextEditingController controller,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -292,6 +325,52 @@ class _SignupPage1State extends State<SignupPage1> {
         ),
         const SizedBox(height: 5),
         TextField(
+          controller: controller,
+          decoration: InputDecoration(
+            hintText: hintText,
+            border: const OutlineInputBorder(),
+            hintStyle: const TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w300,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildPasswordField({
+    required String label,
+    required String hintText,
+    required bool isHidden,
+    required VoidCallback onVisibilityToggle,
+    required TextEditingController controller,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const Text(
+              '*',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        TextField(
+          controller: controller,
           obscureText: isHidden,
           decoration: InputDecoration(
             hintText: hintText,
