@@ -2,11 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jcsd_flutter/backend/models/suppliers_data.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_data.dart';
 
 //Backend Imports
-import 'package:jcsd_flutter/backend/providers/suppliers_state.dart';
-import 'package:jcsd_flutter/backend/services/suppliers_service.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_service.dart';
 
 
 class EditSupplierModal extends ConsumerStatefulWidget {
@@ -205,6 +205,7 @@ class _EditSupplierModalState extends ConsumerState<EditSupplierModal> {
     required String hintText,
     required TextEditingController controller,
     TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator, 
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,7 +229,7 @@ class _EditSupplierModalState extends ConsumerState<EditSupplierModal> {
           ],
         ),
         const SizedBox(height: 5),
-        TextField(
+        TextFormField(
           controller: controller,
           keyboardType: keyboardType,
           decoration: InputDecoration(
@@ -240,6 +241,7 @@ class _EditSupplierModalState extends ConsumerState<EditSupplierModal> {
               fontSize: 12,
             ),
           ),
+          validator: validator,
         ),
       ],
     );

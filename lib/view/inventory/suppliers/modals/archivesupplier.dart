@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 //Pages
-import 'package:jcsd_flutter/backend/services/suppliers_service.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_service.dart';
 
 // Suppliers
-import 'package:jcsd_flutter/backend/models/suppliers_data.dart';
-import 'package:jcsd_flutter/backend/providers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_data.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
 class ArchiveSupplierModal extends ConsumerStatefulWidget {
   final SuppliersData supplierData;
   final int supplierID;

@@ -8,10 +8,11 @@ import 'package:jcsd_flutter/view/admin/leaverequestlist.dart';
 import 'package:jcsd_flutter/view/admin/payroll.dart';
 import 'package:jcsd_flutter/view/client/profile_client.dart';
 import 'package:jcsd_flutter/view/employee/dashboard.dart';
-import 'package:jcsd_flutter/view/bookings/services/services.dart';
-import 'package:jcsd_flutter/view/bookings/services/services_archive.dart';
+import 'package:jcsd_flutter/view/services/services.dart';
+import 'package:jcsd_flutter/view/services/services_archive.dart';
+import 'package:jcsd_flutter/view/inventory/item_types.dart';
 import 'package:jcsd_flutter/view/inventory/suppliers/suppliers_archive.dart';
-import 'package:jcsd_flutter/view/generic/error.dart';
+import 'package:jcsd_flutter/view/generic/error_page.dart';
 import 'package:jcsd_flutter/api/global_variables.dart';
 
 // Pages for routine
@@ -103,6 +104,7 @@ class MainApp extends StatelessWidget {
         '/bookingDetail': (context) => const BookingDetails(),
         '/bookingReceipt': (context) => const BookingReceipt(),
         '/payslip': (context) => const Payslip(),
+        '/itemTypes': (context) => const ItemTypesPage(),
       },
     );
   }

@@ -222,7 +222,10 @@ class _SignupPage1State extends State<SignupPage1> {
     );
   }
 
-  Widget buildTextField({required String label, required String hintText}) {
+  Widget buildTextField({
+    required String label, 
+    required String hintText,
+    }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

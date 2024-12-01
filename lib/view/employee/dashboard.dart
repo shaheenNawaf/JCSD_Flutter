@@ -2,128 +2,36 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 
-class DashboardPage extends StatefulWidget {
+class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
-  _DashboardPageState createState() => _DashboardPageState();
-}
-
-class _DashboardPageState extends State<DashboardPage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  void _openDrawer() {
-    _animationController.forward();
-  }
-
-  void _closeDrawer() {
-    _animationController.reverse();
-  }
-
-  void _navigateToProfile() {}
-
-  @override
   Widget build(BuildContext context) {
-    final bool isMobile = MediaQuery.of(context).size.width < 600;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
-      appBar: isMobile
-          ? AppBar(
-              backgroundColor: const Color(0xFF00AEEF),
-              title: const Text(
-                'Dashboard',
-                style: TextStyle(
-                  fontFamily: 'NunitoSans',
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              leading: Builder(
-                builder: (context) => IconButton(
-                  icon: const FaIcon(
-                    FontAwesomeIcons.bars,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                    _openDrawer();
-                  },
-                ),
-              ),
-            )
-          : null,
-      drawer: isMobile
-          ? Drawer(
-              backgroundColor: const Color(0xFF00AEEF),
-              child: Sidebar(
-                activePage: '/dashboard',
-                onClose: _closeDrawer,
-              ),
-            )
-          : null,
-      onDrawerChanged: (isOpened) {
-        if (!isOpened) {
-          _closeDrawer();
-        }
-      },
-      body: Stack(
+      body: Row(
         children: [
-          Row(
-            children: [
-              if (!isMobile) const Sidebar(activePage: '/dashboard'),
-              Expanded(
-                child: Column(
-                  children: [
-                    if (!isMobile)
-                      Header(
-                        title: 'Dashboard',
-                        onAvatarTap: _navigateToProfile,
-                      ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: _buildDashboardContent(),
-                      ),
-                    ),
-                  ],
+          const Sidebar(activePage: '/dashboard'),
+          Expanded(
+            child: Column(
+              children: [
+                Header(
+                  title: 'Dashboard',
+                  onAvatarTap: () {},
                 ),
-              ),
-            ],
-          ),
-          if (isMobile)
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _animationController.value * 0.6,
-                  child: _animationController.value > 0
-                      ? Container(
-                          color: Colors.black,
-                        )
-                      : const SizedBox.shrink(),
-                );
-              },
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: _buildDashboardContent(),
+                  ),
+                ),
+              ],
             ),
+          ),
         ],
       ),
     );
@@ -131,11 +39,53 @@ class _DashboardPageState extends State<DashboardPage>
 
   Widget _buildDashboardContent() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildHeaderRow(),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              'Bookings Report',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+              ),
+            ),
+            SizedBox(
+              height: 40,
+              child: OutlinedButton.icon(
+                onPressed: () {},
+                icon: const Icon(
+                  Icons.calendar_today,
+                  color: Colors.black,
+                ),
+                label: const Row(
+                  children: [
+                    Text(
+                      'January 2024 - February 2024',
+                      style: TextStyle(color: Colors.black),
+                    ),
+                    SizedBox(width: 8),
+                    FaIcon(
+                      FontAwesomeIcons.chevronDown,
+                      color: Colors.black,
+                      size: 16,
+                    ),
+                  ],
+                ),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Colors.black),
+                ),
+              ),
+            ),
+          ],
+        ),
         const SizedBox(height: 16),
         Expanded(
+          flex: 2,
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 flex: 2,
@@ -143,96 +93,245 @@ class _DashboardPageState extends State<DashboardPage>
               ),
               const SizedBox(width: 16),
               Expanded(
-                flex: 2,
-                child: _buildStatsGrid(),
+                flex: 1,
+                child: Column(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: _buildStatsCard(
+                        'Profit',
+                        '₱252,000',
+                        '+25.5%',
+                        Colors.green,
+                        backgroundColor: const Color(0xFFE6F7E6),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      flex: 1,
+                      child: _buildStatsCard(
+                        'Pending Bookings',
+                        '5',
+                        '',
+                        Colors.orange,
+                        backgroundColor: const Color(0xFFFFF4E6),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        _buildInventoryTable(),
-      ],
-    );
-  }
-
-  Widget _buildHeaderRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
+        const SizedBox(height: 12),
         const Text(
-          'Bookings Report',
+          'Low Stocks',
           style: TextStyle(
             fontFamily: 'NunitoSans',
             fontWeight: FontWeight.bold,
-            fontSize: 18,
+            fontSize: 15,
           ),
         ),
-        SizedBox(
-          height: 40,
-          child: OutlinedButton.icon(
-            onPressed: () {},
-            icon: const Icon(
-              Icons.calendar_today,
-              color: Colors.black,
-            ),
-            label: const Row(
-              children: [
-                Text(
-                  'January 2024 - February 2024',
-                  style: TextStyle(color: Colors.black),
-                ),
-                SizedBox(width: 8),
-                FaIcon(
-                  FontAwesomeIcons.chevronDown,
-                  color: Colors.black,
-                  size: 16,
-                ),
-              ],
-            ),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.black),
-            ),
+        const SizedBox(height: 8),
+        _buildLowStocksTable(),
+        const SizedBox(height: 12),
+        const Text(
+          'Recent Bookings',
+          style: TextStyle(
+            fontFamily: 'NunitoSans',
+            fontWeight: FontWeight.bold,
+            fontSize: 15,
           ),
         ),
+        const SizedBox(height: 8),
+        _buildRecentBookingsTable(),
       ],
     );
   }
 
   Widget _buildBookingsReportChart() {
     return Container(
-      height: 200,
-      color: Colors.grey[200],
-      child: const Center(
-        child: Text(
-          'Insert Bookings Report Chart',
-          style: TextStyle(
-            fontFamily: 'NunitoSans',
-            fontWeight: FontWeight.bold,
-            color: Colors.black54,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 5,
           ),
+        ],
+      ),
+      child: BarChart(
+        BarChartData(
+          barTouchData: BarTouchData(
+            enabled: false,
+            touchTooltipData: BarTouchTooltipData(
+              getTooltipColor: (group) => Colors.transparent,
+              tooltipPadding: EdgeInsets.zero,
+              tooltipMargin: 8,
+              getTooltipItem: (
+                BarChartGroupData group,
+                int groupIndex,
+                BarChartRodData rod,
+                int rodIndex,
+              ) {
+                return BarTooltipItem(
+                  rod.toY.round().toString(),
+                  const TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
+            ),
+          ),
+          titlesData: FlTitlesData(
+            show: true,
+            bottomTitles: AxisTitles(
+              sideTitles: SideTitles(
+                showTitles: true,
+                reservedSize: 30,
+                getTitlesWidget: (double value, TitleMeta meta) {
+                  const style = TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  );
+                  String text;
+                  switch (value.toInt()) {
+                    case 0:
+                      text = 'Confirmed';
+                      break;
+                    case 1:
+                      text = 'Unconfirmed';
+                      break;
+                    case 2:
+                      text = 'Done';
+                      break;
+                    case 3:
+                      text = 'Replacement';
+                      break;
+                    case 4:
+                      text = 'Pending';
+                      break;
+                    default:
+                      text = '';
+                  }
+                  return SideTitleWidget(
+                    axisSide: meta.axisSide,
+                    space: 4,
+                    child: Text(text, style: style),
+                  );
+                },
+              ),
+            ),
+            leftTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            topTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+            rightTitles: const AxisTitles(
+              sideTitles: SideTitles(showTitles: false),
+            ),
+          ),
+          borderData: FlBorderData(
+            show: false,
+          ),
+          gridData: const FlGridData(show: false),
+          alignment: BarChartAlignment.spaceAround,
+          maxY: 100,
+          barGroups: [
+            BarChartGroupData(
+              x: 0,
+              barRods: [
+                BarChartRodData(
+                  toY: 80,
+                  gradient: const LinearGradient(
+                    colors: [
+                      Colors.blue,
+                      Colors.lightBlueAccent,
+                    ],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                )
+              ],
+              showingTooltipIndicators: [0],
+            ),
+            BarChartGroupData(
+              x: 1,
+              barRods: [
+                BarChartRodData(
+                  toY: 60,
+                  gradient: const LinearGradient(
+                    colors: [
+                      Colors.blue,
+                      Colors.lightBlueAccent,
+                    ],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                )
+              ],
+              showingTooltipIndicators: [0],
+            ),
+            BarChartGroupData(
+              x: 2,
+              barRods: [
+                BarChartRodData(
+                  toY: 70,
+                  gradient: const LinearGradient(
+                    colors: [
+                      Colors.blue,
+                      Colors.lightBlueAccent,
+                    ],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                )
+              ],
+              showingTooltipIndicators: [0],
+            ),
+            BarChartGroupData(
+              x: 3,
+              barRods: [
+                BarChartRodData(
+                  toY: 50,
+                  gradient: const LinearGradient(
+                    colors: [
+                      Colors.blue,
+                      Colors.lightBlueAccent,
+                    ],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                )
+              ],
+              showingTooltipIndicators: [0],
+            ),
+            BarChartGroupData(
+              x: 4,
+              barRods: [
+                BarChartRodData(
+                  toY: 70,
+                  gradient: const LinearGradient(
+                    colors: [
+                      Colors.blue,
+                      Colors.lightBlueAccent,
+                    ],
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                  ),
+                )
+              ],
+              showingTooltipIndicators: [0],
+            ),
+          ],
         ),
       ),
-    );
-  }
-
-  Widget _buildStatsGrid() {
-    return GridView.count(
-      crossAxisCount: 2,
-      crossAxisSpacing: 8,
-      mainAxisSpacing: 8,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      childAspectRatio: 2.5,
-      children: [
-        _buildStatsCard('Profit', '₱252,000', '+25.5%', Colors.green,
-            backgroundColor: const Color(0xFFE6F7E6)),
-        _buildStatsCard('Cost', '₱300,000', '-25.5%', Colors.red,
-            backgroundColor: const Color(0xFFFFE6E6)),
-        _buildStatsCard('Revenue', '₱122,000', '-25.5%', Colors.red,
-            backgroundColor: const Color(0xFFFFE6E6)),
-        _buildStatsCard('Revenue', '₱122,000', '-25.5%', Colors.red,
-            backgroundColor: const Color(0xFFFFE6E6)),
-      ],
     );
   }
 
@@ -246,73 +345,75 @@ class _DashboardPageState extends State<DashboardPage>
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withOpacity(0.3),
             spreadRadius: 2,
             blurRadius: 5,
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.w600,
-              fontSize: 16,
-            ),
-          ),
-          Text(
-            value,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.bold,
-              fontSize: 24,
-            ),
-          ),
-          const Spacer(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: backgroundColor,
-                  borderRadius: BorderRadius.circular(5),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontFamily: 'NunitoSans',
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
                 ),
-                child: Row(
-                  children: [
-                    Icon(
-                      percentage.contains('+')
-                          ? FontAwesomeIcons.arrowUp
-                          : FontAwesomeIcons.arrowDown,
-                      color: color,
-                      size: 14,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      percentage,
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: color,
-                      ),
-                    ),
-                  ],
+              ),
+              Text(
+                value,
+                style: TextStyle(
+                  fontFamily: 'NunitoSans',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                  color: color,
                 ),
               ),
             ],
           ),
+          if (percentage.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    percentage.contains('+')
+                        ? FontAwesomeIcons.arrowUp
+                        : FontAwesomeIcons.arrowDown,
+                    color: color,
+                    size: 12,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    percentage,
+                    style: TextStyle(
+                      color: color,
+                      fontFamily: 'NunitoSans',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildInventoryTable() {
+  Widget _buildLowStocksTable() {
     return Container(
-      height: 300,
+      height: 150,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -321,7 +422,6 @@ class _DashboardPageState extends State<DashboardPage>
             color: Colors.grey.withOpacity(0.3),
             spreadRadius: 2,
             blurRadius: 5,
-            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -329,94 +429,35 @@ class _DashboardPageState extends State<DashboardPage>
         shrinkWrap: true,
         children: [
           DataTable(
-            headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
+            headingRowColor: MaterialStateProperty.all(const Color(0xFF00AEEF)),
             columns: const [
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Item ID',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Item Name',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Item Type',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Supplier',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Quantity',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Price',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
+              DataColumn(label: Text("Item ID")),
+              DataColumn(label: Text("Item Name")),
+              DataColumn(label: Text("Item Type")),
+              DataColumn(label: Text("Supplier")),
+              DataColumn(label: Text("Quantity")),
+              DataColumn(label: Text("Price")),
             ],
             rows: [
-              _buildDataRow('0126546', 'Samsung SSD 500GB', 'Technology',
-                  'Samsung', '12 pcs', '₱500'),
-              _buildDataRow('0126547', 'Samsung SSD 250GB', 'Technology',
-                  'Samsung', '2 pcs', '₱250'),
-              _buildDataRow('0126548', 'Samsung SSD 1TB', 'Technology',
-                  'Samsung', '5 pcs', '₱1000'),
+              DataRow(cells: [
+                const DataCell(Text("2")),
+                const DataCell(Text("Mechanical Keyboard Ga light light")),
+                const DataCell(Text("Accessories")),
+                const DataCell(Text("Digital Center Enterprises")),
+                DataCell(Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    "1 pcs",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                )),
+                const DataCell(Text("₱1,000,000")),
+              ]),
             ],
           ),
         ],
@@ -424,48 +465,46 @@ class _DashboardPageState extends State<DashboardPage>
     );
   }
 
-  DataRow _buildDataRow(String id, String name, String type, String supplier,
-      String quantity, String price) {
-    return DataRow(
-      cells: [
-        DataCell(Text(id,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
-        DataCell(Text(name,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
-        DataCell(Text(type,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
-        DataCell(Text(supplier,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
-        DataCell(Container(
-          padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-          width: 100,
-          height: 30,
-          decoration: BoxDecoration(
-            color: quantity == '12 pcs' ? Colors.green : Colors.red,
-            borderRadius: BorderRadius.circular(8),
+  Widget _buildRecentBookingsTable() {
+    return Container(
+      height: 150,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 5,
           ),
-          alignment: Alignment.center,
-          child: Text(
-            quantity,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-              color: Colors.white,
-            ),
+        ],
+      ),
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          DataTable(
+            headingRowColor: MaterialStateProperty.all(const Color(0xFF00AEEF)),
+            columns: const [
+              DataColumn(label: Text("Booking ID")),
+              DataColumn(label: Text("Customer Name")),
+              DataColumn(label: Text("Date Time")),
+              DataColumn(label: Text("Service Type/s")),
+              DataColumn(label: Text("Service Location")),
+              DataColumn(label: Text("Contact Info")),
+            ],
+            rows: const [
+              DataRow(cells: [
+                DataCell(Text("000001")),
+                DataCell(Text("Shaheen Al Adwani")),
+                DataCell(Text("01/12/2024 10:00 AM")),
+                DataCell(Text("Computer Repair")),
+                DataCell(Text("In-Store Service")),
+                DataCell(Text("09088184444")),
+              ]),
+            ],
           ),
-        )),
-        DataCell(Text(price,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
-      ],
+        ],
+      ),
     );
   }
 }

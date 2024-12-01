@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/view/inventory/suppliers/modals/unarchivesupplier.dart';
-import 'package:jcsd_flutter/backend/models/suppliers_data.dart';
-import 'package:jcsd_flutter/backend/providers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_data.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 class SupplierArchivePage extends ConsumerStatefulWidget {

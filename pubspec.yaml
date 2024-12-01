@@ -21,6 +21,7 @@ dependencies:
   pdf: ^3.11.1
   flutter_email_sender: ^6.0.3
   path_provider: ^2.0.14
+  fl_chart: ^0.69.2
 
 dev_dependencies:
   flutter_test:
