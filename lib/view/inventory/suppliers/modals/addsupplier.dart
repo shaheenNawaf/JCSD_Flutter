@@ -1,7 +1,10 @@
 // ignore_for_file: library_private_types_in_public_api
 
+//Default Imports
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+//BE Imports
 import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
 import 'package:jcsd_flutter/backend/suppliers/suppliers_service.dart';
 import 'package:jcsd_flutter/view/generic/error_dialog.dart';

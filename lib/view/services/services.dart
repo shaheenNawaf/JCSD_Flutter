@@ -11,9 +11,9 @@ import 'package:jcsd_flutter/backend/services/services_data.dart';
 
 //Pages
 import 'package:jcsd_flutter/widgets/sidebar.dart';
-import 'package:jcsd_flutter/view/services/addservice.dart';
-import 'package:jcsd_flutter/view/services/editservice.dart';
-import 'package:jcsd_flutter/view/services/archiveservice.dart';
+import 'package:jcsd_flutter/view/services/modals/addservice.dart';
+import 'package:jcsd_flutter/view/services/modals/editservice.dart';
+import 'package:jcsd_flutter/view/services/modals/archiveservice.dart';
 
 class ServicesPage extends ConsumerStatefulWidget {
   const ServicesPage({super.key});
