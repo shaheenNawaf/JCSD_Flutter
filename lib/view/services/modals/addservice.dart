@@ -1,22 +1,72 @@
 // ignore_for_file: library_private_types_in_public_api
 
+//Default Imports
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AddServiceModal extends StatefulWidget {
+//BE Imports
+import 'package:jcsd_flutter/backend/services/jcsd_services.dart';
+import 'package:jcsd_flutter/backend/services/jcsd_services_state.dart';
+import 'package:jcsd_flutter/view/generic/error_dialog.dart';
+
+class AddServiceModal extends ConsumerStatefulWidget{
   const AddServiceModal({super.key});
 
   @override
-  _AddServiceModalState createState() => _AddServiceModalState();
+  ConsumerState<AddServiceModal> createState() => _AddServiceModalState();
 }
 
-class _AddServiceModalState extends State<AddServiceModal> {
+class _AddServiceModalState extends ConsumerState<AddServiceModal> {
   final TextEditingController _serviceNameController = TextEditingController();
-  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _minPriceController = TextEditingController();
+  final TextEditingController _maxPriceController = TextEditingController();
+
+  //Validators
+    String? numberValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a number';
+    }
+    if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+      return 'Only numbers are allowed';
+    }
+    return null;
+  }
+
+  String? textValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter some text';
+    }
+    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+      return 'Only letters and spaces are allowed';
+    }
+    return null;
+  }
+
+  String? emailValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter an email';
+    }
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+      return 'Please enter a valid email';
+    }
+    return null;
+  }
+
+  String? contactNumberValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a contact number';
+    }
+    if (!RegExp(r'^((\+639|09)\d{9})$').hasMatch(value)) {
+      return 'Please enter a valid contact number';
+    }
+    return null;
+  }
 
   @override
   void dispose() {
     _serviceNameController.dispose();
-    _priceController.dispose();
+    _minPriceController.dispose();
+    _maxPriceController.dispose();
     super.dispose();
   }
 
@@ -24,7 +74,7 @@ class _AddServiceModalState extends State<AddServiceModal> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 500 : screenWidth * 0.9;
-    const double containerHeight = 300;
+    const double containerHeight = 400;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -72,12 +122,23 @@ class _AddServiceModalState extends State<AddServiceModal> {
                     label: 'Service Name',
                     hintText: 'Enter service name',
                     controller: _serviceNameController,
+                    validator: textValidator,
+                    keyboardType: TextInputType.text,
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
-                    label: 'Price',
-                    hintText: 'Enter price',
-                    controller: _priceController,
+                    label: 'Minimum Price',
+                    hintText: 'Enter amount',
+                    controller: _minPriceController,
+                    validator: numberValidator,
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    label: 'Maximum Price',
+                    hintText: 'Enter amount',
+                    validator: numberValidator,
+                    controller: _maxPriceController,
                     keyboardType: TextInputType.number,
                   ),
                 ],
@@ -116,8 +177,52 @@ class _AddServiceModalState extends State<AddServiceModal> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Implement submit functionality here
+                      onPressed: () async {
+                        try{  
+                          if(_serviceNameController.text.isEmpty && _maxPriceController.text.isEmpty && _minPriceController.text.isEmpty){
+                            showDialog(
+                              context: context, 
+                              builder: (context) => const ErrorDialog(
+                                title: 'Empty fields are detected', 
+                                content: 'Please fill in the required fields.')
+                              );
+                          }else if (_serviceNameController.text.isEmpty){ 
+                            showDialog(
+                              context: context, 
+                              builder: (context) => const ErrorDialog(
+                                title: 'Service Name is empty.', 
+                                content: 'Please fill in the required fields.')
+                              );
+                          }else if (_maxPriceController.text.isEmpty){ 
+                            showDialog(
+                              context: context, 
+                              builder: (context) => const ErrorDialog(
+                                title: 'Max Price field is empty.', 
+                                content: 'Please fill in the required fields.')
+                              );
+                          }else if (_minPriceController.text.isEmpty){ 
+                            showDialog(
+                              context: context, 
+                              builder: (context) => const ErrorDialog(
+                                title: 'Min Price field is empty.', 
+                                content: 'Please fill in the required fields.')
+                              );
+                          }else{
+                            final addNewService = JcsdServices();
+
+                            String serviceName = _serviceNameController.text;
+                            double minPrice = double.parse(_minPriceController.text);
+                            double maxPrice = double.parse(_maxPriceController.text);
+                            bool isActive = true;
+
+                            await addNewService.addNewService(serviceName, minPrice, maxPrice, isActive);
+                            ref.invalidate(fetchAvailableServices);
+                            
+                            Navigator.pop(context);
+                          }
+                        }catch(err){
+                          print('Error adding service. $err');
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
@@ -150,7 +255,8 @@ class _AddServiceModalState extends State<AddServiceModal> {
     required String label,
     required String hintText,
     required TextEditingController controller,
-    TextInputType keyboardType = TextInputType.text,
+    required TextInputType keyboardType,
+    String? Function(String?)? validator,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,9 +280,10 @@ class _AddServiceModalState extends State<AddServiceModal> {
           ],
         ),
         const SizedBox(height: 5),
-        TextField(
+        TextFormField(
           controller: controller,
           keyboardType: keyboardType,
+          validator: validator,
           decoration: InputDecoration(
             hintText: hintText,
             border: const OutlineInputBorder(),

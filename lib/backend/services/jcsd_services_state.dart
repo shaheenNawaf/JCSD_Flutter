@@ -54,21 +54,4 @@ final serviceSearchResult = FutureProvider<List<ServicesData>>((ref) async {
 //Loading Visual
 final loadingStateProvider = StateProvider<bool>((ref) => false);
 
-//Adding a Service
-final addServiceProvider = FutureProvider.family<void, ServicesData>((ref, newService) async {
-  final serviceProvider = ref.read(serviceStateProvider);
-  ref.read(loadingStateProvider.notifier).state = true; //Loading ba
-
-  try{
-    await serviceProvider.addNewService(newService);
-  }catch (err){
-    ref.read(loadingStateProvider.notifier).state = false; 
-    print("Error adding new service to the database. $err");
-  }
-});
-
-//Updating a Service
-
-//Visbility/Soft-delete
-
   

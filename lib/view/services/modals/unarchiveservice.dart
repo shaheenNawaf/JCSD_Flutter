@@ -1,10 +1,29 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class UnarchiveServiceModal extends StatelessWidget {
-  const UnarchiveServiceModal({super.key});
+//Backend Imports
+import 'package:jcsd_flutter/backend/services/jcsd_services.dart';
+import 'package:jcsd_flutter/backend/services/jcsd_services_state.dart';
+import 'package:jcsd_flutter/backend/services/services_data.dart';
+import 'package:jcsd_flutter/view/generic/error_dialog.dart';
 
+class UnarchiveServiceModal extends ConsumerStatefulWidget {
+  final ServicesData servicesData;
+  final int serviceID;
+
+  const UnarchiveServiceModal({
+    super.key,
+    required this.serviceID,
+    required this.servicesData
+  });
+
+  @override
+  ConsumerState<UnarchiveServiceModal> createState() => _UnarchiveServiceModalState();
+}
+
+class _UnarchiveServiceModalState extends ConsumerState<UnarchiveServiceModal> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -94,7 +113,27 @@ class UnarchiveServiceModal extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        int serviceID =  widget.serviceID;
+                          
+                        try{
+                          final updateService = JcsdServices();
+                          await updateService.updateServiceVisibility(serviceID, true);
+
+                          ref.invalidate(fetchHiddenServices);
+
+                        }catch(err){
+                          print('Error unarchiving the service. $err');
+                          showDialog(
+                            context: context, 
+                            builder: (context) => ErrorDialog(
+                              title: 'Error archiving ${widget.servicesData.serviceName}', 
+                              content: 'Please try again. $err'
+                              )
+                            );
+                        }
+                        Navigator.pop(context);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
                         padding: const EdgeInsets.symmetric(vertical: 14.0),

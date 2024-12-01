@@ -1,18 +1,24 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
+//Packages
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:jcsd_flutter/view/services/unarchiveservice.dart';
+import 'package:jcsd_flutter/backend/services/jcsd_services_state.dart';
+import 'package:jcsd_flutter/backend/services/services_data.dart';
+
+//Pages
+import 'package:jcsd_flutter/view/services/modals/unarchiveservice.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
-class ServicesArchivePage extends StatefulWidget {
+class ServicesArchivePage extends ConsumerStatefulWidget {
   const ServicesArchivePage({super.key});
 
   @override
-  _ServicesArchivePageState createState() => _ServicesArchivePageState();
+  ConsumerState<ServicesArchivePage> createState() => _ServicesArchivePageState();
 }
 
-class _ServicesArchivePageState extends State<ServicesArchivePage>
+class _ServicesArchivePageState extends ConsumerState<ServicesArchivePage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   final String _activeSubItem = '/servicesArchive';
@@ -40,12 +46,15 @@ class _ServicesArchivePageState extends State<ServicesArchivePage>
     _animationController.reverse();
   }
 
-  void _showUnarchiveServiceModal() {
+  _showUnarchiveServiceModal(ServicesData service, int serviceID) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return const UnarchiveServiceModal();
+        return UnarchiveServiceModal(
+          serviceID: serviceID,
+          servicesData: service,
+        );
       },
     );
   }
@@ -213,7 +222,7 @@ class _ServicesArchivePageState extends State<ServicesArchivePage>
         ),
         const SizedBox(height: 16),
         Expanded(
-          child: _buildDataTable(),
+          child: _buildDataTable(context),
         ),
       ],
     );
@@ -241,7 +250,7 @@ class _ServicesArchivePageState extends State<ServicesArchivePage>
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,
             ),
-            onPressed: _showUnarchiveServiceModal,
+            onPressed: () {},
             child: const Text(
               'Unarchive',
               style: TextStyle(color: Colors.white),
@@ -252,99 +261,184 @@ class _ServicesArchivePageState extends State<ServicesArchivePage>
     );
   }
 
-  Widget _buildDataTable() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
+  Widget _buildDataTable(BuildContext context) {
+    final fetchServices = ref.watch(fetchHiddenServices);
+
+    return fetchServices.when(
+      data: (services) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: ListView(
-        children: [
-          DataTable(
-            headingRowColor: WidgetStateProperty.all(
-              const Color(0xFF00AEEF),
+          child: Column(
+          children: [
+            _buildHeaderRow(),
+            const Divider(height: 1, color: Colors.grey),
+            Expanded(
+              child: ListView.builder(
+                itemCount: services.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return _buildServicesRow(services, index);
+                },
+              ),
             ),
-            columns: const [
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Service Name',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+          ],
+        ),
+        );
+      }, 
+      error: (err, stackTrace) => Text('Error fetching data from services table: $err'), 
+      loading: () => const LinearProgressIndicator(
+      backgroundColor: Color.fromRGBO(0, 134, 239, 1),
+    ),
+  );  
+  }
+
+   Widget _buildHeaderRow(){
+    return Container(
+      color: const Color.fromRGBO(0, 174, 239, 1),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              'Service ID',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Price',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Service Name',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Action',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Minimum Price',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
-            ],
-            rows: [
-              _buildDataRow('Computer Repair', 'P600'),
-              _buildDataRow('Computer Cleaning', 'P600'),
-              _buildDataRow('Computer Diagnosis', 'P600'),
-            ],
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Maximum Price',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Actions',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
         ],
       ),
     );
   }
 
-  DataRow _buildDataRow(String serviceName, String price) {
-    return DataRow(
-      cells: [
-        DataCell(Text(serviceName,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
-        DataCell(Text(price,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
-        DataCell(
-          ElevatedButton(
-            onPressed: _showUnarchiveServiceModal,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-            ),
-            child: const Text(
-              'Unarchive',
-              style: TextStyle(color: Colors.white),
+  Widget _buildServicesRow(List<ServicesData> services, int index) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      decoration: BoxDecoration(
+        color: index % 2 == 0 ? Colors.grey[100] : Colors.white,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              services[index].serviceID.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+              textAlign: TextAlign.center,
             ),
           ),
-        ),
-      ],
+          Expanded(
+            child: Text(
+              services[index].serviceName.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              services[index].minPrice.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              services[index].maxPrice.toString(),
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(
+                  width: 80,
+                  child: ElevatedButton(
+                    onPressed: () => _showUnarchiveServiceModal(services[index], services[index].serviceID),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    child: const Text(
+                      'Archive',
+                      style: TextStyle(
+                        fontFamily: 'NunitoSans',
+                        color: Colors.white,
+                        fontSize: 8,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
