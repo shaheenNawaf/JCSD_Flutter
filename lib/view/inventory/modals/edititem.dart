@@ -4,17 +4,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jcsd_flutter/backend/models/inventory_data.dart';
+import 'package:jcsd_flutter/backend/inventory/inventory_data.dart';
 
 //Backend Imports
-import 'package:jcsd_flutter/backend/providers/inventory_state.dart';
-import 'package:jcsd_flutter/backend/providers/suppliers_state.dart';
-import 'package:jcsd_flutter/backend/providers/itemtypes_state.dart';
+import 'package:jcsd_flutter/backend/inventory/inventory_state.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/inventory/item_types/itemtypes_state.dart';
 
 //Inventory, Supplier and Item Type Imports
-import 'package:jcsd_flutter/backend/services/inventory_service.dart';
-import 'package:jcsd_flutter/backend/services/suppliers_service.dart';
-import 'package:jcsd_flutter/backend/services/itemtypes_service.dart';
+import 'package:jcsd_flutter/backend/inventory/inventory_service.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_service.dart';
+import 'package:jcsd_flutter/backend/inventory/item_types/itemtypes_service.dart';
 
 class EditItemModal extends ConsumerStatefulWidget{
   final InventoryData itemData;

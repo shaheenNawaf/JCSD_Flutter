@@ -12,8 +12,8 @@ import 'package:jcsd_flutter/view/inventory/suppliers/modals/editsupplier.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 // Suppliers
-import 'package:jcsd_flutter/backend/models/suppliers_data.dart';
-import 'package:jcsd_flutter/backend/providers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_data.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
 
 class SupplierPage extends ConsumerStatefulWidget {
   const SupplierPage({super.key});

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jcsd_flutter/backend/models/suppliers_data.dart';
-import 'package:jcsd_flutter/backend/services/suppliers_service.dart';
+import 'suppliers_data.dart';
+import 'suppliers_service.dart';
 
 //Base Provider for the Suppliers Mini-System -- USED FOR THE ENTIRE STATE MANAGEMENT -- DON'T TOUCH
 final supplierServiceProv = Provider<SuppliersService>((ref){

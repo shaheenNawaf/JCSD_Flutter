@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jcsd_flutter/backend/providers/suppliers_state.dart';
-import 'package:jcsd_flutter/backend/services/suppliers_service.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_service.dart';
 import 'package:jcsd_flutter/view/generic/error_dialog.dart';
 // import 'package:flutter/services.dart';
 

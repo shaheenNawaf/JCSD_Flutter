@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jcsd_flutter/backend/models/inventory_data.dart';
-import 'package:jcsd_flutter/backend/providers/inventory_state.dart';
-import 'package:jcsd_flutter/backend/services/inventory_service.dart';
+import 'package:jcsd_flutter/backend/inventory/inventory_data.dart';
+import 'package:jcsd_flutter/backend/inventory/inventory_state.dart';
+import 'package:jcsd_flutter/backend/inventory/inventory_service.dart';
 
 class ArchiveItemModal extends ConsumerStatefulWidget {
   final InventoryData itemData;

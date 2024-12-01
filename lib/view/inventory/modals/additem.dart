@@ -6,12 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 //Backend Imports
-import 'package:jcsd_flutter/backend/providers/inventory_state.dart';
-import 'package:jcsd_flutter/backend/providers/itemtypes_state.dart';
-import 'package:jcsd_flutter/backend/providers/suppliers_state.dart';
-
-//Inventory and Supplier Imports
-import 'package:jcsd_flutter/backend/services/inventory_service.dart';
+import 'package:jcsd_flutter/backend/inventory/inventory_state.dart';
+import 'package:jcsd_flutter/backend/inventory/item_types/itemtypes_state.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/inventory/inventory_service.dart';
 
 class AddItemModal extends ConsumerStatefulWidget {
   const AddItemModal({super.key});

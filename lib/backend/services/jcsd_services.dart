@@ -1,6 +1,7 @@
 //Imports for Supabase and Service data type
 import 'package:jcsd_flutter/api/global_variables.dart';
-import 'package:jcsd_flutter/backend/models/services_data.dart';
+
+import 'services_data.dart';
 
 class JcsdServices {
 
@@ -8,6 +9,21 @@ class JcsdServices {
 Future<List<ServicesData>> displayAllServices() async {
   try {
     final services = await supabaseDB.from('services').select();
+    if(services.isEmpty == true){
+      print('Empty Service table.');
+      return [];
+    }
+    return services.map<ServicesData>((item) => ServicesData.fromJson(item)).toList();
+  }catch (err){
+    print('Error fetching services from the table. Error Message: $err');
+    return [];
+  }
+}
+
+//Fetching the Available Service List
+Future<List<ServicesData>> displayAvailableServices() async {
+  try {
+    final services = await supabaseDB.from('services').select().eq('isActive', true);
     if(services.isEmpty == true){
       print('Empty Service table.');
       return [];

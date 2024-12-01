@@ -2,11 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jcsd_flutter/backend/models/suppliers_data.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_data.dart';
 
 //Backend Imports
-import 'package:jcsd_flutter/backend/providers/suppliers_state.dart';
-import 'package:jcsd_flutter/backend/services/suppliers_service.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_service.dart';
 
 
 class EditSupplierModal extends ConsumerStatefulWidget {

@@ -8,15 +8,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 //Pages
 import 'package:jcsd_flutter/view/inventory/modals/unarchiveitem.dart';
-import 'package:jcsd_flutter/backend/services/itemtypes_service.dart';
+import 'package:jcsd_flutter/backend/inventory/item_types/itemtypes_service.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 //Inventory
-import 'package:jcsd_flutter/backend/providers/inventory_state.dart';
-import 'package:jcsd_flutter/backend/models/inventory_data.dart';
+import 'package:jcsd_flutter/backend/inventory/inventory_state.dart';
+import 'package:jcsd_flutter/backend/inventory/inventory_data.dart';
 
 //Suppliers
-import 'package:jcsd_flutter/backend/services/suppliers_service.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_service.dart';
 
 class ArchiveListPage extends ConsumerStatefulWidget {
   const ArchiveListPage({super.key});

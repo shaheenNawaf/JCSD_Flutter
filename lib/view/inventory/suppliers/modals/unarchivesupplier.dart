@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jcsd_flutter/backend/models/suppliers_data.dart';
-import 'package:jcsd_flutter/backend/providers/inventory_state.dart';
-import 'package:jcsd_flutter/backend/providers/suppliers_state.dart';
-import 'package:jcsd_flutter/backend/services/suppliers_service.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_data.dart';
+import 'package:jcsd_flutter/backend/inventory/inventory_state.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/suppliers/suppliers_service.dart';
 
 class UnarchiveSupplierModal extends ConsumerStatefulWidget {
   final SuppliersData supplierData;

@@ -1,20 +1,28 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
+//Packages for Usage
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jcsd_flutter/backend/services/jcsd_services_state.dart';
+
+//Pages
+import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/view/services/addservice.dart';
 import 'package:jcsd_flutter/view/services/editservice.dart';
 import 'package:jcsd_flutter/view/services/archiveservice.dart';
-import 'package:jcsd_flutter/widgets/sidebar.dart';
 
-class ServicesPage extends StatefulWidget {
+//Services
+
+
+class ServicesPage extends ConsumerStatefulWidget {
   const ServicesPage({super.key});
 
   @override
-  _ServicesPageState createState() => _ServicesPageState();
+  ConsumerState<ServicesPage> createState() => _ServicesPageState();
 }
 
-class _ServicesPageState extends State<ServicesPage>
+class _ServicesPageState extends ConsumerState<ServicesPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
 
@@ -276,7 +284,7 @@ class _ServicesPageState extends State<ServicesPage>
         ),
         const SizedBox(height: 16),
         Expanded(
-          child: _buildDataTable(),
+          child: _buildDataTable(context),
         ),
       ],
     );
@@ -318,71 +326,148 @@ class _ServicesPageState extends State<ServicesPage>
     );
   }
 
-  Widget _buildDataTable() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
+  Widget _buildDataTable(BuildContext context) {
+    final fetchServices = ref.watch(fetchAvailableServices);
+
+    fetchServices.when(
+      data: (services) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: ListView(
-        children: [
-          DataTable(
-            headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
-            columns: const [
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Service Name',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Center(
-                  child: Text(
-                    'Price',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Padding(
-                  padding: EdgeInsets.only(left: 60),
-                  child: Center(
-                    child: Text(
-                      'Action',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+          child: ListView(
+            children: [
+              DataTable(
+                headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
+                columns: const [
+                  DataColumn(
+                    label: Center(
+                      child: Text(
+                        'Service Name',
+                        style: TextStyle(
+                          fontFamily: 'NunitoSans',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
-                ),
+                  DataColumn(
+                    label: Center(
+                      child: Text(
+                        'Price',
+                        style: TextStyle(
+                          fontFamily: 'NunitoSans',
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  DataColumn(
+                    label: Padding(
+                      padding: EdgeInsets.only(left: 60),
+                      child: Center(
+                        child: Text(
+                          'Action',
+                          style: TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+                rows: [
+                  _buildDataRow('Computer Repair', 'P600'),
+                  _buildDataRow('Computer Cleaning', 'P600'),
+                  _buildDataRow('Computer Diagnosis', 'P600'),
+                ],
               ),
             ],
-            rows: [
-              _buildDataRow('Computer Repair', 'P600'),
-              _buildDataRow('Computer Cleaning', 'P600'),
-              _buildDataRow('Computer Diagnosis', 'P600'),
-            ],
+          ),
+        );
+      }, 
+      error: (err, stackTrace) => Text('Error fetching data from services table: $err'), 
+      loading: () => const LinearProgressIndicator(
+      backgroundColor: Color.fromRGBO(0, 134, 239, 1),
+    ),
+  );  
+  }
+
+  Widget _buildHeader(){
+    return Container(
+      color: const Color.fromRGBO(0, 174, 239, 1),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      child: const Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              'Service ID',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Service Name',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Minimum Price',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Maximum Price',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Actions',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
         ],
       ),
