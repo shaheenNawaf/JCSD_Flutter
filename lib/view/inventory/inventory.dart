@@ -19,6 +19,7 @@ import 'package:jcsd_flutter/widgets/header.dart';
 //Inventory
 import 'package:jcsd_flutter/backend/inventory/inventory_state.dart';
 import 'package:jcsd_flutter/backend/inventory/inventory_data.dart';
+import 'package:jcsd_flutter/view/inventory/order_list.dart';
 
 //Suppliers
 import 'package:jcsd_flutter/backend/suppliers/suppliers_service.dart';
@@ -39,8 +40,8 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
   void initState() {
     super.initState();
     _animationController = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 300),
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
     );
   }
 
@@ -106,6 +107,13 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
       builder: (BuildContext context) {
         return const StockInItemModal();
       },
+    );
+  }
+
+  void _navigateToOrderListPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const OrderListPage()),
     );
   }
 
@@ -247,6 +255,26 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
+              ElevatedButton.icon(
+                onPressed: _navigateToOrderListPage,
+                icon: const Icon(Icons.file_copy, color: Colors.white),
+                label: const Text(
+                  'Order List',
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF00AEEF),
+                  minimumSize: const Size(0, 48),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
               ElevatedButton.icon(
                 onPressed: _showBorrowedItemsModal,
                 icon: const Icon(Icons.inventory, color: Colors.white),
@@ -405,46 +433,47 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
       },
     );
   }
-  
-  Widget _buildDataTable(BuildContext context) {
-  final fetchInventory = ref.watch(fetchAvailableList);
 
-  return fetchInventory.when(
-    data: (items) {
-      return Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
-            )
-          ],
-        ),
-        child: Column(
-          children: [
-            _buildHeaderRow(),
-            const Divider(height: 1, color: Color.fromARGB(255, 188, 188, 188)),
-            Expanded(
-              child: ListView.builder(
-                itemCount: items.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return _buildItemRow(items, index);
-                },
+  Widget _buildDataTable(BuildContext context) {
+    final fetchInventory = ref.watch(fetchAvailableList);
+
+    return fetchInventory.when(
+      data: (items) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              )
+            ],
+          ),
+          child: Column(
+            children: [
+              _buildHeaderRow(),
+              const Divider(
+                  height: 1, color: Color.fromARGB(255, 188, 188, 188)),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: items.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return _buildItemRow(items, index);
+                  },
+                ),
               ),
-            ),
-          ],
-        ),
-      );
-    },
-    error: (err, stackTrace) => Text('Error fetching data from table: $err'),
-    loading: () => const LinearProgressIndicator(
-      backgroundColor: Color.fromRGBO(0, 134, 239, 1),
-    ),
-  );
+            ],
+          ),
+        );
+      },
+      error: (err, stackTrace) => Text('Error fetching data from table: $err'),
+      loading: () => const LinearProgressIndicator(
+        backgroundColor: Color.fromRGBO(0, 134, 239, 1),
+      ),
+    );
   }
 
   Widget _buildHeaderRow() {
@@ -543,14 +572,16 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
     return typeName;
   }
 
-  Widget _buildItemTypeCell (int typeID, BuildContext context){
+  Widget _buildItemTypeCell(int typeID, BuildContext context) {
     final itemTypesProvider = ItemtypesService();
 
     return FutureBuilder(
-      future: itemTypesProvider.getTypeNameByID(typeID), 
-      builder: (context, snapshot){
+      future: itemTypesProvider.getTypeNameByID(typeID),
+      builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator()); // Center the loading indicator
+          return const Center(
+              child:
+                  CircularProgressIndicator()); // Center the loading indicator
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
@@ -558,7 +589,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
           return Text(
             typeName,
             style: const TextStyle(
-                fontFamily: 'NunitoSans',
+              fontFamily: 'NunitoSans',
             ),
             textAlign: TextAlign.center,
           );
@@ -600,9 +631,10 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
           ),
           Expanded(
             child: FutureBuilder<String>(
-              future: suppliersService.getSupplierNameByID(items[index].supplierID.toInt()),
+              future: suppliersService
+                  .getSupplierNameByID(items[index].supplierID.toInt()),
               builder: (context, supplierName) {
-                if (supplierName.hasData){
+                if (supplierName.hasData) {
                   return Text(
                     supplierName.data!,
                     style: const TextStyle(
@@ -610,7 +642,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
                     ),
                     textAlign: TextAlign.center,
                   );
-                }else if(supplierName.hasError){
+                } else if (supplierName.hasError) {
                   return const Text(
                     "Error fetching",
                     style: TextStyle(
@@ -618,7 +650,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
                     ),
                     textAlign: TextAlign.center,
                   );
-                }else{
+                } else {
                   return const Text(
                     "No supplier found",
                     style: TextStyle(
@@ -663,7 +695,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
                   child: ElevatedButton(
                     onPressed: () {
                       _showEditItemModal(items[index], items[index].itemID);
-                    } ,
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                     ),
@@ -680,7 +712,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
                 SizedBox(
                   width: 80,
                   child: ElevatedButton(
-                    onPressed: () { 
+                    onPressed: () {
                       _showArchiveItemModal(items[index], items[index].itemID);
                     },
                     style: ElevatedButton.styleFrom(
@@ -704,13 +736,12 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
     );
   }
 
-
-  Color _itemQuantityColor (int itemQuantity){
-    if (itemQuantity < 10){
+  Color _itemQuantityColor(int itemQuantity) {
+    if (itemQuantity < 10) {
       return Colors.red;
-    }else if(itemQuantity < 20){
+    } else if (itemQuantity < 20) {
       return Colors.yellow;
-    }else{
+    } else {
       return Colors.green;
     }
   }
