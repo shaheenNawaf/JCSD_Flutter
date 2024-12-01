@@ -10,7 +10,6 @@ class Receipt extends StatefulWidget {
 }
 
 class _ReceiptState extends State<Receipt> {
-
   @override
   void dispose() {
     super.dispose();
@@ -18,9 +17,8 @@ class _ReceiptState extends State<Receipt> {
 
   @override
   Widget build(BuildContext context) {
-
     return Dialog(
-      child: Container(
+        child: Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -42,9 +40,15 @@ class _ReceiptState extends State<Receipt> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Text(
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      const Text(
                         'Receipt',
                         style: TextStyle(
                           fontFamily: 'NunitoSans',
@@ -54,31 +58,41 @@ class _ReceiptState extends State<Receipt> {
                       ),
                     ],
                   ),
-                  const Spacer(),
-                  const _ReceiptDetails(),
-                  const Spacer(),
-                  const _ReceiptTable(),
-                  const _SummaryTable(),
+                  const Expanded(
+                    flex: 3,
+                    child: _ReceiptDetails()),
+                  const Expanded(
+                    flex: 7,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          _ReceiptTable(),
+                          _SummaryTable(),
+                        ],
+                      ),
+                    ),
+                  ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                     child: Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                      // Add your print functionality here
-                      },
-                      icon: const Icon(Icons.print),
-                      label: const Text('Print Receipt'),
-                      style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00AEEF),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      textStyle: const TextStyle(
-                        fontFamily: 'NunitoSans',
-                        fontWeight: FontWeight.bold,
+                      alignment: Alignment.centerRight,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          // Add your print functionality here
+                        },
+                        icon: const Icon(Icons.print),
+                        label: const Text('Print Receipt'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00AEEF),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
+                          textStyle: const TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                      ),
-                    ),
                     ),
                   ),
                 ],
@@ -87,10 +101,10 @@ class _ReceiptState extends State<Receipt> {
           ),
         ],
       ),
-    )
-    );
+    ));
   }
 }
+
 class _ReceiptDetails extends StatelessWidget {
   const _ReceiptDetails();
 
@@ -99,6 +113,7 @@ class _ReceiptDetails extends StatelessWidget {
     return const Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        Text('Invoice ID : 01624395345', style: TextStyle(fontSize: 20)),
         Text('Booking ID : 01624395345', style: TextStyle(fontSize: 20)),
         Text('Purok 4 Block 3', style: TextStyle(fontSize: 20)),
         Text('Panacan Relcoation', style: TextStyle(fontSize: 20)),
@@ -118,9 +133,10 @@ class _ReceiptTable extends StatelessWidget {
     return Table(
       border: TableBorder.all(color: Colors.grey),
       columnWidths: const {
-        0: FlexColumnWidth(0.2),
-        1: FlexColumnWidth(5.8),
-        2: FlexColumnWidth(1),
+        0: FlexColumnWidth(1),
+        1: FlexColumnWidth(4.8),
+        2: FlexColumnWidth(1.2),
+        3: FlexColumnWidth(1.2),
       },
       children: List<TableRow>.generate(10, (index) {
         return TableRow(
@@ -130,19 +146,27 @@ class _ReceiptTable extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(index == 0 ? 'Item' : (index).toString()),
+              child: Text(index == 0 ? 'Item' : (index).toString(), style: TextStyle(
+                fontSize: MediaQuery.of(context).size.width <= 600 ? 10 : 16,
+              ),),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(index == 0 ? 'Description' : 'Service Charge'),
+              child: Text(index == 0 ? 'Description' : 'Service Charge', style: TextStyle(
+                fontSize: MediaQuery.of(context).size.width <= 600 ? 10 : 16,
+              ),),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(index == 0 ? 'Quantity' : '3'),
+              child: Text(index == 0 ? 'Quantity' : '3', style: TextStyle(
+                fontSize: MediaQuery.of(context).size.width <= 600 ? 10 : 16,
+              ),),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(index == 0 ? 'Amount' : 'P400'),
+              child: Text(index == 0 ? 'Amount' : 'P1000', style: TextStyle(
+                fontSize: MediaQuery.of(context).size.width <= 600 ? 10 : 16,
+              ),),
             ),
           ],
         );
@@ -160,7 +184,7 @@ class _SummaryTable extends StatelessWidget {
       border: TableBorder.all(color: Colors.grey),
       columnWidths: const {
         0: FlexColumnWidth(7),
-        1: FlexColumnWidth(1),
+        1: FlexColumnWidth(1.2),
       },
       children: List<TableRow>.generate(4, (index) {
         return TableRow(
@@ -171,13 +195,19 @@ class _SummaryTable extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                index == 0 ? 'Subtotal' : (index == 1 ? 'Tax' : (index == 2 ? 'Other' : 'Total')),
+                index == 0
+                    ? 'Subtotal'
+                    : (index == 1 ? 'Tax' : (index == 2 ? 'Other' : 'Total')),
                 textAlign: TextAlign.right,
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(index == 0 ? 'P2,000' : (index == 1 ? 'P1,000' : (index == 2 ? 'P1,000' : 'P5,000'))),
+              child: Text(index == 0
+                  ? 'P2,000'
+                  : (index == 1
+                      ? 'P1,000'
+                      : (index == 2 ? 'P1,000' : 'P5,000'))),
             ),
           ],
         );
