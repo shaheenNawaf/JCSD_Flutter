@@ -23,7 +23,7 @@ Future<List<ServicesData>> displayAllServices() async {
 //Fetching the Available Service List
 Future<List<ServicesData>> displayAvailableServices() async {
   try {
-    final services = await supabaseDB.from('services').select().eq('isActive', true);
+    final services = await supabaseDB.from('jcsd_services').select().eq('isActive', true);
     if(services.isEmpty == true){
       print('Empty Service table.');
       return [];

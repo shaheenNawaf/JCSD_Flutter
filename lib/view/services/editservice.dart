@@ -51,7 +51,7 @@ class _EditServiceModalState extends ConsumerState<EditServiceModal> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 500 : screenWidth * 0.9;
-    const double containerHeight = 300;
+    const double containerHeight = 400;
 
     return Dialog(
       shape: RoundedRectangleBorder(
