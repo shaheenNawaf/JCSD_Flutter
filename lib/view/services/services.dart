@@ -345,29 +345,30 @@ class _ServicesPageState extends ConsumerState<ServicesPage>
             ],
           ),
           child: Column(
-          children: [
-            _buildHeaderRow(),
-            const Divider(height: 1, color: Colors.grey),
-            Expanded(
-              child: ListView.builder(
-                itemCount: services.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return _buildServicesRow(services, index);
-                },
+            children: [
+              _buildHeaderRow(),
+              const Divider(height: 1, color: Colors.grey),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: services.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return _buildServicesRow(services, index);
+                  },
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         );
-      }, 
-      error: (err, stackTrace) => Text('Error fetching data from services table: $err'), 
+      },
+      error: (err, stackTrace) =>
+          Text('Error fetching data from services table: $err'),
       loading: () => const LinearProgressIndicator(
-      backgroundColor: Color.fromRGBO(0, 134, 239, 1),
-    ),
-  );  
+        backgroundColor: Color.fromRGBO(0, 134, 239, 1),
+      ),
+    );
   }
 
-  Widget _buildHeaderRow(){
+  Widget _buildHeaderRow() {
     return Container(
       color: const Color.fromRGBO(0, 174, 239, 1),
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
@@ -485,7 +486,8 @@ class _ServicesPageState extends ConsumerState<ServicesPage>
                 SizedBox(
                   width: 80,
                   child: ElevatedButton(
-                    onPressed:() => _showEditServiceModal(services[index], services[index].serviceID),
+                    onPressed: () => _showEditServiceModal(
+                        services[index], services[index].serviceID),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                     ),
@@ -502,7 +504,8 @@ class _ServicesPageState extends ConsumerState<ServicesPage>
                 SizedBox(
                   width: 80,
                   child: ElevatedButton(
-                    onPressed: () => _showArchiveServiceModal(services[index], services[index].serviceID),
+                    onPressed: () => _showArchiveServiceModal(
+                        services[index], services[index].serviceID),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                     ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jcsd_flutter/view/inventory/modals/bookingconfirmed.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 
 class ClientBooking2 extends StatelessWidget {
@@ -20,7 +21,7 @@ class ClientBooking2 extends StatelessWidget {
                   children: [
                     _buildFullWidthContainer(_buildReviewAndConfirmSection()),
                     const SizedBox(height: 20),
-                    _buildFullWidthContainer(_buildBookingSummary()),
+                    _buildFullWidthContainer(_buildBookingSummary(context)),
                   ],
                 ),
               )
@@ -34,7 +35,7 @@ class ClientBooking2 extends StatelessWidget {
                   const SizedBox(width: 20),
                   Expanded(
                     flex: 1,
-                    child: _buildBookingSummary(),
+                    child: _buildBookingSummary(context),
                   ),
                 ],
               ),
@@ -42,8 +43,18 @@ class ClientBooking2 extends StatelessWidget {
     );
   }
 
+  void _BookingConfirmationModal(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const BookingConfirmationModal();
+      },
+    );
+  }
+
   Widget _buildFullWidthContainer(Widget child) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: child,
     );
@@ -123,7 +134,7 @@ class ClientBooking2 extends StatelessWidget {
     );
   }
 
-  Widget _buildBookingSummary() {
+  Widget _buildBookingSummary(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -238,7 +249,10 @@ class ClientBooking2 extends StatelessWidget {
             child: SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  // Navigator.pushNamed(context, '/profileClient');
+                  _BookingConfirmationModal(context);
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00AEEF),
                   padding: const EdgeInsets.symmetric(vertical: 15),

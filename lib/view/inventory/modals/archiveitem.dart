@@ -10,7 +10,8 @@ class ArchiveItemModal extends ConsumerStatefulWidget {
   final InventoryData itemData;
   final int itemID;
 
-  const ArchiveItemModal({super.key, required this.itemData, required this.itemID});
+  const ArchiveItemModal(
+      {super.key, required this.itemData, required this.itemID});
 
   @override
   ConsumerState<ArchiveItemModal> createState() => _ArchiveItemModalState();
@@ -20,12 +21,12 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
   late int _intItemID;
   late InventoryData _itemData;
 
- @override
-  void initState(){
+  @override
+  void initState() {
     super.initState();
     print('Archive Item - initState()');
-   _intItemID = widget.itemID;
-   _itemData = widget.itemData;
+    _intItemID = widget.itemID;
+    _itemData = widget.itemData;
   }
 
   @override
@@ -121,17 +122,20 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
                     child: ElevatedButton(
                       onPressed: () async {
                         print('Archive Item - Save changes');
-                        try{
-                          final InventoryService updateVisibility = InventoryService();
-                          await updateVisibility.updateItemVisibility(_intItemID, false);
+                        try {
+                          final InventoryService updateVisibility =
+                              InventoryService();
+                          await updateVisibility.updateItemVisibility(
+                              _intItemID, false);
 
-                          print('Successfully hid the item. ${_itemData.itemName}');
-                        }catch(err){
+                          print(
+                              'Successfully hid the item. ${_itemData.itemName}');
+                        } catch (err) {
                           print('Error archiving an item. $_itemData');
                         }
-                        
-                        //For rebuilding the 
-                        ref.invalidate(fetchHiddenList);
+
+                        //For rebuilding the
+                        ref.invalidate(fetchAvailableList);
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(

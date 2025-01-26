@@ -68,7 +68,7 @@ class _ProfilePageClientState extends State<ProfilePageClient> {
     'Sarah Lee'
   ];
 
-  void _showReceptModal() {
+  void _showReceiptModal() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -178,23 +178,39 @@ class _ProfilePageClientState extends State<ProfilePageClient> {
                                         height: 50,
                                         decoration: BoxDecoration(
                                           color: Colors.white,
-                                          borderRadius: BorderRadius.circular(8),
-                                          border: Border.all( color: Colors.grey, width: 1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                          border: Border.all(
+                                              color: Colors.grey, width: 1),
                                         ),
                                         child: Padding(
-                                          padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                          padding: const EdgeInsets.fromLTRB(
+                                              5, 0, 0, 0),
                                           child: Row(
-                                            mainAxisAlignment:MainAxisAlignment.start,
-                                            crossAxisAlignment:CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Expanded(
                                                 child: Padding(
-                                                  padding: const EdgeInsets.all(20.0),
+                                                  padding: const EdgeInsets.all(
+                                                      20.0),
                                                   child: Column(
-                                                    mainAxisAlignment:MainAxisAlignment.start,
-                                                    crossAxisAlignment:CrossAxisAlignment.start,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
-                                                      Text(date[index], style: const TextStyle( fontWeight:FontWeight.bold, fontSize: 25)),
+                                                      Text(date[index],
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize:
+                                                                      25)),
                                                       Text(type[index]),
                                                       Text(time[index]),
                                                     ],
@@ -206,50 +222,79 @@ class _ProfilePageClientState extends State<ProfilePageClient> {
                                                   padding: const EdgeInsets.all(
                                                       20.0),
                                                   child: Column(
-                                                    mainAxisAlignment:MainAxisAlignment.start,
-                                                    crossAxisAlignment:CrossAxisAlignment.start,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
-                                                        const Text('Notes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
-                                                        Text(notes[index]),
+                                                      const Text('Notes',
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 25)),
+                                                      Text(notes[index]),
                                                     ],
                                                   ),
                                                 ),
                                               ),
-                                                Expanded(
+                                              Expanded(
                                                 child: Padding(
-                                                  padding: const EdgeInsets.all(20.0),
+                                                  padding: const EdgeInsets.all(
+                                                      20.0),
                                                   child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    const Text('Assigned Employee', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25)),
-                                                    Text(employee[index]),
-                                                  ],
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      const Text(
+                                                          'Assigned Employee',
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 25)),
+                                                      Text(employee[index]),
+                                                    ],
                                                   ),
                                                 ),
-                                                ),
-                                                Padding(
-                                                  padding: const EdgeInsets.all(20.0),
-                                                  child: Align(
-                                                    alignment: Alignment.bottomRight,
-                                                    child: Container(
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(20.0),
+                                                child: Align(
+                                                  alignment:
+                                                      Alignment.bottomRight,
+                                                  child: Container(
                                                     width: 100,
-                                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 8,
+                                                        vertical: 4),
                                                     decoration: BoxDecoration(
-                                                      color: status[index] == 'Pending'
-                                                        ? Colors.grey
-                                                        : status[index] == 'Completed'
-                                                          ? Colors.green
-                                                          : const Color(0xFFE53935),
-                                                      borderRadius: BorderRadius.circular(4),
+                                                      color: status[index] ==
+                                                              'Pending'
+                                                          ? Colors.grey
+                                                          : status[index] ==
+                                                                  'Completed'
+                                                              ? Colors.green
+                                                              : const Color(
+                                                                  0xFFE53935),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              4),
                                                     ),
                                                     child: Text(
                                                       status[index],
-                                                      style: const TextStyle(color: Colors.white),
-                                                      textAlign: TextAlign.center,
-                                                    ),
+                                                      style: const TextStyle(
+                                                          color: Colors.white),
+                                                      textAlign:
+                                                          TextAlign.center,
                                                     ),
                                                   ),
-                                                )
+                                                ),
+                                              )
                                             ],
                                           ),
                                         ),
@@ -341,7 +386,9 @@ class _ProfilePageClientState extends State<ProfilePageClient> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Icon(Icons.expand_more),
-                          Text("Booking Appointments",style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                          Text("Booking Appointments",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18)),
                           Icon(Icons.expand_more),
                         ],
                       ),
@@ -363,7 +410,8 @@ class _ProfilePageClientState extends State<ProfilePageClient> {
                               });
                             },
                             child: Container(
-                              margin: const EdgeInsets.symmetric(vertical: 10,horizontal: 40),
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 40),
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -529,11 +577,11 @@ class _ProfilePageClientState extends State<ProfilePageClient> {
                   Spacer(),
                   if (MediaQuery.of(context).size.width <= 600)
                     IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
                 ],
               ),
               const SizedBox(height: 10),
@@ -651,7 +699,7 @@ class _ProfilePageClientState extends State<ProfilePageClient> {
                 child: Center(
                   child: ElevatedButton(
                     onPressed: () {
-                      _showReceptModal();
+                      _showReceiptModal();
                     },
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(
