@@ -17,35 +17,28 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       title: Row(
         children: [
-          // Logo for all pages except Access Restricted
-          if (activePage != 'accessRestricted')
-            Image.asset(
-              isMobileView
-                  ? 'assets/images/logo_mobile.png'
-                  : 'assets/images/logo.png',
-              height: 40,
-            ),
-          if (activePage != 'accessRestricted') const Spacer(),
-          // Back to Home for Access Restricted
+          Image.asset(
+            isMobileView
+                ? 'assets/images/logo_mobile.png'
+                : 'assets/images/logo.png',
+            height: 40,
+          ),
+          const Spacer(),
           if (activePage == 'accessRestricted')
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/home');
-                },
-                child: const Text(
-                  'Back to Home',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: Color(0xFF00AEEF),
-                  ),
+            TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/home');
+              },
+              child: const Text(
+                'Back to Home',
+                style: TextStyle(
+                  fontFamily: 'NunitoSans',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Color(0xFF00AEEF),
                 ),
               ),
             )
-          // Mobile View Navbar (PopupMenu)
           else if (isMobileView)
             PopupMenuButton<String>(
               icon: const Icon(FontAwesomeIcons.bars, color: Color(0xFF00AEEF)),
@@ -109,7 +102,6 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ],
             )
-          // Regular Navbar for larger screens
           else
             Row(
               children: [
@@ -171,6 +163,85 @@ class NavItem extends StatelessWidget {
           fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
           color: const Color(0xFF00AEEF),
         ),
+      ),
+    );
+  }
+}
+
+class AccessRestrictedPage extends StatelessWidget {
+  const AccessRestrictedPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: const Navbar(activePage: 'accessRestricted'),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/background.png',
+              fit: BoxFit.cover,
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              color: Colors.black.withOpacity(0.7),
+            ),
+          ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.lock_outline_rounded,
+                  size: 80,
+                  color: Colors.white,
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'WE ARE SORRY',
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 32,
+                    color: Colors.white,
+                  ),
+                ),
+                const Text(
+                  "The page you're trying to access is restricted.\nContact your administrator to request access.",
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00AEEF),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 50, vertical: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/home');
+                  },
+                  child: const Text(
+                    'Back to Home',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

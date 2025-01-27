@@ -8,6 +8,7 @@ import 'package:jcsd_flutter/view/admin/leaverequestlist.dart';
 import 'package:jcsd_flutter/view/admin/payroll.dart';
 import 'package:jcsd_flutter/view/client/profile_client.dart';
 import 'package:jcsd_flutter/view/employee/dashboard.dart';
+import 'package:jcsd_flutter/view/generic/access_restricted_page.dart';
 import 'package:jcsd_flutter/view/services/services.dart';
 import 'package:jcsd_flutter/view/services/services_archive.dart';
 import 'package:jcsd_flutter/view/inventory/item_types.dart';
@@ -74,6 +75,7 @@ class MainApp extends StatelessWidget {
         '/signup1': (context) => const SignupPage1(),
         '/signup2': (context) => const SignupPage2(),
         '/error': (context) => const ErrorPage(),
+        '/accessRestricted': (context) => const AccessRestrictedPage(),
 
         // Admin View
         '/accountList': (context) => const AccountListPage(),
