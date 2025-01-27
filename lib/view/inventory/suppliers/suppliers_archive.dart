@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/view/inventory/suppliers/modals/unarchivesupplier.dart';
 import 'package:jcsd_flutter/backend/suppliers/suppliers_data.dart';
 import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
@@ -15,174 +14,61 @@ class SupplierArchivePage extends ConsumerStatefulWidget {
   ConsumerState createState() => _SupplierArchivePageState();
 }
 
-class _SupplierArchivePageState extends ConsumerState<SupplierArchivePage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  final String _activeSubItem = '/supplierArchive';
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  void _openDrawer() {
-    _animationController.forward();
-  }
-
-  void _closeDrawer() {
-    _animationController.reverse();
-  }
-
-  _showUnarchiveSupplierModal(SuppliersData suppliers, int supplierID) {
+class _SupplierArchivePageState extends ConsumerState<SupplierArchivePage> {
+  void _showUnarchiveSupplierModal(SuppliersData suppliers, int supplierID) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return UnarchiveSupplierModal(supplierData: suppliers, supplierID: supplierID);
+        return UnarchiveSupplierModal(
+            supplierData: suppliers, supplierID: supplierID);
       },
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isMobile = MediaQuery.of(context).size.width < 600;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
-      appBar: isMobile
-          ? AppBar(
-              backgroundColor: const Color(0xFF00AEEF),
-              title: const Text(
-                'Archive List',
-                style: TextStyle(
-                  fontFamily: 'NunitoSans',
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              leading: Builder(
-                builder: (context) => IconButton(
-                  icon: const FaIcon(
-                    FontAwesomeIcons.bars,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                    _openDrawer();
-                  },
-                ),
-              ),
-            )
-          : null,
-      drawer: isMobile
-          ? Drawer(
-              backgroundColor: const Color(0xFF00AEEF),
-              child: Sidebar(
-                activePage: _activeSubItem,
-                onClose: _closeDrawer,
-              ),
-            )
-          : null,
-      body: Stack(
+      body: Row(
         children: [
-          Row(
-            children: [
-              if (!isMobile) Sidebar(activePage: _activeSubItem),
-              Expanded(
-                child: Column(
-                  children: [
-                    if (!isMobile)
-                      Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Archive List',
-                              style: TextStyle(
-                                fontFamily: 'NunitoSans',
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF00AEEF),
-                                fontSize: 20,
-                              ),
-                            ),
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundImage:
-                                  AssetImage('assets/avatars/cat2.jpg'),
-                            ),
-                          ],
+          const Sidebar(activePage: '/supplierArchive'),
+          Expanded(
+            child: Column(
+              children: [
+                Container(
+                  color: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Archive List',
+                        style: TextStyle(
+                          fontFamily: 'NunitoSans',
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF00AEEF),
+                          fontSize: 20,
                         ),
                       ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: isMobile
-                            ? Column(
-                                children: [
-                                  _buildMobileSearchBar(),
-                                  const SizedBox(height: 16),
-                                  Expanded(child: _buildMobileListView()),
-                                ],
-                              )
-                            : _buildWebView(),
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          if (isMobile)
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _animationController.value * 0.6,
-                  child: _animationController.value > 0
-                      ? Container(
-                          color: Colors.black,
-                        )
-                      : const SizedBox.shrink(),
-                );
-              },
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: _buildWebView(),
+                  ),
+                ),
+              ],
             ),
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMobileSearchBar() {
-    return SizedBox(
-      width: double.infinity,
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: 'Search',
-          hintStyle: const TextStyle(
-            color: Color(0xFFABABAB),
-            fontFamily: 'NunitoSans',
-          ),
-          prefixIcon: const Icon(Icons.search),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 0,
-            horizontal: 16,
-          ),
-        ),
       ),
     );
   }
@@ -222,104 +108,45 @@ class _SupplierArchivePageState extends ConsumerState<SupplierArchivePage>
     );
   }
 
-  Widget _buildMobileListView() {
-    return ListView.builder(
-      itemCount: 1,
-      itemBuilder: (context, index) {
-        return Column(
-          children: [
-            ListTile(
-              title: const Text(
-                'Samsung',
-                style: TextStyle(
-                  fontFamily: 'NunitoSans',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              subtitle: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Davao City',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                    ),
-                  ),
-                  Text(
-                    '092784162',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                    ),
-                  ),
-                  Text(
-                    'samsung@gmail.com',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                    ),
-                  ),
-                ],
-              ),
-              trailing: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
-                onPressed: () {},
-                child: const Text(
-                  'Unarchive',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            const Divider(
-              thickness: 1,
-              height: 1,
-              color: Colors.grey,
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   Widget _buildDataTable(BuildContext context) {
     final fetchSuppliers = ref.watch(fetchHiddenSuppliers);
 
     return fetchSuppliers.when(
-    data: (suppliers) {
-      return Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
-            )
-          ],
-        ),
-        child: Column(
-          children: [
-            _buildHeaderRow(),
-            const Divider(height: 1, color: Colors.grey),
-            Expanded(
-              child: ListView.builder(
-                itemCount: suppliers.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return _buildSuppliersRow(suppliers, index);
-                },
+      data: (suppliers) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              )
+            ],
+          ),
+          child: Column(
+            children: [
+              _buildHeaderRow(),
+              const Divider(height: 1, color: Colors.grey),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: suppliers.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return _buildSuppliersRow(suppliers, index);
+                  },
+                ),
               ),
-            ),
-          ],
-        ),
-      );
-    },
-    error: (err, stackTrace) => Text('Error fetching data from table: $err'),
-    loading: () => const LinearProgressIndicator(
-      backgroundColor: Color.fromRGBO(0, 134, 239, 1),
-    ),
-  );
+            ],
+          ),
+        );
+      },
+      error: (err, stackTrace) => Text('Error fetching data from table: $err'),
+      loading: () => const LinearProgressIndicator(
+        backgroundColor: Color.fromRGBO(0, 134, 239, 1),
+      ),
+    );
   }
 
   Widget _buildHeaderRow() {
@@ -440,7 +267,8 @@ class _SupplierArchivePageState extends ConsumerState<SupplierArchivePage>
                 SizedBox(
                   width: 150,
                   child: ElevatedButton(
-                    onPressed: () => _showUnarchiveSupplierModal(suppliers[index], suppliers[index].supplierID),
+                    onPressed: () => _showUnarchiveSupplierModal(
+                        suppliers[index], suppliers[index].supplierID),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 26, 118, 60),
                     ),

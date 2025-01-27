@@ -3,7 +3,6 @@
 //Packages
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/backend/services/jcsd_services_state.dart';
 import 'package:jcsd_flutter/backend/services/services_data.dart';
 
@@ -15,37 +14,11 @@ class ServicesArchivePage extends ConsumerStatefulWidget {
   const ServicesArchivePage({super.key});
 
   @override
-  ConsumerState<ServicesArchivePage> createState() => _ServicesArchivePageState();
+  ConsumerState<ServicesArchivePage> createState() =>
+      _ServicesArchivePageState();
 }
 
-class _ServicesArchivePageState extends ConsumerState<ServicesArchivePage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  final String _activeSubItem = '/servicesArchive';
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  void _openDrawer() {
-    _animationController.forward();
-  }
-
-  void _closeDrawer() {
-    _animationController.reverse();
-  }
-
+class _ServicesArchivePageState extends ConsumerState<ServicesArchivePage> {
   _showUnarchiveServiceModal(ServicesData service, int serviceID) {
     showDialog(
       context: context,
@@ -61,134 +34,47 @@ class _ServicesArchivePageState extends ConsumerState<ServicesArchivePage>
 
   @override
   Widget build(BuildContext context) {
-    final bool isMobile = MediaQuery.of(context).size.width < 600;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
-      appBar: isMobile
-          ? AppBar(
-              backgroundColor: const Color(0xFF00AEEF),
-              title: const Text(
-                'Archive List',
-                style: TextStyle(
-                  fontFamily: 'NunitoSans',
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              leading: Builder(
-                builder: (context) => IconButton(
-                  icon: const FaIcon(
-                    FontAwesomeIcons.bars,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                    _openDrawer();
-                  },
-                ),
-              ),
-            )
-          : null,
-      drawer: isMobile
-          ? Drawer(
-              backgroundColor: const Color(0xFF00AEEF),
-              child: Sidebar(
-                activePage: _activeSubItem,
-                onClose: _closeDrawer,
-              ),
-            )
-          : null,
-      body: Stack(
+      body: Row(
         children: [
-          Row(
-            children: [
-              if (!isMobile) Sidebar(activePage: _activeSubItem),
-              Expanded(
-                child: Column(
-                  children: [
-                    if (!isMobile)
-                      Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Archive List',
-                              style: TextStyle(
-                                fontFamily: 'NunitoSans',
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF00AEEF),
-                                fontSize: 20,
-                              ),
-                            ),
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundImage:
-                                  AssetImage('assets/avatars/cat2.jpg'),
-                            ),
-                          ],
+          const Sidebar(activePage: '/servicesArchive'),
+          Expanded(
+            child: Column(
+              children: [
+                Container(
+                  color: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Archive List',
+                        style: TextStyle(
+                          fontFamily: 'NunitoSans',
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF00AEEF),
+                          fontSize: 20,
                         ),
                       ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: isMobile
-                            ? Column(
-                                children: [
-                                  _buildMobileSearchBar(),
-                                  const SizedBox(height: 16),
-                                  Expanded(child: _buildMobileListView()),
-                                ],
-                              )
-                            : _buildWebView(),
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          if (isMobile)
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _animationController.value * 0.6,
-                  child: _animationController.value > 0
-                      ? Container(
-                          color: Colors.black,
-                        )
-                      : const SizedBox.shrink(),
-                );
-              },
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: _buildWebView(),
+                  ),
+                ),
+              ],
             ),
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMobileSearchBar() {
-    return SizedBox(
-      width: double.infinity,
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: 'Search',
-          hintStyle: const TextStyle(
-            color: Color(0xFFABABAB),
-            fontFamily: 'NunitoSans',
-          ),
-          prefixIcon: const Icon(Icons.search),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 0,
-            horizontal: 16,
-          ),
-        ),
       ),
     );
   }
@@ -228,39 +114,6 @@ class _ServicesArchivePageState extends ConsumerState<ServicesArchivePage>
     );
   }
 
-  Widget _buildMobileListView() {
-    return ListView.builder(
-      itemCount: 3,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: const Text(
-            'Service Name',
-            style: TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          subtitle: const Text(
-            'P600',
-            style: TextStyle(
-              fontFamily: 'NunitoSans',
-            ),
-          ),
-          trailing: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-            ),
-            onPressed: () {},
-            child: const Text(
-              'Unarchive',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   Widget _buildDataTable(BuildContext context) {
     final fetchServices = ref.watch(fetchHiddenServices);
 
@@ -280,29 +133,30 @@ class _ServicesArchivePageState extends ConsumerState<ServicesArchivePage>
             ],
           ),
           child: Column(
-          children: [
-            _buildHeaderRow(),
-            const Divider(height: 1, color: Colors.grey),
-            Expanded(
-              child: ListView.builder(
-                itemCount: services.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return _buildServicesRow(services, index);
-                },
+            children: [
+              _buildHeaderRow(),
+              const Divider(height: 1, color: Colors.grey),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: services.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return _buildServicesRow(services, index);
+                  },
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         );
-      }, 
-      error: (err, stackTrace) => Text('Error fetching data from services table: $err'), 
+      },
+      error: (err, stackTrace) =>
+          Text('Error fetching data from services table: $err'),
       loading: () => const LinearProgressIndicator(
-      backgroundColor: Color.fromRGBO(0, 134, 239, 1),
-    ),
-  );  
+        backgroundColor: Color.fromRGBO(0, 134, 239, 1),
+      ),
+    );
   }
 
-   Widget _buildHeaderRow(){
+  Widget _buildHeaderRow() {
     return Container(
       color: const Color.fromRGBO(0, 174, 239, 1),
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
@@ -420,12 +274,13 @@ class _ServicesArchivePageState extends ConsumerState<ServicesArchivePage>
                 SizedBox(
                   width: 80,
                   child: ElevatedButton(
-                    onPressed: () => _showUnarchiveServiceModal(services[index], services[index].serviceID),
+                    onPressed: () => _showUnarchiveServiceModal(
+                        services[index], services[index].serviceID),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: const Color.fromARGB(255, 26, 118, 60),
                     ),
                     child: const Text(
-                      'Archive',
+                      'Unarchive',
                       style: TextStyle(
                         fontFamily: 'NunitoSans',
                         color: Colors.white,
