@@ -1,12 +1,11 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
-//Packages for usage
+// Packages for usage
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-//Pages
+// Pages
 import 'package:jcsd_flutter/view/inventory/modals/additem.dart';
 import 'package:jcsd_flutter/view/inventory/modals/edititem.dart';
 import 'package:jcsd_flutter/view/inventory/modals/archiveitem.dart';
@@ -16,12 +15,12 @@ import 'package:jcsd_flutter/view/inventory/modals/viewborroweditem.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 
-//Inventory
+// Inventory
 import 'package:jcsd_flutter/backend/inventory/inventory_state.dart';
 import 'package:jcsd_flutter/backend/inventory/inventory_data.dart';
 import 'package:jcsd_flutter/view/inventory/order_list.dart';
 
-//Suppliers
+// Suppliers
 import 'package:jcsd_flutter/backend/suppliers/suppliers_service.dart';
 
 class InventoryPage extends ConsumerStatefulWidget {
@@ -31,33 +30,8 @@ class InventoryPage extends ConsumerStatefulWidget {
   ConsumerState<InventoryPage> createState() => _InventoryPageState();
 }
 
-class _InventoryPageState extends ConsumerState<InventoryPage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
+class _InventoryPageState extends ConsumerState<InventoryPage> {
   final String _activeSubItem = '/inventory';
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  void _openDrawer() {
-    _animationController.forward();
-  }
-
-  void _closeDrawer() {
-    _animationController.reverse();
-  }
 
   void _showAddItemModal() {
     showDialog(
@@ -94,7 +68,6 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        print('Archive Item - Part 1');
         return ArchiveItemModal(itemID: itemID, itemData: items);
       },
     );
@@ -121,128 +94,28 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
 
   @override
   Widget build(BuildContext context) {
-    final bool isMobile = MediaQuery.of(context).size.width < 600;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
-      appBar: isMobile
-          ? AppBar(
-              backgroundColor: const Color(0xFF00AEEF),
-              title: const Text(
-                'Inventory',
-                style: TextStyle(
-                  fontFamily: 'NunitoSans',
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+      body: Row(
+        children: [
+          Sidebar(activePage: _activeSubItem),
+          Expanded(
+            child: Column(
+              children: [
+                Header(
+                  title: 'Inventory',
+                  onAvatarTap: _navigateToProfile,
                 ),
-              ),
-              leading: Builder(
-                builder: (context) => IconButton(
-                  icon: const FaIcon(
-                    FontAwesomeIcons.bars,
-                    color: Colors.white,
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: _buildWebView(),
                   ),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                    _openDrawer();
-                  },
-                ),
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(
-                    Icons.add,
-                    color: Colors.white,
-                  ),
-                  onPressed: _showAddItemModal,
                 ),
               ],
-            )
-          : null,
-      drawer: isMobile
-          ? Drawer(
-              backgroundColor: const Color(0xFF00AEEF),
-              child: Sidebar(
-                activePage: _activeSubItem,
-                onClose: _closeDrawer,
-              ),
-            )
-          : null,
-      onDrawerChanged: (isOpened) {
-        if (!isOpened) {
-          _closeDrawer();
-        }
-      },
-      body: Stack(
-        children: [
-          Row(
-            children: [
-              if (!isMobile) Sidebar(activePage: _activeSubItem),
-              Expanded(
-                child: Column(
-                  children: [
-                    if (!isMobile)
-                      Header(
-                        title: 'Inventory',
-                        onAvatarTap: _navigateToProfile,
-                      ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: isMobile
-                            ? Column(
-                                children: [
-                                  _buildMobileSearchBar(),
-                                  const SizedBox(height: 16),
-                                  Expanded(child: _buildMobileListView()),
-                                ],
-                              )
-                            : _buildWebView(),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          if (isMobile)
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _animationController.value * 0.6,
-                  child: _animationController.value > 0
-                      ? Container(
-                          color: Colors.black,
-                        )
-                      : const SizedBox.shrink(),
-                );
-              },
             ),
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMobileSearchBar() {
-    return SizedBox(
-      width: double.infinity,
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: 'Search',
-          hintStyle: const TextStyle(
-            color: Color(0xFFABABAB),
-            fontFamily: 'NunitoSans',
-          ),
-          prefixIcon: const Icon(Icons.search),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 0,
-            horizontal: 16,
-          ),
-        ),
       ),
     );
   }
@@ -364,73 +237,6 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
           child: _buildDataTable(context),
         ),
       ],
-    );
-  }
-
-  Widget _buildMobileListView() {
-    return ListView.builder(
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return Column(
-          children: [
-            ListTile(
-              title: const Text(
-                'Samsung SSD 500GB',
-                style: TextStyle(
-                  fontFamily: 'NunitoSans',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Samsung',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    color: Colors.yellow,
-                    child: const Text(
-                      'In stock: 50',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              trailing: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '0126546',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                    ),
-                  ),
-                  Text(
-                    'Technology',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(
-              thickness: 1,
-              height: 1,
-              color: Colors.grey,
-            ),
-          ],
-        );
-      },
     );
   }
 
@@ -579,9 +385,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage>
       future: itemTypesProvider.getTypeNameByID(typeID),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-              child:
-                  CircularProgressIndicator()); // Center the loading indicator
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {

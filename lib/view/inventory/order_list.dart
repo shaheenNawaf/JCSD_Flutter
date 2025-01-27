@@ -13,34 +13,7 @@ class OrderListPage extends StatefulWidget {
   _OrderListPageState createState() => _OrderListPageState();
 }
 
-class _OrderListPageState extends State<OrderListPage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  final String _activeSubItem = '/inventory';
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  void _openDrawer() {
-    _animationController.forward();
-  }
-
-  void _closeDrawer() {
-    _animationController.reverse();
-  }
-
+class _OrderListPageState extends State<OrderListPage> {
   void _showEditItemModal(
     String itemId,
     String itemName,
@@ -79,148 +52,61 @@ class _OrderListPageState extends State<OrderListPage>
 
   @override
   Widget build(BuildContext context) {
-    final bool isMobile = MediaQuery.of(context).size.width < 600;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
-      appBar: isMobile
-          ? AppBar(
-              backgroundColor: const Color(0xFF00AEEF),
-              title: const Text(
-                'Order List',
-                style: TextStyle(
-                  fontFamily: 'NunitoSans',
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              leading: Builder(
-                builder: (context) => IconButton(
-                  icon: const FaIcon(
-                    FontAwesomeIcons.bars,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                    _openDrawer();
-                  },
-                ),
-              ),
-            )
-          : null,
-      drawer: isMobile
-          ? Drawer(
-              backgroundColor: const Color(0xFF00AEEF),
-              child: Sidebar(
-                activePage: _activeSubItem,
-                onClose: _closeDrawer,
-              ),
-            )
-          : null,
-      body: Stack(
+      body: Row(
         children: [
-          Row(
-            children: [
-              if (!isMobile) Sidebar(activePage: _activeSubItem),
-              Expanded(
-                child: Column(
-                  children: [
-                    if (!isMobile)
-                      Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                IconButton(
-                                  icon: const FaIcon(
-                                    FontAwesomeIcons.arrowLeft,
-                                    color: Color(0xFF00AEEF),
-                                  ),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                ),
-                                const SizedBox(width: 8),
-                                const Text(
-                                  'Order List',
-                                  style: TextStyle(
-                                    fontFamily: 'NunitoSans',
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF00AEEF),
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ],
+          Sidebar(activePage: '/inventory'),
+          Expanded(
+            child: Column(
+              children: [
+                Container(
+                  color: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const FaIcon(
+                              FontAwesomeIcons.arrowLeft,
+                              color: Color(0xFF00AEEF),
                             ),
-                            const CircleAvatar(
-                              radius: 20,
-                              backgroundImage:
-                                  AssetImage('assets/avatars/cat2.jpg'),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Order List',
+                            style: TextStyle(
+                              fontFamily: 'NunitoSans',
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF00AEEF),
+                              fontSize: 20,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: isMobile
-                            ? Column(
-                                children: [
-                                  _buildMobileSearchBar(),
-                                  const SizedBox(height: 16),
-                                  Expanded(child: _buildMobileListView()),
-                                ],
-                              )
-                            : _buildWebView(),
+                      const CircleAvatar(
+                        radius: 20,
+                        backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          if (isMobile)
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _animationController.value * 0.6,
-                  child: _animationController.value > 0
-                      ? Container(
-                          color: Colors.black,
-                        )
-                      : const SizedBox.shrink(),
-                );
-              },
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: _buildWebView(),
+                  ),
+                ),
+              ],
             ),
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMobileSearchBar() {
-    return SizedBox(
-      width: double.infinity,
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: 'Search',
-          hintStyle: const TextStyle(
-            color: Color(0xFFABABAB),
-            fontFamily: 'NunitoSans',
-          ),
-          prefixIcon: const Icon(Icons.search),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 0,
-            horizontal: 16,
-          ),
-        ),
       ),
     );
   }
@@ -257,39 +143,6 @@ class _OrderListPageState extends State<OrderListPage>
           child: _buildDataTable(),
         ),
       ],
-    );
-  }
-
-  Widget _buildMobileListView() {
-    return ListView.builder(
-      itemCount: 3,
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: const Text(
-            'Item Name',
-            style: TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          subtitle: const Text(
-            'Description of item',
-            style: TextStyle(
-              fontFamily: 'NunitoSans',
-            ),
-          ),
-          trailing: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-            ),
-            onPressed: () {},
-            child: const Text(
-              'Action',
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-        );
-      },
     );
   }
 

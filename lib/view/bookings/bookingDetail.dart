@@ -15,29 +15,7 @@ class BookingDetails extends StatefulWidget {
   _BookingDetailsState createState() => _BookingDetailsState();
 }
 
-class _BookingDetailsState extends State<BookingDetails>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  void _toggleDrawer(bool isOpen) {
-    isOpen ? _animationController.forward() : _animationController.reverse();
-  }
-
+class _BookingDetailsState extends State<BookingDetails> {
   void _showAddItemListModal() {
     showDialog(
       context: context,
@@ -80,118 +58,67 @@ class _BookingDetailsState extends State<BookingDetails>
 
   @override
   Widget build(BuildContext context) {
-    final bool isMobile = MediaQuery.of(context).size.width < 600;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
-      appBar: isMobile
-          ? AppBar(
-              backgroundColor: const Color(0xFF00AEEF),
-              title: const Text(
-                'Booking Details',
-                style: TextStyle(
-                  fontFamily: 'NunitoSans',
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              leading: Builder(
-                builder: (context) => IconButton(
-                  icon:
-                      const FaIcon(FontAwesomeIcons.bars, color: Colors.white),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                    _toggleDrawer(true);
-                  },
-                ),
-              ),
-            )
-          : null,
-      drawer: isMobile
-          ? Drawer(
-              backgroundColor: const Color(0xFF00AEEF),
-              child: Sidebar(onClose: () => _toggleDrawer(false)),
-            )
-          : null,
-      onDrawerChanged: _toggleDrawer,
-      body: Stack(
+      body: Row(
         children: [
-          Row(
-            children: [
-              if (!isMobile) const Sidebar(),
-              Expanded(
-                child: Column(
-                  children: [
-                    if (!isMobile)
-                      Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            IconButton(
-                              icon: const FaIcon(FontAwesomeIcons.arrowLeft,
-                                  color: Color(0xFF00AEEF)),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                            const Text(
-                              'Booking Details',
-                              style: TextStyle(
-                                fontFamily: 'NunitoSans',
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF00AEEF),
-                                fontSize: 20,
-                              ),
-                            ),
-                            const Spacer(),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.pushNamedAndRemoveUntil(
-                                    context, '/profile', (route) => false);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                shape: const CircleBorder(),
-                                padding: const EdgeInsets.all(8),
-                                backgroundColor: Colors.transparent,
-                                elevation: 0,
-                              ),
-                              child: const CircleAvatar(
-                                radius: 20,
-                                backgroundImage:
-                                    AssetImage('assets/avatars/cat2.jpg'),
-                              ),
-                            ),
-                          ],
+          const Sidebar(),
+          Expanded(
+            child: Column(
+              children: [
+                Container(
+                  color: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        icon: const FaIcon(FontAwesomeIcons.arrowLeft,
+                            color: Color(0xFF00AEEF)),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      const Text(
+                        'Booking Details',
+                        style: TextStyle(
+                          fontFamily: 'NunitoSans',
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF00AEEF),
+                          fontSize: 20,
                         ),
                       ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: isMobile
-                            ? const SizedBox.shrink()
-                            : _buildWebView(),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/profile', (route) => false);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          shape: const CircleBorder(),
+                          padding: const EdgeInsets.all(8),
+                          backgroundColor: Colors.transparent,
+                          elevation: 0,
+                        ),
+                        child: const CircleAvatar(
+                          radius: 20,
+                          backgroundImage:
+                              AssetImage('assets/avatars/cat2.jpg'),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          if (isMobile)
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _animationController.value * 0.6,
-                  child: _animationController.value > 0
-                      ? Container(color: Colors.black)
-                      : const SizedBox.shrink(),
-                );
-              },
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: _buildWebView(),
+                  ),
+                ),
+              ],
             ),
+          ),
         ],
       ),
     );

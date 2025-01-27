@@ -3,8 +3,6 @@
 //Packages for usage
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 //Pages
 import 'package:jcsd_flutter/view/inventory/modals/unarchiveitem.dart';
@@ -25,33 +23,8 @@ class ArchiveListPage extends ConsumerStatefulWidget {
   ConsumerState createState() => _ArchiveListPageState();
 }
 
-class _ArchiveListPageState extends ConsumerState<ArchiveListPage>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
+class _ArchiveListPageState extends ConsumerState<ArchiveListPage> {
   final String _activeSubItem = '/archiveList';
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  void _openDrawer() {
-    _animationController.forward();
-  }
-
-  void _closeDrawer() {
-    _animationController.reverse();
-  }
 
   _showUnarchiveItemModal(InventoryData items, int itemID) {
     showDialog(
@@ -62,137 +35,50 @@ class _ArchiveListPageState extends ConsumerState<ArchiveListPage>
       },
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
-    final bool isMobile = MediaQuery.of(context).size.width < 600;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
-      appBar: isMobile
-          ? AppBar(
-              backgroundColor: const Color(0xFF00AEEF),
-              title: const Text(
-                'Archive List',
-                style: TextStyle(
-                  fontFamily: 'NunitoSans',
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              leading: Builder(
-                builder: (context) => IconButton(
-                  icon: const FaIcon(
-                    FontAwesomeIcons.bars,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                    _openDrawer();
-                  },
-                ),
-              ),
-            )
-          : null,
-      drawer: isMobile
-          ? Drawer(
-              backgroundColor: const Color(0xFF00AEEF),
-              child: Sidebar(
-                activePage: _activeSubItem,
-                onClose: _closeDrawer,
-              ),
-            )
-          : null,
-      body: Stack(
+      body: Row(
         children: [
-          Row(
-            children: [
-              if (!isMobile) Sidebar(activePage: _activeSubItem),
-              Expanded(
-                child: Column(
-                  children: [
-                    if (!isMobile)
-                      Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10),
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Archive List',
-                              style: TextStyle(
-                                fontFamily: 'NunitoSans',
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF00AEEF),
-                                fontSize: 20,
-                              ),
-                            ),
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundImage:
-                                  AssetImage('assets/avatars/cat2.jpg'),
-                            ),
-                          ],
+          Sidebar(activePage: _activeSubItem),
+          Expanded(
+            child: Column(
+              children: [
+                Container(
+                  color: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Archive List',
+                        style: TextStyle(
+                          fontFamily: 'NunitoSans',
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF00AEEF),
+                          fontSize: 20,
                         ),
                       ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: isMobile
-                            ? Column(
-                                children: [
-                                  _buildMobileSearchBar(),
-                                  const SizedBox(height: 16),
-                                  Expanded(child: _buildMobileListView()),
-                                ],
-                              )
-                            : _buildWebView(),
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-          if (isMobile)
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _animationController.value * 0.6,
-                  child: _animationController.value > 0
-                      ? Container(
-                          color: Colors.black,
-                        )
-                      : const SizedBox.shrink(),
-                );
-              },
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: _buildWebView(),
+                  ),
+                ),
+              ],
             ),
+          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMobileSearchBar() {
-    return SizedBox(
-      width: double.infinity,
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: 'Search',
-          hintStyle: const TextStyle(
-            color: Color(0xFFABABAB),
-            fontFamily: 'NunitoSans',
-          ),
-          prefixIcon: const Icon(Icons.search),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 0,
-            horizontal: 16,
-          ),
-        ),
       ),
     );
   }
@@ -237,98 +123,46 @@ class _ArchiveListPageState extends ConsumerState<ArchiveListPage>
     );
   }
 
-  Widget _buildMobileListView() {
-    return ListView.builder(
-      itemCount: 1,
-      itemBuilder: (context, index) {
-        return Column(
-          children: [
-            ListTile(
-              title: const Text(
-                'Samsung SSD 500GB',
-                style: TextStyle(
-                  fontFamily: 'NunitoSans',
-                  fontWeight: FontWeight.bold,
+  Widget _buildDataTable(BuildContext context) {
+    final fetchInventory = ref.watch(fetchHiddenList);
+
+    return fetchInventory.when(
+      data: (items) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              )
+            ],
+          ),
+          child: Column(
+            children: [
+              _buildHeaderRow(),
+              const Divider(
+                  height: 1, color: Color.fromARGB(255, 188, 188, 188)),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: items.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return _buildItemRow(items, index);
+                  },
                 ),
               ),
-              subtitle: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Type: Technology',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                    ),
-                  ),
-                  Text(
-                    'Supplier: Samsung',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                    ),
-                  ),
-                ],
-              ),
-              trailing: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
-                onPressed: () {},
-                child: const Text(
-                  'Unarchive',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-            const Divider(
-              thickness: 1,
-              height: 1,
-              color: Colors.grey,
-            ),
-          ],
+            ],
+          ),
         );
       },
+      error: (err, stackTrace) => Text('Error fetching data from table: $err'),
+      loading: () => const LinearProgressIndicator(
+        backgroundColor: Color.fromRGBO(0, 134, 239, 1),
+      ),
     );
-  }
-
-  Widget _buildDataTable(BuildContext context) {
-  final fetchInventory = ref.watch(fetchHiddenList);
-
-  return fetchInventory.when(
-    data: (items) {
-      return Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
-            )
-          ],
-        ),
-        child: Column(
-          children: [
-            _buildHeaderRow(),
-            const Divider(height: 1, color: Color.fromARGB(255, 188, 188, 188)),
-            Expanded(
-              child: ListView.builder(
-                itemCount: items.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return _buildItemRow(items, index);
-                },
-              ),
-            ),
-          ],
-        ),
-      );
-    },
-    error: (err, stackTrace) => Text('Error fetching data from table: $err'),
-    loading: () => const LinearProgressIndicator(
-      backgroundColor: Color.fromRGBO(0, 134, 239, 1),
-    ),
-  );
   }
 
   Widget _buildHeaderRow() {
@@ -419,7 +253,7 @@ class _ArchiveListPageState extends ConsumerState<ArchiveListPage>
       ),
     );
   }
-  
+
   Future<String> fetchTypeName(int typeID) async {
     final fetchTypes = ItemtypesService();
     String typeName = await fetchTypes.getTypeNameByID(typeID);
@@ -427,14 +261,14 @@ class _ArchiveListPageState extends ConsumerState<ArchiveListPage>
     return typeName;
   }
 
-  Widget _buildItemTypeCell (int typeID, BuildContext context){
+  Widget _buildItemTypeCell(int typeID, BuildContext context) {
     final itemTypesProvider = ItemtypesService();
 
     return FutureBuilder(
-      future: itemTypesProvider.getTypeNameByID(typeID), 
-      builder: (context, snapshot){
+      future: itemTypesProvider.getTypeNameByID(typeID),
+      builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator()); // Center the loading indicator
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else {
@@ -442,7 +276,7 @@ class _ArchiveListPageState extends ConsumerState<ArchiveListPage>
           return Text(
             typeName,
             style: const TextStyle(
-                fontFamily: 'NunitoSans',
+              fontFamily: 'NunitoSans',
             ),
             textAlign: TextAlign.center,
           );
@@ -484,9 +318,10 @@ class _ArchiveListPageState extends ConsumerState<ArchiveListPage>
           ),
           Expanded(
             child: FutureBuilder<String>(
-              future: suppliersService.getSupplierNameByID(items[index].supplierID.toInt()),
+              future: suppliersService
+                  .getSupplierNameByID(items[index].supplierID.toInt()),
               builder: (context, supplierName) {
-                if (supplierName.hasData){
+                if (supplierName.hasData) {
                   return Text(
                     supplierName.data!,
                     style: const TextStyle(
@@ -494,7 +329,7 @@ class _ArchiveListPageState extends ConsumerState<ArchiveListPage>
                     ),
                     textAlign: TextAlign.center,
                   );
-                }else if(supplierName.hasError){
+                } else if (supplierName.hasError) {
                   return const Text(
                     "Error fetching",
                     style: TextStyle(
@@ -502,7 +337,7 @@ class _ArchiveListPageState extends ConsumerState<ArchiveListPage>
                     ),
                     textAlign: TextAlign.center,
                   );
-                }else{
+                } else {
                   return const Text(
                     "No supplier found",
                     style: TextStyle(
@@ -545,7 +380,8 @@ class _ArchiveListPageState extends ConsumerState<ArchiveListPage>
                 SizedBox(
                   width: 150,
                   child: ElevatedButton(
-                    onPressed: () => _showUnarchiveItemModal(items[index], items[index].itemID),
+                    onPressed: () => _showUnarchiveItemModal(
+                        items[index], items[index].itemID),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 26, 118, 60),
                     ),
@@ -567,12 +403,12 @@ class _ArchiveListPageState extends ConsumerState<ArchiveListPage>
     );
   }
 
-  Color _itemQuantityColor (int itemQuantity){
-    if (itemQuantity < 10){
+  Color _itemQuantityColor(int itemQuantity) {
+    if (itemQuantity < 10) {
       return Colors.red;
-    }else if(itemQuantity < 20){
+    } else if (itemQuantity < 20) {
       return Colors.yellow;
-    }else{
+    } else {
       return Colors.green;
     }
   }
