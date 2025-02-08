@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Sidebar extends StatefulWidget {
   final String activePage;
@@ -451,15 +452,24 @@ class _SidebarState extends State<Sidebar> {
     );
   }
 
+  Future<void> _logout() async {
+    try {
+      await Supabase.instance.client.auth.signOut();
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logout failed: $error')),
+      );
+    }
+  }
+
   Widget _buildLogoutButton(BuildContext context) {
     return SidebarItem(
       icon: FontAwesomeIcons.rightFromBracket,
       title: 'Logout',
       route: '/login',
       isActive: false,
-      onTap: () {
-        _navigateToMainPage('/login');
-      },
+      onTap: _logout,
     );
   }
 }

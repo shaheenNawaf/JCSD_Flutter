@@ -1,6 +1,8 @@
 // Imports
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'api/supa_details.dart';
 import 'package:jcsd_flutter/others/transition.dart';
 import 'package:jcsd_flutter/view/admin/accountdetails.dart';
 import 'package:jcsd_flutter/view/admin/bookingcalendar.dart';
@@ -14,9 +16,6 @@ import 'package:jcsd_flutter/view/services/services_archive.dart';
 import 'package:jcsd_flutter/view/inventory/item_types.dart';
 import 'package:jcsd_flutter/view/inventory/suppliers/suppliers_archive.dart';
 import 'package:jcsd_flutter/view/generic/error_page.dart';
-import 'package:jcsd_flutter/api/global_variables.dart';
-
-// Pages for routine
 import 'package:jcsd_flutter/view/users/login.dart';
 import 'package:jcsd_flutter/view/generic/signup_first.dart';
 import 'package:jcsd_flutter/view/generic/signup_second.dart';
@@ -37,8 +36,15 @@ import 'package:jcsd_flutter/view/admin/employeelist.dart';
 import 'package:jcsd_flutter/view/client/booking_first.dart';
 import 'package:jcsd_flutter/view/client/booking_second.dart';
 
-void main() async {
-  supabaseInit(); // Initialize Supabase - DONT TOUCH GUYS
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Supabase before running the app
+  await Supabase.initialize(
+    url: returnAccessURL(),
+    anonKey: returnAnonKey(),
+  );
+
   runApp(const ProviderScope(child: MainApp()));
 }
 
@@ -47,10 +53,16 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final session = Supabase.instance.client.auth.currentSession;
+    final user = session?.user;
+
+    print('Checking Authentication State...');
+    print('Current Authenticated User: ${user?.email ?? "No user logged in"}');
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'JCSD',
-      initialRoute: '/login',
+      initialRoute: user == null ? '/login' : '/home',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF00AEEF),
@@ -64,33 +76,22 @@ class MainApp extends StatelessWidget {
           },
         ),
       ),
-
-      // Will still need to finalize the segregation of routes but for now
-      // segregation here is just based on location of files
-
       routes: {
-        // Generic
         '/home': (context) => const HomeView(),
         '/login': (context) => const Login(),
         '/signup1': (context) => const SignupPage1(),
         '/signup2': (context) => const SignupPage2(),
         '/error': (context) => const ErrorPage(),
         '/accessRestricted': (context) => const AccessRestrictedPage(),
-
-        // Admin View
         '/accountList': (context) => const AccountListPage(),
         '/bookingsCalendar': (context) => const BookingCalendarPage(),
         '/employeeList': (context) => const EmployeeListPage(),
         '/payroll': (context) => const Payroll(),
         '/accountDetails': (context) => const ProfileAdminViewPage(),
         '/leaveRequestList': (context) => const LeaveRequestList(),
-
-        // Client View
         '/booking1': (context) => const ClientBooking1(),
         '/booking2': (context) => const ClientBooking2(),
         '/profileClient': (context) => const ProfilePageClient(),
-
-        // Employee View
         '/dashboard': (context) => const DashboardPage(),
         '/inventory': (context) => const InventoryPage(),
         '/suppliers': (context) => const SupplierPage(),
