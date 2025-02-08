@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jcsd_flutter/modals/confirmleaverequest.dart';
+import 'package:jcsd_flutter/modals/rejectleaverequest.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 class LeaveRequestList extends StatefulWidget {
@@ -206,7 +208,7 @@ class _LeaveRequestListState extends State<LeaveRequestList> {
                               const SizedBox(width: 10),
                               ElevatedButton(
                                 onPressed: () {
-                                  // Handle approve action
+                                  _showConfirmLeaveRequestModal();
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.green,
@@ -220,7 +222,7 @@ class _LeaveRequestListState extends State<LeaveRequestList> {
                               const SizedBox(width: 10),
                               ElevatedButton(
                                 onPressed: () {
-                                  // Handle reject action
+                                  _showRejectLeaveRequestModal();
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red,
@@ -243,6 +245,25 @@ class _LeaveRequestListState extends State<LeaveRequestList> {
           ),
         ],
       ),
+    );
+  }
+  _showConfirmLeaveRequestModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return ConfirmLeaveRequestModal();
+      },
+    );
+  }
+
+    _showRejectLeaveRequestModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return RejectLeaveRequestModal();
+      },
     );
   }
 }

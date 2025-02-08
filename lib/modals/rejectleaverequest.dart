@@ -1,34 +1,24 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-//Backend Imports
-import 'package:jcsd_flutter/backend/modules/services/jcsd_services.dart';
-import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
-import 'package:jcsd_flutter/backend/modules/services/services_data.dart';
-import 'package:jcsd_flutter/view/generic/error_dialog.dart';
-
-class UnarchiveServiceModal extends ConsumerStatefulWidget {
-  final ServicesData servicesData;
-  final int serviceID;
-
-  const UnarchiveServiceModal({
-    super.key,
-    required this.serviceID,
-    required this.servicesData
-  });
+class RejectLeaveRequestModal extends StatefulWidget {
+  const RejectLeaveRequestModal({super.key});
 
   @override
-  ConsumerState<UnarchiveServiceModal> createState() => _UnarchiveServiceModalState();
+  _RejectLeaveRequestModalState createState() => _RejectLeaveRequestModalState();
 }
 
-class _UnarchiveServiceModalState extends ConsumerState<UnarchiveServiceModal> {
+class _RejectLeaveRequestModalState extends State<RejectLeaveRequestModal> {
+
+  @override
+  void initState(){
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 400 : screenWidth * 0.9;
-    const double containerHeight = 160;
+    const double containerHeight = 180;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -71,7 +61,7 @@ class _UnarchiveServiceModalState extends ConsumerState<UnarchiveServiceModal> {
               padding: EdgeInsets.all(16.0),
               child: Center(
                 child: Text(
-                  'Are you sure you want to restore item?',
+                  'Are you sure you want to reject this request?',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontSize: 16,
@@ -88,7 +78,7 @@ class _UnarchiveServiceModalState extends ConsumerState<UnarchiveServiceModal> {
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: () {
+                      onPressed: () async {
                         Navigator.pop(context);
                       },
                       style: TextButton.styleFrom(
@@ -114,25 +104,7 @@ class _UnarchiveServiceModalState extends ConsumerState<UnarchiveServiceModal> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        int serviceID =  widget.serviceID;
-                          
-                        try{
-                          final updateService = JcsdServices();
-                          await updateService.updateVisibility(serviceID, true);
 
-                          ref.invalidate(fetchHiddenServices);
-
-                        }catch(err){
-                          print('Error unarchiving the service. $err');
-                          showDialog(
-                            context: context, 
-                            builder: (context) => ErrorDialog(
-                              title: 'Error archiving ${widget.servicesData.serviceName}', 
-                              content: 'Please try again. $err'
-                              )
-                            );
-                        }
-                        Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),

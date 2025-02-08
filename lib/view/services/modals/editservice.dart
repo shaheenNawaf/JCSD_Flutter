@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 //Backend Imports
-import 'package:jcsd_flutter/backend/services/jcsd_services.dart';
-import 'package:jcsd_flutter/backend/services/jcsd_services_state.dart';
-import 'package:jcsd_flutter/backend/services/services_data.dart';
+import 'package:jcsd_flutter/backend/modules/services/jcsd_services.dart';
+import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
+import 'package:jcsd_flutter/backend/modules/services/services_data.dart';
 
 class EditServiceModal extends ConsumerStatefulWidget {
   final ServicesData servicesData;
@@ -150,19 +150,17 @@ class _EditServiceModalState extends ConsumerState<EditServiceModal> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: ()  async {
+                      onPressed: () async {
                         try{
                           int serviceID = widget.serviceID;
                           String serviceName = _serviceNameController.text;
                           double minPrice = double.parse(_minPriceController.text);
                           double maxPrice = double.parse(_maxPriceController.text);
-                          bool isActive = true;
 
                           final editService = JcsdServices();
-                          await editService.updateServiceDetails(serviceID, serviceName, minPrice, maxPrice, isActive);
+                          await editService.updateService(serviceID, serviceName, minPrice, maxPrice);
 
                           ref.invalidate(fetchAvailableServices);
-                          print('Edited service. $serviceID');
                           Navigator.pop(context);
                         }catch(err){
                           print('Error editing service. $err');

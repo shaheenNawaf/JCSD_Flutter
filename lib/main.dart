@@ -10,11 +10,12 @@ import 'package:jcsd_flutter/view/admin/leaverequestlist.dart';
 import 'package:jcsd_flutter/view/admin/payroll.dart';
 import 'package:jcsd_flutter/view/client/profile_client.dart';
 import 'package:jcsd_flutter/view/employee/dashboard.dart';
+import 'package:jcsd_flutter/view/employee/loginEmployee.dart';
 import 'package:jcsd_flutter/view/generic/access_restricted_page.dart';
 import 'package:jcsd_flutter/view/services/services.dart';
 import 'package:jcsd_flutter/view/services/services_archive.dart';
-import 'package:jcsd_flutter/view/inventory/item_types.dart';
-import 'package:jcsd_flutter/view/inventory/suppliers/suppliers_archive.dart';
+import 'package:jcsd_flutter/view/inventory/item_types/item_types.dart';
+import 'package:jcsd_flutter/view/suppliers/suppliers_archive.dart';
 import 'package:jcsd_flutter/view/generic/error_page.dart';
 import 'package:jcsd_flutter/view/users/login.dart';
 import 'package:jcsd_flutter/view/generic/signup_first.dart';
@@ -24,7 +25,7 @@ import 'package:jcsd_flutter/view/inventory/inventory_archive.dart';
 import 'package:jcsd_flutter/view/employee/auditLog.dart';
 import 'package:jcsd_flutter/view/bookings/bookings.dart';
 import 'package:jcsd_flutter/view/employee/transactions.dart';
-import 'package:jcsd_flutter/view/inventory/suppliers/suppliers.dart';
+import 'package:jcsd_flutter/view/suppliers/suppliers.dart';
 import 'package:jcsd_flutter/view/generic/home_view.dart';
 import 'package:jcsd_flutter/view/employee/profile.dart';
 import 'package:jcsd_flutter/view/employee/leaveRequest.dart';
@@ -92,6 +93,8 @@ class MainApp extends StatelessWidget {
         '/booking1': (context) => const ClientBooking1(),
         '/booking2': (context) => const ClientBooking2(),
         '/profileClient': (context) => const ProfilePageClient(),
+
+        // Employee View
         '/dashboard': (context) => const DashboardPage(),
         '/inventory': (context) => const InventoryPage(),
         '/suppliers': (context) => const SupplierPage(),
