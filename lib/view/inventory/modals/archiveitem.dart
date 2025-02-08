@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jcsd_flutter/backend/inventory/inventory_data.dart';
-import 'package:jcsd_flutter/backend/inventory/inventory_state.dart';
-import 'package:jcsd_flutter/backend/inventory/inventory_service.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 
 class ArchiveItemModal extends ConsumerStatefulWidget {
   final InventoryData itemData;
@@ -94,8 +94,8 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
                   Expanded(
                     child: TextButton(
                       onPressed: () {
-                        ref.invalidate(fetchAvailableList);
-                        ref.invalidate(fetchHiddenList);
+                        ref.invalidate(fetchActive);
+                        ref.invalidate(fetchArchived);
                         Navigator.pop(context);
                       },
                       style: TextButton.styleFrom(
@@ -125,17 +125,12 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
                         try {
                           final InventoryService updateVisibility =
                               InventoryService();
-                          await updateVisibility.updateItemVisibility(
-                              _intItemID, false);
-
-                          print(
-                              'Successfully hid the item. ${_itemData.itemName}');
+                          await updateVisibility.updateVisibility(_intItemID, false);
+                          print('Successfully hid the item. ${_itemData.itemName}');
                         } catch (err) {
                           print('Error archiving an item. $_itemData');
                         }
-
-                        //For rebuilding the
-                        ref.invalidate(fetchAvailableList);
+                        refreshTables();
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -162,5 +157,10 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
         ),
       ),
     );
+  }
+
+  void refreshTables(){
+    ref.invalidate(fetchActive);
+    ref.invalidate(fetchArchived);
   }
 }

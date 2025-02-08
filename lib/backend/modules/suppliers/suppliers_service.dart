@@ -1,5 +1,6 @@
 //Imports for Supabase and Suppliers data model
 import 'package:jcsd_flutter/api/global_variables.dart';
+import 'package:jcsd_flutter/backend/date_converter.dart';
 import 'suppliers_data.dart';
 
 class SuppliersService {  
@@ -133,14 +134,16 @@ class SuppliersService {
   }
 
   //Other methods for adding, editing
-  Future<void> addNewSupplier(String supplierName, String supplierEmail, String contactNumber, String address, bool isActive) async {
+  Future<void> addSupplier(String supplierName, String supplierEmail, String contactNumber, String address) async {
     try{
       await supabaseDB.from('suppliers').insert({
         'supplierName': supplierName,
         'supplierEmail': supplierEmail,
         'contactNumber': contactNumber,
         'address': address,
-        'isActive': isActive,
+        'isActive': true,
+        'createdDate': returnCurrentDate(),
+        'updateDate': returnCurrentDate(),
       });
 
       print('Added new supplier. $supplierName');
@@ -150,14 +153,14 @@ class SuppliersService {
   }
 
   //Update Supplier
-  Future<void> updateSupplier(int supplierID, String supplierName, String supplierEmail, String contactNumber, String address, bool isActive) async {
+  Future<void> updateSupplier(int supplierID, String supplierName, String supplierEmail, String contactNumber, String address) async {
     try{
       await supabaseDB.from('suppliers').update({
         'supplierName': supplierName,
         'supplierEmail': supplierEmail,
         'contactNumber': contactNumber,
         'address': address,
-        'isActive': isActive,
+        'updateDate': returnCurrentDate(),
       }).eq('supplierID', supplierID);
 
       print('Added new supplier. $supplierName');

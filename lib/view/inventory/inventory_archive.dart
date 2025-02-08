@@ -3,18 +3,18 @@
 //Packages for usage
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 
 //Pages
 import 'package:jcsd_flutter/view/inventory/modals/unarchiveitem.dart';
-import 'package:jcsd_flutter/backend/inventory/item_types/itemtypes_service.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 //Inventory
-import 'package:jcsd_flutter/backend/inventory/inventory_state.dart';
-import 'package:jcsd_flutter/backend/inventory/inventory_data.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
 
 //Suppliers
-import 'package:jcsd_flutter/backend/suppliers/suppliers_service.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
 
 class ArchiveListPage extends ConsumerStatefulWidget {
   const ArchiveListPage({super.key});
@@ -124,7 +124,7 @@ class _ArchiveListPageState extends ConsumerState<ArchiveListPage> {
   }
 
   Widget _buildDataTable(BuildContext context) {
-    final fetchInventory = ref.watch(fetchHiddenList);
+    final fetchInventory = ref.watch(fetchArchived);
 
     return fetchInventory.when(
       data: (items) {

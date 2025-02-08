@@ -1,6 +1,6 @@
 //Imports for Supabase and Service data type
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jcsd_flutter/backend/services/jcsd_services.dart';
+import 'package:jcsd_flutter/backend/modules/services/jcsd_services.dart';
 import 'services_data.dart';
 
 
@@ -15,7 +15,7 @@ final serviceStateProvider = Provider<JcsdServices>((ref){
 final fetchServiceList = FutureProvider<List<ServicesData>>((ref) async {
   final baseService = ref.read(serviceStateProvider);
 
-  List<ServicesData> allServices = await baseService.displayAllServices();
+  List<ServicesData> allServices = await baseService.allServices();
   return allServices;
 });
 
@@ -23,7 +23,7 @@ final fetchServiceList = FutureProvider<List<ServicesData>>((ref) async {
 final fetchAvailableServices = FutureProvider<List<ServicesData>>((ref) async {
   final baseService = ref.read(serviceStateProvider);
 
-  List<ServicesData> allServices = await baseService.displayAvailableServices();
+  List<ServicesData> allServices = await baseService.activeServices();
   return allServices;
 });
 
@@ -31,7 +31,7 @@ final fetchAvailableServices = FutureProvider<List<ServicesData>>((ref) async {
 final fetchHiddenServices = FutureProvider<List<ServicesData>>((ref) async {
   final baseService = ref.read(serviceStateProvider);
 
-  List<ServicesData> allServices = await baseService.displayHiddenServices();
+  List<ServicesData> allServices = await baseService.archivedServices();
   return allServices;
 });
 

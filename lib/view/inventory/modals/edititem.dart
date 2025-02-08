@@ -4,17 +4,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jcsd_flutter/backend/inventory/inventory_data.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 
 //Backend Imports
-import 'package:jcsd_flutter/backend/inventory/inventory_state.dart';
-import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
-import 'package:jcsd_flutter/backend/inventory/item_types/itemtypes_state.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
 
 //Inventory, Supplier and Item Type Imports
-import 'package:jcsd_flutter/backend/inventory/inventory_service.dart';
-import 'package:jcsd_flutter/backend/suppliers/suppliers_service.dart';
-import 'package:jcsd_flutter/backend/inventory/item_types/itemtypes_service.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
 
 class EditItemModal extends ConsumerStatefulWidget{
   final InventoryData itemData;
@@ -63,7 +63,6 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
     _initItemTypeID = itemsData.itemTypeID;
     _initSupplierID = itemsData.supplierID;
     
-
     _itemName.text = itemsData.itemName;
     _itemDescription.text = itemsData.itemDescription;
     _itemPrice.text = itemsData.itemPrice.toString();
@@ -235,19 +234,22 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        int itemID = widget.itemInventoryID;
-                        String itemName = _itemName.text;
-                        int itemTypeID = _initItemTypeID;
-                        String itemDescription = _itemDescription.text;
-                        int itemQuantity = int.parse(_itemQuantity.text);
-                        int supplierID = _initSupplierID;
-                        double itemPrice = double.parse(_itemPrice.text);
-                        bool isVisible = true;
+                        try {
+                          int itemID = widget.itemInventoryID;
+                          String itemName = _itemName.text;
+                          int itemTypeID = _initItemTypeID;
+                          String itemDescription = _itemDescription.text;
+                          int itemQuantity = int.parse(_itemQuantity.text);
+                          int supplierID = _initSupplierID;
+                          double itemPrice = double.parse(_itemPrice.text);
 
-                        final InventoryService items = InventoryService();
-                        await items.updateItem(itemID, itemName, itemTypeID, itemDescription, itemQuantity, supplierID, itemPrice, isVisible);
-                        
-                        ref.invalidate(fetchAvailableList);
+                          final InventoryService items = InventoryService();
+                          await items.updateItem(itemID, itemName, itemTypeID, itemDescription, itemQuantity, supplierID, itemPrice);
+                        }
+                        catch (err){
+                          print('Tried updating item details. $err');
+                        }
+                        ref.invalidate(fetchActive);
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(

@@ -1,33 +1,29 @@
 // ignore_for_file: library_private_types_in_public_api
 
-//Packages for Usage
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_data.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
 
-//Pages
-import 'package:jcsd_flutter/backend/suppliers/suppliers_service.dart';
-
-// Suppliers
-import 'package:jcsd_flutter/backend/suppliers/suppliers_data.dart';
-import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
-class ArchiveSupplierModal extends ConsumerStatefulWidget {
+class UnarchiveSupplierModal extends ConsumerStatefulWidget {
   final SuppliersData supplierData;
   final int supplierID;
 
-  const ArchiveSupplierModal({super.key, required this.supplierData, required this.supplierID});
+  const UnarchiveSupplierModal({super.key, required this.supplierData, required this.supplierID});
 
   @override
-  ConsumerState<ArchiveSupplierModal> createState() => _ArchiveSupplierModalState();
+  ConsumerState<UnarchiveSupplierModal> createState() => _UnarchiveSupplierModalState();
 }
 
-class _ArchiveSupplierModalState extends ConsumerState<ArchiveSupplierModal> {
+class _UnarchiveSupplierModalState extends ConsumerState<UnarchiveSupplierModal> {
   late int _supplierID;
   late SuppliersData _supplierData;
 
   @override
   void initState(){
     super.initState();
-    print('Archive Supplier - initState()');
+    print('Unarchive Suppliers - initState()');
     _supplierID = widget.supplierID;
     _supplierData = widget.supplierData;
   }
@@ -79,7 +75,7 @@ class _ArchiveSupplierModalState extends ConsumerState<ArchiveSupplierModal> {
               padding: EdgeInsets.all(16.0),
               child: Center(
                 child: Text(
-                  'Are you sure you want to archive supplier?',
+                  'Are you sure you want to restore item?',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontSize: 16,
@@ -96,8 +92,8 @@ class _ArchiveSupplierModalState extends ConsumerState<ArchiveSupplierModal> {
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: () async {
-                        ref.invalidate(fetchAvailableSuppliers);
+                      onPressed: () {
+                        ref.invalidate(fetchHiddenSuppliers);
                         Navigator.pop(context);
                       },
                       style: TextButton.styleFrom(
@@ -125,15 +121,17 @@ class _ArchiveSupplierModalState extends ConsumerState<ArchiveSupplierModal> {
                       onPressed: () async {
                         print('Archive Item - Save changes');
                         try{
-                          final SuppliersService updateVisibility = SuppliersService();
-                          await updateVisibility.updateSupplierVisbility(_supplierID, false);
-
-                          print('Successfully hid the item. ${_supplierData.supplierName}');
+                          final updateVisibility = SuppliersService();
+                          await updateVisibility.updateSupplierVisbility(_supplierID, true);
+                          
+                          ref.invalidate(fetchHiddenSuppliers);
                           ref.invalidate(fetchAvailableSuppliers);
-                          Navigator.pop(context);
+                          
+                          print('Successfully restored the supplier. ${_supplierData.supplierName}');
                         }catch(err){
-                          print('Error archiving an item. $_supplierData');
+                          print('Error UNarchiving an item. $_supplierData');
                         }
+                        Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),

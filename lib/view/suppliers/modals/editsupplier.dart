@@ -1,27 +1,29 @@
 // ignore_for_file: library_private_types_in_public_api
 
-//Default Imports
 import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_data.dart';
 
-//BE Imports
-import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
-import 'package:jcsd_flutter/backend/suppliers/suppliers_service.dart';
-import 'package:jcsd_flutter/view/generic/error_dialog.dart';
-// import 'package:flutter/services.dart';
+//Backend Imports
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
 
-class AddSupplierModal extends ConsumerStatefulWidget {
-  const AddSupplierModal({super.key});
+
+class EditSupplierModal extends ConsumerStatefulWidget {
+  final SuppliersData supplierData;
+  final int supplierID;
+  const EditSupplierModal({super.key, required this.supplierData, required this.supplierID});
 
   @override
-  ConsumerState<AddSupplierModal> createState() => _AddSupplierModalState();
+  ConsumerState<EditSupplierModal> createState() => _EditSupplierModalState();
 }
 
-class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
+class _EditSupplierModalState extends ConsumerState<EditSupplierModal> {
+
+  // Controllers
   final TextEditingController _supplierNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _contactNumberController =
-      TextEditingController();
+  final TextEditingController _contactNumberController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
   @override
@@ -34,17 +36,28 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    SuppliersData _supplierData = widget.supplierData;
+
+    _supplierNameController.text = _supplierData.supplierName;
+    _addressController.text = _supplierData.supplierAddress;
+    _emailController.text =   _supplierData.supplierEmail;
+    _contactNumberController.text = _supplierData.contactNumber;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 300 ? 400 : screenWidth * 0.9;
-    const double containerHeight = 480;
+    const double containerHeight = 550;
 
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      insetPadding:
-          EdgeInsets.symmetric(horizontal: screenWidth > 600 ? 50.0 : 16.0),
+      insetPadding: EdgeInsets.symmetric(horizontal: screenWidth > 600 ? 50.0 : 16.0),
       child: Container(
         width: containerWidth,
         height: containerHeight,
@@ -66,7 +79,7 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
               ),
               child: const Center(
                 child: Text(
-                  'Supplier Form',
+                  'Edit Supplier',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontWeight: FontWeight.bold,
@@ -84,25 +97,12 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
                     label: 'Supplier Name',
                     hintText: 'Enter supplier name',
                     controller: _supplierNameController,
-                    keyboardType: TextInputType.text,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your name';
-                      }
-                        return null;
-                    }, 
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
                     label: 'Address',
                     hintText: 'Enter supplier address',
                     controller: _addressController,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your name';
-                      }
-                        return null;
-                    }, 
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
@@ -110,15 +110,6 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
                     hintText: 'Enter supplier contact number',
                     controller: _contactNumberController,
                     keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your phone number';
-                      }
-                      if (!RegExp(r'^(0\d{10}|\+639\d{10})$').hasMatch(value)){
-                        return 'Please enter a valid phone number';
-                      }
-                      return null;
-                    },
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
@@ -126,16 +117,6 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
                     hintText: 'Enter supplier email',
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
-                      }
-                      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                        return 'Please enter a valid email'; 
-
-                      }
-                      return null;
-                    },
                   ),
                 ],
               ),
@@ -175,29 +156,21 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
                     child: ElevatedButton(
                       onPressed: () async {
                         try{
+                          final editSupplier = SuppliersService();
+                          
+                          int supplierID = widget.supplierID;
+                          String supplierName = _supplierNameController.text;
+                          String supplierAddress = _addressController.text; 
+                          String contactNumber = _contactNumberController.text;
+                          String supplierEmail = _emailController.text;
 
-                          if (_supplierNameController.text.isEmpty || _emailController.text.isEmpty || _contactNumberController.text.isEmpty || _addressController.text.isEmpty){
-                            showDialog(
-                            context: context,
-                            builder: (context) => const ErrorDialog(
-                              title: 'Empty Fields',
-                              content: 'Please fill in all the required fields.',
-                              ),
-                            );
-                          }else{
-                            String supplierName = _supplierNameController.text;
-                            String supplierEmail = _emailController.text;
-                            String contactNumber = _contactNumberController.text;
-                            String address = _addressController.text;
-                            bool isActive = true;
-                            final addNewSupplier = SuppliersService();
-                            await addNewSupplier.addNewSupplier(supplierName, supplierEmail, contactNumber, address, isActive);
-                            ref.invalidate(fetchAvailableSuppliers);
-                             Navigator.pop(context);
-                          }
-                        }catch(err){
-                          print('Error adding supplier. $err');
+                          await editSupplier.updateSupplier(supplierID, supplierName, supplierEmail, contactNumber, supplierAddress);
                         }
+                        catch(err){
+                          print('Tried updating supplier details. $err');
+                        }
+                        ref.invalidate(fetchAvailableSuppliers);
+                        Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
@@ -207,7 +180,7 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
                         ),
                       ),
                       child: const Text(
-                        'Submit',
+                        'Save Changes',
                         style: TextStyle(
                           fontFamily: 'NunitoSans',
                           fontWeight: FontWeight.bold,
@@ -229,8 +202,8 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
     required String label,
     required String hintText,
     required TextEditingController controller,
-    String? Function(String?)? validator,
     TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator, 
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,7 +230,6 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
         TextFormField(
           controller: controller,
           keyboardType: keyboardType,
-          validator: validator,
           decoration: InputDecoration(
             hintText: hintText,
             border: const OutlineInputBorder(),
@@ -267,6 +239,7 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
               fontSize: 12,
             ),
           ),
+          validator: validator,
         ),
       ],
     );

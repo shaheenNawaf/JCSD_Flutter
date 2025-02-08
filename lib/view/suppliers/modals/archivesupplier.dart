@@ -1,30 +1,33 @@
 // ignore_for_file: library_private_types_in_public_api
 
+//Packages for Usage
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jcsd_flutter/backend/suppliers/suppliers_data.dart';
-import 'package:jcsd_flutter/backend/inventory/inventory_state.dart';
-import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
-import 'package:jcsd_flutter/backend/suppliers/suppliers_service.dart';
 
-class UnarchiveSupplierModal extends ConsumerStatefulWidget {
+//Pages
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
+
+// Suppliers
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_data.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
+class ArchiveSupplierModal extends ConsumerStatefulWidget {
   final SuppliersData supplierData;
   final int supplierID;
 
-  const UnarchiveSupplierModal({super.key, required this.supplierData, required this.supplierID});
+  const ArchiveSupplierModal({super.key, required this.supplierData, required this.supplierID});
 
   @override
-  ConsumerState<UnarchiveSupplierModal> createState() => _UnarchiveSupplierModalState();
+  ConsumerState<ArchiveSupplierModal> createState() => _ArchiveSupplierModalState();
 }
 
-class _UnarchiveSupplierModalState extends ConsumerState<UnarchiveSupplierModal> {
+class _ArchiveSupplierModalState extends ConsumerState<ArchiveSupplierModal> {
   late int _supplierID;
   late SuppliersData _supplierData;
 
   @override
   void initState(){
     super.initState();
-    print('Unarchive Suppliers - initState()');
+    print('Archive Supplier - initState()');
     _supplierID = widget.supplierID;
     _supplierData = widget.supplierData;
   }
@@ -76,7 +79,7 @@ class _UnarchiveSupplierModalState extends ConsumerState<UnarchiveSupplierModal>
               padding: EdgeInsets.all(16.0),
               child: Center(
                 child: Text(
-                  'Are you sure you want to restore item?',
+                  'Are you sure you want to archive supplier?',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontSize: 16,
@@ -93,8 +96,8 @@ class _UnarchiveSupplierModalState extends ConsumerState<UnarchiveSupplierModal>
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: () {
-                        ref.invalidate(fetchHiddenList);
+                      onPressed: () async {
+                        ref.invalidate(fetchAvailableSuppliers);
                         Navigator.pop(context);
                       },
                       style: TextButton.styleFrom(
@@ -120,19 +123,17 @@ class _UnarchiveSupplierModalState extends ConsumerState<UnarchiveSupplierModal>
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        print('Archive Item - Save changes');
                         try{
-                          final updateVisibility = SuppliersService();
-                          await updateVisibility.updateSupplierVisbility(_supplierID, true);
-                          
-                          ref.invalidate(fetchHiddenSuppliers);
+                          final SuppliersService updateVisibility = SuppliersService();
+
+                          await updateVisibility.updateSupplierVisbility(_supplierID, false);
+
+                          print('Archived supplier: ${_supplierData.supplierName}');
                           ref.invalidate(fetchAvailableSuppliers);
-                          
-                          print('Successfully restored the supplier. ${_supplierData.supplierName}');
+                          Navigator.pop(context);
                         }catch(err){
-                          print('Error UNarchiving an item. $_supplierData');
+                          print('Error archiving supplier. $err');
                         }
-                        Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
