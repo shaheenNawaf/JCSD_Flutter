@@ -19,18 +19,11 @@ class _LoginEmployeeState extends State<LoginEmployee> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      appBar: const Navbar(activePage: 'login'),
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              'assets/images/background.png',
-              fit: BoxFit.cover,
-            ),
-          ),
-          Positioned.fill(
             child: Container(
-              color: Colors.black.withOpacity(0.7),
+              color: const Color.fromARGB(255, 204, 204, 204),
             ),
           ),
           Center(
@@ -54,31 +47,29 @@ class _LoginEmployeeState extends State<LoginEmployee> {
                             padding: const EdgeInsets.all(32.0),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(0),
                             ),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                Image.asset(
+                                  'assets/images/logo.png',
+                                  width: 250,
+                                  height: 100,
+                                ),
                                 const Text(
-                                  'Welcome back, friend!',
+                                  'Employee Login',
                                   style: TextStyle(
                                     fontFamily: 'NunitoSans',
                                     fontWeight: FontWeight.bold,
                                     fontSize: 24,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
-                                const Text(
-                                  'Sign-in to your account to continue',
-                                  style: TextStyle(
-                                    fontFamily: 'NunitoSans',
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
                                 const SizedBox(height: 20),
                                 buildTextField(
-                                  label: 'Username or Email',
-                                  hintText: 'Enter Username or Email',
+                                  label: 'Email',
+                                  hintText: 'Enter Email',
                                 ),
                                 const SizedBox(height: 10),
                                 buildPasswordField(
@@ -91,79 +82,8 @@ class _LoginEmployeeState extends State<LoginEmployee> {
                                     });
                                   },
                                 ),
-                                const SizedBox(height: 10),
-                                screenWidth > 600
-                                    ? Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Checkbox(
-                                                value: _rememberMe,
-                                                onChanged: (bool? value) {
-                                                  setState(() {
-                                                    _rememberMe = value!;
-                                                  });
-                                                },
-                                              ),
-                                              const Text(
-                                                'Remember me',
-                                                style: TextStyle(
-                                                  fontFamily: 'Nunito',
-                                                  fontWeight: FontWeight.w300,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const Text(
-                                            'Forgot your details?',
-                                            style: TextStyle(
-                                              fontFamily: 'Nunito',
-                                              fontWeight: FontWeight.w300,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    : Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          const Text(
-                                            'Having trouble accessing your account?',
-                                            style: TextStyle(
-                                              fontFamily: 'Nunito',
-                                              fontWeight: FontWeight.w300,
-                                              color: Colors.black,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Checkbox(
-                                                value: _rememberMe,
-                                                onChanged: (bool? value) {
-                                                  setState(() {
-                                                    _rememberMe = value!;
-                                                  });
-                                                },
-                                              ),
-                                              const Text(
-                                                'Remember me',
-                                                style: TextStyle(
-                                                  fontFamily: 'Nunito',
-                                                  fontWeight: FontWeight.w300,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                const SizedBox(height: 20),
-                                SizedBox(
+                                const SizedBox(height: 30),
+                                 SizedBox(
                                   width: double.infinity,
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
@@ -188,94 +108,6 @@ class _LoginEmployeeState extends State<LoginEmployee> {
                                       ),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(height: 20),
-                                const Text(
-                                  '— or Sign in with —',
-                                  style: TextStyle(
-                                    fontFamily: 'Nunito',
-                                    fontWeight: FontWeight.normal,
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                      child: OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 20),
-                                          side: const BorderSide(
-                                              color: Color(0xFF00AEEF)),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                        ),
-                                        onPressed: () {},
-                                        child: const Text(
-                                          'Google',
-                                          style: TextStyle(
-                                            fontFamily: 'Nunito',
-                                            fontWeight: FontWeight.w500,
-                                            color: Color(0xFF00AEEF),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: OutlinedButton(
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 20),
-                                          side: const BorderSide(
-                                              color: Color(0xFF00AEEF)),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                          ),
-                                        ),
-                                        onPressed: () {},
-                                        child: const Text(
-                                          'Other option',
-                                          style: TextStyle(
-                                            fontFamily: 'Nunito',
-                                            fontWeight: FontWeight.w500,
-                                            color: Color(0xFF00AEEF),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 20),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Text(
-                                      "Don’t have an Account?",
-                                      style: TextStyle(
-                                        fontFamily: 'Nunito',
-                                        fontWeight: FontWeight.w300,
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pushNamed(
-                                            context, '/signup1');
-                                      },
-                                      child: const Text(
-                                        'Register',
-                                        style: TextStyle(
-                                          color: Color(0xFF00AEEF),
-                                          fontFamily: 'Nunito',
-                                          fontWeight: FontWeight.w800,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
                                 ),
                               ],
                             ),
