@@ -6,10 +6,10 @@ import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 //Backend Imports
-import 'package:jcsd_flutter/backend/inventory/inventory_state.dart';
-import 'package:jcsd_flutter/backend/inventory/item_types/itemtypes_state.dart';
-import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
-import 'package:jcsd_flutter/backend/inventory/inventory_service.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
 
 class AddItemModal extends ConsumerStatefulWidget {
   const AddItemModal({super.key});
@@ -183,18 +183,20 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        String itemName = _addItemName.text;
-                        String itemDescription = _addItemDescription.text;
-                        int itemQuantity = int.parse(_addItemQuantity.text);
-                        int supplierID = int.parse(_addItemSupplier.text);
-                        double itemPrice = double.parse(_addItemPrice.text);
-                        bool isVisible = true;
+                        try {
+                          final InventoryService addItem = InventoryService();
 
-                        final InventoryService addItem = InventoryService();
+                          String itemName = _addItemName.text;
+                          String itemDescription = _addItemDescription.text;
+                          int itemQuantity = int.parse(_addItemQuantity.text);
+                          int supplierID = int.parse(_addItemSupplier.text);
+                          double itemPrice = double.parse(_addItemPrice.text);
 
-                        await addItem.addItem(itemName, itemTypeID, itemDescription, itemQuantity, supplierID, itemPrice, isVisible);
-
-                        ref.invalidate(fetchAvailableList );
+                          await addItem.addItem(itemName, itemTypeID, itemDescription, itemQuantity, supplierID, itemPrice);
+                        }catch(err){
+                          print('Tried adding item details. $err');
+                        }
+                        ref.invalidate(fetchActive);
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -268,7 +270,6 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
     );
   }
 
-  
   Widget _buildDropdownField({
     required String label,
     required String hintText,

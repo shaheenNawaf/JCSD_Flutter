@@ -8,7 +8,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
 //Page Imports
-import 'package:jcsd_flutter/backend/accounts/accounts_data.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 
 //Backend

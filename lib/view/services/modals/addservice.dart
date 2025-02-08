@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 //BE Imports
-import 'package:jcsd_flutter/backend/services/jcsd_services.dart';
-import 'package:jcsd_flutter/backend/services/jcsd_services_state.dart';
+import 'package:jcsd_flutter/backend/modules/services/jcsd_services.dart';
+import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
 import 'package:jcsd_flutter/view/generic/error_dialog.dart';
 
 class AddServiceModal extends ConsumerStatefulWidget{
@@ -213,12 +213,12 @@ class _AddServiceModalState extends ConsumerState<AddServiceModal> {
                             String serviceName = _serviceNameController.text;
                             double minPrice = double.parse(_minPriceController.text);
                             double maxPrice = double.parse(_maxPriceController.text);
-                            bool isActive = true;
 
-                            await addNewService.addNewService(serviceName, minPrice, maxPrice, isActive);
+                            await addNewService.addService(serviceName, minPrice, maxPrice);
+
+                            //Force refresh
                             ref.invalidate(fetchAvailableServices);
-                            
-                            Navigator.pop(context);
+                            Navigator.pop(context); // To be updated
                           }
                         }catch(err){
                           print('Error adding service. $err');

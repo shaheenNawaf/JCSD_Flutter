@@ -3,8 +3,8 @@
 //Packages
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jcsd_flutter/backend/services/jcsd_services_state.dart';
-import 'package:jcsd_flutter/backend/services/services_data.dart';
+import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
+import 'package:jcsd_flutter/backend/modules/services/services_data.dart';
 
 //Pages
 import 'package:jcsd_flutter/view/services/modals/unarchiveservice.dart';

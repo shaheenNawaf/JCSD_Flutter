@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 //Pages
-import 'package:jcsd_flutter/view/inventory/suppliers/modals/addsupplier.dart';
-import 'package:jcsd_flutter/view/inventory/suppliers/modals/archivesupplier.dart';
-import 'package:jcsd_flutter/view/inventory/suppliers/modals/editsupplier.dart';
+import 'package:jcsd_flutter/view/suppliers/modals/addsupplier.dart';
+import 'package:jcsd_flutter/view/suppliers/modals/archivesupplier.dart';
+import 'package:jcsd_flutter/view/suppliers/modals/editsupplier.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 // Suppliers
-import 'package:jcsd_flutter/backend/suppliers/suppliers_data.dart';
-import 'package:jcsd_flutter/backend/suppliers/suppliers_state.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_data.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
 
 class SupplierPage extends ConsumerStatefulWidget {
   const SupplierPage({super.key});

@@ -3,10 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
-import 'package:jcsd_flutter/view/inventory/modals/additemtype.dart';
-import 'package:jcsd_flutter/view/inventory/modals/archiveitemtype.dart';
-import 'package:jcsd_flutter/view/inventory/modals/edititemtype.dart';
-import 'package:jcsd_flutter/view/inventory/item_types_archive.dart';
+import 'package:jcsd_flutter/view/inventory/item_types/additemtype.dart';
+import 'package:jcsd_flutter/view/inventory/item_types/archiveitemtype.dart';
+import 'package:jcsd_flutter/view/inventory/item_types/edititemtype.dart';
+import 'package:jcsd_flutter/view/inventory/item_types/item_types_archive.dart';
 
 class ItemTypesPage extends StatefulWidget {
   const ItemTypesPage({super.key});

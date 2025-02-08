@@ -1,9 +1,9 @@
-//personal notes - for my reference
-//For the Supabase implementation - usage of single SB 
+//Supabase Implementation -- personal comments to lahat, plz don't remove
 import 'package:jcsd_flutter/api/global_variables.dart';
+import 'package:jcsd_flutter/backend/date_converter.dart';
 
-// Inventory Data model to store all the relevant data per instance of that model
-import 'package:jcsd_flutter/backend/inventory/inventory_data.dart';
+//Inventory Data - using the class that I made to store data
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
 
 class InventoryService {
 
@@ -54,7 +54,7 @@ class InventoryService {
   }
 
   // Just fetching all the items inside the database
-  Future<List<InventoryData>> displayAllItems() async {
+  Future<List<InventoryData>> allItems() async {
     try {
       final results = await supabaseDB.from('item_inventory').select();
       if (results.isEmpty) {
@@ -71,7 +71,7 @@ class InventoryService {
   }
 
   //Fetching all active items
-  Future<List<InventoryData>> displayAllAvailable() async{
+  Future<List<InventoryData>> activeItems() async{
     try{
       final results = await supabaseDB.from('item_inventory').select().eq('isVisible', true);
        if (results.isEmpty) {
@@ -85,8 +85,8 @@ class InventoryService {
     }
   }
 
-  //Fetching all hidden items
-  Future<List<InventoryData>> displayAllHidden() async{
+  //Fetching all archived/hidden items
+  Future<List<InventoryData>> achivedItems() async{
   try{
       final results = await supabaseDB.from('item_inventory').select().eq('isVisible', 'false');
        if (results.isEmpty) {
@@ -100,26 +100,8 @@ class InventoryService {
     }
   }
 
- // ADD ITEM - double check entry, might need to update fields from InventoryData
-  Future<void> addNewItem(InventoryData newItem) async {
-     try {
-       await supabaseDB.from('item_inventory').insert(newItem.toJson());
-   } catch (err) {
-       print('Error adding new item: $err');
-   }
-   }
-
-   // UPDATE
-  Future<void> updateItemDetails(InventoryData updatedtem) async {
-     try {
-       await supabaseDB.from('item_inventory').update(updatedtem.toJson()).eq('itemID', updatedtem.itemID);
-     } catch (err) {
-       print('Error updating item details: $err');
-     }
-  }
-
  // Updating Item Visibility/Soft-delete
-  Future<void> updateItemVisibility(int itemID, bool isVisible) async {
+  Future<void> updateVisibility(int itemID, bool isVisible) async {
      try {
        await supabaseDB.from('item_inventory').update({'isVisible': isVisible}).eq('itemID', itemID);
      } catch (err) {
@@ -127,7 +109,7 @@ class InventoryService {
      }
    }
 
-  Future<void> addItem(String itemName, int itemTypeID, String itemDescription, int quantity, int supplierID, double itemPrice, bool isVisible) async{
+  Future<void> addItem(String itemName, int itemTypeID, String itemDescription, int quantity, int supplierID, double itemPrice) async{
     try {
       await supabaseDB.from('item_inventory').insert({
         'itemName': itemName,
@@ -136,44 +118,34 @@ class InventoryService {
         'itemQuantity': quantity,
         'supplierID': supplierID,
         'itemPrice': itemPrice,
-        'isVisible': isVisible,
+        'isVisible': true,
+        'createDate': returnCurrentDate(),
+        'updateDate': returnCurrentDate(),
       });
 
-      print("Added new item: $itemName");
+      print("NEW ITEM ADDED: $itemName");
     }catch(err){
-      print('Error adding new item. $err');
+      print('ERROR ADDING ITEM ($itemName) -- Info: $err');
     }
   }
 
   Future<void> updateItem(int itemID, String itemName, int itemTypeID,
-    String itemDescription, int quantity, int supplierID, double itemPrice,
-    bool isVisible) async {
-  try {
-    // Execute the update query
-    await supabaseDB.from('item_inventory').update({
-      'itemName': itemName,
-      'itemTypeID': itemTypeID,
-      'itemDescription': itemDescription,
-      'itemQuantity': quantity,
-      'supplierID': supplierID,
-      'itemPrice': itemPrice,
-      'isVisible': isVisible,
+    String itemDescription, int quantity, int supplierID, double itemPrice) async {
+    try {
+      await supabaseDB.from('item_inventory').update({
+        'itemName': itemName,
+        'itemTypeID': itemTypeID,
+        'itemDescription': itemDescription,
+        'itemQuantity': quantity,
+        'supplierID': supplierID,
+        'itemPrice': itemPrice,
+        'updateDate': returnCurrentDate(),
     }).eq('itemID', itemID);
 
-    print("Updated item: $itemID - $itemName");
+    print("SUCCESS! -- UPDATED ITEM DETAILS: $itemName");
   } catch (err) {
     // Catch and print general exceptions
-    print('Error updating item. $err');
+    print('UPDATE ERROR. ($itemName) -- Info: $err');
   }
 }
-
-  Future<void> itemIsActive(int itemID,  bool isVisible) async{
-    try {
-      await supabaseDB.from('item_inventory').update({'isVisible': isVisible,}).eq('itemID', itemID);
-      print("Archived item: $itemID");
-      
-    }catch(err){
-      print('Error adding new item. $err');
-    }
-  }
 }

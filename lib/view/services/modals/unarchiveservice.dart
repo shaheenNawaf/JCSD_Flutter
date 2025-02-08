@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 //Backend Imports
-import 'package:jcsd_flutter/backend/services/jcsd_services.dart';
-import 'package:jcsd_flutter/backend/services/jcsd_services_state.dart';
-import 'package:jcsd_flutter/backend/services/services_data.dart';
+import 'package:jcsd_flutter/backend/modules/services/jcsd_services.dart';
+import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
+import 'package:jcsd_flutter/backend/modules/services/services_data.dart';
 import 'package:jcsd_flutter/view/generic/error_dialog.dart';
 
 class UnarchiveServiceModal extends ConsumerStatefulWidget {
@@ -118,7 +118,7 @@ class _UnarchiveServiceModalState extends ConsumerState<UnarchiveServiceModal> {
                           
                         try{
                           final updateService = JcsdServices();
-                          await updateService.updateServiceVisibility(serviceID, true);
+                          await updateService.updateVisibility(serviceID, true);
 
                           ref.invalidate(fetchHiddenServices);
 

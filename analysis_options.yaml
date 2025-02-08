@@ -3,3 +3,4 @@ analyzer:
   errors:
     non_constant_identifier_names: ignore
     avoid_print: ignore
+    use_build_context_synchronously: ignore
