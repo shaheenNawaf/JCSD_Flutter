@@ -8,6 +8,7 @@ import 'package:jcsd_flutter/view/admin/leaverequestlist.dart';
 import 'package:jcsd_flutter/view/admin/payroll.dart';
 import 'package:jcsd_flutter/view/client/profile_client.dart';
 import 'package:jcsd_flutter/view/employee/dashboard.dart';
+import 'package:jcsd_flutter/view/employee/loginEmployee.dart';
 import 'package:jcsd_flutter/view/generic/access_restricted_page.dart';
 import 'package:jcsd_flutter/view/services/services.dart';
 import 'package:jcsd_flutter/view/services/services_archive.dart';
@@ -91,6 +92,7 @@ class MainApp extends StatelessWidget {
         '/profileClient': (context) => const ProfilePageClient(),
 
         // Employee View
+        '/employeeLogin': (context) => const LoginEmployee(),
         '/dashboard': (context) => const DashboardPage(),
         '/inventory': (context) => const InventoryPage(),
         '/suppliers': (context) => const SupplierPage(),
