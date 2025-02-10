@@ -435,8 +435,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
           ),
           Expanded(
             child: FutureBuilder<String>(
-              future: suppliersService
-                  .getSupplierNameByID(items[index].supplierID.toInt()),
+              future: suppliersService.getSupplierNameByID(items[index].supplierID.toInt()),
               builder: (context, supplierName) {
                 if (supplierName.hasData) {
                   return Text(

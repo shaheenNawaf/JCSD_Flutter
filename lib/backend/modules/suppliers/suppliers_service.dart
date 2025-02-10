@@ -6,9 +6,9 @@ import 'suppliers_data.dart';
 class SuppliersService {  
 
   //Fetching All the Supplier
-  Future<List<SuppliersData>> displayAllSuppliers() async {
+  Future<List<SuppliersData>> allSuppliers() async {
     try {
-      final suppliers = await supabaseDB.from('suppliers').select();
+      final suppliers = await supabaseDB.from('suppliers').select().order('supplierID', ascending: true);
       if(suppliers.isEmpty){
         print("No suppliers are on the list");
         return [];
@@ -22,9 +22,9 @@ class SuppliersService {
   }
 
   //Fetching All the Supplier
-  Future<List<SuppliersData>> displayAvailableSuppliers() async {
+  Future<List<SuppliersData>> availableSuppliers() async {
     try {
-      final suppliers = await supabaseDB.from('suppliers').select().eq('isActive', true);
+      final suppliers = await supabaseDB.from('suppliers').select().eq('isActive', true).order('supplierID', ascending: true);
       if(suppliers.isEmpty){
         print("No suppliers are on the list");
         return [];
@@ -38,9 +38,9 @@ class SuppliersService {
   }
 
   //Fetching Hidden Supplier
-  Future<List<SuppliersData>> displayHiddenSuppliers() async {
+  Future<List<SuppliersData>> archivedSuplliers() async {
     try {
-      final suppliers = await supabaseDB.from('suppliers').select().eq('isActive', false);
+      final suppliers = await supabaseDB.from('suppliers').select().eq('isActive', false).order('supplierID', ascending: true);
       if(suppliers.isEmpty){
         print("No suppliers are on the list");
         return [];

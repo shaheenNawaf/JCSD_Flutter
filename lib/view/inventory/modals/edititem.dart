@@ -235,6 +235,8 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
                     child: ElevatedButton(
                       onPressed: () async {
                         try {
+                          final InventoryService items = InventoryService();
+                          
                           int itemID = widget.itemInventoryID;
                           String itemName = _itemName.text;
                           int itemTypeID = _initItemTypeID;
@@ -243,7 +245,7 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
                           int supplierID = _initSupplierID;
                           double itemPrice = double.parse(_itemPrice.text);
 
-                          final InventoryService items = InventoryService();
+                          
                           await items.updateItem(itemID, itemName, itemTypeID, itemDescription, itemQuantity, supplierID, itemPrice);
                         }
                         catch (err){

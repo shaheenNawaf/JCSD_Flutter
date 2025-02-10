@@ -73,7 +73,7 @@ class InventoryService {
   //Fetching all active items
   Future<List<InventoryData>> activeItems() async{
     try{
-      final results = await supabaseDB.from('item_inventory').select().eq('isVisible', true);
+      final results = await supabaseDB.from('item_inventory').select().eq('isVisible', true).order('itemID', ascending: true);
        if (results.isEmpty) {
         print("No items inside the database");
         return [];
@@ -88,7 +88,7 @@ class InventoryService {
   //Fetching all archived/hidden items
   Future<List<InventoryData>> achivedItems() async{
   try{
-      final results = await supabaseDB.from('item_inventory').select().eq('isVisible', 'false');
+      final results = await supabaseDB.from('item_inventory').select().eq('isVisible', 'false').order('itemID', ascending: true);
        if (results.isEmpty) {
         print("No items inside the database");
         return [];
