@@ -1,5 +1,7 @@
 //Basic Date Setter for listing! - huehuehuehehe
-  String returnCurrentDate(){
+  import 'package:intl/intl.dart';
+
+String returnCurrentDate(){
     DateTime current = DateTime.now();
 
     String year = current.year.toString();
@@ -22,4 +24,13 @@
     }
     print(input.toString());
     return input.toString();
+  }
+
+  String returnCurrentDateTime() {
+    DateTime current = DateTime.now();
+
+    String formattedOutput = DateFormat('MM/dd/yyyy HH:mm:ss').format(current);
+    print(formattedOutput);
+
+    return formattedOutput;
   }

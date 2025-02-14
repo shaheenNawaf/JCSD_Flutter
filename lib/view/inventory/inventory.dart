@@ -6,6 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 
+//For Animation
+import 'package:shimmer/shimmer.dart';
+
 // Pages
 import 'package:jcsd_flutter/view/inventory/modals/additem.dart';
 import 'package:jcsd_flutter/view/inventory/modals/edititem.dart';
@@ -276,9 +279,27 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
         );
       },
       error: (err, stackTrace) => Text('Error fetching data from table: $err'),
-      loading: () => const LinearProgressIndicator(
-        backgroundColor: Color.fromRGBO(0, 134, 239, 1),
-      ),
+      loading: () => Shimmer.fromColors(
+        baseColor: const Color.fromARGB(255, 207, 233, 255), 
+        highlightColor: const Color.fromARGB(255, 114, 190, 253),
+        child: Column(
+          children: [
+            _buildShimmerRow(),
+            const Divider(
+              height: 1,
+              color: Color.fromARGB(255, 188, 188, 188),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: 6,
+                itemBuilder: (context, index) {
+                  return _buildShimmerRow();
+                }
+              ),
+            )
+          ],
+        ),
+        )
     );
   }
 
@@ -538,6 +559,87 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
       ),
     );
   }
+
+  Widget _buildShimmerRow() {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+    child: Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Shimmer.fromColors( 
+                baseColor: const Color.fromARGB(255, 201, 215, 227),
+                highlightColor: const Color.fromARGB(255, 94, 157, 208),
+                child: SizedBox(
+                  width: 200, 
+                  height: 10, 
+                  child: Container(color: Colors.white), 
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Shimmer.fromColors(
+                baseColor: const Color.fromARGB(255, 201, 215, 227),
+                highlightColor: const Color.fromARGB(255, 94, 157, 208),
+                child: SizedBox(
+                  width: 200,
+                  height: 10,
+                  child: Container(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Shimmer.fromColors(
+                baseColor: const Color.fromARGB(255, 201, 215, 227),
+                highlightColor: const Color.fromARGB(255, 94, 157, 208),
+                child: SizedBox(
+                  width: 200,
+                  height: 10,
+                  child: Container(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Shimmer.fromColors(
+                baseColor: const Color.fromARGB(255, 201, 215, 227),
+                highlightColor: const Color.fromARGB(255, 94, 157, 208),
+                child: SizedBox(
+                  width: 200,
+                  height: 10,
+                  child: Container(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+           Row(
+            children: [
+              Shimmer.fromColors(
+                baseColor: const Color.fromARGB(255, 201, 215, 227),
+                highlightColor: const Color.fromARGB(255, 94, 157, 208),
+                child: SizedBox(
+                  width: 200,
+                  height: 10,
+                  child: Container(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
   Color _itemQuantityColor(int itemQuantity) {
     if (itemQuantity < 10) {

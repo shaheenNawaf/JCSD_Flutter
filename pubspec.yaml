@@ -23,6 +23,7 @@ dependencies:
   path_provider: ^2.0.14
   fl_chart: ^0.69.2
   google_sign_in: ^6.2.2
+  shimmer: ^3.0.0
 
 dev_dependencies:
   flutter_test:

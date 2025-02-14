@@ -40,7 +40,7 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    double containerWidth = screenWidth > 600 ? 700 : screenWidth * 0.9;
+    double containerWidth = screenWidth > 600 ? 700 : screenWidth * 0.99;
     const double containerHeight = 390;
 
     return Dialog(

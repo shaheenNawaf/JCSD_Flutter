@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+//Backend Things
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
@@ -94,8 +96,7 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
                   Expanded(
                     child: TextButton(
                       onPressed: () {
-                        ref.invalidate(fetchActive);
-                        ref.invalidate(fetchArchived);
+                        refreshTables();
                         Navigator.pop(context);
                       },
                       style: TextButton.styleFrom(

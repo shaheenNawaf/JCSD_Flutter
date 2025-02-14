@@ -1,9 +1,11 @@
 //Supabase Implementation -- personal comments to lahat, plz don't remove
 import 'package:jcsd_flutter/api/global_variables.dart';
 import 'package:jcsd_flutter/backend/date_converter.dart';
+import 'dart:math';
 
 //Inventory Data - using the class that I made to store data
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
+import 'package:jcsd_flutter/backend/modules/audit_logs/audit_services.dart';
 
 class InventoryService {
 
@@ -80,7 +82,7 @@ class InventoryService {
       }
       return results.map<InventoryData>((item) => InventoryData.fromJson(item)).toList();
     }catch(err){
-      print('Error fetching hidden items. $err');
+      print('Error fetching active items. $err');
       return [];
     }
   }
@@ -103,7 +105,12 @@ class InventoryService {
  // Updating Item Visibility/Soft-delete
   Future<void> updateVisibility(int itemID, bool isVisible) async {
      try {
-       await supabaseDB.from('item_inventory').update({'isVisible': isVisible}).eq('itemID', itemID);
+      if(isVisible == true){
+        insertAuditLog('audit_inventory', 1, "Unarchived item: $itemID", "Unarchived Item"); //Test Employee ID first
+      }else{
+        insertAuditLog('audit_inventory', 1, "Archived item: $itemID", "Archived Item"); //Test Employee ID first
+      }
+      await supabaseDB.from('item_inventory').update({'isVisible': isVisible}).eq('itemID', itemID);
      } catch (err) {
        print('Error updating Item:$itemID visibility. Error Message: $err');
      }
@@ -122,8 +129,8 @@ class InventoryService {
         'createDate': returnCurrentDate(),
         'updateDate': returnCurrentDate(),
       });
-
-      print("NEW ITEM ADDED: $itemName");
+    insertAuditLog('audit_inventory', 1, "Added new item on the database: $itemName", "New Item"); //Test Employee ID first
+    print("NEW ITEM ADDED: $itemName");
     }catch(err){
       print('ERROR ADDING ITEM ($itemName) -- Info: $err');
     }
@@ -141,11 +148,12 @@ class InventoryService {
         'itemPrice': itemPrice,
         'updateDate': returnCurrentDate(),
     }).eq('itemID', itemID);
-
+    insertAuditLog('audit_inventory', 1, "Updated existing item on the database: $itemName", "Updated Item");
     print("SUCCESS! -- UPDATED ITEM DETAILS: $itemName");
-  } catch (err) {
-    // Catch and print general exceptions
-    print('UPDATE ERROR. ($itemName) -- Info: $err');
+    }catch (err) {
+      // Catch and print general exceptions
+      print('UPDATE ERROR. ($itemName) -- Info: $err');
+    } 
   }
-}
+
 }

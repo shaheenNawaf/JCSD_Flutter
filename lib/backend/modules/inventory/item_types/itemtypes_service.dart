@@ -21,8 +21,34 @@ class ItemtypesService {
   }
 
   //Fetching all active items
-
+  Future<List<ItemTypesData>> activeItemTypes() async {
+    try{
+      final results = await supabaseDB.from('item_types').select().eq('isVisible', true).order('itemTypeID', ascending: true);
+      if (results.isEmpty) {
+        print("No items inside the database");
+        return [];
+      }
+      return results.map<ItemTypesData>((item) => ItemTypesData.fromJson(item)).toList();
+    }catch(err){
+      print('Error fetching active item types. $err');
+      return [];
+    }
+  }
+  
   //Fetching all hidden items
+  Future<List<ItemTypesData>> archivedItemTypes() async {
+    try{
+      final results = await supabaseDB.from('item_types').select().eq('isVisible', false).order('itemTypeID', ascending: true);
+      if (results.isEmpty) {
+        print("No items inside the database");
+        return [];
+      }
+      return results.map<ItemTypesData>((item) => ItemTypesData.fromJson(item)).toList();
+    }catch(err){
+      print('Error fetching archived item types. $err');
+      return [];
+    }
+  }
   
   //Add Item; Auto-increment ID
   Future<void> addNewType(String typeName, String typeDescription) async {
