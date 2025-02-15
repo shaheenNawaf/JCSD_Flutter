@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 //Backend Imports
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
 import 'package:jcsd_flutter/backend/modules/services/services_data.dart';
+import 'package:jcsd_flutter/widgets/header.dart';
 
 //Pages
 import 'package:jcsd_flutter/widgets/sidebar.dart';
@@ -65,28 +66,8 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
           Expanded(
             child: Column(
               children: [
-                Container(
-                  color: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Services',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF00AEEF),
-                          fontSize: 20,
-                        ),
-                      ),
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
-                      ),
-                    ],
-                  ),
+                const Header(
+                  title: 'Services',
                 ),
                 Expanded(
                   child: Padding(
@@ -327,13 +308,9 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                     ),
-                    child: const Text(
-                      'Edit',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        color: Colors.white,
-                        fontSize: 8,
-                      ),
+                    child: const Icon(
+                      Icons.edit,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -345,13 +322,9 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                     ),
-                    child: const Text(
-                      'Archive',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        color: Colors.white,
-                        fontSize: 8,
-                      ),
+                    child: const Icon(
+                      Icons.archive,
+                      color: Colors.white,
                     ),
                   ),
                 ),

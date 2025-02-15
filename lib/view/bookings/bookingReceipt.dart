@@ -6,6 +6,7 @@ import 'dart:html' as html;
 import 'dart:typed_data';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter_email_sender/flutter_email_sender.dart';
+import 'package:jcsd_flutter/widgets/header.dart';
 
 class BookingReceipt extends StatefulWidget {
   const BookingReceipt({super.key});
@@ -97,15 +98,17 @@ Future<void> sendEmailWithAttachment(File attachment) async {
 class _BookingReceiptState extends State<BookingReceipt> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F8F8),
+    return const Scaffold(
+      backgroundColor:  Color(0xFFF8F8F8),
       body: Row(
         children: [
-          const Sidebar(),
+          Sidebar(),
           Expanded(
             child: Column(
               children: [
-                const _Header(),
+                Header(
+                  title: 'Booking Receipt',
+                ),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),

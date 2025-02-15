@@ -93,8 +93,6 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
     );
   }
 
-  void _navigateToProfile() {}
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,9 +103,8 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
           Expanded(
             child: Column(
               children: [
-                Header(
+                const Header(
                   title: 'Inventory',
-                  onAvatarTap: _navigateToProfile,
                 ),
                 Expanded(
                   child: Padding(

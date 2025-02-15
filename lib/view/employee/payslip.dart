@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 
@@ -77,46 +78,9 @@ class _PayslipState extends State<Payslip> with SingleTickerProviderStateMixin {
                 child: Column(
                   children: [
                     if (!isMobile)
-                      Container(
-                        color: Colors.white,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            IconButton(
-                              icon: const FaIcon(FontAwesomeIcons.arrowLeft, color: Color(0xFF00AEEF)),
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                            ),
-                            const Text(
-                              'Payslip',
-                              style: TextStyle(
-                                fontFamily: 'NunitoSans',
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF00AEEF),
-                                fontSize: 20,
-                              ),
-                            ),
-                            const Spacer(),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.pushNamedAndRemoveUntil(context, '/profile', (route) => false);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                shape: const CircleBorder(),
-                                padding: const EdgeInsets.all(8),
-                                backgroundColor: Colors.transparent,
-                                elevation: 0,
-                              ),
-                              child: const CircleAvatar(
-                                radius: 20,
-                                backgroundImage: AssetImage('assets/avatars/cat2.jpg'), // Replace with your image source
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                    const Header(
+                      title: 'Payslip',
+                    ),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),

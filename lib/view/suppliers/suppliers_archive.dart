@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/view/suppliers/modals/unarchivesupplier.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_data.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
+import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 class SupplierArchivePage extends ConsumerStatefulWidget {
@@ -36,28 +37,8 @@ class _SupplierArchivePageState extends ConsumerState<SupplierArchivePage> {
           Expanded(
             child: Column(
               children: [
-                Container(
-                  color: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Archive List',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF00AEEF),
-                          fontSize: 20,
-                        ),
-                      ),
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
-                      ),
-                    ],
-                  ),
+                const Header(
+                  title: 'Archive List',
                 ),
                 Expanded(
                   child: Padding(

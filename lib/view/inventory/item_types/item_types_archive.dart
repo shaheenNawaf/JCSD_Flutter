@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/view/inventory/item_types/unarchiveitemtype.dart';
+import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 class ItemTypesArchivePage extends StatefulWidget {
@@ -35,42 +36,8 @@ class _ItemTypesArchivePageState extends State<ItemTypesArchivePage> {
           Expanded(
             child: Column(
               children: [
-                Container(
-                  color: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const FaIcon(
-                              FontAwesomeIcons.arrowLeft,
-                              color: Color(0xFF00AEEF),
-                            ),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'Item Types Archive',
-                            style: TextStyle(
-                              fontFamily: 'NunitoSans',
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF00AEEF),
-                              fontSize: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const CircleAvatar(
-                        radius: 20,
-                        backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
-                      ),
-                    ],
-                  ),
+                const Header(
+                  title: 'Item Types Archive',
                 ),
                 Expanded(
                   child: Padding(

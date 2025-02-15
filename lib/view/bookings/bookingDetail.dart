@@ -6,6 +6,7 @@ import 'package:jcsd_flutter/modals/additemlist.dart';
 import 'package:jcsd_flutter/modals/bookingrequest.dart';
 import 'package:jcsd_flutter/modals/editbookingdetail.dart';
 import 'package:jcsd_flutter/modals/removeitemlist.dart';
+import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 class BookingDetails extends StatefulWidget {
@@ -66,49 +67,8 @@ class _BookingDetailsState extends State<BookingDetails> {
           Expanded(
             child: Column(
               children: [
-                Container(
-                  color: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const FaIcon(FontAwesomeIcons.arrowLeft,
-                            color: Color(0xFF00AEEF)),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      const Text(
-                        'Booking Details',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF00AEEF),
-                          fontSize: 20,
-                        ),
-                      ),
-                      const Spacer(),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/profile', (route) => false);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          shape: const CircleBorder(),
-                          padding: const EdgeInsets.all(8),
-                          backgroundColor: Colors.transparent,
-                          elevation: 0,
-                        ),
-                        child: const CircleAvatar(
-                          radius: 20,
-                          backgroundImage:
-                              AssetImage('assets/avatars/cat2.jpg'),
-                        ),
-                      ),
-                    ],
-                  ),
+                const Header(
+                  title: 'Booking Details',
                 ),
                 Expanded(
                   child: Padding(

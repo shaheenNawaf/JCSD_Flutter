@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/view/suppliers/modals/addsupplier.dart';
 import 'package:jcsd_flutter/view/suppliers/modals/archivesupplier.dart';
 import 'package:jcsd_flutter/view/suppliers/modals/editsupplier.dart';
+import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 // Suppliers
@@ -82,28 +83,8 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
           Expanded(
             child: Column(
               children: [
-                Container(
-                  color: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Suppliers',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF00AEEF),
-                          fontSize: 20,
-                        ),
-                      ),
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
-                      ),
-                    ],
-                  ),
+                const Header(
+                  title: 'Suppliers',
                 ),
                 Expanded(
                   child: Padding(
@@ -336,38 +317,30 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 SizedBox(
-                  width: 80,
+                  width: 75,
                   child: ElevatedButton(
                     onPressed: () => _showEditSupplierModal(
                         suppliers[index], suppliers[index].supplierID),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                     ),
-                    child: const Text(
-                      'Edit',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        color: Colors.white,
-                        fontSize: 8,
-                      ),
+                    child: const Icon(
+                      Icons.edit,
+                      color: Colors.white,
                     ),
                   ),
                 ),
                 SizedBox(
-                  width: 80,
+                  width: 75,
                   child: ElevatedButton(
                     onPressed: () => _showArchiveSupplierModal(
                         suppliers[index], suppliers[index].supplierID),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                     ),
-                    child: const Text(
-                      'Archive',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        color: Colors.white,
-                        fontSize: 8,
-                      ),
+                    child: const Icon(
+                      Icons.archive,
+                      color: Colors.white,
                     ),
                   ),
                 ),

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 class BookingCalendarPage extends StatefulWidget {
@@ -77,28 +78,8 @@ class _BookingCalendarPageState extends State<BookingCalendarPage>
           Expanded(
             child: Column(
               children: [
-                Container(
-                  color: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Calendar',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF00AEEF),
-                          fontSize: 20,
-                        ),
-                      ),
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
-                      ),
-                    ],
-                  ),
+                const Header(
+                  title: 'Calendar',
                 ),
                 Expanded(
                   child: Padding(

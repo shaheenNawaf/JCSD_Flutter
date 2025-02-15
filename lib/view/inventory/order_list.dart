@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/view/inventory/modals/confirmorder.dart';
 import 'package:jcsd_flutter/view/inventory/modals/editorder.dart';
+import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 class OrderListPage extends StatefulWidget {
@@ -60,42 +61,8 @@ class _OrderListPageState extends State<OrderListPage> {
           Expanded(
             child: Column(
               children: [
-                Container(
-                  color: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: const FaIcon(
-                              FontAwesomeIcons.arrowLeft,
-                              color: Color(0xFF00AEEF),
-                            ),
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'Order List',
-                            style: TextStyle(
-                              fontFamily: 'NunitoSans',
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF00AEEF),
-                              fontSize: 20,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const CircleAvatar(
-                        radius: 20,
-                        backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
-                      ),
-                    ],
-                  ),
+                const Header(
+                  title: 'Order List',
                 ),
                 Expanded(
                   child: Padding(
@@ -308,34 +275,53 @@ class _OrderListPageState extends State<OrderListPage> {
         DataCell(Text(status)),
         DataCell(
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ElevatedButton(
-                onPressed: () => _showEditItemModal(
-                  id,
-                  name,
-                  type,
-                  supplier,
-                  quantity,
-                  price,
-                  status,
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                ),
-                child: const Text(
-                  'Edit',
-                  style: TextStyle(color: Colors.white),
+              SizedBox(
+                width: 75,
+                child: ElevatedButton(
+                  onPressed: () => _showEditItemModal(
+                    id,
+                    name,
+                    type,
+                    supplier,
+                    quantity,
+                    price,
+                    status,
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                  ),
+                  child: const Icon(
+                    Icons.edit,
+                    color: Colors.white,
+                  ),
                 ),
               ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: () => _showConfirmItemModal(id, name),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
+              SizedBox(
+                width: 75,
+                child: ElevatedButton(
+                  onPressed: () => _showConfirmItemModal(id, name),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                  ),
+                  child: const Icon(
+                    Icons.check_box,
+                    color: Colors.white,
+                  ),
                 ),
-                child: const Text(
-                  'Confirm',
-                  style: TextStyle(color: Colors.white),
+              ),
+              SizedBox(
+                width: 75,
+                child: ElevatedButton(
+                  onPressed: () => _showConfirmItemModal(id, name),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                  ),
+                  child: const Icon(
+                    Icons.delete,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ],

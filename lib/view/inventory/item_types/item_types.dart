@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/view/inventory/item_types/additemtype.dart';
 import 'package:jcsd_flutter/view/inventory/item_types/archiveitemtype.dart';
@@ -69,28 +70,8 @@ class _ItemTypesPageState extends State<ItemTypesPage> {
           Expanded(
             child: Column(
               children: [
-                Container(
-                  color: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Item Types',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF00AEEF),
-                          fontSize: 20,
-                        ),
-                      ),
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
-                      ),
-                    ],
-                  ),
+                const Header(
+                  title: 'Item Types',
                 ),
                 Padding(
                   padding:
@@ -279,29 +260,34 @@ class _ItemTypesPageState extends State<ItemTypesPage> {
             ))),
         DataCell(
           Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              ElevatedButton(
-                onPressed: () =>
-                    _showEditItemTypeModal(itemId, typeName, description),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+              SizedBox(
+                width: 75,
+                child: ElevatedButton(
+                  onPressed: () =>
+                      _showEditItemTypeModal(itemId, typeName, description),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                  ),
+                  child: const Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                      ),
                 ),
-                child: const Text('Edit',
-                    style: TextStyle(
-                      color: Colors.white,
-                    )),
               ),
-              const SizedBox(width: 8),
-              ElevatedButton(
-                onPressed: _showArchiveItemTypeModal,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
+              SizedBox(
+                width: 75,
+                child: ElevatedButton(
+                  onPressed: _showArchiveItemTypeModal,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                  ),
+                  child: const Icon(
+                        Icons.archive,
+                        color: Colors.white,
+                      ),
                 ),
-                child: const Text('Archive',
-                    style: TextStyle(
-                      color: Colors.white,
-                    )),
               ),
             ],
           ),
