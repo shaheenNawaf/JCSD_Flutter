@@ -17,6 +17,8 @@ class ItemTypesPage extends StatefulWidget {
 }
 
 class _ItemTypesPageState extends State<ItemTypesPage> {
+  final String _activeSubItem = '/inventory';
+
   void _showAddItemTypeModal() {
     showDialog(
       context: context,
@@ -66,12 +68,17 @@ class _ItemTypesPageState extends State<ItemTypesPage> {
       appBar: null,
       body: Row(
         children: [
-          const Sidebar(activePage: '/itemTypes'),
+          Sidebar(activePage: _activeSubItem),
           Expanded(
             child: Column(
               children: [
-                const Header(
+                Header(
                   title: 'Item Types',
+                  leading: IconButton(
+                    icon:
+                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ),
                 Padding(
                   padding:
@@ -148,8 +155,7 @@ class _ItemTypesPageState extends State<ItemTypesPage> {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                        16, 0, 16, 16), // Updated bottom padding
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                     child: _buildDataTable(),
                   ),
                 ),
@@ -218,7 +224,7 @@ class _ItemTypesPageState extends State<ItemTypesPage> {
               ),
               DataColumn(
                 label: Padding(
-                  padding: EdgeInsets.only(left: 60),
+                  padding: EdgeInsets.only(left: 130),
                   child: Center(
                     child: Text(
                       'Action',
@@ -246,18 +252,12 @@ class _ItemTypesPageState extends State<ItemTypesPage> {
   DataRow _buildDataRow(String itemId, String typeName, String description) {
     return DataRow(
       cells: [
-        DataCell(Text(itemId,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
-        DataCell(Text(typeName,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
+        DataCell(
+            Text(itemId, style: const TextStyle(fontFamily: 'NunitoSans'))),
+        DataCell(
+            Text(typeName, style: const TextStyle(fontFamily: 'NunitoSans'))),
         DataCell(Text(description,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-            ))),
+            style: const TextStyle(fontFamily: 'NunitoSans'))),
         DataCell(
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -267,26 +267,17 @@ class _ItemTypesPageState extends State<ItemTypesPage> {
                 child: ElevatedButton(
                   onPressed: () =>
                       _showEditItemTypeModal(itemId, typeName, description),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                  ),
-                  child: const Icon(
-                        Icons.edit,
-                        color: Colors.white,
-                      ),
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                  child: const Icon(Icons.edit, color: Colors.white),
                 ),
               ),
               SizedBox(
                 width: 75,
                 child: ElevatedButton(
                   onPressed: _showArchiveItemTypeModal,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                  ),
-                  child: const Icon(
-                        Icons.archive,
-                        color: Colors.white,
-                      ),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                  child: const Icon(Icons.archive, color: Colors.white),
                 ),
               ),
             ],

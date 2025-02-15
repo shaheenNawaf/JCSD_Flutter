@@ -1,7 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/view/inventory/item_types/unarchiveitemtype.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
@@ -14,7 +13,7 @@ class ItemTypesArchivePage extends StatefulWidget {
 }
 
 class _ItemTypesArchivePageState extends State<ItemTypesArchivePage> {
-  final String _activeSubItem = '/itemTypes';
+  final String _activeSubItem = '/inventory';
 
   void _showUnarchiveItemTypeModal() {
     showDialog(
@@ -36,8 +35,13 @@ class _ItemTypesArchivePageState extends State<ItemTypesArchivePage> {
           Expanded(
             child: Column(
               children: [
-                const Header(
+                Header(
                   title: 'Item Types Archive',
+                  leading: IconButton(
+                    icon:
+                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ),
                 Expanded(
                   child: Padding(

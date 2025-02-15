@@ -15,7 +15,12 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
   final TextEditingController _notesController = TextEditingController();
 
   // Dummy data for dropdowns, replace with actual data from backend
-  final List<String> _leaveType = ['Sick Leave', 'Corporate Leave', 'Maternal Leave', 'Paternal Leave'];
+  final List<String> _leaveType = [
+    'Sick Leave',
+    'Corporate Leave',
+    'Maternal Leave',
+    'Paternal Leave'
+  ];
 
   @override
   void dispose() {
@@ -27,7 +32,7 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 300 ? 400 : screenWidth * 0.9;
-    const double containerHeight = 550;
+    const double containerHeight = 560;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -86,7 +91,10 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
                   const SizedBox(height: 16),
                   _buildDateField(label: 'To'),
                   const SizedBox(height: 16),
-                  _buildTextField(label: 'Notes', hintText: 'Enter notes', controller: _notesController),
+                  _buildTextField(
+                      label: 'Notes',
+                      hintText: 'Enter notes',
+                      controller: _notesController),
                 ],
               ),
             ),
@@ -261,7 +269,9 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
     );
   }
 
-  Widget _buildDateField({required String label,}) {
+  Widget _buildDateField({
+    required String label,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -301,7 +311,6 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
               width: 1,
             ),
             borderRadius: BorderRadius.circular(5),
-            
           ),
         ),
       ],

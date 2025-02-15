@@ -23,7 +23,7 @@ class _EditBookingModalState extends State<EditBookingModal> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 700 : screenWidth * 0.9;
-    const double containerHeight = 450;
+    const double containerHeight = 460;
 
     return Dialog(
       shape: RoundedRectangleBorder(

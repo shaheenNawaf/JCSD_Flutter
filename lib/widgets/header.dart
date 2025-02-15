@@ -3,11 +3,13 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Header extends StatelessWidget {
   final String title;
+  final Widget? leading;
   final VoidCallback? onAvatarTap;
 
   const Header({
     super.key,
     required this.title,
+    this.leading,
     this.onAvatarTap,
   });
 
@@ -23,14 +25,19 @@ class Header extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF00AEEF),
-              fontSize: 20,
-            ),
+          Row(
+            children: [
+              if (leading != null) ...[leading!, const SizedBox(width: 8)],
+              Text(
+                title,
+                style: const TextStyle(
+                  fontFamily: 'NunitoSans',
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF00AEEF),
+                  fontSize: 20,
+                ),
+              ),
+            ],
           ),
           Row(
             children: [

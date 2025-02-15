@@ -36,7 +36,7 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 700 : screenWidth * 0.9;
-    const double containerHeight = 650;
+    const double containerHeight = 620;
 
     return Dialog(
       shape: RoundedRectangleBorder(

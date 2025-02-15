@@ -8,22 +8,22 @@ import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_data.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
 
-
 class EditSupplierModal extends ConsumerStatefulWidget {
   final SuppliersData supplierData;
   final int supplierID;
-  const EditSupplierModal({super.key, required this.supplierData, required this.supplierID});
+  const EditSupplierModal(
+      {super.key, required this.supplierData, required this.supplierID});
 
   @override
   ConsumerState<EditSupplierModal> createState() => _EditSupplierModalState();
 }
 
 class _EditSupplierModalState extends ConsumerState<EditSupplierModal> {
-
   // Controllers
   final TextEditingController _supplierNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _contactNumberController = TextEditingController();
+  final TextEditingController _contactNumberController =
+      TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
   @override
@@ -43,7 +43,7 @@ class _EditSupplierModalState extends ConsumerState<EditSupplierModal> {
 
     _supplierNameController.text = _supplierData.supplierName;
     _addressController.text = _supplierData.supplierAddress;
-    _emailController.text =   _supplierData.supplierEmail;
+    _emailController.text = _supplierData.supplierEmail;
     _contactNumberController.text = _supplierData.contactNumber;
   }
 
@@ -51,13 +51,14 @@ class _EditSupplierModalState extends ConsumerState<EditSupplierModal> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 300 ? 400 : screenWidth * 0.9;
-    const double containerHeight = 550;
+    const double containerHeight = 480;
 
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      insetPadding: EdgeInsets.symmetric(horizontal: screenWidth > 600 ? 50.0 : 16.0),
+      insetPadding:
+          EdgeInsets.symmetric(horizontal: screenWidth > 600 ? 50.0 : 16.0),
       child: Container(
         width: containerWidth,
         height: containerHeight,
@@ -155,18 +156,22 @@ class _EditSupplierModalState extends ConsumerState<EditSupplierModal> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        try{
+                        try {
                           final editSupplier = SuppliersService();
-                          
+
                           int supplierID = widget.supplierID;
                           String supplierName = _supplierNameController.text;
-                          String supplierAddress = _addressController.text; 
+                          String supplierAddress = _addressController.text;
                           String contactNumber = _contactNumberController.text;
                           String supplierEmail = _emailController.text;
 
-                          await editSupplier.updateSupplier(supplierID, supplierName, supplierEmail, contactNumber, supplierAddress);
-                        }
-                        catch(err){
+                          await editSupplier.updateSupplier(
+                              supplierID,
+                              supplierName,
+                              supplierEmail,
+                              contactNumber,
+                              supplierAddress);
+                        } catch (err) {
                           print('Tried updating supplier details. $err');
                         }
                         ref.invalidate(fetchAvailableSuppliers);
@@ -203,7 +208,7 @@ class _EditSupplierModalState extends ConsumerState<EditSupplierModal> {
     required String hintText,
     required TextEditingController controller,
     TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator, 
+    String? Function(String?)? validator,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

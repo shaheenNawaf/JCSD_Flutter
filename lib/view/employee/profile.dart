@@ -13,6 +13,7 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage>
     with SingleTickerProviderStateMixin {
+  final String _activeSubItem = '/employeeList';
   late AnimationController _animationController;
   DateTime selectedDate = DateTime.now();
 
@@ -37,12 +38,17 @@ class _ProfilePageState extends State<ProfilePage>
       backgroundColor: const Color(0xFFF8F8F8),
       body: Row(
         children: [
-          const Sidebar(),
+          Sidebar(activePage: _activeSubItem),
           Expanded(
             child: Column(
               children: [
-                const Header(
+                Header(
                   title: 'Profile',
+                  leading: IconButton(
+                    icon:
+                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ),
                 Expanded(
                   child: Padding(
@@ -173,7 +179,6 @@ class _ProfilePageState extends State<ProfilePage>
                         '3',
                         '4',
                         '2 Days',
-                        'Clock In'
                       ];
                       final statuses = [
                         'Scheduled',
@@ -204,7 +209,7 @@ class _ProfilePageState extends State<ProfilePage>
                             child: Text(
                               'Clock In',
                               style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 25),
+                                  fontWeight: FontWeight.bold, fontSize: 18),
                             ),
                           ),
                         );
@@ -225,8 +230,9 @@ class _ProfilePageState extends State<ProfilePage>
                                 Text(days[index],
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 25)),
-                                Text(statuses[index]),
+                                        fontSize: 18)),
+                                Text(statuses[index],
+                                    style: const TextStyle(fontSize: 12)),
                               ],
                             ),
                           ),
@@ -372,7 +378,10 @@ class _ProfilePageState extends State<ProfilePage>
                         onPressed: () {
                           Navigator.pushNamed(context, '/payslip');
                         },
-                        icon: const FaIcon(FontAwesomeIcons.fileInvoiceDollar),
+                        icon: const FaIcon(
+                          FontAwesomeIcons.fileInvoiceDollar,
+                          color: Colors.white,
+                        ),
                         label: const Text('Payslips'),
                       ),
                       const SizedBox(width: 20),
@@ -389,7 +398,8 @@ class _ProfilePageState extends State<ProfilePage>
                         onPressed: () {
                           Navigator.pushNamed(context, '/leaveRequest');
                         },
-                        icon: const FaIcon(FontAwesomeIcons.suitcaseRolling),
+                        icon: const FaIcon(FontAwesomeIcons.suitcaseRolling,
+                            color: Colors.white),
                         label: const Text('Leave Requests'),
                       ),
                     ],
@@ -405,7 +415,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   Widget _buildProfileHeader() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 25, 0, 0),
+      padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
       child: Row(
         children: [
           Container(
@@ -439,7 +449,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 10, 0, 20),
+      padding: const EdgeInsets.fromLTRB(20, 10, 0, 20),
       child: Text(
         title,
         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -453,7 +463,7 @@ class _ProfilePageState extends State<ProfilePage>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(40, 0, 10, 10),
+          padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
           child: SizedBox(
               width: 25, child: FaIcon(icon, color: Colors.grey, size: 20)),
         ),

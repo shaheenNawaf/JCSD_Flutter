@@ -30,7 +30,7 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
   final TextEditingController _addItemSupplier = TextEditingController();
   final TextEditingController _addItemPrice = TextEditingController();
   final TextEditingController _addItemQuantity = TextEditingController();
-  
+
   @override
   void dispose() {
     _addItemPrice.dispose();
@@ -41,7 +41,7 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 700 : screenWidth * 0.99;
-    const double containerHeight = 390;
+    const double containerHeight = 380;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -98,11 +98,10 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
                           ),
                           const SizedBox(height: 12),
                           _buildTextField(
-                            label: 'Item Description',
-                            hintText: 'Enter item description here',
-                            maxLines: 1,
-                            setController: _addItemDescription
-                          ),
+                              label: 'Item Description',
+                              hintText: 'Enter item description here',
+                              maxLines: 1,
+                              setController: _addItemDescription),
                           const SizedBox(height: 8),
                           _buildTextField(
                             label: 'Item Quantity',
@@ -130,7 +129,7 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
                           ),
                           const SizedBox(height: 12),
                           //Supplier Fields
-                          _buildSupliersList(
+                          _buildSuppliersList(
                             label: 'Supplier',
                             hintText: 'Select supplier',
                             value: _selectedSupplier,
@@ -192,8 +191,14 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
                           int supplierID = int.parse(_addItemSupplier.text);
                           double itemPrice = double.parse(_addItemPrice.text);
 
-                          await addItem.addItem(itemName, itemTypeID, itemDescription, itemQuantity, supplierID, itemPrice);
-                        }catch(err){
+                          await addItem.addItem(
+                              itemName,
+                              itemTypeID,
+                              itemDescription,
+                              itemQuantity,
+                              supplierID,
+                              itemPrice);
+                        } catch (err) {
                           print('Tried adding item details. $err');
                         }
                         ref.invalidate(fetchActive);
@@ -328,7 +333,7 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
               ),
             );
           }).toList(),
-          onChanged: (String? getItemType){
+          onChanged: (String? getItemType) {
             print(getItemType);
             _addItemType.text = getItemType ?? '';
           },
@@ -344,86 +349,86 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
     required ValueChanged<String?> onChanged,
   }) {
     return FutureBuilder(
-      future: ref.read(fetchItemTypesList.future),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting){
-          return const CircularProgressIndicator();
-        }
-        if (snapshot.hasError){
-          return Text('Error fetching: ${snapshot.error}');
-        }
+        future: ref.read(fetchItemTypesList.future),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          }
+          if (snapshot.hasError) {
+            return Text('Error fetching: ${snapshot.error}');
+          }
 
-        final typeList = snapshot.data!;
+          final typeList = snapshot.data!;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+          return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.normal,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontFamily: 'NunitoSans',
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    const Text(
+                      '*',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
-                const Text(
-                  '*',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            DropdownButtonFormField<String>(
-              value: value,
-              hint: Text(
-                hintText,
-                style: const TextStyle(
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w300,
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ),
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-              icon: const Icon(Icons.arrow_drop_down),
-              dropdownColor: Colors.white,
-              items: typeList.map((itemTypes) {
-                return DropdownMenuItem<String>(
-                  value: itemTypes.itemType,
-                  child: Text(
-                    itemTypes.itemType,
+                const SizedBox(height: 5),
+                DropdownButtonFormField<String>(
+                  value: value,
+                  hint: Text(
+                    hintText,
                     style: const TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w300,
                       fontSize: 12,
+                      color: Colors.grey,
                     ),
                   ),
-                );
-              }).toList(),
-              onChanged: (String? getTypeName) async {
-                print(getTypeName);
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                  icon: const Icon(Icons.arrow_drop_down),
+                  dropdownColor: Colors.white,
+                  items: typeList.map((itemTypes) {
+                    return DropdownMenuItem<String>(
+                      value: itemTypes.itemType,
+                      child: Text(
+                        itemTypes.itemType,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w300,
+                          fontSize: 12,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (String? getTypeName) async {
+                    print(getTypeName);
 
-                if(getTypeName != null){
-                  int fetchID = await ref.read(itemTypesProvider).getIdByName(getTypeName); 
-                  if(fetchID != -1){
-                    itemTypeID = fetchID;
-                  }
-                }
-              },
-            ),
-          ]
-        ); 
-      }
-    );
+                    if (getTypeName != null) {
+                      int fetchID = await ref
+                          .read(itemTypesProvider)
+                          .getIdByName(getTypeName);
+                      if (fetchID != -1) {
+                        itemTypeID = fetchID;
+                      }
+                    }
+                  },
+                ),
+              ]);
+        });
   }
 
-  Widget _buildSupliersList({
+  Widget _buildSuppliersList({
     required String label,
     required String hintText,
     required String? value,
@@ -432,10 +437,10 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
     return FutureBuilder(
       future: ref.read(fetchAvailableSuppliers.future),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting){
+        if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
         }
-        if (snapshot.hasError){
+        if (snapshot.hasError) {
           return Text('Error fetching: ${snapshot.error}');
         }
 
@@ -465,6 +470,7 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
             const SizedBox(height: 5),
             DropdownButtonFormField<String>(
               value: value,
+              isExpanded: true,
               hint: Text(
                 hintText,
                 style: const TextStyle(
@@ -482,24 +488,29 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
               items: supplierList.map((supplier) {
                 return DropdownMenuItem<String>(
                   value: supplier.supplierID.toString(),
-                  child: Text(
-                    supplier.supplierName,
-                    style: const TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w300,
-                      fontSize: 12,
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Text(
+                      supplier.supplierName,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: const TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w300,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                 );
               }).toList(),
-              onChanged: (String? getSupplierText){
+              onChanged: (String? getSupplierText) {
                 print(getSupplierText);
                 _addItemSupplier.text = getSupplierText ?? '';
               },
             ),
-          ]
-        ); 
-      }
+          ],
+        );
+      },
     );
   }
 

@@ -12,7 +12,7 @@ class ProfileAdminViewPage extends StatefulWidget {
 }
 
 class _ProfileAdminViewPageState extends State<ProfileAdminViewPage> {
-  DateTime selectedDate = DateTime.now();
+  final String _activeSubItem = '/accountList';
 
   void _editBookingModal() {
     showDialog(
@@ -30,17 +30,22 @@ class _ProfileAdminViewPageState extends State<ProfileAdminViewPage> {
       backgroundColor: const Color(0xFFF8F8F8),
       body: Row(
         children: [
-          const Sidebar(),
+          Sidebar(activePage: _activeSubItem),
           Expanded(
             child: Column(
               children: [
-                const Header(
+                Header(
                   title: 'Account Details',
+                  leading: IconButton(
+                    icon:
+                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: _buildWebView(),
+                    child: _buildProfileView(),
                   ),
                 ),
               ],
@@ -51,7 +56,7 @@ class _ProfileAdminViewPageState extends State<ProfileAdminViewPage> {
     );
   }
 
-  Widget _buildWebView() {
+  Widget _buildProfileView() {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -65,55 +70,66 @@ class _ProfileAdminViewPageState extends State<ProfileAdminViewPage> {
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildProfileHeader(),
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.all(40.0),
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      _editBookingModal();
-                    },
-                    icon: const FaIcon(FontAwesomeIcons.penToSquare, size: 16),
-                    label: const Text('Edit'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF00AEEF),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: ScrollConfiguration(
+          behavior: const ScrollBehavior()
+              .copyWith(overscroll: false, scrollbars: false),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildProfileHeader(),
+                      const Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.all(40.0),
+                        child: ElevatedButton.icon(
+                          onPressed: _editBookingModal,
+                          icon: const FaIcon(FontAwesomeIcons.penToSquare,
+                              color: Colors.white, size: 16),
+                          label: const Text('Edit'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF00AEEF),
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 20),
+                  _buildSectionTitle('Basic Information'),
+                  _buildInfoRow(FontAwesomeIcons.envelope, 'Email: ',
+                      'mebguevara@gmail.com'),
+                  _buildInfoRow(
+                      FontAwesomeIcons.phone, 'Phone: ', '09278645368'),
+                  _buildInfoRow(FontAwesomeIcons.cakeCandles, 'Birthday: ',
+                      'May 5, 2001'),
+                  _buildDivider(),
+                  _buildSectionTitle('Address'),
+                  _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ',
+                      '106-6 CM Recto Ave.'),
+                  _buildInfoRow(FontAwesomeIcons.city, 'City: ', 'Manila'),
+                  _buildInfoRow(
+                      FontAwesomeIcons.globe, 'Country: ', 'Philippines'),
+                  _buildDivider(),
+                  _buildSectionTitle('Account Details'),
+                  _buildInfoRow(FontAwesomeIcons.user, 'User Name: ', 'Lake.'),
+                  _buildInfoRow(
+                      FontAwesomeIcons.lock, 'Password: ', '*********'),
+                  _buildInfoRow(FontAwesomeIcons.calendar,
+                      'Account Creation Date: ', '05/05/05'),
+                ],
+              ),
             ),
-            const SizedBox(height: 20),
-            _buildSectionTitle('Basic Information'),
-            _buildInfoRow(
-                FontAwesomeIcons.envelope, 'Email: ', 'mebguevara@gmail.com'),
-            _buildInfoRow(FontAwesomeIcons.phone, 'Phone: ', '09278645368'),
-            _buildInfoRow(
-                FontAwesomeIcons.cakeCandles, 'Birthday: ', 'May 5, 2001'),
-            _buildDivider(),
-            _buildSectionTitle('Address'),
-            _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ',
-                '106-6 CM Recto Ave.'),
-            _buildInfoRow(FontAwesomeIcons.city, 'City: ', 'Manila'),
-            _buildInfoRow(FontAwesomeIcons.globe, 'Country: ', 'Philippines'),
-            _buildDivider(),
-            _buildSectionTitle('Account Details'),
-            _buildInfoRow(FontAwesomeIcons.user, 'User Name: ', 'Lake.'),
-            _buildInfoRow(FontAwesomeIcons.user, 'Password: ', '*********.'),
-            _buildInfoRow(FontAwesomeIcons.calendar, 'Account Creation Date: ',
-                '05/05/05'),
-          ],
+          ),
         ),
       ),
     );
@@ -121,7 +137,7 @@ class _ProfileAdminViewPageState extends State<ProfileAdminViewPage> {
 
   Widget _buildProfileHeader() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 25, 0, 0),
+      padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
       child: Row(
         children: [
           Container(
@@ -146,7 +162,7 @@ class _ProfileAdminViewPageState extends State<ProfileAdminViewPage> {
 
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 10, 0, 20),
+      padding: const EdgeInsets.fromLTRB(20, 5, 0, 20),
       child: Text(
         title,
         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -160,12 +176,14 @@ class _ProfileAdminViewPageState extends State<ProfileAdminViewPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(40, 0, 10, 10),
+          padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
           child: SizedBox(
               width: 25, child: FaIcon(icon, color: Colors.grey, size: 20)),
         ),
         Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text(value),
+        Expanded(
+          child: Text(value, overflow: TextOverflow.ellipsis),
+        ),
       ],
     );
   }

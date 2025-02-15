@@ -1,11 +1,13 @@
-import 'dart:io';
+// ignore_for_file: unused_element
+
+// import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'dart:html' as html;
 import 'dart:typed_data';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:flutter_email_sender/flutter_email_sender.dart';
+// import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 
 class BookingReceipt extends StatefulWidget {
@@ -21,52 +23,48 @@ Future<void> generatePdfReceipt() async {
   pdf.addPage(
     pw.Page(
       build: (pw.Context context) => pw.Align(
-          alignment: pw.Alignment.topLeft,
-          child: pw.Column(
-            mainAxisAlignment: pw.MainAxisAlignment.start,
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Text("Booking ID : 01624395345",
-                  style: const pw.TextStyle(fontSize: 20)),
-              pw.Text("Invoice ID : 01624395345",
-                  style: const pw.TextStyle(fontSize: 20)),
-              pw.Text("Purok 4 Block 3",
-                  style: const pw.TextStyle(fontSize: 15)),
-              pw.Text("Panacan Relcoation",
-                  style: const pw.TextStyle(fontSize: 15)),
-              pw.Text("8000 Davao City, Philippines",
-                  style: const pw.TextStyle(fontSize: 15)),
-              pw.Text("0976 074 7797", style: const pw.TextStyle(fontSize: 15)),
-              pw.Text("JCSD", style: const pw.TextStyle(fontSize: 15)),
-              pw.SizedBox(height: 20),
-              pw.TableHelper.fromTextArray(
-                  context: context,
-                  cellHeight: 20,
-                  headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                  headers: <String>[
-                    'Item',
-                    'Description',
-                    'Quantity',
-                    'Amount'
-                  ],
-                  data: <List<String>>[
-                    <String>['1', 'Service Charge', '3', 'P400'],
-                    <String>['2', 'Service Charge', '3', 'P400'],
-                    <String>['3', 'Service Charge', '3', 'P400'],
-                    <String>['4', 'Service Charge', '3', 'P400'],
-                    <String>['5', 'Service Charge', '3', 'P400'],
-                    <String>['6', 'Service Charge', '3', 'P400'],
-                    <String>['7', 'Service Charge', '3', 'P400'],
-                    <String>['8', 'Service Charge', '3', 'P400'],
-                    <String>['9', 'Service Charge', '3', 'P400'],
-                    <String>['10', 'Service Charge', '3', 'P400'],
-                    <String>['', '', 'Subtotal', 'P2,000'],
-                    <String>['', '', 'Tax', 'P1,000'],
-                    <String>['', '', 'Other', 'P1,000'],
-                    <String>['', '', 'Total', 'P5,000'],
-                  ]),
-            ],
-          )),
+        alignment: pw.Alignment.topLeft,
+        child: pw.Column(
+          mainAxisAlignment: pw.MainAxisAlignment.start,
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Text("Booking ID : 01624395345",
+                style: const pw.TextStyle(fontSize: 20)),
+            pw.Text("Invoice ID : 01624395345",
+                style: const pw.TextStyle(fontSize: 20)),
+            pw.Text("Purok 4 Block 3", style: const pw.TextStyle(fontSize: 15)),
+            pw.Text("Panacan Relocation",
+                style: const pw.TextStyle(fontSize: 15)),
+            pw.Text("8000 Davao City, Philippines",
+                style: const pw.TextStyle(fontSize: 15)),
+            pw.Text("0976 074 7797", style: const pw.TextStyle(fontSize: 15)),
+            pw.Text("JCSD", style: const pw.TextStyle(fontSize: 15)),
+            pw.SizedBox(height: 20),
+            pw.TableHelper.fromTextArray(
+              context: context,
+              cellHeight: 20,
+              headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              headers: <String>['Item', 'Description', 'Quantity', 'Amount'],
+              data: <List<String>>[
+                <String>['1', 'Service Charge', '3', 'P400'],
+                <String>['2', 'Service Charge', '3', 'P400'],
+                <String>['3', 'Service Charge', '3', 'P400'],
+                <String>['4', 'Service Charge', '3', 'P400'],
+                <String>['5', 'Service Charge', '3', 'P400'],
+                <String>['6', 'Service Charge', '3', 'P400'],
+                <String>['7', 'Service Charge', '3', 'P400'],
+                <String>['8', 'Service Charge', '3', 'P400'],
+                <String>['9', 'Service Charge', '3', 'P400'],
+                <String>['10', 'Service Charge', '3', 'P400'],
+                <String>['', '', 'Subtotal', 'P2,000'],
+                <String>['', '', 'Tax', 'P1,000'],
+                <String>['', '', 'Other', 'P1,000'],
+                <String>['', '', 'Total', 'P5,000'],
+              ],
+            ),
+          ],
+        ),
+      ),
     ),
   );
 
@@ -77,96 +75,34 @@ Future<void> generatePdfReceipt() async {
   html.Url.revokeObjectUrl(url);
 }
 
-Future<void> sendEmailWithAttachment(File attachment) async {
-  final Email email = Email(
-    body: 'Here is the PDF file you requested.',
-    subject: 'PDF File',
-    recipients: [
-      'mebguevara@addu.edu.ph'
-    ], // Replace with the recipient's email
-    attachmentPaths: [attachment.path],
-    isHTML: false,
-  );
-
-  try {
-    await FlutterEmailSender.send(email);
-  } catch (error) {
-    print('Failed to send email: $error');
-  }
-}
-
 class _BookingReceiptState extends State<BookingReceipt> {
+  final String _activeSubItem = '/bookings';
+
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor:  Color(0xFFF8F8F8),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F8F8),
       body: Row(
         children: [
-          Sidebar(),
+          Sidebar(activePage: _activeSubItem),
           Expanded(
             child: Column(
               children: [
                 Header(
                   title: 'Booking Receipt',
+                  leading: IconButton(
+                    icon:
+                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ),
-                Expanded(
+                const Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: const _WebView(),
+                    padding: EdgeInsets.all(16.0),
+                    child: _WebView(),
                   ),
                 ),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Header extends StatelessWidget {
-  const _Header();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const FaIcon(FontAwesomeIcons.arrowLeft,
-                color: Color(0xFF00AEEF)),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-          ),
-          const Text(
-            'Booking Receipt',
-            style: TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF00AEEF),
-              fontSize: 20,
-            ),
-          ),
-          const Spacer(),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pushNamedAndRemoveUntil(
-                  context, '/profile', (route) => false);
-            },
-            style: ElevatedButton.styleFrom(
-              shape: const CircleBorder(),
-              padding: const EdgeInsets.all(8),
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-            ),
-            child: const CircleAvatar(
-              radius: 20,
-              backgroundImage: AssetImage(
-                  'assets/avatars/cat2.jpg'), // Replace with your image source
             ),
           ),
         ],
@@ -193,70 +129,55 @@ class _WebView extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const FaIcon(FontAwesomeIcons.arrowLeft,
-                            color: Color(0xFF00AEEF)),
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                      ),
-                      const Text(
-                        'Receipt',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 30,
-                        ),
-                      ),
-                    ],
+      child: Scrollbar(
+        thumbVisibility: false,
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Receipt',
+                style: TextStyle(
+                  fontFamily: 'NunitoSans',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30,
+                ),
+              ),
+              const SizedBox(height: 20),
+              const _ReceiptDetails(),
+              const SizedBox(height: 20),
+              const _ReceiptTable(),
+              const _SummaryTable(),
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton.icon(
+                  onPressed: generatePdfReceipt,
+                  icon: const Icon(
+                    Icons.print,
+                    color: Colors.white,
                   ),
-                  const Spacer(),
-                  const _ReceiptDetails(),
-                  const Spacer(),
-                  const _ReceiptTable(),
-                  const _SummaryTable(),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          generatePdfReceipt();
-                        },
-                        icon: const Icon(Icons.print),
-                        label: const Text('Print Receipt'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00AEEF),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          textStyle: const TextStyle(
-                            fontFamily: 'NunitoSans',
-                            fontWeight: FontWeight.bold,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
+                  label: const Text('Print Receipt'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00AEEF),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
+                    textStyle: const TextStyle(
+                      fontFamily: 'NunitoSans',
+                      fontWeight: FontWeight.bold,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -273,7 +194,7 @@ class _ReceiptDetails extends StatelessWidget {
         Text('Booking ID : 01624395345', style: TextStyle(fontSize: 20)),
         Text('Invoice ID : 01624395345', style: TextStyle(fontSize: 20)),
         Text('Purok 4 Block 3', style: TextStyle(fontSize: 20)),
-        Text('Panacan Relcoation', style: TextStyle(fontSize: 20)),
+        Text('Panacan Relocation', style: TextStyle(fontSize: 20)),
         Text('8000 Davao City, Philippines', style: TextStyle(fontSize: 20)),
         Text('0976 074 7797', style: TextStyle(fontSize: 20)),
         Text('JCSD', style: TextStyle(fontSize: 20)),
@@ -290,7 +211,7 @@ class _ReceiptTable extends StatelessWidget {
     return Table(
       border: TableBorder.all(color: Colors.grey),
       columnWidths: const {
-        0: FlexColumnWidth(0.2),
+        0: FlexColumnWidth(0.5),
         1: FlexColumnWidth(5.8),
         2: FlexColumnWidth(1),
       },

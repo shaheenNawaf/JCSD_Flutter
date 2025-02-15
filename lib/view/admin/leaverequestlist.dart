@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/modals/confirmleaverequest.dart';
 import 'package:jcsd_flutter/modals/rejectleaverequest.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
@@ -13,18 +12,25 @@ class LeaveRequestList extends StatefulWidget {
 }
 
 class _LeaveRequestListState extends State<LeaveRequestList> {
+  final String _activeSubItem = '/employeeList';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       body: Row(
         children: [
-          const Sidebar(),
+          Sidebar(activePage: _activeSubItem),
           Expanded(
             child: Column(
               children: [
-                const Header(
-                  title: '<- Leave Request List',
+                Header(
+                  title: 'Leave Request List',
+                  leading: IconButton(
+                    icon:
+                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ),
                 Expanded(
                   child: Padding(
@@ -69,7 +75,7 @@ class _LeaveRequestListState extends State<LeaveRequestList> {
           ),
           Expanded(
             child: GridView.builder(
-              padding: const EdgeInsets.fromLTRB(40, 10, 40, 0),
+              padding: const EdgeInsets.fromLTRB(40, 10, 40, 20),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 1,
                 mainAxisSpacing: 20,
@@ -207,22 +213,23 @@ class _LeaveRequestListState extends State<LeaveRequestList> {
       ),
     );
   }
+
   _showConfirmLeaveRequestModal() {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return ConfirmLeaveRequestModal();
+        return const ConfirmLeaveRequestModal();
       },
     );
   }
 
-    _showRejectLeaveRequestModal() {
+  _showRejectLeaveRequestModal() {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return RejectLeaveRequestModal();
+        return const RejectLeaveRequestModal();
       },
     );
   }

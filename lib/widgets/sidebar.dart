@@ -29,8 +29,8 @@ class _SidebarState extends State<Sidebar> {
 
     _isInventoryExpanded = widget.activePage.startsWith('/inventory') ||
         widget.activePage == '/archiveList' ||
-        widget.activePage == '/auditLog' ||
-        widget.activePage == '/itemTypes';
+        widget.activePage == '/orderList' ||
+        widget.activePage == '/auditLog';
     _isBookingsExpanded = widget.activePage.startsWith('/bookings') ||
         widget.activePage == '/bookingsCalendar' ||
         widget.activePage == '/transactions';
@@ -134,18 +134,18 @@ class _SidebarState extends State<Sidebar> {
                           onTap: () => _navigateTo('/archiveList'),
                         ),
                         SubSidebarItem(
+                          icon: FontAwesomeIcons.fileImport,
+                          title: 'Order List',
+                          route: '/orderList',
+                          isActive: _activeSubItem == '/orderList',
+                          onTap: () => _navigateTo('/orderList'),
+                        ),
+                        SubSidebarItem(
                           icon: FontAwesomeIcons.clockRotateLeft,
                           title: 'Audit Log',
                           route: '/auditLog',
                           isActive: _activeSubItem == '/auditLog',
                           onTap: () => _navigateTo('/auditLog'),
-                        ),
-                        SubSidebarItem(
-                          icon: FontAwesomeIcons.tags,
-                          title: 'Item Types',
-                          route: '/itemTypes',
-                          isActive: _activeSubItem == '/itemTypes',
-                          onTap: () => _navigateTo('/itemTypes'),
                         ),
                       ],
                       SidebarItemWithDropdown(
@@ -329,18 +329,18 @@ class _SidebarState extends State<Sidebar> {
                     onTap: () => _navigateTo('/archiveList'),
                   ),
                   SubSidebarItem(
+                    icon: FontAwesomeIcons.fileImport,
+                    title: 'Order List',
+                    route: '/orderList',
+                    isActive: _activeSubItem == '/orderList',
+                    onTap: () => _navigateTo('/orderList'),
+                  ),
+                  SubSidebarItem(
                     icon: FontAwesomeIcons.clockRotateLeft,
                     title: 'Audit Log',
                     route: '/auditLog',
                     isActive: _activeSubItem == '/auditLog',
                     onTap: () => _navigateTo('/auditLog'),
-                  ),
-                  SubSidebarItem(
-                    icon: FontAwesomeIcons.tags,
-                    title: 'Item Types',
-                    route: '/itemTypes',
-                    isActive: _activeSubItem == '/itemTypes',
-                    onTap: () => _navigateTo('/itemTypes'),
                   ),
                 ],
                 SidebarItemWithDropdown(

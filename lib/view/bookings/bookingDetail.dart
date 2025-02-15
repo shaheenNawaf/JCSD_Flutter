@@ -17,6 +17,8 @@ class BookingDetails extends StatefulWidget {
 }
 
 class _BookingDetailsState extends State<BookingDetails> {
+  final String _activeSubItem = '/bookings';
+
   void _showAddItemListModal() {
     showDialog(
       context: context,
@@ -63,12 +65,17 @@ class _BookingDetailsState extends State<BookingDetails> {
       backgroundColor: const Color(0xFFF8F8F8),
       body: Row(
         children: [
-          const Sidebar(),
+          Sidebar(activePage: _activeSubItem),
           Expanded(
             child: Column(
               children: [
-                const Header(
+                Header(
                   title: 'Booking Details',
+                  leading: IconButton(
+                    icon:
+                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ),
                 Expanded(
                   child: Padding(
@@ -254,7 +261,7 @@ class _BookingDetailsState extends State<BookingDetails> {
                           style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
+                          padding: const EdgeInsets.fromLTRB(20, 0, 0, 5),
                           child: ElevatedButton(
                             onPressed: () {
                               _showAddItemListModal();

@@ -13,30 +13,10 @@ class _AddItemListModalState extends State<AddItemListModal> {
   final TextEditingController _priceController = TextEditingController();
 
   // Dummy data for dropdowns, insert data from backend
-  final List<String> _itemTypes = [
-    'Samsung 1',
-    'Monitor',
-    'Processor',
-    'Nut'
-  ];
-  final List<String> _itemSuppliers = [
-    'Samsung 1',
-    'Amd',
-    'Intel',
-    'Peanut'
-  ];
-  final List<String> _itemPrice = [
-    'P2,000',
-    'P12,000',
-    'P1,000',
-    'P500'
-  ];
-  final List<String> _itemStock = [
-    '250',
-    '50',
-    '30',
-    '15'
-  ];
+  final List<String> _itemTypes = ['Samsung 1', 'Monitor', 'Processor', 'Nut'];
+  final List<String> _itemSuppliers = ['Samsung 1', 'Amd', 'Intel', 'Peanut'];
+  final List<String> _itemPrice = ['P2,000', 'P12,000', 'P1,000', 'P500'];
+  final List<String> _itemStock = ['250', '50', '30', '15'];
 
   @override
   void dispose() {
@@ -47,8 +27,8 @@ class _AddItemListModalState extends State<AddItemListModal> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    double containerWidth = screenWidth > 600 ? 700 : screenWidth * 0.9;
-    const double containerHeight = 230;
+    double containerWidth = screenWidth > 400 ? 500 : screenWidth * 0.9;
+    const double containerHeight = 210;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -94,7 +74,7 @@ class _AddItemListModalState extends State<AddItemListModal> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      flex: 4,
+                      flex: 2,
                       child: _buildDropdownField(
                         label: 'Item',
                         hintText: 'Select item',
@@ -110,7 +90,9 @@ class _AddItemListModalState extends State<AddItemListModal> {
                         },
                       ),
                     ),
-                    const SizedBox(width: 10,),
+                    const SizedBox(
+                      width: 10,
+                    ),
                     Expanded(flex: 1, child: _buildQuantityField())
                   ],
                 ),
@@ -175,7 +157,6 @@ class _AddItemListModalState extends State<AddItemListModal> {
       ),
     );
   }
-
 
   Widget _buildDropdownField({
     required String label,

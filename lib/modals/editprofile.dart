@@ -23,7 +23,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 700 : screenWidth * 0.9;
-    const double containerHeight = 630;
+    const double containerHeight = 620;
 
     return Dialog(
       shape: RoundedRectangleBorder(

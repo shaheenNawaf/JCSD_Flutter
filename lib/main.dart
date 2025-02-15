@@ -23,6 +23,7 @@ import 'package:jcsd_flutter/view/generic/signup_second.dart';
 import 'package:jcsd_flutter/view/inventory/inventory.dart';
 import 'package:jcsd_flutter/view/inventory/inventory_archive.dart';
 import 'package:jcsd_flutter/view/inventory/auditLog.dart';
+import 'package:jcsd_flutter/view/inventory/order_list.dart';
 import 'package:jcsd_flutter/view/bookings/bookings.dart';
 import 'package:jcsd_flutter/view/employee/transactions.dart';
 import 'package:jcsd_flutter/view/suppliers/suppliers.dart';
@@ -103,6 +104,7 @@ class MainApp extends StatelessWidget {
         '/bookings': (context) => const BookingsPage(),
         '/transactions': (context) => const TransactionsPage(),
         '/archiveList': (context) => const ArchiveListPage(),
+        '/orderList': (context) => const OrderListPage(),
         '/auditLog': (context) => const AuditLogPage(),
         '/services': (context) => const ServicesPage(),
         '/servicesArchive': (context) => const ServicesArchivePage(),

@@ -149,20 +149,24 @@ class _BorrowedItemsState extends State<BorrowedItems> {
           children: [
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 10.0,horizontal: 16),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16),
               decoration: const BoxDecoration(
                 color: Color(0xFF00AEEF),
                 borderRadius: BorderRadius.vertical(
                   top: Radius.circular(10),
                 ),
               ),
-              child: const Text(
-                'Borrowed Items',
-                style: TextStyle(
-                  fontFamily: 'NunitoSans',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.white,
+              child: const Padding(
+                padding: EdgeInsets.only(left: 20),
+                child: Text(
+                  'Borrowed Items',
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -173,7 +177,9 @@ class _BorrowedItemsState extends State<BorrowedItems> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Spacer(flex: 8,),
+                  Spacer(
+                    flex: 8,
+                  ),
                   Expanded(
                     flex: 1,
                     child: TextButton(
@@ -382,10 +388,11 @@ class _BorrowedItemsState extends State<BorrowedItems> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 SizedBox(
-                  width: 80,
+                  width: 135,
                   child: ElevatedButton(
                     onPressed: () {
-                      _showReturnConfirmationDialog(context, items[index]['itemID']);
+                      _showReturnConfirmationDialog(
+                          context, items[index]['itemID']);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
@@ -395,7 +402,6 @@ class _BorrowedItemsState extends State<BorrowedItems> {
                       style: TextStyle(
                         fontFamily: 'NunitoSans',
                         color: Colors.white,
-                        fontSize: 8,
                       ),
                     ),
                   ),
@@ -408,125 +414,125 @@ class _BorrowedItemsState extends State<BorrowedItems> {
     );
   }
 }
+
 void _showReturnConfirmationDialog(BuildContext context, int itemId) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
-
       final screenWidth = MediaQuery.of(context).size.width;
       double containerWidth = screenWidth > 600 ? 400 : screenWidth * 0.9;
       const double containerHeight = 160;
-          return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      insetPadding:
-          EdgeInsets.symmetric(horizontal: screenWidth > 600 ? 50.0 : 16.0),
-      child: Container(
-        width: containerWidth,
-        height: containerHeight,
-        decoration: BoxDecoration(
-          color: Colors.white,
+      return Dialog(
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              decoration: const BoxDecoration(
-                color: Color(0xFF00AEEF),
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(10),
+        insetPadding:
+            EdgeInsets.symmetric(horizontal: screenWidth > 600 ? 50.0 : 16.0),
+        child: Container(
+          width: containerWidth,
+          height: containerHeight,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF00AEEF),
+                  borderRadius: BorderRadius.vertical(
+                    top: Radius.circular(10),
+                  ),
                 ),
-              ),
-              child: const Center(
-                child: Text(
-                  'Confirmation',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: Colors.white,
+                child: const Center(
+                  child: Text(
+                    'Confirmation',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Center(
-                child: Text(
-                  'Are you sure you want to return this item?',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontSize: 16,
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Center(
+                  child: Text(
+                    'Are you sure you want to return this item?',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
                 ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          side: const BorderSide(
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                            side: const BorderSide(
+                              color: Color(0xFF00AEEF),
+                            ),
+                          ),
+                        ),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.bold,
                             color: Color(0xFF00AEEF),
                           ),
                         ),
                       ),
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF00AEEF),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Archive item here
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00AEEF),
+                          padding: const EdgeInsets.symmetric(vertical: 14.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        child: const Text(
+                          'Confirm',
+                          style: TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Archive item here
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00AEEF),
-                        padding: const EdgeInsets.symmetric(vertical: 14.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                      ),
-                      child: const Text(
-                        'Confirm',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
     },
   );
 }

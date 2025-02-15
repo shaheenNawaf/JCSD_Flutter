@@ -11,97 +11,37 @@ class Payslip extends StatefulWidget {
   _PayslipState createState() => _PayslipState();
 }
 
-class _PayslipState extends State<Payslip> with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
+class _PayslipState extends State<Payslip> {
+  final String _activeSubItem = '/employeeList';
   DateTime selectedDate = DateTime.now();
 
   @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  void _toggleDrawer(bool isOpen) {
-    isOpen ? _animationController.forward() : _animationController.reverse();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final bool isMobile = MediaQuery.of(context).size.width < 600;
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
-      appBar: isMobile
-          ? AppBar(
-              backgroundColor: const Color(0xFF00AEEF),
-              title: const Text(
-                'Payslip',
-                style: TextStyle(
-                  fontFamily: 'NunitoSans',
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              leading: Builder(
-                builder: (context) => IconButton(
-                  icon: const FaIcon(FontAwesomeIcons.bars, color: Colors.white),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                    _toggleDrawer(true);
-                  },
-                ),
-              ),
-            )
-          : null,
-      drawer: isMobile
-          ? Drawer(
-              backgroundColor: const Color(0xFF00AEEF),
-              child: Sidebar(onClose: () => _toggleDrawer(false)),
-            )
-          : null,
-      onDrawerChanged: _toggleDrawer,
-      body: Stack(
+      body: Row(
         children: [
-          Row(
-            children: [
-              if (!isMobile) const Sidebar(),
-              Expanded(
-                child: Column(
-                  children: [
-                    if (!isMobile)
-                    const Header(
-                      title: 'Payslip',
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: isMobile ? const SizedBox.shrink() : _buildWebView(),
-                      ),
-                    ),
-                  ],
+          Sidebar(activePage: _activeSubItem),
+          Expanded(
+            child: Column(
+              children: [
+                Header(
+                  title: 'Payslip',
+                  leading: IconButton(
+                    icon:
+                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ),
-              ),
-            ],
-          ),
-          if (isMobile)
-            AnimatedBuilder(
-              animation: _animationController,
-              builder: (context, child) {
-                return Opacity(
-                  opacity: _animationController.value * 0.6,
-                  child: _animationController.value > 0 ? Container(color: Colors.black) : const SizedBox.shrink(),
-                );
-              },
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: _buildWebView(),
+                  ),
+                ),
+              ],
             ),
+          ),
         ],
       ),
     );
@@ -133,83 +73,99 @@ class _PayslipState extends State<Payslip> with SingleTickerProviderStateMixin {
                   _buildProfileHeader(),
                   const SizedBox(height: 20),
                   _buildSectionTitle('About'),
-                  _buildInfoRow(FontAwesomeIcons.envelope, 'Email: ', 'mebguevara@gmail.com'),
-                  _buildInfoRow(FontAwesomeIcons.phone, 'Phone: ', '09278645368'),
-                  _buildInfoRow(FontAwesomeIcons.cakeCandles, 'Birthday: ', 'May 5, 2001'),
+                  _buildInfoRow(FontAwesomeIcons.envelope, 'Email: ',
+                      'mebguevara@gmail.com'),
+                  _buildInfoRow(
+                      FontAwesomeIcons.phone, 'Phone: ', '09278645368'),
+                  _buildInfoRow(FontAwesomeIcons.cakeCandles, 'Birthday: ',
+                      'May 5, 2001'),
                   _buildDivider(),
                   _buildSectionTitle('Address'),
-                  _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ', '106-6 CM Recto Ave.'),
+                  _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ',
+                      '106-6 CM Recto Ave.'),
                   _buildInfoRow(FontAwesomeIcons.city, 'City: ', 'Manila'),
-                  _buildInfoRow(FontAwesomeIcons.globe, 'Country: ', 'Philippines'),
+                  _buildInfoRow(
+                      FontAwesomeIcons.globe, 'Country: ', 'Philippines'),
                   _buildDivider(),
                   _buildSectionTitle('Employee Details'),
-                  _buildInfoRow(FontAwesomeIcons.user, 'Title: ', 'Employee.'),
-                  _buildInfoRow(FontAwesomeIcons.calendar, 'Hire Date: ', '05/05/05'),
+                  _buildInfoRow(FontAwesomeIcons.user, 'Title: ', 'Employee'),
+                  _buildInfoRow(
+                      FontAwesomeIcons.calendar, 'Hire Date: ', '05/05/05'),
                 ],
               ),
             ),
           ),
           VerticalDivider(width: 1, color: Colors.grey[300]),
-          Expanded(child: Column(
-            children: [
-              Row(
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(40, 20, 0, 0),
-                    child: Text("Payslip", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                  ),
-                  const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 20, 40, 0),
-                    child: ElevatedButton.icon(
-                    style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    side: const BorderSide(color: Colors.black),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+          Expanded(
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(40, 20, 0, 0),
+                      child: Text("Payslip",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 18)),
+                    ),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 20, 40, 10),
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          side: const BorderSide(color: Colors.black),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        onPressed: () async {
+                          DateTime? pickedDate = await showMonthPicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(2000),
+                            lastDate: DateTime(2101),
+                          );
+
+                          if (pickedDate != null) {
+                            setState(() {
+                              selectedDate = pickedDate;
+                            });
+                          }
+                        },
+                        icon: const FaIcon(FontAwesomeIcons.calendar,
+                            color: Colors.black),
+                        label: Text(
+                          '${selectedDate.month}/${selectedDate.year}',
+                          style: const TextStyle(color: Colors.black),
+                        ),
                       ),
                     ),
-                    onPressed: () async {
-                      DateTime? pickedDate = await showMonthPicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2101),
-                      );
-                      
-                      if (pickedDate != null) {
-                        setState(() {
-                          selectedDate = pickedDate;
-                        });
-                      }
-                    },
-                    icon: const FaIcon(FontAwesomeIcons.calendar, color: Colors.black), 
-                    label: Text(
-                    '${selectedDate.month}/${selectedDate.year}',
-                    style: const TextStyle(color: Colors.black),
-                    ),
-                  ),
-                  ),
-                ],
-              ),
-              Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
-              const PayslipRow(label: 'Total Income: ', value: 'P20,000', isBold: true),
-              const PayslipRow(label: 'Salary: ', value: 'P20,000'),
-              const PayslipRow(label: 'Medical Allowance: ', value: 'P20,000'),
-              const PayslipRow(label: 'OT Regular Day: ', value: 'P20,000'),
-              const PayslipRow(label: 'Bonus: ', value: 'P20,000'),
-              const PayslipRow(label: 'Others: ', value: 'P20,000'),
-              Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
-              const PayslipRow(label: 'Total Deduction: ', value: 'P5,000', isBold: true),
-              const PayslipRow(label: 'Tardiness: ', value: 'P2,000'),
-              const PayslipRow(label: 'Absences: ', value: 'P2,000'),
-              Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
-              const PayslipRow(label: 'Sub Total: ', value: 'P123,000', isBold: true),
-              const PayslipRow(label: 'Tax: ', value: 'P20,000'),
-              Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
-              const PayslipRow(label: 'Net Salary: ', value: 'P200,000', isBold: true),
-            ],
-          )),
+                  ],
+                ),
+                Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
+                const PayslipRow(
+                    label: 'Total Income: ', value: 'P20,000', isBold: true),
+                const PayslipRow(label: 'Salary: ', value: 'P20,000'),
+                const PayslipRow(
+                    label: 'Medical Allowance: ', value: 'P20,000'),
+                const PayslipRow(label: 'OT Regular Day: ', value: 'P20,000'),
+                const PayslipRow(label: 'Bonus: ', value: 'P20,000'),
+                const PayslipRow(label: 'Others: ', value: 'P20,000'),
+                Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
+                const PayslipRow(
+                    label: 'Total Deduction: ', value: 'P5,000', isBold: true),
+                const PayslipRow(label: 'Tardiness: ', value: 'P2,000'),
+                const PayslipRow(label: 'Absences: ', value: 'P2,000'),
+                Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
+                const PayslipRow(
+                    label: 'Sub Total: ', value: 'P123,000', isBold: true),
+                const PayslipRow(label: 'Tax: ', value: 'P20,000'),
+                Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
+                const PayslipRow(
+                    label: 'Net Salary: ', value: 'P200,000', isBold: true),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -217,13 +173,15 @@ class _PayslipState extends State<Payslip> with SingleTickerProviderStateMixin {
 
   Widget _buildProfileHeader() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 25, 0, 0),
+      padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(30.0),
-            decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.black38),
-            child: const FaIcon(FontAwesomeIcons.user, color: Colors.white, size: 35),
+            decoration: const BoxDecoration(
+                shape: BoxShape.circle, color: Colors.black38),
+            child: const FaIcon(FontAwesomeIcons.user,
+                color: Colors.white, size: 35),
           ),
           const SizedBox(width: 20),
           const Column(
@@ -231,7 +189,10 @@ class _PayslipState extends State<Payslip> with SingleTickerProviderStateMixin {
             children: [
               Text(
                 'Amy D. Polie',
-                style: TextStyle(fontFamily: 'NunitoSans', fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16),
               ),
               Text(
                 'Employee',
@@ -246,7 +207,7 @@ class _PayslipState extends State<Payslip> with SingleTickerProviderStateMixin {
 
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 10, 0, 20),
+      padding: const EdgeInsets.fromLTRB(20, 10, 0, 20),
       child: Text(
         title,
         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -260,10 +221,9 @@ class _PayslipState extends State<Payslip> with SingleTickerProviderStateMixin {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(40, 0, 10, 10),
+          padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
           child: SizedBox(
-            width: 25,
-            child: FaIcon(icon, color: Colors.grey, size: 20)),
+              width: 25, child: FaIcon(icon, color: Colors.grey, size: 20)),
         ),
         Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
         Text(value),
@@ -276,27 +236,32 @@ class _PayslipState extends State<Payslip> with SingleTickerProviderStateMixin {
   }
 }
 
-
 class PayslipRow extends StatelessWidget {
   final String label;
   final String value;
   final bool isBold;
 
-  const PayslipRow({super.key, 
-    required this.label,
-    required this.value,
-    this.isBold = false,
-  });
+  const PayslipRow(
+      {super.key,
+      required this.label,
+      required this.value,
+      this.isBold = false});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 10, 40, 0),
+      padding: const EdgeInsets.fromLTRB(20, 10, 40, 0),
       child: Row(
         children: [
-          Text(label, style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal, fontSize: 20)),
+          Text(label,
+              style: TextStyle(
+                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 20)),
           const Spacer(),
-          Text(value, style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal, fontSize: 20)),
+          Text(value,
+              style: TextStyle(
+                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                  fontSize: 20)),
         ],
       ),
     );

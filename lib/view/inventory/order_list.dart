@@ -1,8 +1,6 @@
-// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
-
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/view/inventory/modals/confirmorder.dart';
+import 'package:jcsd_flutter/view/inventory/modals/deleteitem.dart';
 import 'package:jcsd_flutter/view/inventory/modals/editorder.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
@@ -15,6 +13,8 @@ class OrderListPage extends StatefulWidget {
 }
 
 class _OrderListPageState extends State<OrderListPage> {
+  final String _activeSubItem = '/orderList';
+
   void _showEditItemModal(
     String itemId,
     String itemName,
@@ -51,19 +51,27 @@ class _OrderListPageState extends State<OrderListPage> {
     );
   }
 
+  void _showDeleteItemModal(String id, String name) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const DeleteOrderModal();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       body: Row(
         children: [
-          Sidebar(activePage: '/inventory'),
+          Sidebar(activePage: _activeSubItem),
           Expanded(
             child: Column(
               children: [
-                const Header(
-                  title: 'Order List',
-                ),
+                const Header(title: 'Order List'),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
@@ -130,9 +138,8 @@ class _OrderListPageState extends State<OrderListPage> {
       child: ListView(
         children: [
           DataTable(
-            headingRowColor: WidgetStateProperty.all(
-              const Color(0xFF00AEEF),
-            ),
+            headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
+            columnSpacing: 10, // Adjust column spacing for better alignment
             columns: const [
               DataColumn(
                 label: Text(
@@ -175,12 +182,15 @@ class _OrderListPageState extends State<OrderListPage> {
                 ),
               ),
               DataColumn(
-                label: Text(
-                  'Quantity',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+                label: Align(
+                  alignment: Alignment.centerLeft, // Shift "Quantity" text left
+                  child: Text(
+                    'Quantity',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
@@ -206,10 +216,10 @@ class _OrderListPageState extends State<OrderListPage> {
               ),
               DataColumn(
                 label: Padding(
-                  padding: EdgeInsets.only(left: 60),
+                  padding: EdgeInsets.only(left: 70),
                   child: Center(
                     child: Text(
-                      'Action',
+                      'Actions',
                       style: TextStyle(
                         fontFamily: 'NunitoSans',
                         fontWeight: FontWeight.w600,
@@ -270,15 +280,20 @@ class _OrderListPageState extends State<OrderListPage> {
         DataCell(Text(name)),
         DataCell(Text(type)),
         DataCell(Text(supplier)),
-        DataCell(Text(quantity)),
+        DataCell(
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(quantity),
+          ),
+        ),
         DataCell(Text(price)),
         DataCell(Text(status)),
         DataCell(
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
-                width: 75,
+                width: 50,
                 child: ElevatedButton(
                   onPressed: () => _showEditItemModal(
                     id,
@@ -291,36 +306,44 @@ class _OrderListPageState extends State<OrderListPage> {
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
+                    padding: EdgeInsets.zero,
                   ),
                   child: const Icon(
                     Icons.edit,
                     color: Colors.white,
+                    size: 18,
                   ),
                 ),
               ),
+              const SizedBox(width: 4),
               SizedBox(
-                width: 75,
+                width: 50,
                 child: ElevatedButton(
                   onPressed: () => _showConfirmItemModal(id, name),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
+                    padding: EdgeInsets.zero,
                   ),
                   child: const Icon(
                     Icons.check_box,
                     color: Colors.white,
+                    size: 18,
                   ),
                 ),
               ),
+              const SizedBox(width: 4),
               SizedBox(
-                width: 75,
+                width: 50,
                 child: ElevatedButton(
-                  onPressed: () => _showConfirmItemModal(id, name),
+                  onPressed: () => _showDeleteItemModal(id, name),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
+                    padding: EdgeInsets.zero,
                   ),
                   child: const Icon(
                     Icons.delete,
                     color: Colors.white,
+                    size: 18,
                   ),
                 ),
               ),

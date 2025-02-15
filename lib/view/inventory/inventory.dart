@@ -21,7 +21,7 @@ import 'package:jcsd_flutter/widgets/header.dart';
 
 // Inventory
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
-import 'package:jcsd_flutter/view/inventory/order_list.dart';
+import 'package:jcsd_flutter/view/inventory/item_types/item_types.dart';
 
 // Suppliers
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
@@ -86,10 +86,10 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
     );
   }
 
-  void _navigateToOrderListPage() {
+  void _navigateToItemTypesPage() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const OrderListPage()),
+      MaterialPageRoute(builder: (context) => const ItemTypesPage()),
     );
   }
 
@@ -129,10 +129,10 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               ElevatedButton.icon(
-                onPressed: _navigateToOrderListPage,
-                icon: const Icon(Icons.file_copy, color: Colors.white),
+                onPressed: _navigateToItemTypesPage,
+                icon: const Icon(Icons.topic_rounded, color: Colors.white),
                 label: const Text(
-                  'Order List',
+                  'Item Types',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontWeight: FontWeight.bold,
