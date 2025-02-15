@@ -60,33 +60,34 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
             ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
+              style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 side: const BorderSide(color: Colors.black),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: () async {
-                  DateTime? pickedDate = await showMonthPicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2101),
-                  );
-                  
-                  if (pickedDate != null) {
-                    setState(() {
-                      selectedDate = pickedDate;
-                    });
-                  }
-                },
-                icon: const FaIcon(FontAwesomeIcons.calendar, color: Colors.black), 
-                label: Text(
-                '${selectedDate.month}/${selectedDate.year}',
-                style: const TextStyle(color: Colors.black),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
+              onPressed: () async {
+                DateTime? pickedDate = await showMonthPicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2101),
+                );
+
+                if (pickedDate != null) {
+                  setState(() {
+                    selectedDate = pickedDate;
+                  });
+                }
+              },
+              icon:
+                  const FaIcon(FontAwesomeIcons.calendar, color: Colors.black),
+              label: Text(
+                '${selectedDate.month}/${selectedDate.year}',
+                style: const TextStyle(color: Colors.black),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),

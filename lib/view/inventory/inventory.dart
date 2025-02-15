@@ -247,60 +247,59 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
     final fetchInventory = ref.watch(fetchActive);
 
     return fetchInventory.when(
-      data: (items) {
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: const Offset(0, 3),
-              )
-            ],
-          ),
-          child: Column(
-            children: [
-              _buildHeaderRow(),
-              const Divider(
-                  height: 1, color: Color.fromARGB(255, 188, 188, 188)),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: items.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return _buildItemRow(items, index);
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-      error: (err, stackTrace) => Text('Error fetching data from table: $err'),
-      loading: () => Shimmer.fromColors(
-        baseColor: const Color.fromARGB(255, 207, 233, 255), 
-        highlightColor: const Color.fromARGB(255, 114, 190, 253),
-        child: Column(
-          children: [
-            _buildShimmerRow(),
-            const Divider(
-              height: 1,
-              color: Color.fromARGB(255, 188, 188, 188),
+        data: (items) {
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                )
+              ],
             ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: 6,
-                itemBuilder: (context, index) {
-                  return _buildShimmerRow();
-                }
+            child: Column(
+              children: [
+                _buildHeaderRow(),
+                const Divider(
+                    height: 1, color: Color.fromARGB(255, 188, 188, 188)),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return _buildItemRow(items, index);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+        error: (err, stackTrace) =>
+            Text('Error fetching data from table: $err'),
+        loading: () => Shimmer.fromColors(
+              baseColor: const Color.fromARGB(255, 207, 233, 255),
+              highlightColor: const Color.fromARGB(255, 114, 190, 253),
+              child: Column(
+                children: [
+                  _buildShimmerRow(),
+                  const Divider(
+                    height: 1,
+                    color: Color.fromARGB(255, 188, 188, 188),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                        itemCount: 6,
+                        itemBuilder: (context, index) {
+                          return _buildShimmerRow();
+                        }),
+                  )
+                ],
               ),
-            )
-          ],
-        ),
-        )
-    );
+            ));
   }
 
   Widget _buildHeaderRow() {
@@ -456,7 +455,8 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
           ),
           Expanded(
             child: FutureBuilder<String>(
-              future: suppliersService.getSupplierNameByID(items[index].supplierID.toInt()),
+              future: suppliersService
+                  .getSupplierNameByID(items[index].supplierID.toInt()),
               builder: (context, supplierName) {
                 if (supplierName.hasData) {
                   return Text(
@@ -515,7 +515,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 SizedBox(
-                  width: 80,
+                  width: 75,
                   child: ElevatedButton(
                     onPressed: () {
                       _showEditItemModal(items[index], items[index].itemID);
@@ -523,18 +523,14 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                     ),
-                    child: const Text(
-                      'Edit',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        color: Colors.white,
-                        fontSize: 8,
-                      ),
+                    child: const Icon(
+                      Icons.edit,
+                      color: Colors.white,
                     ),
                   ),
                 ),
                 SizedBox(
-                  width: 80,
+                  width: 75,
                   child: ElevatedButton(
                     onPressed: () {
                       _showArchiveItemModal(items[index], items[index].itemID);
@@ -542,13 +538,9 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                     ),
-                    child: const Text(
-                      'Archive',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        color: Colors.white,
-                        fontSize: 8,
-                      ),
+                    child: const Icon(
+                      Icons.archive,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -561,85 +553,85 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
   }
 
   Widget _buildShimmerRow() {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-    child: Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Shimmer.fromColors(
+                  baseColor: const Color.fromARGB(255, 201, 215, 227),
+                  highlightColor: const Color.fromARGB(255, 94, 157, 208),
+                  child: SizedBox(
+                    width: 200,
+                    height: 10,
+                    child: Container(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Shimmer.fromColors(
+                  baseColor: const Color.fromARGB(255, 201, 215, 227),
+                  highlightColor: const Color.fromARGB(255, 94, 157, 208),
+                  child: SizedBox(
+                    width: 200,
+                    height: 10,
+                    child: Container(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Shimmer.fromColors(
+                  baseColor: const Color.fromARGB(255, 201, 215, 227),
+                  highlightColor: const Color.fromARGB(255, 94, 157, 208),
+                  child: SizedBox(
+                    width: 200,
+                    height: 10,
+                    child: Container(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Shimmer.fromColors(
+                  baseColor: const Color.fromARGB(255, 201, 215, 227),
+                  highlightColor: const Color.fromARGB(255, 94, 157, 208),
+                  child: SizedBox(
+                    width: 200,
+                    height: 10,
+                    child: Container(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Shimmer.fromColors(
+                  baseColor: const Color.fromARGB(255, 201, 215, 227),
+                  highlightColor: const Color.fromARGB(255, 94, 157, 208),
+                  child: SizedBox(
+                    width: 200,
+                    height: 10,
+                    child: Container(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Shimmer.fromColors( 
-                baseColor: const Color.fromARGB(255, 201, 215, 227),
-                highlightColor: const Color.fromARGB(255, 94, 157, 208),
-                child: SizedBox(
-                  width: 200, 
-                  height: 10, 
-                  child: Container(color: Colors.white), 
-                ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Shimmer.fromColors(
-                baseColor: const Color.fromARGB(255, 201, 215, 227),
-                highlightColor: const Color.fromARGB(255, 94, 157, 208),
-                child: SizedBox(
-                  width: 200,
-                  height: 10,
-                  child: Container(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Shimmer.fromColors(
-                baseColor: const Color.fromARGB(255, 201, 215, 227),
-                highlightColor: const Color.fromARGB(255, 94, 157, 208),
-                child: SizedBox(
-                  width: 200,
-                  height: 10,
-                  child: Container(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Shimmer.fromColors(
-                baseColor: const Color.fromARGB(255, 201, 215, 227),
-                highlightColor: const Color.fromARGB(255, 94, 157, 208),
-                child: SizedBox(
-                  width: 200,
-                  height: 10,
-                  child: Container(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-           Row(
-            children: [
-              Shimmer.fromColors(
-                baseColor: const Color.fromARGB(255, 201, 215, 227),
-                highlightColor: const Color.fromARGB(255, 94, 157, 208),
-                child: SizedBox(
-                  width: 200,
-                  height: 10,
-                  child: Container(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
-}
+    );
+  }
 
   Color _itemQuantityColor(int itemQuantity) {
     if (itemQuantity < 10) {

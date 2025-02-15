@@ -95,7 +95,7 @@ class MainApp extends StatelessWidget {
         '/profileClient': (context) => const ProfilePageClient(),
 
         // Employee View
-        'employeeLogin': (context) => const LoginEmployee(),
+        '/employeeLogin': (context) => const LoginEmployee(),
         '/dashboard': (context) => const DashboardPage(),
         '/inventory': (context) => const InventoryPage(),
         '/suppliers': (context) => const SupplierPage(),

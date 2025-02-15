@@ -3,16 +3,33 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final String activePage;
 
   const Navbar({super.key, this.activePage = ''});
 
+  Future<void> _logout(BuildContext context) async {
+    try {
+      await Supabase.instance.client.auth.signOut();
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Logout failed: $error')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     bool isMobileView = screenWidth < 600;
+
+    // Check if user is logged in
+    final session = Supabase.instance.client.auth.currentSession;
+    final user = session?.user;
+    final bool isLoggedIn = user != null;
 
     return AppBar(
       automaticallyImplyLeading: false,
@@ -27,6 +44,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
               height: 40,
             ),
           if (activePage != 'accessRestricted') const Spacer(),
+
           // Back to Home for Access Restricted
           if (activePage == 'accessRestricted')
             Align(
@@ -51,7 +69,11 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
             PopupMenuButton<String>(
               icon: const Icon(FontAwesomeIcons.bars, color: Color(0xFF00AEEF)),
               onSelected: (value) {
-                Navigator.pushNamed(context, value);
+                if (value == 'logout') {
+                  _logout(context);
+                } else {
+                  Navigator.pushNamed(context, value);
+                }
               },
               color: Colors.white,
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
@@ -82,22 +104,9 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
                 PopupMenuItem<String>(
-                  value: '/about',
+                  value: isLoggedIn ? 'logout' : '/login',
                   child: Text(
-                    'About Us',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: activePage == 'about'
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: const Color(0xFF00AEEF),
-                    ),
-                  ),
-                ),
-                PopupMenuItem<String>(
-                  value: activePage == 'register' ? '/signup1' : '/login',
-                  child: Text(
-                    activePage == 'register' ? 'Register' : 'Login',
+                    isLoggedIn ? 'Logout' : 'Login',
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                       fontWeight:
@@ -125,14 +134,16 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                   isActive: activePage == 'services',
                 ),
                 NavItem(
-                  title: 'About Us',
-                  route: '/about',
-                  isActive: activePage == 'about',
-                ),
-                NavItem(
-                  title: activePage == 'register' ? 'Register' : 'Login',
-                  route: activePage == 'register' ? '/signup1' : '/login',
+                  title: isLoggedIn ? 'Logout' : 'Login',
+                  route: isLoggedIn ? '' : '/login',
                   isActive: activePage == 'login' || activePage == 'register',
+                  onTap: () {
+                    if (isLoggedIn) {
+                      _logout(context);
+                    } else {
+                      Navigator.pushNamed(context, '/login');
+                    }
+                  },
                 ),
               ],
             ),
@@ -151,20 +162,23 @@ class NavItem extends StatelessWidget {
   final String title;
   final String route;
   final bool isActive;
+  final VoidCallback? onTap;
 
   const NavItem({
     super.key,
     required this.title,
     required this.route,
     this.isActive = false,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: () {
-        Navigator.pushNamed(context, route);
-      },
+      onPressed: onTap ??
+          () {
+            Navigator.pushNamed(context, route);
+          },
       child: Text(
         title,
         style: TextStyle(

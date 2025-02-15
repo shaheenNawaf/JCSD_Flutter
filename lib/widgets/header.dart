@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Header extends StatelessWidget {
   final String title;
@@ -12,6 +13,10 @@ class Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final session = Supabase.instance.client.auth.currentSession;
+    final user = session?.user;
+    final username = user?.email ?? 'Guest';
+
     return Container(
       color: Colors.white,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -27,12 +32,28 @@ class Header extends StatelessWidget {
               fontSize: 20,
             ),
           ),
-          GestureDetector(
-            onTap: onAvatarTap,
-            child: const CircleAvatar(
-              radius: 20,
-              backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
-            ),
+          Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: Text(
+                  username,
+                  style: const TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: onAvatarTap,
+                child: const CircleAvatar(
+                  radius: 20,
+                  backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
+                ),
+              ),
+            ],
           ),
         ],
       ),
