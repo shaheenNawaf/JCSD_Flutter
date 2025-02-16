@@ -23,7 +23,7 @@ class ItemtypesService {
   //Fetching all active items
   Future<List<ItemTypesData>> activeItemTypes() async {
     try{
-      final results = await supabaseDB.from('item_types').select().eq('isVisible', true).order('itemTypeID', ascending: true);
+      final results = await supabaseDB.from('item_types').select().eq('isVisible', true).order('itemType', ascending: true);
       if (results.isEmpty) {
         print("No items inside the database");
         return [];
@@ -58,33 +58,32 @@ class ItemtypesService {
         'description': typeDescription,
         'isVisible': true,
       });
-      print("Added new item_type: $typeName");
+      print("NEW ITEM TYPE ADDED: $typeName");
     }catch(err){
-      print('Error adding new item type. $err');
+      print('ERROR ADDING ITEM TYPE. $err');
     }
   }
 
   //Update Type Details
-  Future<void> updateItemDetails(String typeName, String typeDescription, bool isVisible) async {
+  Future<void> updateItemDetails(String typeName, String typeDescription, int typeID) async {
     try {
-      await supabaseDB.from('item_type').insert({
+      await supabaseDB.from('item_types').update({
         'itemType': typeName,
-        'description': typeDescription,
-        'isVisible': true,
-      });
-      print("Added new item_type: $typeName");
+        'description': typeDescription
+      }).eq('itemTypeID', typeID);
+      print("UPDATED DETAILS OF ITEM TYPE: $typeName");
     }catch(err){
-      print('Error adding new item type. $err');
+      print('UPDATE ERROR: $typeName -- $err');
     }
   }
 
   //Update Type Visibility
-  Future<void> typeIsActive(int typeID, String typeName, bool isVisible) async {
+  Future<void> updateTypeVisibility(int typeID, bool isVisible) async {
     try {
       await supabaseDB.from('item_type').update({'isVisible': isVisible}).eq('itemTypeID', typeID);
-      print("Added new item_type: $typeName");
+      print("Updated the visibility of $typeID");
     }catch(err){
-      print('Error adding new item type. $err');
+      print('Error updating visibility of item type. $err');
     }
   }
 

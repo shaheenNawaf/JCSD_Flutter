@@ -1,3 +1,4 @@
+// Base Imports
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
@@ -15,6 +16,18 @@ final fetchItemTypesList = FutureProvider<List<ItemTypesData>>((ref) async {
   return allItemTypes;
 });
 
-//Adding an Item Type
+//Fetching Active Item Types
+final fetchActiveTypes = FutureProvider<List<ItemTypesData>>((ref) async {
+  final baseTypes = ref.read(itemTypesProvider);
 
-//Updating an Item Type
+  List<ItemTypesData> allItemTypes = await baseTypes.activeItemTypes();
+  return allItemTypes;
+});
+
+//Fetching Archived Item Types
+final fetchArchivedTypes = FutureProvider<List<ItemTypesData>>((ref) async {
+  final baseTypes = ref.read(itemTypesProvider);
+
+  List<ItemTypesData> allItemTypes = await baseTypes.archivedItemTypes();
+  return allItemTypes;
+});

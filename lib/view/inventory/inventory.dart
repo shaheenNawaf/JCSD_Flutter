@@ -244,59 +244,61 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
     final fetchInventory = ref.watch(fetchActive);
 
     return fetchInventory.when(
-        data: (items) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
-                )
-              ],
-            ),
-            child: Column(
-              children: [
-                _buildHeaderRow(),
-                const Divider(
-                    height: 1, color: Color.fromARGB(255, 188, 188, 188)),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return _buildItemRow(items, index);
-                    },
-                  ),
+      data: (items) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.3),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              )
+            ],
+          ),
+          child: Column(
+            children: [
+              _buildHeaderRow(),
+              const Divider(
+                  height: 1, color: Color.fromARGB(255, 188, 188, 188)),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: items.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    return _buildItemRow(items, index);
+                  },
                 ),
-              ],
-            ),
-          );
-        },
-        error: (err, stackTrace) =>
-            Text('Error fetching data from table: $err'),
-        loading: () => Shimmer.fromColors(
-              baseColor: const Color.fromARGB(255, 207, 233, 255),
-              highlightColor: const Color.fromARGB(255, 114, 190, 253),
-              child: Column(
-                children: [
-                  _buildShimmerRow(),
-                  const Divider(
-                    height: 1,
-                    color: Color.fromARGB(255, 188, 188, 188),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                        itemCount: 6,
-                        itemBuilder: (context, index) {
-                          return _buildShimmerRow();
-                        }),
-                  )
-                ],
               ),
-            ));
+            ],
+          ),
+        );
+      },
+      error: (err, stackTrace) =>
+          Text('Error fetching data from table: $err'),
+      loading: () => Shimmer.fromColors(
+        baseColor: const Color.fromARGB(255, 207, 233, 255),
+        highlightColor: const Color.fromARGB(255, 114, 190, 253),
+        child: Column(
+          children: [
+            _buildShimmerRow(),
+            const Divider(
+              height: 1,
+              color: Color.fromARGB(255, 188, 188, 188),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: 6,
+                itemBuilder: (context, index) {
+                  return _buildShimmerRow();
+                }
+              ),
+            ),
+          ],
+        ),
+      )
+    );
   }
 
   Widget _buildHeaderRow() {

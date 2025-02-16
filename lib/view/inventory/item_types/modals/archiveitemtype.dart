@@ -1,9 +1,30 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ArchiveItemTypeModal extends StatelessWidget {
-  const ArchiveItemTypeModal({super.key});
+//Backend Things
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
+
+class ArchiveItemTypeModal extends ConsumerStatefulWidget {
+  final int typeID;
+
+  const ArchiveItemTypeModal(
+      {super.key, required this.typeID});
+
+  @override
+  ConsumerState<ArchiveItemTypeModal> createState() => _ArchiveItemTypeModalState();
+}
+
+class _ArchiveItemTypeModalState extends ConsumerState<ArchiveItemTypeModal> {
+  late int _intItemTypeID;
+
+  @override
+  void initState() {
+    super.initState();
+    _intItemTypeID = widget.typeID;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +73,7 @@ class ArchiveItemTypeModal extends StatelessWidget {
               padding: EdgeInsets.all(16.0),
               child: Center(
                 child: Text(
-                  'Are you sure you want to archive item type?',
+                  'Do you want to archive this item type?',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontSize: 16,
@@ -70,6 +91,7 @@ class ArchiveItemTypeModal extends StatelessWidget {
                   Expanded(
                     child: TextButton(
                       onPressed: () {
+                        refreshTables();
                         Navigator.pop(context);
                       },
                       style: TextButton.styleFrom(
@@ -94,7 +116,17 @@ class ArchiveItemTypeModal extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        try {
+                          final ItemtypesService updateVisibility = ItemtypesService();
+                          await updateVisibility.updateTypeVisibility(_intItemTypeID, false);
+                          print('SUCCESS. HIDDEN ITEM TYPE: $_intItemTypeID');
+                        } catch (err) {
+                          print('ERROR. $err');
+                        }
+                        refreshTables();
+                        Navigator.pop(context);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
                         padding: const EdgeInsets.symmetric(vertical: 14.0),
@@ -119,5 +151,10 @@ class ArchiveItemTypeModal extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void refreshTables(){
+    ref.invalidate(fetchActiveTypes);
+    ref.invalidate(fetchArchivedTypes);
   }
 }

@@ -1,7 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:jcsd_flutter/view/inventory/item_types/unarchiveitemtype.dart';
+import 'package:jcsd_flutter/view/inventory/item_types/modals/unarchiveitemtype.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 

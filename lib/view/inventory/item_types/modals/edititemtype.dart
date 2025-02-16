@@ -1,32 +1,40 @@
 // ignore_for_file: library_private_types_in_public_api
 
+//Base Imports
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class EditItemTypeModal extends StatefulWidget {
-  final String itemId;
-  final String typeName;
-  final String description;
+//Backend Imports
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_data.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
+
+class EditItemTypeModal extends ConsumerStatefulWidget {
+  final ItemTypesData typeData;
+  final int typeID;
 
   const EditItemTypeModal({
     super.key,
-    required this.itemId,
-    required this.typeName,
-    required this.description,
+    required this.typeData,
+    required this.typeID,
   });
 
   @override
-  _EditItemTypeModalState createState() => _EditItemTypeModalState();
+  ConsumerState<EditItemTypeModal> createState() => _EditItemTypeModalState();
 }
 
-class _EditItemTypeModalState extends State<EditItemTypeModal> {
-  late TextEditingController _typeNameController;
-  late TextEditingController _descriptionController;
+class _EditItemTypeModalState extends ConsumerState<EditItemTypeModal> {
+  // Default Input
+  final TextEditingController _typeNameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _typeNameController = TextEditingController(text: widget.typeName);
-    _descriptionController = TextEditingController(text: widget.description);
+    
+    ItemTypesData typesData = widget.typeData;
+    _typeNameController.text = typesData.itemType;
+    _descriptionController.text = typesData.itemDescription;
   }
 
   @override
@@ -131,8 +139,20 @@ class _EditItemTypeModalState extends State<EditItemTypeModal> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Implement update functionality here
+                      onPressed: () async {
+                        try {
+                          final ItemtypesService updateService = ItemtypesService();
+                          
+                          String typeName = _typeNameController.text;
+                          String typeDescription = _descriptionController.text;
+
+                          await updateService.updateItemDetails(typeName, typeDescription, widget.typeID);
+                          print(widget.typeID);
+                        }catch(err){
+                          print('Error in updating item type. $err');
+                        }
+                        refreshTables();
+                        Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
@@ -204,5 +224,10 @@ class _EditItemTypeModalState extends State<EditItemTypeModal> {
         ),
       ],
     );
+  }
+
+  void refreshTables(){
+    ref.invalidate(fetchActiveTypes);
+    ref.invalidate(fetchArchivedTypes);
   }
 }
