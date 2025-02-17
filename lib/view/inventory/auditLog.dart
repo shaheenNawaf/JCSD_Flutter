@@ -3,15 +3,16 @@
 import 'package:flutter/material.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class AuditLogPage extends StatefulWidget {
+class AuditLogPage extends ConsumerStatefulWidget {
   const AuditLogPage({super.key});
 
   @override
-  _AuditLogPageState createState() => _AuditLogPageState();
+  ConsumerState<AuditLogPage> createState() => _AuditLogPageState();
 }
 
-class _AuditLogPageState extends State<AuditLogPage> {
+class _AuditLogPageState extends ConsumerState<AuditLogPage> {
   final String _activeSubItem = '/auditLog';
 
   @override
@@ -75,7 +76,7 @@ class _AuditLogPageState extends State<AuditLogPage> {
       ],
     );
   }
-
+  //To do 
   Widget _buildDataTable() {
     return Container(
       decoration: BoxDecoration(
