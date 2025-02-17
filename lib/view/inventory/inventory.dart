@@ -463,7 +463,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
                     style: const TextStyle(
                       fontFamily: 'NunitoSans',
                     ),
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.start,
                   );
                 } else if (supplierName.hasError) {
                   return const Text(
@@ -471,7 +471,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                     ),
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.start,
                   );
                 } else {
                   return const Text(
@@ -479,7 +479,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
                     style: TextStyle(
                       fontFamily: 'NunitoSans',
                     ),
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.start,
                   );
                 }
               },
@@ -487,7 +487,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
           ),
           Expanded(
             child: Container(
-              padding: const EdgeInsets.all(5),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color: _itemQuantityColor(items[index].itemQuantity),
                 borderRadius: BorderRadius.circular(10),
@@ -506,7 +506,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
             child: Text(
               'P ${items[index].itemPrice.toString()}',
               style: const TextStyle(fontFamily: 'NunitoSans'),
-              textAlign: TextAlign.center,
+              textAlign: TextAlign.start,
             ),
           ),
           Expanded(

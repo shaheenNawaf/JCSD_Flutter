@@ -7,7 +7,7 @@ class JcsdServices {
 //Fetching the Service List
 Future<List<ServicesData>> allServices() async {
   try {
-    final services = await supabaseDB.from('jcsd_services').select();
+    final services = await supabaseDB.from('jcsd_services').select().order('serviceID', ascending: true);
     if(services.isEmpty == true){
       print('Empty Service table.');
       return [];
@@ -22,7 +22,7 @@ Future<List<ServicesData>> allServices() async {
 //Fetching the Available Service List
 Future<List<ServicesData>> activeServices() async {
   try {
-    final services = await supabaseDB.from('jcsd_services').select().eq('isActive', true);
+    final services = await supabaseDB.from('jcsd_services').select().eq('isActive', true).order('serviceID', ascending: true);
     if(services.isEmpty == true){
       print('Empty Service table.');
       return [];
@@ -37,7 +37,7 @@ Future<List<ServicesData>> activeServices() async {
 //Fetching the Available Service List
 Future<List<ServicesData>> archivedServices() async {
   try {
-    final services = await supabaseDB.from('jcsd_services').select().eq('isActive', false);
+    final services = await supabaseDB.from('jcsd_services').select().eq('isActive', false).order('serviceID', ascending: true);
     if(services.isEmpty == true){
       print('Empty Service table.');
       return [];
