@@ -20,7 +20,7 @@ class ItemTypesPage extends ConsumerStatefulWidget {
   const ItemTypesPage({super.key});
 
   @override
-  ConsumerState<ItemTypesPage>createState() => _ItemTypesPageState();
+  ConsumerState<ItemTypesPage> createState() => _ItemTypesPageState();
 }
 
 class _ItemTypesPageState extends ConsumerState<ItemTypesPage> {
@@ -157,9 +157,9 @@ class _ItemTypesPageState extends ConsumerState<ItemTypesPage> {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                    child: _buildDataTable(context)),
-                  ),
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                      child: _buildDataTable(context)),
+                ),
               ],
             ),
           ),
@@ -172,60 +172,57 @@ class _ItemTypesPageState extends ConsumerState<ItemTypesPage> {
     final fetchItemTypes = ref.watch(fetchActiveTypes);
 
     return fetchItemTypes.when(
-      data: (itemTypes) {
-        return Container(
-          decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
+        data: (itemTypes) {
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.3),
+                  spreadRadius: 2,
+                  blurRadius: 5,
+                  offset: const Offset(0, 3),
+                ),
+              ],
             ),
-          ],
-        ),
-      child: Column(
-        children: [
-          _buildHeaderRow(),
-          const Divider(height: 1, color: Color.fromARGB(255, 188, 188, 188)),
-          Expanded(
-            child: ListView.builder(
-              itemCount: itemTypes.length,
-              itemBuilder: (BuildContext context, int index){
-                return _buildItemRow(itemTypes, index);
-              }
-              )
+            child: Column(
+              children: [
+                _buildHeaderRow(),
+                const Divider(
+                    height: 1, color: Color.fromARGB(255, 188, 188, 188)),
+                Expanded(
+                    child: ListView.builder(
+                        itemCount: itemTypes.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return _buildItemRow(itemTypes, index);
+                        })),
+              ],
             ),
-          ],
-        ),
-      );
-    }, 
-      error: (err, stackTrace) =>
-        Text('Error fetching data from table: $err \n Refer to: $stackTrace'),
-      loading: () => Shimmer.fromColors(
-        baseColor: const Color.fromARGB(255, 207, 233, 255),
-        highlightColor: const Color.fromARGB(255, 114, 190, 253),
-        child: Column(
-          children: [
-            _buildShimmerRow(),
-            const Divider(
-              height: 1,
-              color: Color.fromARGB(255, 188, 188, 188),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: 6,
-                itemBuilder: (context, index) {
-                  return _buildShimmerRow();
-                }
+          );
+        },
+        error: (err, stackTrace) => Text(
+            'Error fetching data from table: $err \n Refer to: $stackTrace'),
+        loading: () => Shimmer.fromColors(
+              baseColor: const Color.fromARGB(255, 207, 233, 255),
+              highlightColor: const Color.fromARGB(255, 114, 190, 253),
+              child: Column(
+                children: [
+                  _buildShimmerRow(),
+                  const Divider(
+                    height: 1,
+                    color: Color.fromARGB(255, 188, 188, 188),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                        itemCount: 6,
+                        itemBuilder: (context, index) {
+                          return _buildShimmerRow();
+                        }),
+                  )
+                ],
               ),
-            )
-          ],
-        ),
-      )
-    );
+            ));
   }
 
   Widget _buildItemRow(List<ItemTypesData> items, int index) {
@@ -247,6 +244,15 @@ class _ItemTypesPageState extends ConsumerState<ItemTypesPage> {
             ),
           ),
           Expanded(
+            child: Text(
+              items[index].itemDescription,
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -254,7 +260,8 @@ class _ItemTypesPageState extends ConsumerState<ItemTypesPage> {
                   width: 75,
                   child: ElevatedButton(
                     onPressed: () {
-                      _showEditItemTypeModal(items[index], items[index].itemTypeID);
+                      _showEditItemTypeModal(
+                          items[index], items[index].itemTypeID);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
@@ -269,7 +276,8 @@ class _ItemTypesPageState extends ConsumerState<ItemTypesPage> {
                   width: 75,
                   child: ElevatedButton(
                     onPressed: () {
-                      _showArchiveItemTypeModal(items[index], items[index].itemTypeID);
+                      _showArchiveItemTypeModal(
+                          items[index], items[index].itemTypeID);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
@@ -288,7 +296,6 @@ class _ItemTypesPageState extends ConsumerState<ItemTypesPage> {
     );
   }
 
-
   Widget _buildHeaderRow() {
     return Container(
       color: const Color.fromRGBO(0, 174, 239, 1),
@@ -299,6 +306,17 @@ class _ItemTypesPageState extends ConsumerState<ItemTypesPage> {
           Expanded(
             child: Text(
               'Item Type',
+              style: TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              'Description',
               style: TextStyle(
                 fontFamily: 'NunitoSans',
                 fontWeight: FontWeight.w600,
@@ -403,5 +421,4 @@ class _ItemTypesPageState extends ConsumerState<ItemTypesPage> {
       ),
     );
   }
-
 }

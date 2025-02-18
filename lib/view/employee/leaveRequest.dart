@@ -216,35 +216,38 @@ class _LeaveRequestState extends State<LeaveRequest> {
                                       const Text('Notes',
                                           style: TextStyle(
                                               fontWeight: FontWeight.bold,
-                                              fontSize: 20)),
+                                              fontSize: 16)),
                                       Text(notes[index]),
                                     ],
                                   ),
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: status[index] == 'Pending'
-                                            ? Colors.grey
-                                            : status[index] == 'Approved'
-                                                ? Colors.green
-                                                : Colors.red,
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(status[index],
-                                          style: const TextStyle(
-                                              color: Colors.white)),
+                                padding:
+                                    const EdgeInsets.fromLTRB(10, 35, 10, 35),
+                                child: Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: Container(
+                                    width: 80,
+                                    decoration: BoxDecoration(
+                                      color: status[index] == 'Pending'
+                                          ? Colors.grey
+                                          : status[index] == 'Completed'
+                                              ? Colors.green
+                                              : const Color(0xFFE53935),
+                                      borderRadius: BorderRadius.circular(4),
                                     ),
-                                  ],
+                                    child: Center(
+                                      child: Text(
+                                        status[index],
+                                        style: const TextStyle(
+                                            color: Colors.white),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              )
                             ],
                           ),
                         ),
