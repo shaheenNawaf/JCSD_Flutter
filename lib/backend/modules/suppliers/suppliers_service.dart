@@ -38,7 +38,7 @@ class SuppliersService {
   }
 
   //Fetching Hidden Supplier
-  Future<List<SuppliersData>> archivedSuplliers() async {
+  Future<List<SuppliersData>> archivedSupliers() async {
     try {
       final suppliers = await supabaseDB.from('suppliers').select().eq('isActive', false).order('supplierID', ascending: true);
       if(suppliers.isEmpty){

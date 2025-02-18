@@ -29,7 +29,7 @@ final fetchAvailableSuppliers = FutureProvider<List<SuppliersData>>((ref) async 
 final fetchHiddenSuppliers = FutureProvider<List<SuppliersData>>((ref) async {
     final baseSupplier = ref.read(supplierServiceProv);
 
-    List<SuppliersData> allSuppliers = await baseSupplier.archivedSuplliers();
+    List<SuppliersData> allSuppliers = await baseSupplier.archivedSupliers();
     return allSuppliers;
 });
 

@@ -275,6 +275,73 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
     );
   }
 
+  Widget _buildDropdownField({
+    required String label,
+    required String hintText,
+    required String? value,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const Text(
+              '*',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        DropdownButtonFormField<String>(
+          value: value,
+          hint: Text(
+            hintText,
+            style: const TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w300,
+              fontSize: 12,
+              color: Colors.grey,
+            ),
+          ),
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+          ),
+          icon: const Icon(Icons.arrow_drop_down),
+          dropdownColor: Colors.white,
+          items: items.map((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(
+                item,
+                style: const TextStyle(
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w300,
+                  fontSize: 12,
+                ),
+              ),
+            );
+          }).toList(),
+          onChanged: (String? getItemType) {
+            print(getItemType);
+            _addItemType.text = getItemType ?? '';
+          },
+        ),
+      ],
+    );
+  }
+
   Widget _buildItemTypeList({
     required String label,
     required String hintText,
