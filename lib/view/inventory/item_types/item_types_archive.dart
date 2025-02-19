@@ -1,18 +1,25 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
+//Default Imports
 import 'package:flutter/material.dart';
-import 'package:jcsd_flutter/view/inventory/item_types/modals/unarchiveitemtype.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
+import 'package:jcsd_flutter/view/inventory/item_types/modals/unarchiveitemtype.dart';
 
-class ItemTypesArchivePage extends StatefulWidget {
+//Backend Things
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
+
+class ItemTypesArchivePage extends ConsumerStatefulWidget {
   const ItemTypesArchivePage({super.key});
 
   @override
-  _ItemTypesArchivePageState createState() => _ItemTypesArchivePageState();
+  ConsumerState<ItemTypesArchivePage> createState() =>
+      _ItemTypesArchivePageState();
 }
 
-class _ItemTypesArchivePageState extends State<ItemTypesArchivePage> {
+class _ItemTypesArchivePageState extends ConsumerState<ItemTypesArchivePage> {
   final String _activeSubItem = '/inventory';
 
   void _showUnarchiveItemTypeModal() {

@@ -119,6 +119,7 @@ class _ArchiveItemTypeModalState extends ConsumerState<ArchiveItemTypeModal> {
                       onPressed: () async {
                         try {
                           final ItemtypesService updateVisibility = ItemtypesService();
+                          
                           await updateVisibility.updateTypeVisibility(_intItemTypeID, false);
                           print('SUCCESS. HIDDEN ITEM TYPE: $_intItemTypeID');
                         } catch (err) {

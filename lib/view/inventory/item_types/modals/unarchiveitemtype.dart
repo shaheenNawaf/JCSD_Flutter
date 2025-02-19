@@ -1,10 +1,22 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class UnarchiveItemTypeModal extends StatelessWidget {
+//Backend Things
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
+
+class UnarchiveItemTypeModal extends ConsumerStatefulWidget {
   const UnarchiveItemTypeModal({super.key});
 
+  @override
+  ConsumerState<UnarchiveItemTypeModal> createState() =>
+      _UnarchiveItemTypeModalState();
+}
+
+class _UnarchiveItemTypeModalState
+    extends ConsumerState<UnarchiveItemTypeModal> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
