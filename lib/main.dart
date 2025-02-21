@@ -1,6 +1,7 @@
 // Imports
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jcsd_flutter/view/generic/email_verification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'api/supa_details.dart';
 import 'package:jcsd_flutter/others/transition.dart';
@@ -83,6 +84,7 @@ class MainApp extends StatelessWidget {
         '/login': (context) => const Login(),
         '/signup1': (context) => const SignupPage1(),
         '/signup2': (context) => const SignupPage2(),
+        '/emaileVerification': (context) => const EmailVerification(),
         '/error': (context) => const ErrorPage(),
         '/accessRestricted': (context) => const AccessRestrictedPage(),
         '/accountList': (context) => const AccountListPage(),
