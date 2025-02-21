@@ -46,7 +46,7 @@ class _ItemTypesPageState extends ConsumerState<ItemTypesPage> {
     );
   }
 
-  void _showArchiveItemTypeModal(ItemTypesData itemType, int typeID) {
+  void _showArchiveItemTypeModal(int typeID) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -276,8 +276,7 @@ class _ItemTypesPageState extends ConsumerState<ItemTypesPage> {
                   width: 75,
                   child: ElevatedButton(
                     onPressed: () {
-                      _showArchiveItemTypeModal(
-                          items[index], items[index].itemTypeID);
+                      _showArchiveItemTypeModal(items[index].itemTypeID);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,

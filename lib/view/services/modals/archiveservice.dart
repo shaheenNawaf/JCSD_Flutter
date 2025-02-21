@@ -1,10 +1,22 @@
-// ignore_for_file: library_private_types_in_public_api
-
+//Default Packages
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ArchiveServiceModal extends StatelessWidget {
+//Pages
+
+//Services
+import 'package:jcsd_flutter/backend/modules/services/services_data.dart';
+import 'package:jcsd_flutter/backend/modules/services/jcsd_services.dart';
+import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
+
+class ArchiveServiceModal extends ConsumerStatefulWidget {
   const ArchiveServiceModal({super.key});
 
+  @override
+  ConsumerState<ArchiveServiceModal> createState() => _ArchiveServiceModalState();
+}
+
+class _ArchiveServiceModalState extends ConsumerState<ArchiveServiceModal> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;

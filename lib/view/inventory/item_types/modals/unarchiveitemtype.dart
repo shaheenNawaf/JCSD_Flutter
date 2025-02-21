@@ -8,15 +8,25 @@ import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_serv
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
 
 class UnarchiveItemTypeModal extends ConsumerStatefulWidget {
-  const UnarchiveItemTypeModal({super.key});
+  final int typeID;
+  
+  const UnarchiveItemTypeModal({super.key, required this.typeID});
 
   @override
   ConsumerState<UnarchiveItemTypeModal> createState() =>
       _UnarchiveItemTypeModalState();
 }
 
-class _UnarchiveItemTypeModalState
-    extends ConsumerState<UnarchiveItemTypeModal> {
+class _UnarchiveItemTypeModalState extends ConsumerState<UnarchiveItemTypeModal> {
+  late int _intItemTypeID;
+
+  @override
+  void initState() {
+    super.initState();
+    //Initial value
+    _intItemTypeID = widget.typeID;
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -83,6 +93,7 @@ class _UnarchiveItemTypeModalState
                     child: TextButton(
                       onPressed: () {
                         Navigator.pop(context);
+                        refreshTables();
                       },
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14.0),
@@ -106,7 +117,18 @@ class _UnarchiveItemTypeModalState
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        try{
+                          final ItemtypesService unarchiveService = ItemtypesService();
+                          await unarchiveService.updateTypeVisibility(_intItemTypeID, true);
+
+                          print('Successfully UNARCHIVED: $_intItemTypeID');
+                        }catch(err, stackTrace){
+                          print('Unrachiving Item Type failed. $err -- $stackTrace');
+                        } 
+                        refreshTables();
+                        Navigator.pop(context);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
                         padding: const EdgeInsets.symmetric(vertical: 14.0),
@@ -131,5 +153,10 @@ class _UnarchiveItemTypeModalState
         ),
       ),
     );
+  }
+
+  void refreshTables(){
+    ref.invalidate(fetchActiveTypes);
+    ref.invalidate(fetchArchivedTypes);
   }
 }

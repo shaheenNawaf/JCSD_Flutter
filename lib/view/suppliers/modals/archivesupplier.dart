@@ -125,15 +125,14 @@ class _ArchiveSupplierModalState extends ConsumerState<ArchiveSupplierModal> {
                       onPressed: () async {
                         try{
                           final SuppliersService updateVisibility = SuppliersService();
-
                           await updateVisibility.updateSupplierVisbility(_supplierID, false);
 
                           print('Archived supplier: ${_supplierData.supplierName}');
-                          ref.invalidate(fetchAvailableSuppliers);
-                          Navigator.pop(context);
                         }catch(err){
                           print('Error archiving supplier. $err');
                         }
+                        refreshTables();
+                        Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
@@ -159,5 +158,10 @@ class _ArchiveSupplierModalState extends ConsumerState<ArchiveSupplierModal> {
         ),
       ),
     );
+  }
+
+  void refreshTables(){
+    ref.invalidate(fetchAvailableSuppliers);
+    ref.invalidate(fetchHiddenSuppliers);
   }
 }
