@@ -10,13 +10,24 @@ import 'package:jcsd_flutter/backend/modules/services/jcsd_services.dart';
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
 
 class ArchiveServiceModal extends ConsumerStatefulWidget {
-  const ArchiveServiceModal({super.key});
+  final int serviceID;
+  const ArchiveServiceModal({super.key, required this.serviceID});
 
   @override
-  ConsumerState<ArchiveServiceModal> createState() => _ArchiveServiceModalState();
+  ConsumerState<ArchiveServiceModal> createState() =>
+      _ArchiveServiceModalState();
 }
 
 class _ArchiveServiceModalState extends ConsumerState<ArchiveServiceModal> {
+  late int _serviceID;
+
+  @override
+  void initState() {
+    super.initState();
+    print('Archive Service - initState()');
+    _serviceID = widget.serviceID;
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -83,6 +94,7 @@ class _ArchiveServiceModalState extends ConsumerState<ArchiveServiceModal> {
                     child: TextButton(
                       onPressed: () {
                         Navigator.pop(context);
+                        refreshTables();
                       },
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14.0),
@@ -106,7 +118,18 @@ class _ArchiveServiceModalState extends ConsumerState<ArchiveServiceModal> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        try {
+                          final updateVisibility = JcsdServices();
+                          updateVisibility.updateVisibility(_serviceID, false);
+                          print('Successfully archived - $_serviceID');
+                        } catch (err, stackTrace) {
+                          print(
+                              'Error archiving service: $_serviceID -- $stackTrace');
+                        }
+                        Navigator.pop(context);
+                        refreshTables();
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
                         padding: const EdgeInsets.symmetric(vertical: 14.0),
@@ -131,5 +154,10 @@ class _ArchiveServiceModalState extends ConsumerState<ArchiveServiceModal> {
         ),
       ),
     );
+  }
+
+  void refreshTables() {
+    ref.invalidate(fetchAvailableServices);
+    ref.invalidate(fetchHiddenServices);
   }
 }

@@ -13,14 +13,12 @@ class UnarchiveServiceModal extends ConsumerStatefulWidget {
   final ServicesData servicesData;
   final int serviceID;
 
-  const UnarchiveServiceModal({
-    super.key,
-    required this.serviceID,
-    required this.servicesData
-  });
+  const UnarchiveServiceModal(
+      {super.key, required this.serviceID, required this.servicesData});
 
   @override
-  ConsumerState<UnarchiveServiceModal> createState() => _UnarchiveServiceModalState();
+  ConsumerState<UnarchiveServiceModal> createState() =>
+      _UnarchiveServiceModalState();
 }
 
 class _UnarchiveServiceModalState extends ConsumerState<UnarchiveServiceModal> {
@@ -114,23 +112,21 @@ class _UnarchiveServiceModalState extends ConsumerState<UnarchiveServiceModal> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        int serviceID =  widget.serviceID;
-                          
-                        try{
+                        int serviceID = widget.serviceID;
+
+                        try {
                           final updateService = JcsdServices();
                           await updateService.updateVisibility(serviceID, true);
-
-                          ref.invalidate(fetchHiddenServices);
-
-                        }catch(err){
+                            
+                          refreshTables();
+                        } catch (err) {
                           print('Error unarchiving the service. $err');
                           showDialog(
-                            context: context, 
-                            builder: (context) => ErrorDialog(
-                              title: 'Error archiving ${widget.servicesData.serviceName}', 
-                              content: 'Please try again. $err'
-                              )
-                            );
+                              context: context,
+                              builder: (context) => ErrorDialog(
+                                  title:
+                                      'Error archiving ${widget.servicesData.serviceName}',
+                                  content: 'Please try again. $err'));
                         }
                         Navigator.pop(context);
                       },
@@ -158,5 +154,10 @@ class _UnarchiveServiceModalState extends ConsumerState<UnarchiveServiceModal> {
         ),
       ),
     );
+  }
+
+  void refreshTables() {
+    ref.invalidate(fetchAvailableServices);
+    ref.invalidate(fetchHiddenServices);
   }
 }
