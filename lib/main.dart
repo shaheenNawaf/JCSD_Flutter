@@ -84,7 +84,7 @@ class MainApp extends StatelessWidget {
         '/login': (context) => const Login(),
         '/signup1': (context) => const SignupPage1(),
         '/signup2': (context) => const SignupPage2(),
-        '/emaileVerification': (context) => const EmailVerification(),
+        '/emailVerification': (context) => const EmailVerification(),
         '/error': (context) => const ErrorPage(),
         '/accessRestricted': (context) => const AccessRestrictedPage(),
         '/accountList': (context) => const AccountListPage(),
