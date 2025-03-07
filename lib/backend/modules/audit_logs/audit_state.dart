@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/audit_logs/audit_services.dart';
-import 'package:jcsd_flutter/backend/modules/audit_logs/audt_data.dart';
+import 'package:jcsd_flutter/backend/modules/audit_logs/audit_data.dart';
 
 //Base Provider
 final auditLogsProvider = Provider<AuditServices>((ref){

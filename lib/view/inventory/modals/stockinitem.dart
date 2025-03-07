@@ -1,22 +1,43 @@
 // ignore_for_file: library_private_types_in_public_api
 
+//Default Imports
+import 'dart:js_interop';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class StockInItemModal extends StatefulWidget {
+//Backend Imports
+import 'package:jcsd_flutter/backend/date_converter.dart'; //For Audit
+import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
+
+//Inventory Imports
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
+
+//Employee Imports
+import 'package:jcsd_flutter/backend/modules/employee/employee_service.dart';
+
+//Audit Imports
+import 'package:jcsd_flutter/backend/modules/audit_logs/audit_data.dart';
+import 'package:jcsd_flutter/backend/modules/audit_logs/audit_services.dart';
+
+class StockInItemModal extends ConsumerStatefulWidget {
   const StockInItemModal({super.key});
 
   @override
-  _StockInItemModalState createState() => _StockInItemModalState();
+  ConsumerState<StockInItemModal> createState() => _StockInItemModalState();
 }
 
-class _StockInItemModalState extends State<StockInItemModal> {
+class _StockInItemModalState extends ConsumerState<StockInItemModal> {
   String? _selectedItem;
   String? _selectedReceiver;
+
+  //Storing Data
   final TextEditingController _quantityController = TextEditingController();
 
-  // Dummy data for dropdowns, replace with actual data from backend
-  final List<String> _items = ['Item A', 'Item B', 'Item C', 'Item D'];
+  //Dummy Employee Data
   final List<String> _receivers = ['Receiver A', 'Receiver B', 'Receiver C'];
 
   @override
@@ -72,21 +93,11 @@ class _StockInItemModalState extends State<StockInItemModal> {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
-                  _buildDropdownField(
-                    label: 'Select Item',
-                    hintText: 'Select item',
-                    value: _selectedItem,
-                    items: _items,
-                    onChanged: (String? value) {
-                      setState(() {
-                        _selectedItem = value;
-                      });
-                    },
-                  ),
+                  _buildItemList(),
                   const SizedBox(height: 16),
                   _buildDropdownField(
                     label: 'Receiver',
-                    hintText: 'Select receiver',
+                    hintText: 'Select employeee',
                     value: _selectedReceiver,
                     items: _receivers,
                     onChanged: (String? value) {
@@ -110,6 +121,7 @@ class _StockInItemModalState extends State<StockInItemModal> {
                     child: TextButton(
                       onPressed: () {
                         Navigator.pop(context);
+                        refreshTables();
                       },
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -133,7 +145,26 @@ class _StockInItemModalState extends State<StockInItemModal> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        try {
+                          int newQuantity = int.parse(
+                              _quantityController.text); //New Stock in quantity
+
+                          final fetchItem = InventoryService(); //For Backend
+                          int? itemID =
+                              await fetchItem.getIDByName(_selectedItem);
+
+                          print(newQuantity);
+                          print(_selectedItem);
+                          print(itemID); //null
+                          fetchItem.updateQuantity(itemID!, newQuantity);
+                          print('Successfully stocked in: $itemID');
+                        } catch (err, stackTrace) {
+                          print('Error stocking in item. $err -- $stackTrace');
+                        }
+                        refreshTables();
+                        Navigator.pop(context);
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -157,6 +188,50 @@ class _StockInItemModalState extends State<StockInItemModal> {
           ],
         ),
       ),
+    );
+  }
+
+  //Refreshing Inventory Tables
+  void refreshTables() {
+    ref.invalidate(fetchActive);
+    ref.invalidate(fetchArchived);
+  }
+
+  //Fetching Items and Employee Methods
+  Future<List<InventoryData>> fetchItemList(WidgetRef ref) async {
+    return ref.read(fetchActive.future);
+  }
+
+  //Work in Progress -- For fetching Employee List
+  // Future<List<EmployeeData>> fetchEmployees() async {
+  //   return ref.read();
+  // }
+
+  Widget _buildItemList() {
+    return FutureBuilder<List<InventoryData>>(
+      future: fetchItemList(ref),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData) {
+          return const Text('No items found.');
+        } else {
+          List<String> itemNames =
+              snapshot.data!.map((item) => item.itemName).toList();
+          return _buildDropdownField(
+            label: "Item List",
+            hintText: "Select an item",
+            value: _selectedItem, // Pass _selectedItem here
+            items: itemNames,
+            onChanged: (String? value) {
+              // No need for setState here
+              _selectedItem = value; // Update _selectedItem directly
+            },
+          );
+        }
+      },
     );
   }
 
@@ -218,7 +293,13 @@ class _StockInItemModalState extends State<StockInItemModal> {
               ),
             );
           }).toList(),
-          onChanged: onChanged,
+          onChanged: (String? newValue) {
+            // Update state here
+            setState(() {
+              value = newValue;
+            });
+            onChanged(newValue); // This notifies the parent widget
+          },
         ),
       ],
     );
