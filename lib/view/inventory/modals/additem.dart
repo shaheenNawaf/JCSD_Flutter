@@ -105,7 +105,7 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
                           const SizedBox(height: 8),
                           _buildTextField(
                             label: 'Item Quantity',
-                            hintText: 'Enter item quantity',
+                            hintText: 'Initial item quantity',
                             setController: _addItemQuantity,
                             maxLines: 1,
                           )
@@ -357,7 +357,6 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
           if (snapshot.hasError) {
             return Text('Error fetching: ${snapshot.error}');
           }
-
           final typeList = snapshot.data!;
 
           return Column(
