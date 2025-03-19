@@ -55,9 +55,16 @@ class Header extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: onAvatarTap,
-                child: const CircleAvatar(
+                child: CircleAvatar(
                   radius: 20,
-                  backgroundImage: AssetImage('assets/avatars/cat2.jpg'),
+                  backgroundColor: Colors.blue,
+                  child: Text(
+                  username.isNotEmpty ? username[0].toUpperCase() : '',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  ),
                 ),
               ),
             ],
