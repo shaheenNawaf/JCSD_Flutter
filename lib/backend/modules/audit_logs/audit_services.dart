@@ -2,7 +2,7 @@
 import 'package:jcsd_flutter/api/global_variables.dart';
 import 'package:jcsd_flutter/backend/date_converter.dart';
 import 'dart:math';
-import 'package:jcsd_flutter/backend/modules/audit_logs/audt_data.dart';
+import 'package:jcsd_flutter/backend/modules/audit_logs/audit_data.dart';
 
 class AuditServices {
     String generateAuditID() {

@@ -16,11 +16,12 @@ import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
 
-class EditItemModal extends ConsumerStatefulWidget{
+class EditItemModal extends ConsumerStatefulWidget {
   final InventoryData itemData;
   final int itemInventoryID;
 
-  const EditItemModal({super.key, required this.itemData, required this.itemInventoryID});
+  const EditItemModal(
+      {super.key, required this.itemData, required this.itemInventoryID});
 
   @override
   ConsumerState<EditItemModal> createState() => _EditItemModalState();
@@ -38,12 +39,11 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
   // Controllers for default input
   final TextEditingController _itemName = TextEditingController();
   final TextEditingController _itemDescription = TextEditingController();
-  final TextEditingController _supplierID  = TextEditingController();
+  final TextEditingController _supplierID = TextEditingController();
   final TextEditingController _itemPrice = TextEditingController();
-  final TextEditingController _itemQuantity = TextEditingController();  
+  final TextEditingController _itemQuantity = TextEditingController();
   final TextEditingController _priceController = TextEditingController();
   @override
-
   void dispose() {
     _priceController.dispose();
     _itemName.dispose();
@@ -62,23 +62,24 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
     InventoryData itemsData = widget.itemData;
     _initItemTypeID = itemsData.itemTypeID;
     _initSupplierID = itemsData.supplierID;
-    
+
     _itemName.text = itemsData.itemName;
     _itemDescription.text = itemsData.itemDescription;
     _itemPrice.text = itemsData.itemPrice.toString();
     _itemQuantity.text = itemsData.itemQuantity.toString();
 
     //Don't touch, retrieves the necessary text from their respective tables based from the stored ID
-    initialSupplierName(_initSupplierID); 
+    initialSupplierName(_initSupplierID);
     initialItemType(_initItemTypeID);
-  } 
+  }
 
   Future<void> initialSupplierName(int supplierID) async {
     final supplierService = SuppliersService();
     String supplierName = await supplierService.getSupplierNameByID(supplierID);
 
     setState(() {
-      _selectedSupplier = supplierName; // Set Value to Supplier's Name based on the ID
+      _selectedSupplier =
+          supplierName; // Set Value to Supplier's Name based on the ID
     });
   }
 
@@ -157,11 +158,6 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
                             setController: _itemDescription,
                           ),
                           const SizedBox(height: 8),
-                          _buildTextField(
-                            label: 'Item Quantity',
-                            hintText: 'Enter item description here',
-                            setController: _itemQuantity,
-                          ),
                         ],
                       ),
                     ),
@@ -236,7 +232,7 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
                       onPressed: () async {
                         try {
                           final InventoryService items = InventoryService();
-                          
+
                           int itemID = widget.itemInventoryID;
                           String itemName = _itemName.text;
                           int itemTypeID = _initItemTypeID;
@@ -245,10 +241,15 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
                           int supplierID = _initSupplierID;
                           double itemPrice = double.parse(_itemPrice.text);
 
-                          
-                          await items.updateItem(itemID, itemName, itemTypeID, itemDescription, itemQuantity, supplierID, itemPrice);
-                        }
-                        catch (err){
+                          await items.updateItem(
+                              itemID,
+                              itemName,
+                              itemTypeID,
+                              itemDescription,
+                              itemQuantity,
+                              supplierID,
+                              itemPrice);
+                        } catch (err) {
                           print('Tried updating item details. $err');
                         }
                         ref.invalidate(fetchActive);
@@ -285,7 +286,6 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
     required String hintText,
     int maxLines = 1,
     required TextEditingController setController,
-
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,83 +333,83 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
     required ValueChanged<String?> onChanged,
   }) {
     return FutureBuilder(
-      future: ref.read(fetchAvailableSuppliers.future),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting){
-          return const CircularProgressIndicator();
-        }
-        if (snapshot.hasError){
-          return Text('Error fetching: ${snapshot.error}');
-        }
+        future: ref.read(fetchAvailableSuppliers.future),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          }
+          if (snapshot.hasError) {
+            return Text('Error fetching: ${snapshot.error}');
+          }
 
-        final supplierList = snapshot.data!;
+          final supplierList = snapshot.data!;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+          return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.normal,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontFamily: 'NunitoSans',
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    const Text(
+                      '*',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
-                const Text(
-                  '*',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            DropdownButtonFormField<String>(
-              value: value,
-              hint: Text(
-                hintText,
-                style: const TextStyle(
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w300,
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ),
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-              icon: const Icon(Icons.arrow_drop_down),
-              dropdownColor: Colors.white,
-              items: supplierList.map((supplier) {
-                return DropdownMenuItem<String>(
-                  value: supplier.supplierName,
-                  child: Text(
-                    supplier.supplierName,
+                const SizedBox(height: 5),
+                DropdownButtonFormField<String>(
+                  value: value,
+                  hint: Text(
+                    hintText,
                     style: const TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w300,
                       fontSize: 12,
+                      color: Colors.grey,
                     ),
                   ),
-                );
-              }).toList(),
-              onChanged: (String? getSupplierText) async {
-                print(getSupplierText);
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                  icon: const Icon(Icons.arrow_drop_down),
+                  dropdownColor: Colors.white,
+                  items: supplierList.map((supplier) {
+                    return DropdownMenuItem<String>(
+                      value: supplier.supplierName,
+                      child: Text(
+                        supplier.supplierName,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w300,
+                          fontSize: 12,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (String? getSupplierText) async {
+                    print(getSupplierText);
 
-                if(getSupplierText != null){
-                  int fetchID = await ref.read(supplierServiceProv).getNameByID(getSupplierText);
-                  if(fetchID != -1){
-                    _initSupplierID = fetchID;
-                  }
-                }
-              },
-            ),
-          ]
-        ); 
-      }
-    );
+                    if (getSupplierText != null) {
+                      int fetchID = await ref
+                          .read(supplierServiceProv)
+                          .getNameByID(getSupplierText);
+                      if (fetchID != -1) {
+                        _initSupplierID = fetchID;
+                      }
+                    }
+                  },
+                ),
+              ]);
+        });
   }
 
   Widget _buildItemTypeList({
@@ -419,83 +419,83 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
     required ValueChanged<String?> onChanged,
   }) {
     return FutureBuilder(
-      future: ref.read(fetchItemTypesList.future),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting){
-          return const CircularProgressIndicator();
-        }
-        if (snapshot.hasError){
-          return Text('Error fetching: ${snapshot.error}');
-        }
+        future: ref.read(fetchItemTypesList.future),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const CircularProgressIndicator();
+          }
+          if (snapshot.hasError) {
+            return Text('Error fetching: ${snapshot.error}');
+          }
 
-        final typeList = snapshot.data!;
+          final typeList = snapshot.data!;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+          return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.normal,
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        fontFamily: 'NunitoSans',
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    const Text(
+                      '*',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
-                const Text(
-                  '*',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            DropdownButtonFormField<String>(
-              value: value,
-              hint: Text(
-                hintText,
-                style: const TextStyle(
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w300,
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ),
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-              ),
-              icon: const Icon(Icons.arrow_drop_down),
-              dropdownColor: Colors.white,
-              items: typeList.map((itemTypes) {
-                return DropdownMenuItem<String>(
-                  value: itemTypes.itemType,
-                  child: Text(
-                    itemTypes.itemType,
+                const SizedBox(height: 5),
+                DropdownButtonFormField<String>(
+                  value: value,
+                  hint: Text(
+                    hintText,
                     style: const TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w300,
                       fontSize: 12,
+                      color: Colors.grey,
                     ),
                   ),
-                );
-              }).toList(),
-              onChanged: (String? getTypeName) async {
-                print(getTypeName);
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                  ),
+                  icon: const Icon(Icons.arrow_drop_down),
+                  dropdownColor: Colors.white,
+                  items: typeList.map((itemTypes) {
+                    return DropdownMenuItem<String>(
+                      value: itemTypes.itemType,
+                      child: Text(
+                        itemTypes.itemType,
+                        style: const TextStyle(
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w300,
+                          fontSize: 12,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (String? getTypeName) async {
+                    print(getTypeName);
 
-                if(getTypeName != null){
-                  int fetchID = await ref.read(itemTypesProvider).getIdByName(getTypeName); 
-                  if(fetchID != -1){
-                    _initItemTypeID = fetchID;
-                  }
-                }
-              },
-            ),
-          ]
-        ); 
-      }
-    );
+                    if (getTypeName != null) {
+                      int fetchID = await ref
+                          .read(itemTypesProvider)
+                          .getIdByName(getTypeName);
+                      if (fetchID != -1) {
+                        _initItemTypeID = fetchID;
+                      }
+                    }
+                  },
+                ),
+              ]);
+        });
   }
 
   Widget _buildPriceField() {

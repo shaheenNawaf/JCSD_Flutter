@@ -14,13 +14,13 @@ class SignupPage1 extends StatefulWidget {
 class _SignupPage1State extends State<SignupPage1> {
   // Controllers for the input fields
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _repeatPasswordController =
       TextEditingController();
 
   // State variables for password visibility
   bool _isPasswordHidden = true;
+  bool _isLoading = false;
   bool _isConfirmPasswordHidden = true;
 
   // Error string to display on the modal
@@ -29,60 +29,72 @@ class _SignupPage1State extends State<SignupPage1> {
   @override
   void dispose() {
     _emailController.dispose();
-    _usernameController.dispose();
     _passwordController.dispose();
     _repeatPasswordController.dispose();
     super.dispose();
   }
 
   Future<void> _signUp() async {
-    // Get the email, username, and password from the controllers
+    setState(() => _isLoading = true);
+
     final email = _emailController.text.trim();
-    final username = _usernameController.text.trim();
     final password = _passwordController.text.trim();
     final repeatPassword = _repeatPasswordController.text.trim();
 
-    // Basic validation for the fields on the first page
-    if (email.isEmpty ||
-        username.isEmpty ||
-        password.isEmpty ||
-        repeatPassword.isEmpty) {
-      setState(() {
-        errorText = 'Please fill in all fields.';
-      });
+    if (email.isEmpty || password.isEmpty || repeatPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields.')),
+      );
+      setState(() => _isLoading = false);
       return;
     }
 
     if (password.length < 6) {
-      setState(() {
-        errorText = 'Password must be at least 6 characters.';
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Password must be at least 6 characters.')),
+      );
+      setState(() => _isLoading = false);
       return;
     }
 
     if (password != repeatPassword) {
-      setState(() {
-        errorText = 'Passwords do not match.';
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match.')),
+      );
+      setState(() => _isLoading = false);
       return;
     }
 
     try {
-      // Calling the signUp method to proceed with the signup
-      await supabaseDB.auth.signUp(email: email, password: password);
-      // Navigate to the next page
-      Navigator.pushNamed(context, '/signup2');
+      final response =
+          await supabaseDB.auth.signUp(email: email, password: password);
+
+      if (response.user != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+                  'Signup successful! Check your email for verification.')),
+        );
+
+        await supabaseDB.auth.signOut();
+
+        if (mounted) {
+          Navigator.pushNamed(context, '/emailVerification', arguments: email);
+        }
+      }
     } on AuthException catch (error) {
-      setState(() {
-        errorText = error.message;
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.message)),
+      );
+      setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    const double fixedHeight = 700;
+    const double fixedHeight = 640;
     return Scaffold(
       appBar: const Navbar(activePage: 'register'),
       body: Stack(
@@ -148,12 +160,6 @@ class _SignupPage1State extends State<SignupPage1> {
                                   hintText: 'Email address',
                                 ),
                                 const SizedBox(height: 10),
-                                buildTextField(
-                                  controller: _usernameController,
-                                  label: 'Username',
-                                  hintText: 'Enter your username',
-                                ),
-                                const SizedBox(height: 10),
                                 buildPasswordField(
                                   controller: _passwordController,
                                   label: 'Password',
@@ -194,21 +200,24 @@ class _SignupPage1State extends State<SignupPage1> {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 100, vertical: 20),
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(5),
-                                      ),
+                                          borderRadius:
+                                              BorderRadius.circular(5)),
                                     ),
-                                    onPressed: () {
-                                      _signUp();
-                                    },
-                                    child: const Text(
-                                      'Continue',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Nunito',
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    ),
+                                    onPressed: _isLoading
+                                        ? null
+                                        : _signUp, // Fixed: Calls the method properly
+                                    child: _isLoading
+                                        ? const CircularProgressIndicator(
+                                            color: Colors.white)
+                                        : const Text(
+                                            'Continue',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Nunito',
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 18,
+                                            ),
+                                          ),
                                   ),
                                 ),
                                 const SizedBox(height: 20),

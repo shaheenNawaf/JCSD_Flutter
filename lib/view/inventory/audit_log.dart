@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 //Imports for the Backend fetching the Audit Logs
 import 'package:jcsd_flutter/backend/modules/audit_logs/audit_state.dart';
-import 'package:jcsd_flutter/backend/modules/audit_logs/audt_data.dart';
+import 'package:jcsd_flutter/backend/modules/audit_logs/audit_data.dart';
 
 class AuditLogPage extends ConsumerStatefulWidget {
   const AuditLogPage({super.key});

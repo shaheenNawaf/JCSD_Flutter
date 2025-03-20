@@ -46,12 +46,12 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
     );
   }
 
-  _showArchiveServiceModal(ServicesData service, int supplierID) {
+  _showArchiveServiceModal(int supplierID) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return ArchiveServiceModal();
+        return ArchiveServiceModal(serviceID: supplierID);
       },
     );
   }
@@ -317,8 +317,8 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
                 SizedBox(
                   width: 80,
                   child: ElevatedButton(
-                    onPressed: () => _showArchiveServiceModal(
-                        services[index], services[index].serviceID),
+                    onPressed: () =>
+                        _showArchiveServiceModal(services[index].serviceID),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                     ),
