@@ -1,22 +1,22 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
-//TODO
-//
-
 // Packages for usage
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_notifier.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_providers.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 
 //For Animation
 import 'package:shimmer/shimmer.dart';
 
 // Pages
-import 'package:jcsd_flutter/view/inventory/modals/additem.dart';
-import 'package:jcsd_flutter/view/inventory/modals/edititem.dart';
-import 'package:jcsd_flutter/view/inventory/modals/archiveitem.dart';
-import 'package:jcsd_flutter/view/inventory/modals/stockinitem.dart';
+import 'package:jcsd_flutter/view/inventory/modals/add_item.dart';
+import 'package:jcsd_flutter/view/inventory/modals/edit_item.dart';
+import 'package:jcsd_flutter/view/inventory/modals/archive_item.dart';
+import 'package:jcsd_flutter/view/inventory/modals/stock_in_item.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
 import 'package:jcsd_flutter/view/inventory/borrowed_items/viewborroweditem.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
@@ -59,22 +59,22 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
     );
   }
 
-  _showEditItemModal(InventoryData items, int itemID) {
+  _showEditItemModal(int itemID) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return EditItemModal(itemData: items, itemInventoryID: itemID);
+        return EditItemModal(itemInventoryID: itemID);
       },
     );
   }
 
-  _showArchiveItemModal(InventoryData items, int itemID) {
+  _showArchiveItemModal(int itemID) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return ArchiveItemModal(itemID: itemID, itemData: items);
+        return ArchiveItemModal(itemID: itemID);
       },
     );
   }
@@ -98,6 +98,12 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final inventoryState = ref.watch(inventoryProvider);
+    final inventoryNotifier = ref.read(inventoryProvider.notifier);
+
+    bool isLoading = inventoryState.originalData.isEmpty &&
+        inventoryState.searchText.isEmpty;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       body: Row(
@@ -112,7 +118,11 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: _buildWebView(),
+                    child: isLoading
+                        ? _buildLoadingIndicator()
+                        : inventoryState.originalData.isEmpty
+                            ? _buildErrorWidget('No data available.', null)
+                            : _buildWebView(inventoryState, inventoryNotifier),
                   ),
                 ),
               ],
@@ -123,7 +133,44 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
     );
   }
 
-  Widget _buildWebView() {
+  Widget _buildLoadingIndicator() {
+    // Instead of the CircularProgressIndicator, return a column of shimmer rows
+    return Column(
+      children: [
+        _buildShimmerRow(),
+        _buildShimmerRow(),
+        _buildShimmerRow(),
+        _buildShimmerRow(),
+        _buildShimmerRow(),
+      ],
+    );
+  }
+
+  Widget _buildErrorWidget(String error, StackTrace? stackTrace) {
+    return Center(child: Text('Error loading elements. \n $error'));
+  }
+
+  Widget _buildSearchAndFilters(
+      InventoryState state, InventoryNotifier notifier) {
+    return Row(
+      children: [
+        Expanded(
+            child: TextField(
+          decoration: const InputDecoration(
+              hintText: 'Search items...',
+              prefixIcon: Icon(FontAwesomeIcons.search),
+              border: OutlineInputBorder()),
+          onChanged: (value) {
+            notifier.searchItems(value);
+          },
+        )),
+        const SizedBox(width: 16),
+      ],
+    );
+  }
+
+  Widget _buildWebView(
+      InventoryState inventoryState, InventoryNotifier inventoryNotifier) {
     return Column(
       children: [
         Align(
@@ -190,6 +237,9 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
                       horizontal: 16,
                     ),
                   ),
+                  onChanged: (value) {
+                    inventoryNotifier.searchItems(value);
+                  },
                 ),
               ),
               const SizedBox(width: 16),
@@ -236,146 +286,128 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
           ),
         ),
         const SizedBox(height: 16),
+        _buildSearchAndFilters(
+            inventoryState, inventoryNotifier), // Inserted here
         Expanded(
-          child: _buildDataTable(context),
+          child: _buildDataTable(inventoryState, inventoryNotifier, context),
         ),
       ],
     );
   }
 
-  Widget _buildDataTable(BuildContext context) {
-    final fetchInventory = ref.watch(fetchActive);
-
-    return fetchInventory.when(
-        data: (items) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.3),
-                  spreadRadius: 2,
-                  blurRadius: 5,
-                  offset: const Offset(0, 3),
-                )
-              ],
+  Widget _buildDataTable(InventoryState inventoryState,
+      InventoryNotifier notifier, BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          )
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildHeaderRow(inventoryState, notifier),
+          const Divider(height: 1, color: Color.fromARGB(255, 188, 188, 188)),
+          Expanded(
+            child: ListView.builder(
+              itemCount: inventoryState.filteredData.length,
+              itemBuilder: (BuildContext context, int index) {
+                return _buildItemRow(
+                    inventoryState.filteredData, index, notifier);
+              },
             ),
-            child: Column(
-              children: [
-                _buildHeaderRow(),
-                const Divider(
-                    height: 1, color: Color.fromARGB(255, 188, 188, 188)),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return _buildItemRow(items, index);
-                    },
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-        error: (err, stackTrace) =>
-            Text('Error fetching data from table: $err'),
-        loading: () => Shimmer.fromColors(
-              baseColor: const Color.fromARGB(255, 207, 233, 255),
-              highlightColor: const Color.fromARGB(255, 114, 190, 253),
-              child: Column(
-                children: [
-                  _buildShimmerRow(),
-                  const Divider(
-                    height: 1,
-                    color: Color.fromARGB(255, 188, 188, 188),
-                  ),
-                  Expanded(
-                    child: ListView.builder(
-                        itemCount: 6,
-                        itemBuilder: (context, index) {
-                          return _buildShimmerRow();
-                        }),
-                  ),
-                ],
-              ),
-            ));
+          ),
+        ],
+      ),
+    );
   }
 
-  Widget _buildHeaderRow() {
+  Widget _buildHeaderRow(InventoryState state, InventoryNotifier notifier) {
     return Container(
       color: const Color.fromRGBO(0, 174, 239, 1),
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-      child: const Row(
+      child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: Text(
-              'Item ID',
-              style: TextStyle(
-                fontFamily: 'NunitoSans',
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildHeaderCell(
+                    state: state,
+                    notifier: notifier,
+                    columnTitle: 'Item ID',
+                    sortByColumn: 'itemID'),
+              ],
             ),
           ),
           Expanded(
-            child: Text(
-              'Item Name',
-              style: TextStyle(
-                fontFamily: 'NunitoSans',
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildHeaderCell(
+                    state: state,
+                    notifier: notifier,
+                    columnTitle: 'Item Name',
+                    sortByColumn: 'itemName'),
+              ],
             ),
           ),
           Expanded(
-            child: Text(
-              'Item Type',
-              style: TextStyle(
-                fontFamily: 'NunitoSans',
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildHeaderCell(
+                    state: state,
+                    notifier: notifier,
+                    columnTitle: 'Item Type',
+                    sortByColumn: 'itemType'),
+              ],
             ),
           ),
           Expanded(
-            child: Text(
-              'Supplier',
-              style: TextStyle(
-                fontFamily: 'NunitoSans',
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildHeaderCell(
+                    state: state,
+                    notifier: notifier,
+                    columnTitle: 'Supplier',
+                    sortByColumn: 'supplierID'),
+              ],
             ),
           ),
           Expanded(
-            child: Text(
-              'Quantity',
-              style: TextStyle(
-                fontFamily: 'NunitoSans',
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildHeaderCell(
+                    state: state,
+                    notifier: notifier,
+                    columnTitle: 'Quantity',
+                    sortByColumn: 'itemQuantity'),
+              ],
             ),
           ),
           Expanded(
-            child: Text(
-              'Price',
-              style: TextStyle(
-                fontFamily: 'NunitoSans',
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildHeaderCell(
+                    state: state,
+                    notifier: notifier,
+                    columnTitle: 'PRice',
+                    sortByColumn: 'itemPrice'),
+              ],
             ),
           ),
-          Expanded(
+          const Expanded(
             child: Text(
               'Actions',
               style: TextStyle(
@@ -391,11 +423,36 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
     );
   }
 
-  Future<String> fetchTypeName(int typeID) async {
-    final fetchTypes = ItemtypesService();
-    String typeName = await fetchTypes.getTypeNameByID(typeID);
-
-    return typeName;
+  Widget _buildHeaderCell({
+    required InventoryState state,
+    required InventoryNotifier notifier,
+    required String columnTitle,
+    required String sortByColumn,
+  }) {
+    return Expanded(
+        child: InkWell(
+      onTap: () {
+        notifier.sortItems(sortByColumn);
+      },
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text(
+            columnTitle,
+            style: const TextStyle(
+              fontFamily: 'NunitoSans',
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          if (state.sortBy == sortByColumn)
+            state.ascending
+                ? const Icon(Icons.arrow_drop_up, color: Colors.white)
+                : const Icon(Icons.arrow_drop_down, color: Colors.white)
+        ],
+      ),
+    ));
   }
 
   Widget _buildItemTypeCell(int typeID, BuildContext context) {
@@ -422,7 +479,8 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
     );
   }
 
-  Widget _buildItemRow(List<InventoryData> items, int index) {
+  Widget _buildItemRow(
+      List<InventoryData> items, int index, InventoryNotifier notifier) {
     final SuppliersService suppliersService = SuppliersService();
 
     return Container(
@@ -518,8 +576,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
                   width: 75,
                   child: ElevatedButton(
                     onPressed: () {
-                      _showEditItemModal(items[index], items[index].itemID);
-                      refreshTables();
+                      _showEditItemModal(items[index].itemID);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
@@ -534,8 +591,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
                   width: 75,
                   child: ElevatedButton(
                     onPressed: () {
-                      _showArchiveItemModal(items[index], items[index].itemID);
-                      refreshTables();
+                      _showArchiveItemModal(items[index].itemID);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
@@ -553,8 +609,6 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
       ),
     );
   }
-
-//Anything under this line are all UI or backend-less functions
 
   Widget _buildShimmerRow() {
     return Padding(
@@ -637,10 +691,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
     );
   }
 
-  void refreshTables() {
-    ref.invalidate(fetchActive);
-    ref.invalidate(fetchArchived);
-  }
+  //UI and Some fetch methods
 
   Color _itemQuantityColor(int itemQuantity) {
     if (itemQuantity < 10) {
@@ -650,5 +701,12 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
     } else {
       return Colors.green;
     }
+  }
+
+  Future<String> fetchTypeName(int typeID) async {
+    final fetchTypes = ItemtypesService();
+    String typeName = await fetchTypes.getTypeNameByID(typeID);
+
+    return typeName;
   }
 }

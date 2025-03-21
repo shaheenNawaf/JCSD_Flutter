@@ -1,62 +1,88 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
 
-// Provider for the Inventory System -- USED FOR THE ENTIRE STATE MANAGEMENT -- DON'T TOUCH
-final inventoryServiceProv = Provider<InventoryService>((ref){
-  return InventoryService();
-});
+class InventoryState {
+  final List<InventoryData> originalData;
+  final List<InventoryData> filteredData;
+  final String searchText;
+  final SortState sortState;
+  final int currentPage;
+  final int totalPages;
+  final int itemsPerPage;
+  final SortColumn sortedColumn;
+  final bool isLoading;
+  final String? error;
+  final String sortBy;
+  final bool ascending;
 
-// -- ALL OTHER METHODS UNDER NA HERE -- //
+  InventoryState({
+    required this.originalData,
+    required this.filteredData,
+    this.searchText = '',
+    this.sortState = SortState.none,
+    this.currentPage = 1,
+    this.totalPages = 1,
+    this.itemsPerPage = 10,
+    this.sortedColumn = SortColumn.none,
+    this.isLoading = true,
+    this.sortBy = 'itemID',
+    this.ascending = true,
+    this.error,
+  }); //fuk u semi-colon kulang what the fuck
 
-//Grabbing Entire Inventory List; used for displaying the list
-final fetchInventoryList = FutureProvider<List<InventoryData>>((ref) async {
-  final baseInventory = ref.read(inventoryServiceProv);
-
-  List<InventoryData> allItems = await baseInventory.allItems();
-  return allItems;
-});
-
-//Grabbing all hidden items
-final fetchArchived = FutureProvider<List<InventoryData>>((ref) async {
-  final baseInventory = ref.read(inventoryServiceProv);
-
-  List<InventoryData> allItems = await baseInventory.achivedItems();
-  return allItems;
-});
-
-//Grabbing all available items
-final fetchActive = FutureProvider<List<InventoryData>>((ref) async {
-  final baseInventory = ref.read(inventoryServiceProv);
-
-  List<InventoryData> allItems = await baseInventory.activeItems();
-  return allItems;
-});
-
-//Just to hold Query State (which might be empty)
-final inventoryQuery = StateProvider<String?>((ref) => null);
-
-//Search Function; added validation to ensure it can handle null results iwas error
-final inventorySearchResult = FutureProvider<List<InventoryData>>((ref) async {
-  final inventoryService = ref.read(inventoryServiceProv);
-  final queryResult = ref.watch(inventoryQuery);
-
-  //Conditionals to handle if there aren't any input/search result = isEmpty
-  if (queryResult == null || queryResult.isEmpty){
-    return [];
+  InventoryState copyWith({
+    List<InventoryData>? originalData,
+    List<InventoryData>? filteredData,
+    String? searchText,
+    SortState? sortState,
+    int? currentPage,
+    int? totalPages,
+    int? itemsPerPage,
+    SortColumn? sortedColumn,
+    bool? isLoading,
+    String? error,
+    String? sortBy,
+    bool? ascending,
+  }) {
+    return InventoryState(
+      originalData: originalData ?? this.originalData,
+      filteredData: filteredData ?? this.filteredData,
+      searchText: searchText ?? this.searchText,
+      sortState: sortState ?? this.sortState,
+      currentPage: currentPage ?? this.currentPage,
+      totalPages: totalPages ?? this.totalPages,
+      itemsPerPage: itemsPerPage ?? this.itemsPerPage,
+      sortedColumn: sortedColumn ?? this.sortedColumn,
+      isLoading: isLoading ?? this.isLoading,
+      error: error ?? this.error,
+      sortBy: sortBy ?? this.sortBy,
+      ascending: ascending ?? this.ascending,
+    );
   }
+}
 
-  //Actual function call to my inventory service for searching items
-  return await inventoryService.searchItems(itemName: queryResult, itemID: int.tryParse(queryResult), itemType: queryResult);
-});
+// ----- NOTES ----- //
+// ?? -- Null-aware, used to provide default values, acts like an if-else statement
 
-// TY GPT - Just to indicate it's loading, nothing else. Visual lang.
-final inventoryLoadingStateProvider = StateProvider<bool>((ref) => false);
+enum SortState {
+  itemIDAscending,
+  itemIDDesending,
+  itemNameAscending,
+  itemNameDesending,
+  itemTypeAscending,
+  itemTypeDescending,
+  priceAscending,
+  priceDescending,
+  supplierAscending,
+  supplierDescending,
+  quantityAscending,
+  quantityDescending,
+  none
+}
 
-
-
-//TODO
-// States for adding multiple items
-// Search function
-
-  
+enum SortColumn {
+  itemID,
+  itemName,
+  supplier,
+  quantity,
+  none,
+}

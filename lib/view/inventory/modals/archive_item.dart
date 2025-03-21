@@ -2,30 +2,27 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
+
+//Backend Things
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
 
-class UnarchiveItemModal extends ConsumerStatefulWidget {
-  final InventoryData itemData;
+class ArchiveItemModal extends ConsumerStatefulWidget {
   final int itemID;
 
-  const UnarchiveItemModal({super.key, required this.itemData, required this.itemID});
+  const ArchiveItemModal({super.key, required this.itemID});
 
   @override
-  ConsumerState<UnarchiveItemModal> createState() => _UnarchiveItemModalState();
+  ConsumerState<ArchiveItemModal> createState() => _ArchiveItemModalState();
 }
 
-class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
+class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
   late int _intItemID;
-  late InventoryData _itemData;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     print('Archive Item - initState()');
-   _intItemID = widget.itemID;
-   _itemData = widget.itemData;
+    _intItemID = widget.itemID;
   }
 
   @override
@@ -75,7 +72,7 @@ class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
               padding: EdgeInsets.all(16.0),
               child: Center(
                 child: Text(
-                  'Are you sure you want to restore item?',
+                  'Are you sure you want to archive item?',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontSize: 16,
@@ -93,7 +90,6 @@ class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
                   Expanded(
                     child: TextButton(
                       onPressed: () {
-                        ref.invalidate(fetchArchived);
                         Navigator.pop(context);
                       },
                       style: TextButton.styleFrom(
@@ -119,15 +115,17 @@ class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        try{
-                          final InventoryService updateVisibility = InventoryService();
-                          updateVisibility.updateVisibility(_intItemID, true);
-                          print('Item Unarchived. $_intItemID');
-                          Navigator.pop(context);
-                        }catch(err){
-                          print('Error changing visibility of the item. $_itemData');
+                        print('Archive Item - Save changes');
+                        try {
+                          final InventoryService updateVisibility =
+                              InventoryService();
+                          await updateVisibility.updateVisibility(
+                              _intItemID, false);
+                          print('Successfully hid the item. $_intItemID');
+                        } catch (err) {
+                          print('Error archiving an item. $_intItemID');
                         }
-                        refreshTables();
+                        Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
@@ -137,7 +135,7 @@ class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
                         ),
                       ),
                       child: const Text(
-                        'Restore',
+                        'Submit',
                         style: TextStyle(
                           fontFamily: 'NunitoSans',
                           fontWeight: FontWeight.bold,
@@ -153,10 +151,5 @@ class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
         ),
       ),
     );
-  }
-
-  void refreshTables(){
-    ref.invalidate(fetchActive);
-    ref.invalidate(fetchArchived);
   }
 }

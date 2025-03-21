@@ -6,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 
 //Pages
-import 'package:jcsd_flutter/view/inventory/modals/unarchiveitem.dart';
+import 'package:jcsd_flutter/view/inventory/modals/unarchive_item.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/widgets/header.dart';

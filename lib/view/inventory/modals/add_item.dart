@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 //Backend Imports
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
@@ -201,7 +200,6 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
                         } catch (err) {
                           print('Tried adding item details. $err');
                         }
-                        ref.invalidate(fetchActive);
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(

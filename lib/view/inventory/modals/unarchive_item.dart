@@ -2,33 +2,27 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-//Backend Things
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
 
-class ArchiveItemModal extends ConsumerStatefulWidget {
-  final InventoryData itemData;
+class UnarchiveItemModal extends ConsumerStatefulWidget {
   final int itemID;
 
-  const ArchiveItemModal(
-      {super.key, required this.itemData, required this.itemID});
+  const UnarchiveItemModal({super.key, required this.itemID});
 
   @override
-  ConsumerState<ArchiveItemModal> createState() => _ArchiveItemModalState();
+  ConsumerState<UnarchiveItemModal> createState() => _UnarchiveItemModalState();
 }
 
-class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
+class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
   late int _intItemID;
-  late InventoryData _itemData;
 
   @override
   void initState() {
     super.initState();
     print('Archive Item - initState()');
     _intItemID = widget.itemID;
-    _itemData = widget.itemData;
   }
 
   @override
@@ -78,7 +72,7 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
               padding: EdgeInsets.all(16.0),
               child: Center(
                 child: Text(
-                  'Are you sure you want to archive item?',
+                  'Are you sure you want to restore item?',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontSize: 16,
@@ -96,7 +90,6 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
                   Expanded(
                     child: TextButton(
                       onPressed: () {
-                        refreshTables();
                         Navigator.pop(context);
                       },
                       style: TextButton.styleFrom(
@@ -122,17 +115,16 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        print('Archive Item - Save changes');
                         try {
                           final InventoryService updateVisibility =
                               InventoryService();
-                          await updateVisibility.updateVisibility(_intItemID, false);
-                          print('Successfully hid the item. ${_itemData.itemName}');
+                          updateVisibility.updateVisibility(_intItemID, true);
+                          print('Item Unarchived. $_intItemID');
+                          Navigator.pop(context);
                         } catch (err) {
-                          print('Error archiving an item. $_itemData');
+                          print(
+                              'Error changing visibility of the item. $_intItemID');
                         }
-                        refreshTables();
-                        Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
@@ -142,7 +134,7 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
                         ),
                       ),
                       child: const Text(
-                        'Submit',
+                        'Restore',
                         style: TextStyle(
                           fontFamily: 'NunitoSans',
                           fontWeight: FontWeight.bold,
@@ -158,10 +150,5 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
         ),
       ),
     );
-  }
-
-  void refreshTables(){
-    ref.invalidate(fetchActive);
-    ref.invalidate(fetchArchived);
   }
 }

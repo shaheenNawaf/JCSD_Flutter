@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_providers.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 
 //Backend Imports
@@ -17,11 +18,9 @@ import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
 
 class EditItemModal extends ConsumerStatefulWidget {
-  final InventoryData itemData;
   final int itemInventoryID;
 
-  const EditItemModal(
-      {super.key, required this.itemData, required this.itemInventoryID});
+  const EditItemModal({super.key, required this.itemInventoryID});
 
   @override
   ConsumerState<EditItemModal> createState() => _EditItemModalState();
@@ -59,15 +58,6 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
   void initState() {
     super.initState();
 
-    InventoryData itemsData = widget.itemData;
-    _initItemTypeID = itemsData.itemTypeID;
-    _initSupplierID = itemsData.supplierID;
-
-    _itemName.text = itemsData.itemName;
-    _itemDescription.text = itemsData.itemDescription;
-    _itemPrice.text = itemsData.itemPrice.toString();
-    _itemQuantity.text = itemsData.itemQuantity.toString();
-
     //Don't touch, retrieves the necessary text from their respective tables based from the stored ID
     initialSupplierName(_initSupplierID);
     initialItemType(_initItemTypeID);
@@ -95,6 +85,36 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
 
   @override
   Widget build(BuildContext context) {
+    //For itemID usage
+    final inventoryState = ref.watch(inventoryProvider);
+    final itemBaseData = inventoryState.originalData.firstWhere(
+      (item) => item.itemID == widget.itemInventoryID,
+      orElse: () => InventoryData(
+          itemID: -1,
+          supplierID: -1,
+          itemName: "",
+          itemTypeID: -1,
+          itemDescription: "",
+          itemQuantity: -1,
+          itemPrice: -1,
+          isVisible: false),
+    );
+
+    //Checker and Error Handler for multiple hidden cases
+    if (itemBaseData.itemID == -1 ||
+        itemBaseData.supplierID == -1 ||
+        itemBaseData.itemTypeID == -1) {
+      return const AlertDialog(
+        title: Text('Error'),
+        content: Text('Item not found.'),
+      );
+    }
+
+    //Data loaded to controllers
+    _itemName.text = itemBaseData.itemName;
+    _itemDescription.text = itemBaseData.itemDescription;
+    _itemQuantity.text = itemBaseData.itemQuantity.toString();
+
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 700 : screenWidth * 0.9;
     const double containerHeight = 390;
@@ -252,7 +272,6 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
                         } catch (err) {
                           print('Tried updating item details. $err');
                         }
-                        ref.invalidate(fetchActive);
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(

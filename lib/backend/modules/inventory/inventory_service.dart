@@ -1,15 +1,21 @@
-//Supabase Implementation -- personal comments to lahat, plz don't remove
+/// Supabase Implementation -- personal comments to lahat, plz don't remove
+library;
+
 import 'package:jcsd_flutter/api/global_variables.dart';
 import 'package:jcsd_flutter/backend/date_converter.dart';
 
-//Inventory Data - using the class that I made to store data
+///Inventory Data - using the class that I made to store data
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
 import 'package:jcsd_flutter/backend/modules/audit_logs/audit_services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+// Notes inserted here
+// Dart allows ? as assigned null, added nako here para ma handle sa function if may empty na parameter when called
 
 class InventoryService {
   AuditServices addAuditLogs = AuditServices();
 
-  //Single Item - for loading their details (NOT SEARCH)
+  //Functions that return either: ID -> NAME or NAME -> ID
   Future<InventoryData?> getItemByID(int itemID) async {
     try {
       final fetchItem = await supabaseDB
@@ -72,24 +78,39 @@ class InventoryService {
     }
   }
 
-  // General Search Function - searches itemID, itemName, and itemType
-  // Dart allows ? as assigned null, added nako here para ma handle sa function if may empty na parameter when called
-  Future<List<InventoryData>> searchItems(
-      {int? itemID, String? itemName, String? itemType}) async {
+  //Note: Displays all of the
+  //Search Function: Finds based on Name, ID, Type
+  Future<List<InventoryData>> searchItems({
+    int? itemID,
+    String? itemName,
+    String? itemType,
+    int page = 1,
+    int itemsPerPage = 10,
+    String sortBy = 'itemID',
+    bool isVisible = true,
+    bool ascending = true,
+  }) async {
     try {
       final query = supabaseDB.from('item_inventory').select();
 
       if (itemID != null) {
-        query.eq('itemID', itemID);
+        query
+            .eq('itemID', itemID)
+            .range((page - 1) * itemsPerPage, page * itemsPerPage - 1);
       }
       if (itemName != null) {
-        query.eq('itemName', itemName);
+        query
+            .eq('itemName', itemName)
+            .range((page - 1) * itemsPerPage, page * itemsPerPage - 1);
       }
       if (itemType != null) {
-        query.eq('itemType', itemType);
+        query
+            .eq('itemType', itemType)
+            .range((page - 1) * itemsPerPage, page * itemsPerPage - 1);
       }
 
-      final results = await query;
+      final results = await query.order(sortBy, ascending: ascending);
+
       if (results.isEmpty) {
         print("No Items found in the database.");
         //Add widget
@@ -105,9 +126,14 @@ class InventoryService {
   }
 
   // Just fetching all the items inside the database
-  Future<List<InventoryData>> allItems() async {
+  Future<List<InventoryData>> allItems(
+      {int page = 1, int itemsPerPage = 10}) async {
     try {
-      final results = await supabaseDB.from('item_inventory').select();
+      final results = await supabaseDB
+          .from('item_inventory')
+          .select()
+          .range((page - 1) * itemsPerPage, page * itemsPerPage - 1)
+          .order('itemID', ascending: true);
       if (results.isEmpty) {
         print("No items inside the database");
         return [];
@@ -123,44 +149,59 @@ class InventoryService {
     }
   }
 
-  //Fetching all active items
-  Future<List<InventoryData>> activeItems() async {
-    try {
-      final results = await supabaseDB
-          .from('item_inventory')
-          .select()
-          .eq('isVisible', true)
-          .order('itemID', ascending: true);
-      if (results.isEmpty) {
-        print("No items inside the database");
-        return [];
-      }
-      return results
-          .map<InventoryData>((item) => InventoryData.fromJson(item))
-          .toList();
-    } catch (err) {
-      print('Error fetching active items. $err');
-      return [];
-    }
+  Future<int> totalActiveItemCount() async {
+    final activeItemCount = await supabaseDB
+        .from('item_inventory')
+        .select()
+        .eq('isVisible', true)
+        .count(CountOption.exact);
+    return activeItemCount.count;
   }
 
-  //Fetching all archived/hidden items
-  Future<List<InventoryData>> achivedItems() async {
+  Future<int> totalArchivedItemCount() async {
+    final archivedItemCount = await supabaseDB
+        .from('item_inventory')
+        .select()
+        .eq('isVisible', false)
+        .count(CountOption.exact);
+    return archivedItemCount.count;
+  }
+
+  /// Functions that involve viewing items based on their statuses
+
+  // Handle both active and archived items
+  Future<List<InventoryData>> fetchItems({
+    bool? isVisible,
+    int page = 1,
+    int itemsPerPage = 10,
+    String sortBy = 'itemID',
+    bool ascending = true,
+  }) async {
     try {
-      final results = await supabaseDB
-          .from('item_inventory')
-          .select()
-          .eq('isVisible', 'false')
-          .order('itemID', ascending: true);
+      final items = supabaseDB.from('item_inventory').select();
+
+      //Param inserts here to handle if active or archived ba ang item
+      if (isVisible != null) {
+        items.eq('isVisible', isVisible);
+      }
+
+      //Pagination and order purposes
+      items.range((page - 1) * itemsPerPage, page * itemsPerPage - 1);
+      items.order(sortBy, ascending: ascending);
+
+      //Checking if empty or nah
+      final results = await items;
       if (results.isEmpty) {
-        print("No items inside the database");
+        print('0 items found in the database.');
         return [];
       }
+
+      //For parsing
       return results
           .map<InventoryData>((item) => InventoryData.fromJson(item))
           .toList();
-    } catch (err) {
-      print('Error fetching hidden items. $err');
+    } catch (err, stackTrace) {
+      print('Error fetching items. $err \n $stackTrace');
       return [];
     }
   }
@@ -246,8 +287,8 @@ class InventoryService {
           .eq('itemID', itemID!);
 
       if (fetchQuantity.isNotEmpty) {
-        final itemCurrentQuantity = fetchQuantity[0]
-            ['itemQuantity']; //Just getting the quantity from the
+        final itemCurrentQuantity =
+            fetchQuantity[0]['itemQuantity']; //Only getting the quantity
         return itemCurrentQuantity;
       } else if (fetchQuantity.isEmpty) {
         return 0;

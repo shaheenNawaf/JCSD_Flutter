@@ -121,7 +121,6 @@ class _StockInItemModalState extends ConsumerState<StockInItemModal> {
                     child: TextButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        refreshTables();
                       },
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -162,7 +161,6 @@ class _StockInItemModalState extends ConsumerState<StockInItemModal> {
                         } catch (err, stackTrace) {
                           print('Error stocking in item. $err -- $stackTrace');
                         }
-                        refreshTables();
                         Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
@@ -189,12 +187,6 @@ class _StockInItemModalState extends ConsumerState<StockInItemModal> {
         ),
       ),
     );
-  }
-
-  //Refreshing Inventory Tables
-  void refreshTables() {
-    ref.invalidate(fetchActive);
-    ref.invalidate(fetchArchived);
   }
 
   //Fetching Items and Employee Methods
