@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/view/generic/notification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Sidebar extends StatefulWidget {
@@ -250,6 +252,18 @@ class _SidebarState extends State<Sidebar> {
                     ],
                   ),
                 ),
+                ElevatedButton(
+                onPressed: () {
+                  ToastManager().showToast(context, 'Toast 1 from HomePage', Color(0xFF00AEEF));
+                },
+                child: const Text('Show Toast 1'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  ToastManager().showToast(context, 'Toast 2 from HomePage', Color.fromARGB(255, 255, 124, 17));
+                },
+                child: const Text('Show Toast 2'),
+              ),
                 _buildLogoutButton(context),
                 const SizedBox(height: 16),
               ],
@@ -263,7 +277,7 @@ class _SidebarState extends State<Sidebar> {
     });
 
     Future.delayed(const Duration(milliseconds: 200), () {
-      Navigator.pushNamed(context, route);
+      context.go(route); // Use GoRouter's context.go
       widget.onClose?.call();
     });
   }
@@ -273,7 +287,7 @@ class _SidebarState extends State<Sidebar> {
       _activeSubItem = '';
     });
 
-    Navigator.pushNamed(context, route);
+    context.go(route); // Use GoRouter's context.go
     widget.onClose?.call();
   }
 
@@ -455,7 +469,7 @@ class _SidebarState extends State<Sidebar> {
   Future<void> _logout() async {
     try {
       await Supabase.instance.client.auth.signOut();
-      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+      context.go('/login'); // Use GoRouter's context.go
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Logout failed: $error')),
