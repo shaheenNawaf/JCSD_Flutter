@@ -94,24 +94,43 @@ class InventoryNotifier extends StateNotifier<InventoryState> {
           itemPrice: itemPrice,
           isVisible: true);
 
-      //Passing to the service - NOTE: CAN BE IMPROVED
-      final createdItem = await ref.read(inventoryServiceProv).addItem(
-          newItem.itemName,
-          newItem.itemTypeID,
-          newItem.itemDescription,
-          newItem.itemQuantity,
-          newItem.supplierID,
-          newItem.itemPrice);
+      //Adding new item, service call - improved logic na
+      await ref.read(inventoryServiceProv).addItem(
+        newItem.itemName,
+        newItem.itemTypeID,
+        newItem.itemDescription,
+        newItem.itemQuantity,
+        newItem.supplierID,
+        newItem.itemPrice
+      );
+
+      final getItemID =
+          await ref.read(inventoryServiceProv).getIDByName(newItem.itemName);
+
+      final newItemAddedWithID = newItem.copyWith(
+          itemID:
+              getItemID!); //Para lang ma-update ng maayos ang itemID once reflected sa table
 
       //Update State - for refresh purposes
       state = state.copyWith(
-        originalData: [...state.originalData, newItem],
-        filteredData: [...state.filteredData, newItem],
+        originalData: [...state.originalData, newItemAddedWithID],
+        filteredData: [...state.filteredData, newItemAddedWithID],
       );
     } catch (err) {
       print('Error adding item. $err');
     }
   }
+
+  Future<void> updateItem(int itemID, String itemName, int itemTypeID, String itemDescription,
+      int quantity, int supplierID, double itemPrice) async {
+        try {
+          final updateItem = InventoryData{
+            
+          }
+        }catch(err){
+          print('Error updating item. $err');
+        }
+      }
 
   void searchItems(String searchText) async {
     state =
