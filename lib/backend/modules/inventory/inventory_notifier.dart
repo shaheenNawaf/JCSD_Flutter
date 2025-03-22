@@ -1,6 +1,10 @@
+//Riverpod
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+//Backend
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_providers.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 
 class InventoryNotifier extends StateNotifier<InventoryState> {
@@ -8,7 +12,9 @@ class InventoryNotifier extends StateNotifier<InventoryState> {
   bool isVisible =
       true; //Default state, unless stated for archived items display
 
-  InventoryNotifier(this.ref, this.isVisible)
+  final InventoryService inventoryService;
+
+  InventoryNotifier(this.ref, this.isVisible, this.inventoryService)
       : super(InventoryState(
           originalData: [],
           filteredData: [],
@@ -17,11 +23,7 @@ class InventoryNotifier extends StateNotifier<InventoryState> {
           isLoading: true,
           error: null,
         )) {
-    _init();
-  }
-
-  Future<void> _init() async {
-    await _fetchInventoryData();
+    _fetchInventoryData();
   }
 
   //Update - 03/18 - Now simplified and handling both active states para isa ray method oy!
@@ -35,7 +37,7 @@ class InventoryNotifier extends StateNotifier<InventoryState> {
           ascending: ascending ?? state.ascending,
           itemsPerPage: state.itemsPerPage);
 
-      final totalItems;
+      final int totalItems;
 
       if (isVisible) {
         totalItems =
@@ -77,6 +79,38 @@ class InventoryNotifier extends StateNotifier<InventoryState> {
       sortBy: sortBy,
       ascending: ascending,
     );
+  }
+
+  Future<void> addItem(String itemName, int itemTypeID, String itemDescription,
+      int quantity, int supplierID, double itemPrice) async {
+    try {
+      final newItem = InventoryData(
+          itemID: 0,
+          supplierID: supplierID,
+          itemName: itemName,
+          itemTypeID: itemTypeID,
+          itemDescription: itemDescription,
+          itemQuantity: quantity,
+          itemPrice: itemPrice,
+          isVisible: true);
+
+      //Passing to the service - NOTE: CAN BE IMPROVED
+      final createdItem = await ref.read(inventoryServiceProv).addItem(
+          newItem.itemName,
+          newItem.itemTypeID,
+          newItem.itemDescription,
+          newItem.itemQuantity,
+          newItem.supplierID,
+          newItem.itemPrice);
+
+      //Update State - for refresh purposes
+      state = state.copyWith(
+        originalData: [...state.originalData, newItem],
+        filteredData: [...state.filteredData, newItem],
+      );
+    } catch (err) {
+      print('Error adding item. $err');
+    }
   }
 
   void searchItems(String searchText) async {

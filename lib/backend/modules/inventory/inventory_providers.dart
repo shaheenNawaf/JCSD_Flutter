@@ -10,7 +10,8 @@ final inventoryServiceProv = Provider<InventoryService>((ref) {
 
 final inventoryProvider =
     StateNotifierProvider<InventoryNotifier, InventoryState>((ref) {
-  return InventoryNotifier(ref, true);
+  final inventoryService = ref.read(inventoryServiceProv);
+  return InventoryNotifier(ref, true, inventoryService);
 });
 
 // TY GPT - Just to indicate it's loading, nothing else. Visual lang.

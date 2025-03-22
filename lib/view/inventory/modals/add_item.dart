@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_notifier.dart';
 
 //Backend Imports
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
@@ -182,6 +183,7 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
                     child: ElevatedButton(
                       onPressed: () async {
                         try {
+                          final InventoryNotifier notifier = InventoryNotifier(context, true);
                           final InventoryService addItem = InventoryService();
 
                           String itemName = _addItemName.text;
