@@ -18,7 +18,7 @@ import 'package:jcsd_flutter/view/inventory/modals/edit_item.dart';
 import 'package:jcsd_flutter/view/inventory/modals/archive_item.dart';
 import 'package:jcsd_flutter/view/inventory/modals/stock_in_item.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
-import 'package:jcsd_flutter/view/inventory/borrowed_items/viewborroweditem.dart';
+import 'package:jcsd_flutter/view/inventory/borrowed_items/view_borrowed.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 

@@ -1,8 +1,6 @@
 // Imports
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:go_router/go_router.dart'; // Import go_router
 import 'package:jcsd_flutter/view/generic/email_verification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'api/supa_details.dart';

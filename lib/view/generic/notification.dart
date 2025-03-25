@@ -6,7 +6,7 @@ class ToastManager {
   factory ToastManager() => _instance;
   ToastManager._internal();
 
-  final List<OverlayEntry> _toasts = [];
+  final List<OverlayEntry> _toasts = [  ];
   OverlayState? _overlayState;
 
   void showToast(BuildContext context, String message, Color color) {

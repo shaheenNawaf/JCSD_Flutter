@@ -126,13 +126,11 @@ class InventoryService {
   }
 
   // Just fetching all the items inside the database
-  Future<List<InventoryData>> allItems(
-      {int page = 1, int itemsPerPage = 10}) async {
+  Future<List<InventoryData>> allItems() async {
     try {
       final results = await supabaseDB
           .from('item_inventory')
           .select()
-          .range((page - 1) * itemsPerPage, page * itemsPerPage - 1)
           .order('itemID', ascending: true);
       if (results.isEmpty) {
         print("No items inside the database");
@@ -172,8 +170,6 @@ class InventoryService {
   // Handle both active and archived items
   Future<List<InventoryData>> fetchItems({
     bool? isVisible,
-    int page = 1,
-    int itemsPerPage = 10,
     String sortBy = 'itemID',
     bool ascending = true,
   }) async {
@@ -186,7 +182,6 @@ class InventoryService {
       }
 
       //Pagination and order purposes
-      items.range((page - 1) * itemsPerPage, page * itemsPerPage - 1);
       items.order(sortBy, ascending: ascending);
 
       //Checking if empty or nah
@@ -227,32 +222,49 @@ class InventoryService {
     }
   }
 
-  Future<void> addItem(String itemName, int itemTypeID, String itemDescription,
-      int quantity, int supplierID, double itemPrice) async {
+  Future<InventoryData> addItem(
+      String itemName,
+      int itemTypeID,
+      String itemDescription,
+      int quantity,
+      int supplierID,
+      double itemPrice) async {
     try {
-      await supabaseDB.from('item_inventory').insert({
-        'itemName': itemName,
-        'itemTypeID': itemTypeID,
-        'itemDescription': itemDescription,
-        'itemQuantity': quantity,
-        'supplierID': supplierID,
-        'itemPrice': itemPrice,
-        'isVisible': true,
-        'createDate': returnCurrentDate(),
-        'updateDate': returnCurrentDate(),
-      });
+      final addNewItem = await supabaseDB
+          .from('item_inventory')
+          .insert({
+            'itemName': itemName,
+            'itemTypeID': itemTypeID,
+            'itemDescription': itemDescription,
+            'itemQuantity': quantity,
+            'supplierID': supplierID,
+            'itemPrice': itemPrice,
+            'isVisible': true,
+            'createDate': returnCurrentDate(),
+            'updateDate': returnCurrentDate(),
+          })
+          .select()
+          .single();
+
+      //For Audit Logs
       addAuditLogs.insertAuditLog(
           'audit_inventory',
           1,
           "Added new item on the database: $itemName",
           "New Item"); //Test Employee ID first
+
+      //Debug Message
       print("NEW ITEM ADDED: $itemName");
+
+      //Returning the newly inserted data
+      return InventoryData.fromJson(addNewItem);
     } catch (err) {
       print('ERROR ADDING ITEM ($itemName) -- Info: $err');
+      rethrow;
     }
   }
 
-  Future<void> updateItem(
+  Future<InventoryData> updateItem(
       int itemID,
       String itemName,
       int itemTypeID,
@@ -261,7 +273,7 @@ class InventoryService {
       int supplierID,
       double itemPrice) async {
     try {
-      await supabaseDB.from('item_inventory').update({
+      final updatedItem = await supabaseDB.from('item_inventory').update({
         'itemName': itemName,
         'itemTypeID': itemTypeID,
         'itemDescription': itemDescription,
@@ -270,12 +282,20 @@ class InventoryService {
         'itemPrice': itemPrice,
         'updateDate': returnCurrentDate(),
       }).eq('itemID', itemID);
+
+      //For Audit Logs
       addAuditLogs.insertAuditLog('audit_inventory', 1,
           "Updated existing item on the database: $itemName", "Updated Item");
+
+      //Debug Message
       print("SUCCESS! -- UPDATED ITEM DETAILS: $itemName");
+
+      //Returning a new InventoryData object
+      return InventoryData.fromJson(updatedItem);
     } catch (err) {
-      // Catch and print general exceptions
+      //Debug Message ulet!
       print('UPDATE ERROR. ($itemName) -- Info: $err');
+      rethrow;
     }
   }
 
