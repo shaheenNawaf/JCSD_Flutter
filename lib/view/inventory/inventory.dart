@@ -39,6 +39,8 @@ class InventoryPage extends ConsumerStatefulWidget {
 class _InventoryPageState extends ConsumerState<InventoryPage> {
   final String _activeSubItem = '/inventory';
 
+
+  
   void _showAddItemModal() {
     showDialog(
       context: context,
