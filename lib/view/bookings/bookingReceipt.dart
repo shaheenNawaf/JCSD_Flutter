@@ -4,7 +4,6 @@
 import 'package:flutter/material.dart';
 // import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
-import 'dart:html' as html;
 import 'dart:typed_data';
 import 'package:pdf/widgets.dart' as pw;
 // import 'package:flutter_email_sender/flutter_email_sender.dart';

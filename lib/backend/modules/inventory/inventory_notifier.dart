@@ -4,9 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
 
-//Front-End
-import 'package:jcsd_flutter/view/inventory/inventory.dart';
-
 class InventoryNotifier extends ChangeNotifier {
   final InventoryService _inventoryService;
 
