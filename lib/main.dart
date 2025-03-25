@@ -1,6 +1,7 @@
 // Imports
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:jcsd_flutter/view/generic/email_verification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'api/supa_details.dart';
@@ -62,154 +63,10 @@ class MainApp extends StatelessWidget {
     print('Checking Authentication State...');
     print('Current Authenticated User: ${user?.email ?? "No user logged in"}');
 
-    final GoRouter router = GoRouter(
-      initialLocation: user == null ? '/login' : '/home',
-      routes: [
-        GoRoute(
-          path: '/home',
-          builder: (context, state) => const HomeView(),
-        ),
-        GoRoute(
-          path: '/login',
-          builder: (context, state) => const Login(),
-        ),
-        GoRoute(
-          path: '/signup1',
-          builder: (context, state) => const SignupPage1(),
-        ),
-        GoRoute(
-          path: '/signup2',
-          builder: (context, state) => const SignupPage2(),
-        ),
-        GoRoute(
-          path: '/emailVerification',
-          builder: (context, state) => const EmailVerification(),
-        ),
-        GoRoute(
-          path: '/error',
-          builder: (context, state) => const ErrorPage(),
-        ),
-        GoRoute(
-          path: '/accessRestricted',
-          builder: (context, state) => const AccessRestrictedPage(),
-        ),
-        GoRoute(
-          path: '/accountList',
-          builder: (context, state) => const AccountListPage(),
-        ),
-        GoRoute(
-          path: '/bookingsCalendar',
-          builder: (context, state) => const BookingCalendarPage(),
-        ),
-        GoRoute(
-          path: '/employeeList',
-          builder: (context, state) => const EmployeeListPage(),
-        ),
-        GoRoute(
-          path: '/payroll',
-          builder: (context, state) => const Payroll(),
-        ),
-        GoRoute(
-          path: '/accountDetails',
-          builder: (context, state) => const ProfileAdminViewPage(),
-        ),
-        GoRoute(
-          path: '/leaveRequestList',
-          builder: (context, state) => const LeaveRequestList(),
-        ),
-        GoRoute(
-          path: '/booking1',
-          builder: (context, state) => const ClientBooking1(),
-        ),
-        GoRoute(
-          path: '/booking2',
-          builder: (context, state) => const ClientBooking2(),
-        ),
-        GoRoute(
-          path: '/profileClient',
-          builder: (context, state) => const ProfilePageClient(),
-        ),
-        // Employee Routes
-        GoRoute(
-          path: '/employeeLogin',
-          builder: (context, state) => const LoginEmployee(),
-        ),
-        GoRoute(
-          path: '/dashboard',
-          builder: (context, state) => const DashboardPage(),
-        ),
-        GoRoute(
-          path: '/inventory',
-          builder: (context, state) => const InventoryPage(),
-        ),
-        GoRoute(
-          path: '/suppliers',
-          builder: (context, state) => const SupplierPage(),
-        ),
-        GoRoute(
-          path: '/supplierArchive',
-          builder: (context, state) => const SupplierArchivePage(),
-        ),
-        GoRoute(
-          path: '/bookings',
-          builder: (context, state) => const BookingsPage(),
-        ),
-        GoRoute(
-          path: '/transactions',
-          builder: (context, state) => const TransactionsPage(),
-        ),
-        GoRoute(
-          path: '/archiveList',
-          builder: (context, state) => const ArchiveListPage(),
-        ),
-        GoRoute(
-          path: '/orderList',
-          builder: (context, state) => const OrderListPage(),
-        ),
-        GoRoute(
-          path: '/auditLog',
-          builder: (context, state) => const AuditLogPage(),
-        ),
-        GoRoute(
-          path: '/services',
-          builder: (context, state) => const ServicesPage(),
-        ),
-        GoRoute(
-          path: '/servicesArchive',
-          builder: (context, state) => const ServicesArchivePage(),
-        ),
-        GoRoute(
-          path: '/profile',
-          builder: (context, state) => const ProfilePage(),
-        ),
-        GoRoute(
-          path: '/leaveRequest',
-          builder: (context, state) => const LeaveRequest(),
-        ),
-        GoRoute(
-          path: '/bookingDetail',
-          builder: (context, state) => const BookingDetails(),
-        ),
-        GoRoute(
-          path: '/bookingReceipt',
-          builder: (context, state) => const BookingReceipt(),
-        ),
-        GoRoute(
-          path: '/payslip',
-          builder: (context, state) => const Payslip(),
-        ),
-        GoRoute(
-          path: '/itemTypes',
-          builder: (context, state) => const ItemTypesPage(),
-        ),
-      ],
-    );
-
-    return MaterialApp.router(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'JCSD',
-      builder: FToastBuilder(),
-      routerConfig: router,
+      initialRoute: user == null ? '/login' : '/home',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF00AEEF),
@@ -219,10 +76,48 @@ class MainApp extends StatelessWidget {
         pageTransitionsTheme: PageTransitionsTheme(
           builders: {
             TargetPlatform.windows: InstantPageTransitionsBuilder(),
-            TargetPlatform.android: InstantPageTransitionsBuilder(),
+            TargetPlatform.android: InstantPageTransitionsBuilder()
           },
         ),
       ),
+      routes: {
+        '/home': (context) => const HomeView(),
+        '/login': (context) => const Login(),
+        '/signup1': (context) => const SignupPage1(),
+        '/signup2': (context) => const SignupPage2(),
+        '/emaileVerification': (context) => const EmailVerification(),
+        '/error': (context) => const ErrorPage(),
+        '/accessRestricted': (context) => const AccessRestrictedPage(),
+        '/accountList': (context) => const AccountListPage(),
+        '/bookingsCalendar': (context) => const BookingCalendarPage(),
+        '/employeeList': (context) => const EmployeeListPage(),
+        '/payroll': (context) => const Payroll(),
+        '/accountDetails': (context) => const ProfileAdminViewPage(),
+        '/leaveRequestList': (context) => const LeaveRequestList(),
+        '/booking1': (context) => const ClientBooking1(),
+        '/booking2': (context) => const ClientBooking2(),
+        '/profileClient': (context) => const ProfilePageClient(),
+
+        // Employee View
+        '/employeeLogin': (context) => const LoginEmployee(),
+        '/dashboard': (context) => const DashboardPage(),
+        '/inventory': (context) => const InventoryPage(),
+        '/suppliers': (context) => const SupplierPage(),
+        '/supplierArchive': (context) => const SupplierArchivePage(),
+        '/bookings': (context) => const BookingsPage(),
+        '/transactions': (context) => const TransactionsPage(),
+        '/archiveList': (context) => const ArchiveListPage(),
+        '/orderList': (context) => const OrderListPage(),
+        '/auditLog': (context) => const AuditLogPage(),
+        '/services': (context) => const ServicesPage(),
+        '/servicesArchive': (context) => const ServicesArchivePage(),
+        '/profile': (context) => const ProfilePage(),
+        '/leaveRequest': (context) => const LeaveRequest(),
+        '/bookingDetail': (context) => const BookingDetails(),
+        '/bookingReceipt': (context) => const BookingReceipt(),
+        '/payslip': (context) => const Payslip(),
+        '/itemTypes': (context) => const ItemTypesPage(),
+      },
     );
   }
 }

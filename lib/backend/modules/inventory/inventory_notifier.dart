@@ -31,7 +31,7 @@ class InventoryNotifier extends ChangeNotifier {
 
     try {
       return await operation();
-    } catch (err, stackTrace) {
+    } catch (err) {
       _errorMessage = '$errorMessagePrefix: ${err.toString()}';
       print('Error: $err');
       return null;
