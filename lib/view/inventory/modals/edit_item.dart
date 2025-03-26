@@ -10,7 +10,7 @@ import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 
 //Backend Imports
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_providers.dart';
 
 //Inventory, Supplier and Item Type Imports
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';

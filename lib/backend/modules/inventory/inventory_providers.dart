@@ -13,5 +13,7 @@ final inventoryProvider = ChangeNotifierProvider<InventoryNotifier>((ref) {
   return InventoryNotifier(service)..fetchInventoryItems();
 });
 
+final fetchItemTypes
+
 // TY GPT - Just to indicate it's loading, nothing else. Visual lang.
 final inventoryLoadingStateProvider = StateProvider<bool>((ref) => false);

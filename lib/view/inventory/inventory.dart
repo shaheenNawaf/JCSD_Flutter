@@ -39,8 +39,6 @@ class InventoryPage extends ConsumerStatefulWidget {
 class _InventoryPageState extends ConsumerState<InventoryPage> {
   final String _activeSubItem = '/inventory';
 
-
-  
   void _showAddItemModal() {
     showDialog(
       context: context,
@@ -100,11 +98,10 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    final inventoryState = ref.watch(inventoryProvider);
     final inventoryNotifier = ref.read(inventoryProvider.notifier);
+    final inventoryState = inventoryNotifier.state;
 
-    bool isLoading = inventoryState.originalData.isEmpty &&
-        inventoryState.searchText.isEmpty;
+    bool isLoading = inventoryState.isLoading;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),

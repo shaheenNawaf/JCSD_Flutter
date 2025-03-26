@@ -5,7 +5,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 //Backend Things
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_providers.dart';
 
 class UnarchiveItemTypeModal extends ConsumerStatefulWidget {
   final int typeID;

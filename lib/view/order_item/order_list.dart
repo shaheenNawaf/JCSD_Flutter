@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:jcsd_flutter/view/inventory/modals/confirm_order.dart';
-import 'package:jcsd_flutter/view/inventory/modals/delete_order.dart';
-import 'package:jcsd_flutter/view/inventory/modals/edit_order.dart';
+import 'package:jcsd_flutter/view/order_item/modals/confirm_order.dart';
+import 'package:jcsd_flutter/view/order_item/modals/delete_order.dart';
+import 'package:jcsd_flutter/view/order_item/modals/edit_order.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 

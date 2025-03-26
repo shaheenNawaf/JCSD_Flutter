@@ -8,31 +8,18 @@ import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 class InventoryNotifier extends ChangeNotifier {
   final InventoryService _inventoryService;
 
-  //Initial Declaration for state handling (removing the need for that stupid state management file)
-  List<InventoryData> _inventoryItems = [];
-
   InventoryState _defaultState =
       InventoryState(originalData: [], filteredData: []);
 
   InventoryState get state => _defaultState;
 
-  bool _isLoading = false;
-  String? _errorMessage = '';
-
   //Constructors handling the initial data
   InventoryNotifier(InventoryService inventoryService)
       : _inventoryService = inventoryService;
 
-  List<InventoryData> get inventoryItems => _inventoryItems;
-  bool get isLoading => _isLoading;
-  String? get errorMessage => _errorMessage;
-
   //Generic Function to handle ANY operations
   Future<T?> _handleInventoryOperation<T>(
       Future<T> Function() operation, String errorMessagePrefix) async {
-    _isLoading = true;
-    _errorMessage = null;
-
     _defaultState = _defaultState.copyWith(isLoading: true, error: null);
 
     //Telling the relevant UI elements to update as per given operation
@@ -146,7 +133,51 @@ class InventoryNotifier extends ChangeNotifier {
   }
 
   //Filters/Sort
+  void sortItems(String sortedBy) {
+    //Default state is ascending is set to true, para arranged ang data mga bes
+    bool ascendingState =
+        _defaultState.sortBy == sortedBy ? !_defaultState.ascending : true;
+    List<InventoryData> sortedItemList = List.from(_defaultState.filteredData);
 
+    //Note the comparison
+    switch (sortedBy) {
+      case 'itemID':
+        sortedItemList.sort((a, b) => ascendingState
+            ? a.itemID.compareTo(b.itemID)
+            : b.itemID.compareTo(a.itemID));
+        break;
+      case 'itemName':
+        sortedItemList.sort((a, b) => ascendingState
+            ? a.itemName.compareTo(b.itemName)
+            : b.itemName.compareTo(a.itemName));
+        break;
+      case 'itemDescription':
+        sortedItemList.sort((a, b) => ascendingState
+            ? a.itemDescription.compareTo(b.itemDescription)
+            : b.itemDescription.compareTo(a.itemDescription));
+        break;
+      case 'itemType':
+        sortedItemList.sort((a, b) => ascendingState
+            ? a.itemTypeID.compareTo(b.itemTypeID)
+            : b.itemTypeID.compareTo(a.itemTypeID));
+        break;
+      case 'itemPrice':
+        sortedItemList.sort((a, b) => ascendingState
+            ? a.itemPrice.compareTo(b.itemPrice)
+            : b.itemPrice.compareTo(a.itemPrice));
+        break;
+      case 'itemQuantity':
+        sortedItemList.sort((a, b) => ascendingState
+            ? a.itemQuantity.compareTo(b.itemQuantity)
+            : b.itemQuantity.compareTo(a.itemQuantity));
+        break;
+    }
+
+    _defaultState = _defaultState.copyWith(
+        filteredData: sortedItemList,
+        sortBy: sortedBy,
+        ascending: ascendingState);
+  }
 
   //Pagination
 }

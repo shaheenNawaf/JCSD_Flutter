@@ -4,12 +4,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_notifier.dart';
 
 //Backend Imports
-import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_notifier.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_providers.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_providers.dart';
 
 class AddItemModal extends ConsumerStatefulWidget {
   const AddItemModal({super.key});
@@ -19,8 +20,7 @@ class AddItemModal extends ConsumerStatefulWidget {
 }
 
 class _AddItemModalState extends ConsumerState<AddItemModal> {
-  String? _selectedItemType;
-  String? _selectedSupplier;
+  bool _isSaving = false;
   int itemTypeID = -1;
 
   //Fetching data inside the different fields
@@ -31,11 +31,32 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
   final TextEditingController _addItemPrice = TextEditingController();
   final TextEditingController _addItemQuantity = TextEditingController();
 
+  int? _selectedItemTypeID;
+  int? _selectedSupplierID;
+
+  String? _selectedItemType;
+  String? _selectedSupplier;
+
   @override
   void dispose() {
     _addItemPrice.dispose();
+    _addItemDescription.dispose();
+    _addItemType.dispose();
+    _addItemSupplier.dispose();
+    _addItemPrice.dispose();
+    _addItemQuantity.dispose();
     super.dispose();
   }
+
+  
+
+  //Actual Backend Functions, streamlined para malinis and good for the eyes huhu so tired
+  //Will add input validation din here soon
+  Future<void> _submitNewItem() async {
+
+    if
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -183,7 +204,8 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
                     child: ElevatedButton(
                       onPressed: () async {
                         try {
-                          final InventoryNotifier notifier = InventoryNotifier(context, true);
+                          final InventoryNotifier notifier =
+                              InventoryNotifier(context, true);
                           final InventoryService addItem = InventoryService();
 
                           String itemName = _addItemName.text;
