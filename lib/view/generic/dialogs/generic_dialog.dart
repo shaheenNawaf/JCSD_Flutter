@@ -1,5 +1,4 @@
 //Generic rani na Alert Box, usable anywhere fyi
-
 import 'package:flutter/material.dart';
 
 Future<void> showCustomNotificationDialog({

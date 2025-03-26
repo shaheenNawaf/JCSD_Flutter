@@ -4,6 +4,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
+
+//Generic Import
+import 'package:jcsd_flutter/view/generic/dialogs/generic_dialog.dart';
 
 //Backend Imports
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
@@ -48,15 +52,75 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
     super.dispose();
   }
 
-  
-
   //Actual Backend Functions, streamlined para malinis and good for the eyes huhu so tired
   //Will add input validation din here soon
+
+  //Obviously, if there's something wrong - then it does just return an empty input
   Future<void> _submitNewItem() async {
+    if (_addItemName.text.isEmpty ||
+        _addItemDescription.text.isEmpty ||
+        _addItemPrice.text.isEmpty ||
+        _addItemQuantity.text.isEmpty ||
+        _addItemType.text.isEmpty ||
+        _selectedItemTypeID == null ||
+        _selectedSupplierID == null) {
+      showCustomNotificationDialog(
+          context: context,
+          headerBar: "Empty Text",
+          messageText: "Missing input on one of the fields."
+      );
+      return ;
+    }
+    final int? itemQuantity = int.tryParse(_addItemQuantity.text);
+    final double? itemPrice = double.tryParse(_addItemPrice.text);
 
-    if
+    if (itemQuantity == null || itemPrice == null){
+      showCustomNotificationDialog(
+          context: context,
+          headerBar: "Empty Quantity/Price",
+          messageText: "Missing input on either Quantity or Price."
+      );
+      return ;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    //Creating of the InventoryData object
+    final newItem = InventoryData(
+      itemID: 0, 
+      supplierID: _selectedSupplierID!, 
+      itemName: _addItemName.text, 
+      itemTypeID: _selectedItemTypeID!, 
+      itemDescription: _addItemDescription.text, 
+      itemQuantity: itemQuantity, 
+      itemPrice: itemPrice, 
+      isVisible: true, //Kasi of course, all newly added items are active by default
+    );
+
+    //Actual Notifer to Provider comunication
+    try {
+      final addNotifier = ref.read(inventoryProvider.notifier);
+      await addNotifier.addInventoryItem(newItem);
+
+      if(mounted) {
+        Navigator.pop(context);
+        showCustomNotificationDialog(
+          context: context, 
+          headerBar: "Operation Success!", 
+          messageText: "Added new item successfully!"
+        );
+      }
+    }catch(err){
+      //Temporary implementation only, notification lang ito once added but at the meantime using my own custom notification dialog
+      showCustomNotificationDialog(
+          context: context, 
+          headerBar: "Error", 
+          messageText: "Failed adding new item. Refer to \n $err"
+      );
+    }
   }
-
 
   @override
   Widget build(BuildContext context) {
