@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_data.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
+import 'package:jcsd_flutter/view/generic/notification.dart';
 
 class UnarchiveSupplierModal extends ConsumerStatefulWidget {
   final SuppliersData supplierData;
@@ -128,6 +129,7 @@ class _UnarchiveSupplierModalState extends ConsumerState<UnarchiveSupplierModal>
                           ref.invalidate(fetchAvailableSuppliers);
                           
                           print('Successfully restored the supplier. ${_supplierData.supplierName}');
+                          ToastManager().showToast(context, 'Supplier "${_supplierData.supplierName}" unarchived successfully!', Color.fromARGB(255, 0, 143, 19));
                         }catch(err){
                           print('Error UNarchiving an item. $_supplierData');
                         }

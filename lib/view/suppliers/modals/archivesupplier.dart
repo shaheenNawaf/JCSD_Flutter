@@ -10,6 +10,7 @@ import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
 // Suppliers
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_data.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
+import 'package:jcsd_flutter/view/generic/notification.dart';
 class ArchiveSupplierModal extends ConsumerStatefulWidget {
   final SuppliersData supplierData;
   final int supplierID;
@@ -128,6 +129,7 @@ class _ArchiveSupplierModalState extends ConsumerState<ArchiveSupplierModal> {
                           await updateVisibility.updateSupplierVisbility(_supplierID, false);
 
                           print('Archived supplier: ${_supplierData.supplierName}');
+                          ToastManager().showToast(context, 'Supplier "${_supplierData.supplierName}" archived successfully!', Color.fromARGB(255, 0, 143, 19));
                         }catch(err){
                           print('Error archiving supplier. $err');
                         }

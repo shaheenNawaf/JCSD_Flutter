@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, unused_import
 
 import 'package:flutter/material.dart';
+import 'package:jcsd_flutter/view/generic/notification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 
@@ -47,6 +48,7 @@ class _LoginState extends State<Login> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login successful: ${response.user!.email}')),
         );
+        ToastManager().showToast(context, 'Welcome! "${response.user!.email}" logged in successfully!', Color.fromARGB(255, 0, 143, 19));
         Navigator.pushReplacementNamed(context, '/dashboard');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services.dart';
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
 import 'package:jcsd_flutter/view/generic/error_dialog.dart';
+import 'package:jcsd_flutter/view/generic/notification.dart';
 
 class AddServiceModal extends ConsumerStatefulWidget{
   const AddServiceModal({super.key});
@@ -218,6 +219,7 @@ class _AddServiceModalState extends ConsumerState<AddServiceModal> {
 
                             //Force refresh
                             ref.invalidate(fetchAvailableServices);
+                            ToastManager().showToast(context, 'Service "$serviceName" added successfully!', Color.fromARGB(255, 0, 143, 19));
                             Navigator.pop(context); // To be updated
                           }
                         }catch(err){

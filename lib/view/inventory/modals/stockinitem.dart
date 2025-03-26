@@ -22,6 +22,7 @@ import 'package:jcsd_flutter/backend/modules/employee/employee_service.dart';
 //Audit Imports
 import 'package:jcsd_flutter/backend/modules/audit_logs/audit_data.dart';
 import 'package:jcsd_flutter/backend/modules/audit_logs/audit_services.dart';
+import 'package:jcsd_flutter/view/generic/notification.dart';
 
 class StockInItemModal extends ConsumerStatefulWidget {
   const StockInItemModal({super.key});
@@ -159,6 +160,7 @@ class _StockInItemModalState extends ConsumerState<StockInItemModal> {
                           print(itemID); //null
                           fetchItem.updateQuantity(itemID!, newQuantity);
                           print('Successfully stocked in: $itemID');
+                          ToastManager().showToast(context, 'Item "$_selectedItem" stocked in successfully!', Color.fromARGB(255, 0, 143, 19));
                         } catch (err, stackTrace) {
                           print('Error stocking in item. $err -- $stackTrace');
                         }

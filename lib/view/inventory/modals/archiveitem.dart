@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
+import 'package:jcsd_flutter/view/generic/notification.dart';
 
 class ArchiveItemModal extends ConsumerStatefulWidget {
   final InventoryData itemData;
@@ -128,6 +129,7 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
                               InventoryService();
                           await updateVisibility.updateVisibility(_intItemID, false);
                           print('Successfully hid the item. ${_itemData.itemName}');
+                          ToastManager().showToast(context, 'Item "${_itemData.itemName}" archived successfully!', Color.fromARGB(255, 0, 143, 19));
                         } catch (err) {
                           print('Error archiving an item. $_itemData');
                         }

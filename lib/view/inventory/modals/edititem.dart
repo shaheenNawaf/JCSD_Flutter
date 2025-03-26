@@ -15,6 +15,7 @@ import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_stat
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
+import 'package:jcsd_flutter/view/generic/notification.dart';
 
 class EditItemModal extends ConsumerStatefulWidget {
   final InventoryData itemData;
@@ -249,6 +250,7 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
                               itemQuantity,
                               supplierID,
                               itemPrice);
+                          ToastManager().showToast(context, 'Item "$itemName" edited successfully!', Color.fromARGB(255, 0, 143, 19));
                         } catch (err) {
                           print('Tried updating item details. $err');
                         }

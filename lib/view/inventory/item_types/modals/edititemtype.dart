@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
+import 'package:jcsd_flutter/view/generic/notification.dart';
 
 class EditItemTypeModal extends ConsumerStatefulWidget {
   final ItemTypesData typeData;
@@ -148,6 +149,7 @@ class _EditItemTypeModalState extends ConsumerState<EditItemTypeModal> {
 
                           await updateService.updateItemDetails(typeName, typeDescription, widget.typeID);
                           print(widget.typeID);
+                          ToastManager().showToast(context, 'Item "$typeName" edited successfully!', Color.fromARGB(255, 0, 143, 19));
                         }catch(err){
                           print('Error in updating item type. $err');
                         }

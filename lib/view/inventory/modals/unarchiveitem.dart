@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
+import 'package:jcsd_flutter/view/generic/notification.dart';
 
 class UnarchiveItemModal extends ConsumerStatefulWidget {
   final InventoryData itemData;
@@ -124,6 +125,7 @@ class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
                           updateVisibility.updateVisibility(_intItemID, true);
                           print('Item Unarchived. $_intItemID');
                           Navigator.pop(context);
+                          ToastManager().showToast(context, 'Item unarchived successfully!', Color.fromARGB(255, 0, 143, 19));
                         }catch(err){
                           print('Error changing visibility of the item. $_itemData');
                         }

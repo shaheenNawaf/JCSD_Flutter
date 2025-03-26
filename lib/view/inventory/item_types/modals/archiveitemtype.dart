@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 //Backend Things
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
+import 'package:jcsd_flutter/view/generic/notification.dart';
 
 class ArchiveItemTypeModal extends ConsumerStatefulWidget {
   final int typeID;
@@ -122,6 +123,7 @@ class _ArchiveItemTypeModalState extends ConsumerState<ArchiveItemTypeModal> {
                           await updateVisibility.updateTypeVisibility(_intItemTypeID, false);
 
                           print('Successfully ARCHIVED: $_intItemTypeID');
+                          ToastManager().showToast(context, 'Item Type archived successfully!', Color.fromARGB(255, 0, 143, 19));
                         } catch (err, stackTrace) {
                           print('Archived Item Type failed. $err -- $stackTrace');
                         }

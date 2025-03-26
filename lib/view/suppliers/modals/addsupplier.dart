@@ -8,6 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
 import 'package:jcsd_flutter/view/generic/error_dialog.dart';
+import 'package:jcsd_flutter/view/generic/notification.dart';
 // import 'package:flutter/services.dart';
 
 class AddSupplierModal extends ConsumerStatefulWidget {
@@ -192,6 +193,7 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
                             String address = _addressController.text;
                             
                             await addNewSupplier.addSupplier(supplierName, supplierEmail, contactNumber, address);
+                            ToastManager().showToast(context, 'Supplier "$supplierName" added successfully!', Color.fromARGB(255, 0, 143, 19));
                           }
                         }catch(err){
                           print('Error adding supplier. $err');

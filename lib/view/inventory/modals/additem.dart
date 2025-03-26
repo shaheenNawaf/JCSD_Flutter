@@ -10,6 +10,7 @@ import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
+import 'package:jcsd_flutter/view/generic/notification.dart';
 
 class AddItemModal extends ConsumerStatefulWidget {
   const AddItemModal({super.key});
@@ -192,14 +193,16 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
                           double itemPrice = double.parse(_addItemPrice.text);
 
                           await addItem.addItem(
-                              itemName,
-                              itemTypeID,
-                              itemDescription,
-                              itemQuantity,
-                              supplierID,
-                              itemPrice);
+                            itemName,
+                            itemTypeID,
+                            itemDescription,
+                            itemQuantity,
+                            supplierID,
+                            itemPrice);
+                          ToastManager().showToast(context, 'Item "$itemName" added successfully!', Color.fromARGB(255, 0, 143, 19));
                         } catch (err) {
                           print('Tried adding item details. $err');
+                          ToastManager().showToast(context, 'Error adding item', Color.fromARGB(255, 255, 0, 0));
                         }
                         ref.invalidate(fetchActive);
                         Navigator.pop(context);
