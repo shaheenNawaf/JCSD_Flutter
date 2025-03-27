@@ -37,8 +37,8 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
   int? _selectedSupplierID;
 
   //WIP if dili mag display ang name, then I will use this
-  String? _selectedItemType;
-  String? _selectedSupplier;
+  // String? _selectedItemType;
+  // String? _selectedSupplier;
 
   @override
   void dispose() {

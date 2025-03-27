@@ -91,7 +91,6 @@ class InventoryNotifier extends ChangeNotifier {
             currentItem.itemName,
             currentItem.itemTypeID,
             currentItem.itemDescription,
-            currentItem.itemQuantity,
             currentItem.supplierID,
             currentItem.itemPrice),
         'Failed to perform on the inventory: Update Item');
@@ -112,6 +111,8 @@ class InventoryNotifier extends ChangeNotifier {
   }
 
   //Update Visibility
+
+  //Stock-In / Stock Out Items
 
   //Search
   void searchItems(String searchText) {

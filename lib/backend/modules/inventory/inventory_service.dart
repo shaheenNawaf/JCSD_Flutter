@@ -269,7 +269,6 @@ class InventoryService {
       String itemName,
       int itemTypeID,
       String itemDescription,
-      int quantity,
       int supplierID,
       double itemPrice) async {
     try {
@@ -277,7 +276,6 @@ class InventoryService {
         'itemName': itemName,
         'itemTypeID': itemTypeID,
         'itemDescription': itemDescription,
-        'itemQuantity': quantity,
         'supplierID': supplierID,
         'itemPrice': itemPrice,
         'updateDate': returnCurrentDate(),
