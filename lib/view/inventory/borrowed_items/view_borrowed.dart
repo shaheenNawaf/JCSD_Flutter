@@ -171,13 +171,13 @@ class _BorrowedItemsState extends State<BorrowedItems> {
               ),
             ),
             Expanded(child: _buildDataTable(_borrowedItems)),
-            Divider(),
+            const Divider(),
             Padding(
               padding: const EdgeInsets.fromLTRB(0, 0, 10, 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Spacer(
+                  const Spacer(
                     flex: 8,
                   ),
                   Expanded(

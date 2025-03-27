@@ -11,8 +11,6 @@ import 'package:jcsd_flutter/view/generic/dialogs/generic_dialog.dart';
 
 //Backend Imports
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_notifier.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_providers.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_providers.dart';
 
@@ -38,6 +36,7 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
   int? _selectedItemTypeID;
   int? _selectedSupplierID;
 
+  //WIP if dili mag display ang name, then I will use this
   String? _selectedItemType;
   String? _selectedSupplier;
 
@@ -67,20 +66,18 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
       showCustomNotificationDialog(
           context: context,
           headerBar: "Empty Text",
-          messageText: "Missing input on one of the fields."
-      );
-      return ;
+          messageText: "Missing input on one of the fields.");
+      return;
     }
     final int? itemQuantity = int.tryParse(_addItemQuantity.text);
     final double? itemPrice = double.tryParse(_addItemPrice.text);
 
-    if (itemQuantity == null || itemPrice == null){
+    if (itemQuantity == null || itemPrice == null) {
       showCustomNotificationDialog(
           context: context,
           headerBar: "Empty Quantity/Price",
-          messageText: "Missing input on either Quantity or Price."
-      );
-      return ;
+          messageText: "Missing input on either Quantity or Price.");
+      return;
     }
 
     setState(() {
@@ -89,14 +86,15 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
 
     //Creating of the InventoryData object
     final newItem = InventoryData(
-      itemID: 0, 
-      supplierID: _selectedSupplierID!, 
-      itemName: _addItemName.text, 
-      itemTypeID: _selectedItemTypeID!, 
-      itemDescription: _addItemDescription.text, 
-      itemQuantity: itemQuantity, 
-      itemPrice: itemPrice, 
-      isVisible: true, //Kasi of course, all newly added items are active by default
+      itemID: 0,
+      supplierID: _selectedSupplierID!,
+      itemName: _addItemName.text,
+      itemTypeID: _selectedItemTypeID!,
+      itemDescription: _addItemDescription.text,
+      itemQuantity: itemQuantity,
+      itemPrice: itemPrice,
+      isVisible:
+          true, //Kasi of course, all newly added items are active by default
     );
 
     //Actual Notifer to Provider comunication
@@ -104,21 +102,28 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
       final addNotifier = ref.read(inventoryProvider.notifier);
       await addNotifier.addInventoryItem(newItem);
 
-      if(mounted) {
+      if (mounted) {
         Navigator.pop(context);
+        //Replace with notification
         showCustomNotificationDialog(
-          context: context, 
-          headerBar: "Operation Success!", 
-          messageText: "Added new item successfully!"
-        );
+            context: context,
+            headerBar: "Operation Success!",
+            messageText: "Added new item successfully!");
       }
-    }catch(err){
-      //Temporary implementation only, notification lang ito once added but at the meantime using my own custom notification dialog
+
+      //Add Audit Logs Logic Here
+    } catch (err) {
+      //Replace with notification
       showCustomNotificationDialog(
-          context: context, 
-          headerBar: "Error", 
-          messageText: "Failed adding new item. Refer to \n $err"
-      );
+          context: context,
+          headerBar: "Error",
+          messageText: "Failed adding new item. Refer to \n $err");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
     }
   }
 
@@ -183,16 +188,18 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
                           ),
                           const SizedBox(height: 12),
                           _buildTextField(
-                              label: 'Item Description',
-                              hintText: 'Enter item description here',
-                              maxLines: 1,
-                              setController: _addItemDescription),
-                          const SizedBox(height: 8),
+                            label: 'Item Description',
+                            hintText: 'Enter item description here',
+                            maxLines: 1,
+                            setController: _addItemDescription,
+                          ),
+                          const SizedBox(height: 12),
                           _buildTextField(
                             label: 'Item Quantity',
                             hintText: 'Initial item quantity',
                             setController: _addItemQuantity,
                             maxLines: 1,
+                            keyboardType: TextInputType.number,
                           )
                         ],
                       ),
@@ -205,24 +212,12 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
                           _buildItemTypeList(
                             label: 'Item Type',
                             hintText: 'Select item type',
-                            value: _selectedItemType,
-                            onChanged: (String? value) {
-                              setState(() {
-                                _selectedItemType = value;
-                              });
-                            },
                           ),
                           const SizedBox(height: 12),
                           //Supplier Fields
                           _buildSuppliersList(
                             label: 'Supplier',
                             hintText: 'Select supplier',
-                            value: _selectedSupplier,
-                            onChanged: (String? value) {
-                              setState(() {
-                                _selectedSupplier = value;
-                              });
-                            },
                           ),
                           const SizedBox(height: 8),
                           _buildPriceField(),
@@ -241,9 +236,8 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      onPressed:
+                          _isSaving ? null : () => Navigator.pop(context),
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
                         shape: RoundedRectangleBorder(
@@ -266,30 +260,7 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () async {
-                        try {
-                          final InventoryNotifier notifier =
-                              InventoryNotifier(context, true);
-                          final InventoryService addItem = InventoryService();
-
-                          String itemName = _addItemName.text;
-                          String itemDescription = _addItemDescription.text;
-                          int itemQuantity = int.parse(_addItemQuantity.text);
-                          int supplierID = int.parse(_addItemSupplier.text);
-                          double itemPrice = double.parse(_addItemPrice.text);
-
-                          await addItem.addItem(
-                              itemName,
-                              itemTypeID,
-                              itemDescription,
-                              itemQuantity,
-                              supplierID,
-                              itemPrice);
-                        } catch (err) {
-                          print('Tried adding item details. $err');
-                        }
-                        Navigator.pop(context);
-                      },
+                      onPressed: _isSaving ? null : _submitNewItem,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -297,14 +268,22 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
                           borderRadius: BorderRadius.circular(5),
                         ),
                       ),
-                      child: const Text(
-                        'Submit',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                      //Adding Conditional Rendering, para aware ang user na being submitted ang data
+                      child: _isSaving
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 1.5, color: Colors.white),
+                            )
+                          : const Text(
+                              'Submit',
+                              style: TextStyle(
+                                fontFamily: 'NunitoSans',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
                   ),
                 ],
@@ -316,11 +295,13 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
     );
   }
 
+  //Changes nako, adding TextInputType to control user input type, para ranis validation mga broskers
   Widget _buildTextField({
     required String label,
     required String hintText,
     int maxLines = 1,
     required TextEditingController setController,
+    TextInputType? keyboardType,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,9 +328,12 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
         TextField(
           controller: setController,
           maxLines: maxLines,
+          keyboardType: keyboardType,
           decoration: InputDecoration(
             hintText: hintText,
             border: const OutlineInputBorder(),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
             hintStyle: const TextStyle(
               fontFamily: 'Poppins',
               fontWeight: FontWeight.w300,
@@ -361,13 +345,14 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
     );
   }
 
-  Widget _buildDropdownField({
+  Widget _buildItemTypeList({
     required String label,
     required String hintText,
-    required String? value,
-    required List<String> items,
-    required ValueChanged<String?> onChanged,
   }) {
+    //Simplified fetching already, since I already have it as a FutureProvider and no need to directly re-render every time.
+
+    final itemTypesList = ref.watch(fetchActiveTypes);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -390,171 +375,96 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
           ],
         ),
         const SizedBox(height: 5),
-        DropdownButtonFormField<String>(
-          value: value,
-          hint: Text(
-            hintText,
-            style: const TextStyle(
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w300,
-              fontSize: 12,
-              color: Colors.grey,
-            ),
-          ),
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-          ),
-          icon: const Icon(Icons.arrow_drop_down),
-          dropdownColor: Colors.white,
-          items: items.map((String item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(
-                item,
+        itemTypesList.when(
+          data: (itemTypes) {
+            return DropdownButtonFormField<int>(
+              value: _selectedItemTypeID, // -> stores the value of the ID
+              hint: Text(
+                hintText,
                 style: const TextStyle(
                   fontFamily: 'Poppins',
                   fontWeight: FontWeight.w300,
                   fontSize: 12,
+                  color: Colors.grey,
                 ),
               ),
-            );
-          }).toList(),
-          onChanged: (String? getItemType) {
-            print(getItemType);
-            _addItemType.text = getItemType ?? '';
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildItemTypeList({
-    required String label,
-    required String hintText,
-    required String? value,
-    required ValueChanged<String?> onChanged,
-  }) {
-    return FutureBuilder(
-        future: ref.read(fetchItemTypesList.future),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const CircularProgressIndicator();
-          }
-          if (snapshot.hasError) {
-            return Text('Error fetching: ${snapshot.error}');
-          }
-          final typeList = snapshot.data!;
-
-          return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      label,
-                      style: const TextStyle(
-                        fontFamily: 'NunitoSans',
-                        fontWeight: FontWeight.normal,
-                      ),
-                    ),
-                    const Text(
-                      '*',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 5),
-                DropdownButtonFormField<String>(
-                  value: value,
-                  hint: Text(
-                    hintText,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+              icon: const Icon(Icons.arrow_drop_down),
+              dropdownColor: Colors.white,
+              items: itemTypes.map((itemTypes) {
+                return DropdownMenuItem<int>(
+                  value: itemTypes.itemTypeID, // -> Value of the ID
+                  child: Text(
+                    itemTypes.itemType, // Displays itemTypeName
                     style: const TextStyle(
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w300,
                       fontSize: 12,
-                      color: Colors.grey,
                     ),
                   ),
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
-                  icon: const Icon(Icons.arrow_drop_down),
-                  dropdownColor: Colors.white,
-                  items: typeList.map((itemTypes) {
-                    return DropdownMenuItem<String>(
-                      value: itemTypes.itemType,
-                      child: Text(
-                        itemTypes.itemType,
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w300,
-                          fontSize: 12,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (String? getTypeName) async {
-                    print(getTypeName);
-
-                    if (getTypeName != null) {
-                      int fetchID = await ref
-                          .read(itemTypesProvider)
-                          .getIdByName(getTypeName);
-                      if (fetchID != -1) {
-                        itemTypeID = fetchID;
-                      }
-                    }
-                  },
-                ),
-              ]);
-        });
+                );
+              }).toList(),
+              onChanged: (int? selectedID) {
+                setState(() {
+                  _selectedItemTypeID = selectedID;
+                });
+              },
+              //Validator huhu
+              validator: (value) =>
+                  value == null ? "Item type is required" : null,
+            );
+          },
+          loading: () => const Center(
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          error: (error, stackTrace) {
+            //Can be replaced into a notification
+            showCustomNotificationDialog(
+              context: context,
+              headerBar: "Error encountered",
+              messageText: "Failed to save selected item type. \n $error",
+            );
+            throw error;
+          },
+        )
+      ],
+    );
   }
 
   Widget _buildSuppliersList({
     required String label,
     required String hintText,
-    required String? value,
-    required ValueChanged<String?> onChanged,
   }) {
-    return FutureBuilder(
-      future: ref.read(fetchAvailableSuppliers.future),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        }
-        if (snapshot.hasError) {
-          return Text('Error fetching: ${snapshot.error}');
-        }
+    final suppliersNamesList = ref.watch(fetchAvailableSuppliers);
 
-        final supplierList = snapshot.data!;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            Row(
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.normal,
-                  ),
-                ),
-                const Text(
-                  '*',
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 14,
-                  ),
-                ),
-              ],
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.normal,
+              ),
             ),
-            const SizedBox(height: 5),
-            DropdownButtonFormField<String>(
-              value: value,
+            const Text(
+              '*',
+              style: TextStyle(
+                color: Colors.red,
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 5),
+        suppliersNamesList.when(
+          data: (supplierNames) {
+            return DropdownButtonFormField<int>(
+              value: _selectedSupplierID,
               isExpanded: true,
               hint: Text(
                 hintText,
@@ -570,9 +480,9 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
               ),
               icon: const Icon(Icons.arrow_drop_down),
               dropdownColor: Colors.white,
-              items: supplierList.map((supplier) {
-                return DropdownMenuItem<String>(
-                  value: supplier.supplierID.toString(),
+              items: supplierNames.map((supplier) {
+                return DropdownMenuItem<int>(
+                  value: supplier.supplierID,
                   child: SizedBox(
                     width: double.infinity,
                     child: Text(
@@ -588,14 +498,31 @@ class _AddItemModalState extends ConsumerState<AddItemModal> {
                   ),
                 );
               }).toList(),
-              onChanged: (String? getSupplierText) {
-                print(getSupplierText);
-                _addItemSupplier.text = getSupplierText ?? '';
+              onChanged: (int? selectedID) {
+                setState(
+                  () {
+                    _selectedSupplierID = selectedID;
+                  },
+                );
               },
-            ),
-          ],
-        );
-      },
+              validator: (value) =>
+                  value == null ? 'Supplier is required' : null,
+            );
+          },
+          loading: () => const Center(
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          error: (error, stackTrace) {
+            //Can be replaced into a notification
+            showCustomNotificationDialog(
+              context: context,
+              headerBar: "Error encountered",
+              messageText: "Failed to save selected supplier name. \n $error",
+            );
+            throw error;
+          },
+        ),
+      ],
     );
   }
 

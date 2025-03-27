@@ -71,7 +71,8 @@ class HomeView extends StatelessWidget {
                         image: const AssetImage('assets/images/background.png'),
                         fit: BoxFit.cover,
                         colorFilter: ColorFilter.mode(
-                            Colors.black.withOpacity(0.6), BlendMode.darken),
+                            Colors.black.withValues(alpha: 0.7),
+                            BlendMode.darken),
                       ),
                     ),
                   ),
@@ -85,15 +86,14 @@ class HomeView extends StatelessWidget {
                               height: isMobile ? 100 : 300),
                           const SizedBox(height: 20),
                           Text(
-                            isMobile
-                                ? 'Araw-araw kalidad.'
-                                : 'Araw-araw kalidad. All-day quality services to your hard-earned investments.',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: isMobile ? 20 : 30,
-                                fontWeight: FontWeight.bold),
-                            textAlign: TextAlign.center
-                          ),
+                              isMobile
+                                  ? 'Araw-araw kalidad.'
+                                  : 'Araw-araw kalidad. All-day quality services to your hard-earned investments.',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: isMobile ? 20 : 30,
+                                  fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center),
                           const SizedBox(height: 20),
                           ElevatedButton(
                             /* Integrate backend here in such a way that it should not allow the user
@@ -244,14 +244,13 @@ class HomeView extends StatelessWidget {
                       child: Padding(
                         padding: EdgeInsets.all(isMobile ? 8.0 : 16.0),
                         child: Text(
-                          'JCSD has been trusted by over 200+ customers and businesses nationwide, plus over 205 5-Star reviews on Facebook!',
-                          style: TextStyle(
-                            fontSize: isMobile ? 15 : 20,
-                            fontWeight: FontWeight.bold,
-                            color: const Color.fromARGB(255, 0, 174, 239),
-                          ),
-                          textAlign: TextAlign.center
-                        ),
+                            'JCSD has been trusted by over 200+ customers and businesses nationwide, plus over 205 5-Star reviews on Facebook!',
+                            style: TextStyle(
+                              fontSize: isMobile ? 15 : 20,
+                              fontWeight: FontWeight.bold,
+                              color: const Color.fromARGB(255, 0, 174, 239),
+                            ),
+                            textAlign: TextAlign.center),
                       ),
                     ),
                     if (isMobile)
@@ -457,7 +456,7 @@ class HomeView extends StatelessWidget {
                                 '© 2023 JCSD Online. All rights reserved.',
                                 style: TextStyle(
                                     fontSize: 15,
-                                    color: Colors.white.withOpacity(.7)),
+                                    color: Colors.white.withValues(alpha: 0.7)),
                               ),
                               const SizedBox(height: 10),
                               Row(
@@ -466,27 +465,31 @@ class HomeView extends StatelessWidget {
                                     'Follow our Socials!',
                                     style: TextStyle(
                                         fontSize: 15,
-                                        color: Colors.white.withOpacity(.7)),
+                                        color: Colors.white
+                                            .withValues(alpha: 0.7)),
                                   ),
                                   IconButton(
                                     onPressed: () {},
                                     icon: FaIcon(
                                       FontAwesomeIcons.facebook,
-                                      color: Colors.white.withOpacity(.7),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.7),
                                     ),
                                   ),
                                   IconButton(
                                     onPressed: () {},
                                     icon: FaIcon(
                                       FontAwesomeIcons.instagram,
-                                      color: Colors.white.withOpacity(.7),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.7),
                                     ),
                                   ),
                                   IconButton(
                                     onPressed: () {},
                                     icon: FaIcon(
                                       FontAwesomeIcons.youtube,
-                                      color: Colors.white.withOpacity(.7),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.7),
                                     ),
                                   ),
                                 ],
@@ -620,7 +623,7 @@ class HomeView extends StatelessWidget {
                                 '© 2023 JCSD Online. All rights reserved.',
                                 style: TextStyle(
                                     fontSize: 15,
-                                    color: Colors.white.withOpacity(.7)),
+                                    color: Colors.white.withValues(alpha: 0.7)),
                               ),
                             ),
                             Padding(
@@ -631,27 +634,31 @@ class HomeView extends StatelessWidget {
                                     'Follow our Socials!',
                                     style: TextStyle(
                                         fontSize: 15,
-                                        color: Colors.white.withOpacity(.7)),
+                                        color: Colors.white
+                                            .withValues(alpha: 0.7)),
                                   ),
                                   IconButton(
                                     onPressed: () {},
                                     icon: FaIcon(
                                       FontAwesomeIcons.facebook,
-                                      color: Colors.white.withOpacity(.7),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.7),
                                     ),
                                   ),
                                   IconButton(
                                     onPressed: () {},
                                     icon: FaIcon(
                                       FontAwesomeIcons.instagram,
-                                      color: Colors.white.withOpacity(.7),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.7),
                                     ),
                                   ),
                                   IconButton(
                                     onPressed: () {},
                                     icon: FaIcon(
                                       FontAwesomeIcons.youtube,
-                                      color: Colors.white.withOpacity(.7),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.7),
                                     ),
                                   ),
                                 ],

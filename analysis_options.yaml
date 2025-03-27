@@ -4,3 +4,5 @@ analyzer:
     non_constant_identifier_names: ignore
     avoid_print: ignore
     use_build_context_synchronously: ignore
+    library_private_types_in_public_api: ignore
+    no_leading_underscores_for_local_identifiers: ignore
