@@ -22,12 +22,12 @@ class InventoryService {
           .from('item_inventory')
           .select()
           .eq('itemID', itemID)
-          .single();
-      if (fetchItem.isEmpty == true) {
-        print("ITEM_ID not found: $itemID");
+          .maybeSingle();
+      if (fetchItem == null) {
+        print("Item not found based on the given itemID: $itemID");
         return null;
       } else {
-        print("ITEM_ID is present in the table: $itemID");
+        print("Item is present in the table: $itemID");
         return InventoryData.fromJson(fetchItem);
       }
     } catch (err) {
@@ -264,13 +264,8 @@ class InventoryService {
     }
   }
 
-  Future<InventoryData> updateItem(
-      int itemID,
-      String itemName,
-      int itemTypeID,
-      String itemDescription,
-      int supplierID,
-      double itemPrice) async {
+  Future<InventoryData> updateItem(int itemID, String itemName, int itemTypeID,
+      String itemDescription, int supplierID, double itemPrice) async {
     try {
       final updatedItem = await supabaseDB.from('item_inventory').update({
         'itemName': itemName,
@@ -297,42 +292,36 @@ class InventoryService {
     }
   }
 
-  Future<int> fetchCurrentQuantity(int? itemID) async {
-    try {
-      final fetchQuantity = await supabaseDB
-          .from('item_inventory')
-          .select('itemQuantity')
-          .eq('itemID', itemID!);
+  Future<InventoryData> updateItemQuantity(int itemID, int newQuantity) async {
+    //Fetch current quantity from the database
+    int oldQuantity = await fetchCurrentQuantity(itemID);
+    int updatedQuantity = newQuantity + oldQuantity;
+    final updatedItem = await supabaseDB
+        .from('item_inventory')
+        .update({
+          'itemQuantity': updatedQuantity,
+        })
+        .eq('itemID', itemID)
+        .select()
+        .single();
 
-      if (fetchQuantity.isNotEmpty) {
-        final itemCurrentQuantity =
-            fetchQuantity[0]['itemQuantity']; //Only getting the quantity
-        return itemCurrentQuantity;
-      } else if (fetchQuantity.isEmpty) {
-        return 0;
-      } else if (fetchQuantity is String) {
-        print('fetchQuantity returned as a String, not int.');
-      } else {
-        print('fetchQuantity is both not string and int.');
-        return 0;
-      }
-    } catch (err, stackTrace) {
-      print('Error fetching current item: $itemID quantity -- $stackTrace');
-      return 0;
-    }
-    return 0;
+    return InventoryData.fromJson(updatedItem);
   }
 
-  Future<void> updateQuantity(int itemID, int newQuantity) async {
-    int oldQuantity = await fetchCurrentQuantity(
-        itemID); //Fetching lang the value from the Function that returns a Future<int>
-    int updatedQuantity = oldQuantity + newQuantity; //Adding new
-    try {
-      await supabaseDB
-          .from('item_inventory')
-          .update({'itemQuantity': updatedQuantity}).eq('itemID', itemID);
-    } catch (err) {
-      print('Error updating quantity of the product: $itemID. Message: $err');
+  Future<int> fetchCurrentQuantity(int itemID) async {
+    final fetchQuantity = await supabaseDB
+        .from('item_inventory')
+        .select('itemQuantity')
+        .eq('itemID', itemID)
+        .maybeSingle();
+
+    //Basically ensuring na naay sulod ang gifetch nato from the database.
+    if (fetchQuantity != null && fetchQuantity['itemQuantity'] != null) {
+      return (fetchQuantity['itemQuantity'] as num).toInt();
+    } else {
+      print(
+          'Item with ID: $itemID not found on the database. Might be null, returning 0 instead.');
+      return 0; //So it won't affect any outstanding value.
     }
   }
 }

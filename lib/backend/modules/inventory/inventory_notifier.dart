@@ -1,9 +1,12 @@
+//General Note for Shaheen:
+
 import 'package:flutter/material.dart';
 
 //Backend Imports, handling the state
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/generic_dialog.dart';
 
 class InventoryNotifier extends ChangeNotifier {
   final InventoryService _inventoryService;
@@ -112,7 +115,38 @@ class InventoryNotifier extends ChangeNotifier {
 
   //Update Visibility
 
-  //Stock-In / Stock Out Items
+  //Updated StockIn Logic
+  Future<void> stockInItem(int itemID, int addedItemQuantity) async {
+    if (addedItemQuantity <= 0) {
+      print('Quantity must be a positive integer.');
+    }
+
+    final updatedItemQuantityDB =
+        await _handleInventoryOperation<InventoryData?>(
+            () =>
+                _inventoryService.updateItemQuantity(itemID, addedItemQuantity),
+            'Failed to stock in item.');
+
+    if (updatedItemQuantityDB != null) {
+      final updatedOriginal = _defaultState.originalData.map((item) {
+        return item.itemID == itemID ? updatedItemQuantityDB : item;
+      }).toList();
+
+      final updatedFiltered = _defaultState.filteredData.map((item) {
+        return item.itemID == itemID ? updatedItemQuantityDB : item;
+      }).toList();
+
+      _defaultState = _defaultState.copyWith(
+        originalData: updatedOriginal,
+        filteredData: updatedFiltered,
+      );
+      notifyListeners();
+    }
+  }
+
+  //Updated StockIn Logic, mas direct diay ni based on the state
+
+  //TODO: Stock-out Item
 
   //Search
   void searchItems(String searchText) {
