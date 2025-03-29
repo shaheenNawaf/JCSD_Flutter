@@ -1,6 +1,7 @@
 //General Note for Shaheen:
 
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 //Backend Imports, handling the state
@@ -30,6 +31,47 @@ class InventoryNotifier extends FamilyAsyncNotifier<InventoryState, bool> {
     final totalItems = await _fetchTotalItemCount(searchText: searchText);
   }
   
+=======
+
+//Backend Imports, handling the state
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/generic_dialog.dart';
+
+class InventoryNotifier extends ChangeNotifier {
+  final InventoryService _inventoryService;
+
+  InventoryState _defaultState =
+      InventoryState(originalData: [], filteredData: []);
+
+  InventoryState get state => _defaultState;
+
+  //Constructors handling the initial data
+  InventoryNotifier(InventoryService inventoryService)
+      : _inventoryService = inventoryService;
+
+  //Generic Function to handle ANY operations
+  Future<T?> _handleInventoryOperation<T>(
+      Future<T> Function() operation, String errorMessagePrefix) async {
+    _defaultState = _defaultState.copyWith(isLoading: true, error: null);
+
+    //Telling the relevant UI elements to update as per given operation
+    notifyListeners();
+
+    try {
+      return await operation();
+    } catch (err) {
+      _defaultState = _defaultState.copyWith(
+          isLoading: false, error: '$errorMessagePrefix: ${err.toString()}');
+      print('Error: $err');
+      return null;
+    } finally {
+      _defaultState = _defaultState.copyWith(isLoading: false);
+      notifyListeners();
+    }
+  }
+>>>>>>> 49dc13d8939539466207ab9f7a016d3ee4ca401c
 
   //Fetch Items from the Inventory; Can just easily sort the data got if active ba or achived. EZZZZ
   Future<void> fetchInventoryItems() async {
@@ -103,6 +145,7 @@ class InventoryNotifier extends FamilyAsyncNotifier<InventoryState, bool> {
     }
   }
 
+<<<<<<< HEAD
   //Update Visibility - Archive/Unarchive
   Future<void> unarchiveItem(int itemID) async {
     //Essentially all of the codes here prior to Try/Catch are for validation/error handling, therefore simplifying the code inside my service
@@ -205,6 +248,11 @@ class InventoryNotifier extends FamilyAsyncNotifier<InventoryState, bool> {
 
 
   //Updated StockIn Logic: Shorter and updates both filtered and original data logic
+=======
+  //Update Visibility
+
+  //Updated StockIn Logic
+>>>>>>> 49dc13d8939539466207ab9f7a016d3ee4ca401c
   Future<void> stockInItem(int itemID, int addedItemQuantity) async {
     if (addedItemQuantity <= 0) {
       print('Quantity must be a positive integer.');
@@ -233,6 +281,7 @@ class InventoryNotifier extends FamilyAsyncNotifier<InventoryState, bool> {
     }
   }
 
+<<<<<<< HEAD
   //TODO: Stock-out Item
 
   //TODO: Archive
@@ -240,6 +289,13 @@ class InventoryNotifier extends FamilyAsyncNotifier<InventoryState, bool> {
   //TODO: Unarchive
 
   //Search Function   
+=======
+  //Updated StockIn Logic, mas direct diay ni based on the state
+
+  //TODO: Stock-out Item
+
+  //Search
+>>>>>>> 49dc13d8939539466207ab9f7a016d3ee4ca401c
   void searchItems(String searchText) {
     //If walang search text, then same lang sa original data ang lalabas
     if (searchText.isEmpty) {
