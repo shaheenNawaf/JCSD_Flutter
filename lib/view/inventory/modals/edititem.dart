@@ -159,6 +159,14 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
                             setController: _itemDescription,
                           ),
                           const SizedBox(height: 8),
+                          _buildTextField(
+                            label: 'Item Quantity',
+                            hintText: 'Initial item quantity',
+                            setController: _itemQuantity,
+                            maxLines: 1,
+                            readOnly: true,
+                            showAsterisk: false,
+                          )
                         ],
                       ),
                     ),
@@ -178,7 +186,7 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
                             },
                           ),
                           const SizedBox(height: 12),
-                          _buildSupliersList(
+                          _buildSuppliersList(
                             label: 'Supplier',
                             hintText: 'Select supplier',
                             value: _selectedSupplier,
@@ -288,6 +296,8 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
     required String hintText,
     int maxLines = 1,
     required TextEditingController setController,
+    bool readOnly = false,
+    bool showAsterisk = true,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,27 +306,35 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: 'NunitoSans',
                 fontWeight: FontWeight.normal,
+                color: readOnly ? Colors.grey : Colors.black,
               ),
             ),
-            const Text(
-              '*',
-              style: TextStyle(
-                color: Colors.red,
-                fontSize: 14,
+            if (showAsterisk)
+              const Text(
+                '*',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 14,
+                ),
               ),
-            ),
           ],
         ),
         const SizedBox(height: 5),
         TextField(
           controller: setController,
           maxLines: maxLines,
+          readOnly: readOnly,
+          style: TextStyle(
+            color: readOnly ? Colors.grey : Colors.black,
+          ),
           decoration: InputDecoration(
             hintText: hintText,
             border: const OutlineInputBorder(),
+            filled: readOnly,
+            fillColor: readOnly ? Colors.grey.shade200 : null,
             hintStyle: const TextStyle(
               fontFamily: 'Poppins',
               fontWeight: FontWeight.w300,
@@ -328,7 +346,7 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
     );
   }
 
-  Widget _buildSupliersList({
+  Widget _buildSuppliersList({
     required String label,
     required String hintText,
     required String? value,
@@ -370,6 +388,7 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
                 const SizedBox(height: 5),
                 DropdownButtonFormField<String>(
                   value: value,
+                  isExpanded: true,
                   hint: Text(
                     hintText,
                     style: const TextStyle(
@@ -387,12 +406,17 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
                   items: supplierList.map((supplier) {
                     return DropdownMenuItem<String>(
                       value: supplier.supplierName,
-                      child: Text(
-                        supplier.supplierName,
-                        style: const TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w300,
-                          fontSize: 12,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: Text(
+                          supplier.supplierName,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w300,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     );
