@@ -24,14 +24,16 @@ class SignupPage2 extends StatefulWidget {
 class _SignupPage2State extends State<SignupPage2> {
   // Controllers for the input fields
   final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _middleInitialController = TextEditingController();
+  final TextEditingController _middleInitialController =
+      TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _provinceController = TextEditingController();
   final TextEditingController _countryController = TextEditingController();
   final TextEditingController _zipCodeController = TextEditingController();
-  final TextEditingController _contactNumberController = TextEditingController();
+  final TextEditingController _contactNumberController =
+      TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
 
@@ -60,23 +62,23 @@ class _SignupPage2State extends State<SignupPage2> {
   //Validators for each input
   String? numberValidator(String? value) {
     if (value == null || value.isEmpty) {
-       showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Validation Error',
-            content: 'Please enter a number',
-          ),
-        );
-      return ''; 
+      showDialog(
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Validation Error',
+          content: 'Please enter a number',
+        ),
+      );
+      return '';
     }
     if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
       showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Validation Error',
-            content: 'Only numbers are allowed',
-          ),
-        );
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Validation Error',
+          content: 'Only numbers are allowed',
+        ),
+      );
       return '';
     }
     return null;
@@ -85,22 +87,22 @@ class _SignupPage2State extends State<SignupPage2> {
   String? textValidator(String? value) {
     if (value == null || value.isEmpty) {
       showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Validation Error',
-            content: 'Please enter some text',
-          ),
-        );
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Validation Error',
+          content: 'Please enter some text',
+        ),
+      );
       return '';
     }
     if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
       showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Validation Error',
-            content: 'Only letters and spaces are allowed',
-          ),
-        );
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Validation Error',
+          content: 'Only letters and spaces are allowed',
+        ),
+      );
       return '';
     }
     return null;
@@ -109,47 +111,46 @@ class _SignupPage2State extends State<SignupPage2> {
   String? emailValidator(String? value) {
     if (value == null || value.isEmpty) {
       showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Empty Email field',
-            content: 'Please enter an email',
-          ),
-        );
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Empty Email field',
+          content: 'Please enter an email',
+        ),
+      );
       return '';
     }
     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
       showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Validation Error',
-            content: 'Please enter a valid email',
-          ),
-        );
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Validation Error',
+          content: 'Please enter a valid email',
+        ),
+      );
       return '';
     }
-    return
-  null;
+    return null;
   }
 
   String? contactNumberValidator(String? value) {
     if (value == null || value.isEmpty) {
       showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Empty Contact Number field',
-            content: 'Please enter a contact number',
-          ),
-        );
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Empty Contact Number field',
+          content: 'Please enter a contact number',
+        ),
+      );
       return '';
     }
     if (!RegExp(r'^((\+639|09)\d{9})$').hasMatch(value)) {
       showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Validation Error',
-            content: 'Please enter a valid contact number',
-          ),
-        );
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Validation Error',
+          content: 'Please enter a valid contact number',
+        ),
+      );
       return '';
     }
     return null;
@@ -286,53 +287,46 @@ class _SignupPage2State extends State<SignupPage2> {
                                   Column(
                                     children: [
                                       buildTextField(
-                                        controller: _firstNameController,
-                                        label: 'First Name',
-                                        hintText: 'Enter your first name',
-                                        validator: textValidator
-                                      ),
+                                          controller: _firstNameController,
+                                          label: 'First Name',
+                                          hintText: 'Enter your first name',
+                                          validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                        controller: _addressController,
-                                        label: 'Address',
-                                        hintText: 'Enter your address',
-                                        validator: textValidator
-                                      ),
+                                          controller: _addressController,
+                                          label: 'Address',
+                                          hintText: 'Enter your address',
+                                          validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                        controller: _middleInitialController,
-                                        label: 'Middle Initial (Optional)',
-                                        hintText: 'Enter your middle initial',
-                                        validator: textValidator
-                                      ),
+                                          controller: _middleInitialController,
+                                          label: 'Middle Initial (Optional)',
+                                          hintText: 'Enter your middle initial',
+                                          validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                        controller: _cityController,
-                                        label: 'City',
-                                        hintText: 'Enter your city',
-                                        validator: textValidator
-                                      ),
+                                          controller: _cityController,
+                                          label: 'City',
+                                          hintText: 'Enter your city',
+                                          validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                        controller: _provinceController,
-                                        label: 'Province',
-                                        hintText: 'Enter your province',
-                                        validator: textValidator
-                                      ),
+                                          controller: _provinceController,
+                                          label: 'Province',
+                                          hintText: 'Enter your province',
+                                          validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                        controller: _lastNameController,
-                                        label: 'Last Name',
-                                        hintText: 'Enter your last name',
-                                        validator: textValidator
-                                      ),
+                                          controller: _lastNameController,
+                                          label: 'Last Name',
+                                          hintText: 'Enter your last name',
+                                          validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                        controller: _countryController,
-                                        label: 'Country',
-                                        hintText: 'Enter your country',
-                                        validator: textValidator
-                                      ),
+                                          controller: _countryController,
+                                          label: 'Country',
+                                          hintText: 'Enter your country',
+                                          validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
                                         controller: _zipCodeController,
@@ -344,17 +338,14 @@ class _SignupPage2State extends State<SignupPage2> {
                                       buildTextField(
                                         controller: _dobController,
                                         label: 'Date of Birth',
-                                        hintText:
-                                            'Enter your date of birth',
+                                        hintText: 'Enter your date of birth',
                                       ),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                        controller: _contactNumberController,
-                                        label: 'Contact Number',
-                                        hintText:
-                                            'Enter your contact number',
-                                        validator: contactNumberValidator
-                                      ),
+                                          controller: _contactNumberController,
+                                          label: 'Contact Number',
+                                          hintText: 'Enter your contact number',
+                                          validator: contactNumberValidator),
                                     ],
                                   )
                                 else
@@ -367,8 +358,7 @@ class _SignupPage2State extends State<SignupPage2> {
                                             child: buildTextField(
                                               controller: _firstNameController,
                                               label: 'First Name',
-                                              hintText:
-                                                  'Enter your first name',
+                                              hintText: 'Enter your first name',
                                             ),
                                           ),
                                           const SizedBox(width: 10),
@@ -377,8 +367,7 @@ class _SignupPage2State extends State<SignupPage2> {
                                             child: buildTextField(
                                               controller: _addressController,
                                               label: 'Address',
-                                              hintText:
-                                                  'Enter your address',
+                                              hintText: 'Enter your address',
                                             ),
                                           ),
                                         ],
@@ -407,8 +396,7 @@ class _SignupPage2State extends State<SignupPage2> {
                                                   child: buildTextField(
                                                     controller: _cityController,
                                                     label: 'City',
-                                                    hintText:
-                                                        'Enter your city',
+                                                    hintText: 'Enter your city',
                                                   ),
                                                 ),
                                                 const SizedBox(width: 10),
@@ -435,8 +423,7 @@ class _SignupPage2State extends State<SignupPage2> {
                                             child: buildTextField(
                                               controller: _lastNameController,
                                               label: 'Last Name',
-                                              hintText:
-                                                  'Enter your last name',
+                                              hintText: 'Enter your last name',
                                             ),
                                           ),
                                           const SizedBox(width: 10),
@@ -579,14 +566,14 @@ class _SignupPage2State extends State<SignupPage2> {
     );
   }
 
-    Widget buildTextField({
+  Widget buildTextField({
     required String label,
     required String hintText,
     required TextEditingController controller,
     TextInputType keyboardType = TextInputType.text,
     String? Function(String?)? validator,
     bool isDateOfBirthField = false, // Add a flag for date of birth field
-    }) {
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -610,7 +597,7 @@ class _SignupPage2State extends State<SignupPage2> {
         ),
         const SizedBox(height: 5),
         //Added Conditional rendering for the DOB
-        if (isDateOfBirthField) 
+        if (isDateOfBirthField)
           GestureDetector(
             onTap: () async {
               // Show the date picker
@@ -618,7 +605,7 @@ class _SignupPage2State extends State<SignupPage2> {
                 context: context,
                 initialDate: DateTime.now(),
                 firstDate: DateTime(1900),
-                lastDate:DateTime.now(),
+                lastDate: DateTime.now(),
               );
 
               //For the controller to pick up the data

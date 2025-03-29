@@ -1,9 +1,8 @@
-// Imports
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-
 import 'package:jcsd_flutter/view/generic/email_verification.dart';
+import 'package:jcsd_flutter/view/generic/forgot_password.dart';
+import 'package:jcsd_flutter/view/generic/reset_password.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'api/supa_details.dart';
 import 'package:jcsd_flutter/others/transition.dart';
@@ -41,6 +40,9 @@ import 'package:jcsd_flutter/view/admin/employeelist.dart';
 import 'package:jcsd_flutter/view/client/booking_first.dart';
 import 'package:jcsd_flutter/view/client/booking_second.dart';
 
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -53,8 +55,63 @@ Future<void> main() async {
   runApp(const ProviderScope(child: MainApp()));
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
   const MainApp({super.key});
+
+  @override
+  _MainAppState createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Listen for authentication state changes
+    Supabase.instance.client.auth.onAuthStateChange.listen((event) {
+      if (event.event == AuthChangeEvent.passwordRecovery) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            Navigator.of(context).pushReplacementNamed('/resetPassword');
+          }
+        });
+      }
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _handleDeepLink();
+    });
+  }
+
+  /// Handles deep link for password reset
+  void _handleDeepLink() async {
+    final Uri uri = Uri.base;
+    print("Deep Link URI: ${uri.toString()}");
+
+    final resetCode = uri.queryParameters['code'];
+
+    if (resetCode != null) {
+      print("Extracted reset code: $resetCode");
+
+      try {
+        final response =
+            await Supabase.instance.client.auth.setSession(resetCode);
+
+        if (response.user == null) {
+          throw Exception("User session not found. Token might be expired.");
+        }
+
+        print("Session set successfully, redirecting to Reset Password page.");
+        if (mounted) {
+          Navigator.of(context).pushReplacementNamed('/resetPassword');
+        }
+      } catch (error) {
+        print("Error setting session: $error");
+      }
+    } else {
+      print("No reset code found in URI.");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,8 +124,8 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'JCSD',
+      scaffoldMessengerKey: scaffoldMessengerKey,
       initialRoute: user == null ? '/login' : '/home',
-
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF00AEEF),
@@ -87,7 +144,9 @@ class MainApp extends StatelessWidget {
         '/login': (context) => const Login(),
         '/signup1': (context) => const SignupPage1(),
         '/signup2': (context) => const SignupPage2(),
-        '/emaileVerification': (context) => const EmailVerification(),
+        '/emailVerification': (context) => const EmailVerification(),
+        '/forgotPassword': (context) => const ForgotPassword(),
+        '/resetPassword': (context) => const ResetPassword(),
         '/error': (context) => const ErrorPage(),
         '/accessRestricted': (context) => const AccessRestrictedPage(),
         '/accountList': (context) => const AccountListPage(),
@@ -99,8 +158,6 @@ class MainApp extends StatelessWidget {
         '/booking1': (context) => const ClientBooking1(),
         '/booking2': (context) => const ClientBooking2(),
         '/profileClient': (context) => const ProfilePageClient(),
-
-        // Employee View
         '/employeeLogin': (context) => const LoginEmployee(),
         '/dashboard': (context) => const DashboardPage(),
         '/inventory': (context) => const InventoryPage(),
