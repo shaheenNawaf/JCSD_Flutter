@@ -1,13 +1,9 @@
-/// Supabase Implementation -- personal comments to lahat, plz don't remove
-library;
-
 import 'package:jcsd_flutter/api/global_variables.dart';
 import 'package:jcsd_flutter/backend/date_converter.dart';
 
 ///Inventory Data - using the class that I made to store data
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
 import 'package:jcsd_flutter/backend/modules/audit_logs/audit_services.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 // Notes inserted here
 // Dart allows ? as assigned null, added nako here para ma handle sa function if may empty na parameter when called
@@ -364,41 +360,3 @@ class InventoryService {
     }
   }
 }
-
-//Old Codes
-//Original FetchItems Code
-  // Future<List<InventoryData>> fetchItems({
-  //   bool? isVisible,
-  //   String sortBy = 'itemID',
-  //   bool ascending = true,
-  //   int page = 1, 
-  //   int itemsPerPage = defaultItemsPerPage,
-  //   String? searchQuery,
-  // }) async {
-  //   try {
-  //     final items = supabaseDB.from('item_inventory').select().range(from, to);
-
-  //     //Param inserts here to handle if active or archived ba ang item
-  //     if (isVisible != null) {
-  //       items.eq('isVisible', isVisible);
-  //     }
-
-  //     //Pagination and order purposes
-  //     items.order(sortBy, ascending: ascending);
-
-  //     //Checking if empty or nah
-  //     final results = await items;
-  //     if (results.isEmpty) {
-  //       print('0 items found in the database.');
-  //       return [];
-  //     }
-
-  //     //For parsing
-  //     return results
-  //         .map<InventoryData>((item) => InventoryData.fromJson(item))
-  //         .toList();
-  //   } catch (err, stackTrace) {
-  //     print('Error fetching items. $err \n $stackTrace');
-  //     return [];
-  //   }
-  // }
