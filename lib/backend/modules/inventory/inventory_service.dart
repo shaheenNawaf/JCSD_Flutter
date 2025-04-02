@@ -303,8 +303,8 @@ class InventoryService {
     }
   }
 
-  Future<InventoryData> updateItem(int itemID, String itemName, int itemTypeID,
-      String itemDescription, int supplierID, double itemPrice) async {
+  Future<InventoryData> updateItem(int itemID, String itemName, int itemTypeID , int supplierID,
+      String itemDescription, double itemPrice) async {
     try {
       final updatedItem = await supabaseDB.from('item_inventory').update({
         'itemName': itemName,

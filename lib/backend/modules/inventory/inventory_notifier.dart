@@ -1,6 +1,8 @@
 //General Note for Shaheen:
 
-import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:core';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 //Backend Imports, handling the state
@@ -11,13 +13,20 @@ import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 
 const int _defaultItemsPerPage = 10;
 
-class InventoryNotifier extends FamilyAsyncNotifier<InventoryState, bool> {
+class InventoryNotifier extends AutoDisposeFamilyAsyncNotifier<InventoryState, bool> {
+  Timer? _debounce; //Mainly for performance, iwas continuous activity especially on search na persistent ang textfield
+
   late bool _isVisible; //Just to store which to access, based on property
   InventoryService get _accessServices => ref.read(inventoryServiceProv);
 
   @override
   Future<InventoryState> build(bool arg) async {
     _isVisible = arg;
+
+    ref.onDispose((){
+    _debounce?.cancel();
+    print('Debounce timer cancelled.');
+    });
 
     //initial parameters for the loaded state
     const currentPage = 1;
@@ -27,283 +36,283 @@ class InventoryNotifier extends FamilyAsyncNotifier<InventoryState, bool> {
     const ascending = true;
 
     //Fetching the total item count
-    final totalItems = await _fetchTotalItemCount(searchText: searchText);
+    final totalItems = await fetchTotalItemCount(searchText: searchText);
+
+    //Calculating the total pages bbased on set items to be displayed
+    final totalPages = totalItems <= 0 ? 1 : (totalItems/itemsPerPage).ceil();
+
+    //Diri mabutang ang data for the first page
+    final fetchedItemsForDisplay = await fetchPageData(
+     page: currentPage,
+     itemsPerPage: itemsPerPage,
+     sortBy: sortBy,
+     ascending: ascending,
+     searchText: searchText,
+    );
+
+    //Returning the initial state = meaning naa na diria ang data to be displayed by our UI Widgets
+    return InventoryState(
+      filteredData: fetchedItemsForDisplay,
+      searchText: searchText,
+      currentPage: currentPage,
+      totalPages: totalPages,
+      itemsPerPage: itemsPerPage,
+      sortBy: sortBy,
+      ascending: ascending,
+    );
+  }
+
+  //Page Navigation Functions
+
+  //Fetch Total Item Count; but based on both searchText and isVisible (bale pwede for both Archived and Active items)
+  Future<int> fetchTotalItemCount({required String searchText}) async {
+    if(_isVisible){
+      return _accessServices.totalActiveItemCount(searchQuery: searchText);
+    }else{
+      return _accessServices.totalArchivedItemCount(searchQuery: searchText);
+    }
+  }
+
+  //Data na stored here, are the data from the database based on the amount of rows/items na kukunin
+  Future<List<InventoryData>> fetchPageData({
+    required int page,
+    required int itemsPerPage,
+    required String sortBy,
+    required bool ascending,
+    required String searchText,
+  }) async {
+    print('Fetching data for the following parameters: $_isVisible - $page - $sortBy'); //Visibility lang, for my debugging
+    return _accessServices.fetchItems(
+      isVisible: _isVisible,
+      page: page,
+      itemsPerPage: itemsPerPage,
+      sortBy: sortBy,
+      ascending: ascending,
+      searchQuery: searchText,
+    );
   }
   
+  //Page Navigation - Updating the state just to contain the data to be present on that page
+  Future<void> goToPage(int page) async {
+    final currentState = state.valueOrNull;
+    print('Displaying data for page: $page'); //Debug Control lang, so I'll see if it works. 
+    if(currentState == null) {
+      ref.invalidateSelf(); //Force rebuilds the state, iwas corrupt
+      return;
+    }
+    
+    //Page Value Checker; Iwas wrong value
+    if(page  < 1 || page > currentState.totalPages) {
+      print('Page is out of bounds.');
+      return ;
+    }
+    
+    state = const AsyncValue.loading();
 
-  //Fetch Items from the Inventory; Can just easily sort the data got if active ba or achived. EZZZZ
-  Future<void> fetchInventoryItems() async {
-    final allItems = await _handleInventoryOperation<List<InventoryData>>(
-        () => _inventoryService.allItems(),
-        'Failed to fetch all of the items inside the database.');
+    try {
+      final items = await fetchPageData(
+        page: page, 
+        itemsPerPage: currentState.itemsPerPage, 
+        sortBy: currentState.sortBy, 
+        ascending: currentState.ascending, 
+        searchText: currentState.searchText
+      );
 
-    if (allItems!.isNotEmpty) {
-      _defaultState = _defaultState.copyWith(
-          originalData: allItems, filteredData: allItems);
-    } else {
-      _defaultState =
-          _defaultState.copyWith(originalData: [], filteredData: []);
+      state = AsyncValue.data(currentState.copyWith(
+        filteredData: items,
+        currentPage: page,
+      ));
+    }catch(error, stackTrace){
+      print('Error in going to this page: $page');
+      state = AsyncValue.error(error, stackTrace);
     }
   }
+  
+  Future<void> sort(String sortBy) async {
+    bool newAscending;
+    final currentState = state.valueOrNull;
+    if(currentState == null) return;
 
-  //Add
-  Future<void> addInventoryItem(InventoryData newItem) async {
-    final addedItem = await _handleInventoryOperation<InventoryData>(
-        () => _inventoryService.addItem(
-            newItem.itemName,
-            newItem.itemTypeID,
-            newItem.itemDescription,
-            newItem.itemQuantity,
-            newItem.supplierID,
-            newItem.itemPrice),
-        'Failed to perform on the inventory: New Item');
-
-    if (addedItem != null) {
-      //Add to original
-      final updatedOriginal =
-          List<InventoryData>.from(_defaultState.originalData)..add(addedItem);
-
-      //Add to filtered
-      final updatedFiltered =
-          List<InventoryData>.from(_defaultState.filteredData)..add(addedItem);
-
-      //Reflect the added data to the state
-      _defaultState = _defaultState.copyWith(
-          originalData: updatedOriginal, filteredData: updatedFiltered);
-
-      //Basically tells all the UI connected to this notifier to refresh to reflect any changes
-      notifyListeners();
+    //Literally, compares the sortBy param if it's the same or not.
+    if(currentState.sortBy == sortBy){
+      newAscending = !currentState.ascending;
+    }else{
+      newAscending = true;
     }
-  }
+    
+    //Default = back to Page 1 when sorting
+    const newPage = 1;
 
-  //Update
-  Future<void> updateInventoryItem(InventoryData currentItem) async {
-    final updatedItem = await _handleInventoryOperation<InventoryData>(
-        () => _inventoryService.updateItem(
-            currentItem.itemID,
-            currentItem.itemName,
-            currentItem.itemTypeID,
-            currentItem.itemDescription,
-            currentItem.supplierID,
-            currentItem.itemPrice),
-        'Failed to perform on the inventory: Update Item');
+    state = const AsyncValue.loading();
 
-    if (updatedItem != null) {
-      final updatedOriginal = _defaultState.originalData.map((item) {
-        return item.itemID == currentItem.itemID ? updatedItem : item;
-      }).toList();
-
-      final updatedFiltered = _defaultState.filteredData.map((item) {
-        return item.itemID == currentItem.itemID ? updatedItem : item;
-      }).toList();
-
-      _defaultState = _defaultState.copyWith(
-          originalData: updatedOriginal, filteredData: updatedFiltered);
-      notifyListeners();
-    }
-  }
-
-  //Update Visibility - Archive/Unarchive
-  Future<void> unarchiveItem(int itemID) async {
-    //Essentially all of the codes here prior to Try/Catch are for validation/error handling, therefore simplifying the code inside my service
-    final currentItem = _defaultState.originalData.firstWhere((item) => item.itemID == itemID);
-
-    if(currentItem == null){
-      throw Exception('Cannot unarchive: $itemID not found in the current state.');
-    }
-
-    if(currentItem.isVisible){
-      print('Item: $itemID is already visible.');
-    }
-
-    //Updating the state
-    final updatedItemToState = currentItem.copyWith(isVisible: true);
-
-    _defaultState = _defaultState.copyWith(isLoading: true, error: null);
-    notifyListeners();
-
-    //Fully Updating the data inside the state
     try{
-      //dude this is the actual service call HAHAH yawa literally ONE line, I love it
-      await _inventoryService.updateVisibility(itemID, true);
-
-      final updatedOriginal = _defaultState.originalData.map((item){
-        return item.itemID == itemID ? updatedItemToState : item;
-      }).toList();
-
-      final updatedFiltered = _defaultState.filteredData.map((item){
-        return item.itemID == itemID ? updatedItemToState : item;
-      }).toList();
-
-      _defaultState = _defaultState.copyWith(
-        originalData: updatedOriginal,
-        filteredData: updatedFiltered,
-        isLoading: false,
-        error: null,
+      final sortedItemsForDisplay = await fetchPageData(
+        page: newPage, 
+        itemsPerPage: currentState.itemsPerPage, 
+        sortBy: sortBy, 
+        ascending: newAscending, 
+        searchText: currentState.searchText
       );
-    }catch(error){
-      print('Error unarchiving item $itemID via this notifier. ');
-      _defaultState = _defaultState.copyWith(isLoading: false, error: 'Failed to unarchive. $itemID -- $error');
-      throw Exception('Database updated failed during Unarchived Notifier.');
-    }finally{
-      if(_defaultState.isLoading){
-        _defaultState = _defaultState.copyWith(isLoading: false);
+      state = AsyncValue.data(currentState.copyWith(
+        filteredData: sortedItemsForDisplay,
+        currentPage: newPage,
+        sortBy: sortBy,
+        ascending: newAscending,
+      ));
+    }catch(error, stackTrace){
+      print('Error fetching and storing the data based on sort.');
+      state = AsyncValue.error(error, stackTrace);
+    }
+  }
+
+  void searchItems(String searchQuery){
+    //Checking _debounce's integrity, para sure lang na it exists
+    if(_debounce != null){
+      if(_debounce!.isActive){
+        _debounce!.cancel();
       }
-      notifyListeners();
-    }
-  } 
-
-  //Unfinished, based from Unarchive item function above
-  Future<void> archiveItem(int itemID) async {
-    //Essentially all of the codes here prior to Try/Catch are for validation/error handling, therefore simplifying the code inside my service
-    final currentItem = _defaultState.originalData.firstWhere((item) => item.itemID == itemID);
-
-    if(currentItem == null){
-      throw Exception('Cannot archive: $itemID not found in the current state.');
     }
 
-    if(currentItem.isVisible == false){
-      print('Item: $itemID is already archived.');
-    }
+    _debounce = Timer(const Duration(milliseconds: 750), () async {
+      final currentState = state.valueOrNull;
+      if(currentState == null) return ;
 
-    //Updating the state
-    final updatedItemToState = currentItem.copyWith(isVisible: false);
+      if (currentState.searchText == searchQuery) return ;
 
-    _defaultState = _defaultState.copyWith(isLoading: true, error: null);
-    notifyListeners();
+      const newPage = 1; //resets the page back to 1 kada search!
+      state = const AsyncValue.loading();
 
-    //Fully Updating the data inside the state
+      try {
+       //Fetch Total Item Count -> Total Pages 
+       final totalItemsFetched = await fetchTotalItemCount(searchText: searchQuery);
+       final totalPages = (totalItemsFetched / currentState.itemsPerPage).ceil(); //Whole number ang return
+       final finalTotalPages = totalPages > 0 ? totalPages: 1;
+
+       final itemsFetched  = await fetchPageData(
+        page: newPage, 
+        itemsPerPage: currentState.itemsPerPage,
+        sortBy: currentState.sortBy, 
+        ascending: currentState.ascending, 
+        searchText: searchQuery,
+        );
+
+        state = AsyncValue.data(currentState.copyWith(
+          filteredData: itemsFetched,
+          currentPage: newPage,
+          searchText: searchQuery,
+          totalPages: finalTotalPages,
+        ));
+
+      }catch(error, stackTrace){
+        print('Error fetching and storing the data based on search.');
+      state = AsyncValue.error(error, stackTrace);
+      }
+
+    });
+
+  }
+  
+  //Handling both inActive and active items
+  Future<void> setItemVisibility(int itemID, bool itemVisibility) async {
+    final currentState = state.valueOrNull;
+    if (currentState == null) return;
+
+    state = const AsyncValue.loading();
+
     try{
-      //dude this is the actual service call HAHAH yawa literally ONE line, I love it
-      await _inventoryService.updateVisibility(itemID, false);
+      await _accessServices.updateVisibility(itemID, itemVisibility);
+      await refreshCurrentPage(); //Force refresh page!
+    }catch(error, stackTrace){
+      print('Error updating the visibility of the item $itemID : $itemVisibility');
+      state = AsyncValue.error(error, stackTrace);
+    }
+  }
 
-      final updatedOriginal = _defaultState.originalData.map((item){
-        return item.itemID == itemID ? updatedItemToState : item;
-      }).toList();
+  //Refresh Helper: Same function as ref.invalidate nako sauna, but this one triggers for ANY actionable updates meaning mga ADD, UPDATE, ARCHIVE and if needed.
 
-      final updatedFiltered = _defaultState.filteredData.map((item){
-        return item.itemID == itemID ? updatedItemToState : item;
-      }).toList();
+  Future<void> refreshCurrentPage() async {
+    final currentState = state.valueOrNull;
 
-      _defaultState = _defaultState.copyWith(
-        originalData: updatedOriginal,
-        filteredData: updatedFiltered,
-        isLoading: false,
-        error: null,
+    //Checks for data corruption, pag corrupt - force rebuild
+    if (currentState == null) {
+      ref.invalidateSelf();
+      return;
+    }
+
+    final previousState = currentState; //Holding previous state, just in case
+    state = const AsyncValue.loading();
+
+    try{
+      final totalItemsFetched = await fetchTotalItemCount(searchText: currentState.searchText);
+      final totalPages = (totalItemsFetched / currentState.itemsPerPage).ceil(); //Whole number ang return
+      final finalTotalPages = totalPages > 0 ? totalPages: 1;
+      
+      int pageToFetch = currentState.currentPage;
+      //Page to fetch becomes the new last page.
+      if (pageToFetch > finalTotalPages) pageToFetch = finalTotalPages;
+
+      //Checker for invalid page size
+      if (pageToFetch < 1) pageToFetch = 1;
+
+      //Fetch the entire data again, just to make sure that it's correctly displayed
+      final fetchedItems = await fetchPageData(
+        page: pageToFetch, 
+        itemsPerPage: currentState.itemsPerPage, 
+        sortBy: currentState.sortBy, 
+        ascending: currentState.ascending, 
+        searchText: currentState.searchText
       );
-    }catch(error){
-      print('Error unarchiving item $itemID via this notifier. ');
-      _defaultState = _defaultState.copyWith(isLoading: false, error: 'Failed to unarchive. $itemID -- $error');
-      throw Exception('Database updated failed during Unarchived Notifier.');
-    }finally{
-      if(_defaultState.isLoading){
-        _defaultState = _defaultState.copyWith(isLoading: false);
-      }
-      notifyListeners();
+
+      state = AsyncValue.data(previousState.copyWith(
+        filteredData: fetchedItems,
+        totalPages: finalTotalPages,
+        currentPage: pageToFetch,
+      ));
+    }catch(error, stackTrace){
+      print('Error refreshing current page.');
+      state = AsyncValue.error(error, stackTrace);
     }
-  } 
+  }
+// Functions that handle actual actions: ADD/UPDATE/ARCHIVE
 
+  //Add Function
+  Future<void> addNewItem (InventoryData newItem) async {
+    state = const AsyncValue.loading();
 
-  //Updated StockIn Logic: Shorter and updates both filtered and original data logic
-  Future<void> stockInItem(int itemID, int addedItemQuantity) async {
-    if (addedItemQuantity <= 0) {
-      print('Quantity must be a positive integer.');
-    }
-
-    final updatedItemQuantityDB =
-        await _handleInventoryOperation<InventoryData?>(
-            () =>
-                _inventoryService.updateItemQuantity(itemID, addedItemQuantity),
-            'Failed to stock in item.');
-
-    if (updatedItemQuantityDB != null) {
-      final updatedOriginal = _defaultState.originalData.map((item) {
-        return item.itemID == itemID ? updatedItemQuantityDB : item;
-      }).toList();
-
-      final updatedFiltered = _defaultState.filteredData.map((item) {
-        return item.itemID == itemID ? updatedItemQuantityDB : item;
-      }).toList();
-
-      _defaultState = _defaultState.copyWith(
-        originalData: updatedOriginal,
-        filteredData: updatedFiltered,
-      );
-      notifyListeners();
+    try{
+      await _accessServices.addItem(
+        newItem.itemName, newItem.itemTypeID, newItem.itemDescription, newItem.itemQuantity, newItem.supplierID, newItem.itemPrice);
+      await refreshCurrentPage();
+    }catch(error, stackTrace){
+      print('Error adding new item. -- Notifier');
+      state = AsyncValue.error(error, stackTrace);
     }
   }
 
-  //TODO: Stock-out Item
+  //Update Item Function
+  Future<void> updateItemDetails (InventoryData updateItem) async {
+    state = const AsyncValue.loading();
 
-  //TODO: Archive
+    try{
+      await _accessServices.updateItem(
+        updateItem.itemID, updateItem.itemName, updateItem.itemTypeID, updateItem.supplierID, updateItem.itemDescription, updateItem.itemPrice);
 
-  //TODO: Unarchive
-
-  //Search Function   
-  void searchItems(String searchText) {
-    //If walang search text, then same lang sa original data ang lalabas
-    if (searchText.isEmpty) {
-      _defaultState = _defaultState.copyWith(
-          filteredData: _defaultState.originalData, searchText: searchText);
-    } else {
-      final searchListResult = _defaultState.originalData.where((item) {
-        return item.itemName.toLowerCase().contains(searchText.toLowerCase()) ||
-            item.itemDescription
-                .toLowerCase()
-                .contains(searchText.toLowerCase());
-      }).toList(); //Returns the search result! Amazing shit actually
-      _defaultState = _defaultState.copyWith(
-          filteredData: searchListResult, searchText: searchText);
+      await refreshCurrentPage();
+    }catch(error, stackTrace){
+      print('Error updating item details. -- Notifier');
+      state = AsyncValue.error(error, stackTrace);
     }
-    notifyListeners();
   }
 
-  //Filters/Sort
-  void sortItems(String sortedBy) {
-    //Default state is ascending is set to true, para arranged ang data mga bes
-    bool ascendingState =
-        _defaultState.sortBy == sortedBy ? !_defaultState.ascending : true;
-    List<InventoryData> sortedItemList = List.from(_defaultState.filteredData);
+  Future<void> stockInItem(int itemID, int addedQuantity) async {
+    state = const AsyncValue.loading();
 
-    //Note the comparison
-    switch (sortedBy) {
-      case 'itemID':
-        sortedItemList.sort((a, b) => ascendingState
-            ? a.itemID.compareTo(b.itemID)
-            : b.itemID.compareTo(a.itemID));
-        break;
-      case 'itemName':
-        sortedItemList.sort((a, b) => ascendingState
-            ? a.itemName.compareTo(b.itemName)
-            : b.itemName.compareTo(a.itemName));
-        break;
-      case 'itemDescription':
-        sortedItemList.sort((a, b) => ascendingState
-            ? a.itemDescription.compareTo(b.itemDescription)
-            : b.itemDescription.compareTo(a.itemDescription));
-        break;
-      case 'itemType':
-        sortedItemList.sort((a, b) => ascendingState
-            ? a.itemTypeID.compareTo(b.itemTypeID)
-            : b.itemTypeID.compareTo(a.itemTypeID));
-        break;
-      case 'itemPrice':
-        sortedItemList.sort((a, b) => ascendingState
-            ? a.itemPrice.compareTo(b.itemPrice)
-            : b.itemPrice.compareTo(a.itemPrice));
-        break;
-      case 'itemQuantity':
-        sortedItemList.sort((a, b) => ascendingState
-            ? a.itemQuantity.compareTo(b.itemQuantity)
-            : b.itemQuantity.compareTo(a.itemQuantity));
-        break;
+    try{
+      await _accessServices.updateItemQuantity(itemID, addedQuantity);
+      await refreshCurrentPage();
+    }catch(error, stackTrace){
+      print('Error stocking in item. --notifier');
+      state = AsyncValue.error(error, stackTrace);
     }
-
-    _defaultState = _defaultState.copyWith(
-        filteredData: sortedItemList,
-        sortBy: sortedBy,
-        ascending: ascendingState);
   }
-
-  //Pagination
 }

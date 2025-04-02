@@ -4,7 +4,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+
+//Inventory Backend
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_notifier.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_providers.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
@@ -29,17 +30,12 @@ import 'package:jcsd_flutter/view/inventory/item_types/item_types.dart';
 // Suppliers
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
 
-class InventoryPage extends ConsumerStatefulWidget {
+class InventoryPage extends ConsumerWidget{
   const InventoryPage({super.key});
 
-  @override
-  ConsumerState<InventoryPage> createState() => _InventoryPageState();
-}
-
-class _InventoryPageState extends ConsumerState<InventoryPage> {
   final String _activeSubItem = '/inventory';
 
-  void _showAddItemModal() {
+  void _showAddItemModal(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -49,7 +45,7 @@ class _InventoryPageState extends ConsumerState<InventoryPage> {
     );
   }
 
-  void _showBorrowedItemsModal() {
+  void _showBorrowedItemsModal(BuildContext context) {
     showDialog(
       context: context,
       barrierDismissible: false,
