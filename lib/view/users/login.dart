@@ -47,12 +47,7 @@ class _LoginState extends State<Login> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login successful: ${response.user!.email}')),
         );
-        Navigator.pushReplacementNamed(context, '/dashboard');
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Login failed. Check your credentials.')),
-        );
+        Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
       }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(

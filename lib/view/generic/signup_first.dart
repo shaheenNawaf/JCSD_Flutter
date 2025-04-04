@@ -67,10 +67,25 @@ class _SignupPage1State extends State<SignupPage1> {
     }
 
     try {
-      final response =
-          await supabaseDB.auth.signUp(email: email, password: password);
+      final response = await supabaseDB.auth.signUp(
+        email: email,
+        password: password,
+      );
 
-      if (response.user != null) {
+      final user = response.user;
+
+      if (user != null) {
+        final insertResponse = await supabaseDB
+            .from('accounts')
+            .insert({
+              'email': user.email,
+              'userID': user.id,
+            })
+            .select()
+            .single();
+
+        debugPrint("Insert result: $insertResponse");
+
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text(
@@ -86,6 +101,12 @@ class _SignupPage1State extends State<SignupPage1> {
     } on AuthException catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(error.message)),
+      );
+      setState(() => _isLoading = false);
+    } catch (e) {
+      debugPrint("Unexpected error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Something went wrong.')),
       );
       setState(() => _isLoading = false);
     }
