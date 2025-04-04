@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/main.dart';
 import 'package:jcsd_flutter/modals/addemployee.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
@@ -42,7 +44,7 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/leaveRequestList');
+                          context.go('/leaveRequestList');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF00AEEF),
@@ -276,7 +278,7 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
               width: 140,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/profile');
+                  context.go('/profile');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00AEEF),

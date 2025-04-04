@@ -94,6 +94,7 @@ final router = GoRouter(
     GoRoute(
       path: '/accountList',
       builder: (context, state) => const AccountListPage(),
+      routes: []
     ),
     GoRoute(
       path: '/bookingsCalendar',

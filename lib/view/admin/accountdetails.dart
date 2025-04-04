@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/main.dart';
 import 'package:jcsd_flutter/modals/editprofile.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
@@ -36,10 +38,10 @@ class _ProfileAdminViewPageState extends State<ProfileAdminViewPage> {
               children: [
                 Header(
                   title: 'Account Details',
-                  leading: IconButton(
+                    leading: IconButton(
                     icon:
-                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
-                    onPressed: () => Navigator.pop(context),
+                      const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                    onPressed: () => context.go('/accountList'),
                   ),
                 ),
                 Expanded(
