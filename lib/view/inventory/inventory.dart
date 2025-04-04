@@ -163,7 +163,16 @@ class InventoryPage extends ConsumerWidget{
   //Shimmer Row Loading indicator nako hehe
   Widget _buildLoadingIndicator() {
     return Column(
-      children: List.generate(5, (_) => _buildShimmerRow()),
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _buildShimmerRow(),
+        _buildShimmerRow(),
+        _buildShimmerRow(),
+        _buildShimmerRow(),
+        _buildShimmerRow(),
+        _buildShimmerRow(),
+        _buildShimmerRow(),
+      ],
     );
   }
 
@@ -227,57 +236,67 @@ class InventoryPage extends ConsumerWidget{
     return Column(
       children: [
         //First Row: Item Types and Borrowed Items
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            ElevatedButton.icon(
-              onPressed: () => _navigateToItemTypesPage(context),
-              icon: const Icon(Icons.topic_rounded, color: Colors.white),
-              label: const Text('Item Types', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00AEEF)),
-            ),
-            const SizedBox(width: 16),
-            ElevatedButton.icon(
-              onPressed: () => _showBorrowedItemsModal(context),
-              icon: const Icon(Icons.topic_rounded, color: Colors.white),
-              label: const Text('Borrowed Items', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00AEEF)),
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            SizedBox(
-              width: 250,
-              height: 40,
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Search Name/Description....',
-                  prefixIcon: const Icon(Icons.search, size: 20),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+            Row(
+              children: [
+                ElevatedButton.icon(
+                onPressed: () => _navigateToItemTypesPage(context),
+                icon: const Icon(
+                  Icons.topic_rounded, 
+                  color: Colors.white
                 ),
-                onChanged: (searchText) {
-                  ref.read(InventoryNotifierProvider(isVisibleFilter).notifier).searchItems(searchText);
-                },
-              ),
-            ),
-            const SizedBox(width: 16),
-            ElevatedButton.icon(
-              onPressed: () => _showStockInItemModal(context),
-              icon: const Icon(Icons.add_business, color: Colors.white),
-              label: const Text('Stock In', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00AEEF)),
-            ),
-            const SizedBox(width: 16),
-            ElevatedButton.icon(
-              onPressed: () => _showAddItemModal(context, ref),
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text('Add Item', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent),
-            ),
+                label: const Text(
+                  'Item Types', 
+                  style: TextStyle(
+                    color: Colors.white
+                  )
+                ),
+                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00AEEF)),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  onPressed: () => _showBorrowedItemsModal(context),
+                  icon: const Icon(Icons.topic_rounded, color: Colors.white),
+                  label: const Text('Borrowed Items', style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00AEEF)),
+                ),
+                const Spacer(),
+                SizedBox(
+                  width: 250,
+                  height: 40,
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search Name/Description....',
+                      prefixIcon: const Icon(Icons.search, size: 20),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                    ),
+                    onChanged: (searchText) {
+                      ref.read(InventoryNotifierProvider(isVisibleFilter).notifier).searchItems(searchText);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  onPressed: () => _showStockInItemModal(context),
+                  icon: const Icon(Icons.add_business, color: Colors.white),
+                  label: const Text('Stock In', style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00AEEF)),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton.icon(
+                  onPressed: () => _showAddItemModal(context, ref),
+                  icon: const Icon(Icons.add, color: Colors.white),
+                  label: const Text('Add Item', style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent),
+                ),
+              ],
+            )
           ],
         ),
+        
         const SizedBox(height: 16),
         Expanded(
           child: _buildDataTable(context, ref, inventoryState),
@@ -549,7 +568,7 @@ class InventoryPage extends ConsumerWidget{
           ),
         ),
         IconButton(
-          icon: const Icon(Icons.chevron_left),
+          icon: const Icon(Icons.chevron_right),
           tooltip: 'Next Page',
           onPressed: inventoryState.currentPage < inventoryState.totalPages ? () => inventoryNotifierAccess.goToPage(inventoryState.currentPage + 1) : null,
           splashRadius: 20,
@@ -582,7 +601,7 @@ class InventoryPage extends ConsumerWidget{
                   child: SizedBox(
                     width: 200,
                     height: 10,
-                    child: Container(color: Colors.white),
+                    child: Container(color: const Color.fromARGB(255, 94, 157, 208)),
                   ),
                 ),
               ],
