@@ -14,50 +14,20 @@ class _ResetPasswordState extends State<ResetPassword> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+
   bool _isPasswordHidden = true;
   bool _isConfirmPasswordHidden = true;
   bool _isResetting = false;
-  String? _resetCode;
 
   @override
   void initState() {
     super.initState();
+
+    // Optional debug log
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _extractTokenFromUrl();
+      final uri = Uri.base;
+      print("Reset Password URI: ${uri.toString()}");
     });
-  }
-
-  /// Extract reset code and email from URL
-  void _extractTokenFromUrl() async {
-    final uri = Uri.base;
-    print("Extracted URI: ${uri.toString()}"); // Debugging
-
-    final resetCode = uri.queryParameters['code']; // Get reset code only
-
-    if (resetCode == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content:
-              Text('Invalid or missing reset token. Please request a new one.'),
-        ),
-      );
-      return;
-    }
-
-    print("Extracted reset code: $resetCode");
-
-    try {
-      // Exchange the code for a session
-      await supabase.auth.exchangeCodeForSession(resetCode);
-
-      setState(() {
-        _resetCode = resetCode;
-      });
-
-      print("Supabase session set successfully.");
-    } catch (error) {
-      print("Error setting session: $error");
-    }
   }
 
   Future<void> _resetPassword() async {
@@ -65,61 +35,46 @@ class _ResetPasswordState extends State<ResetPassword> {
     final confirmPassword = _confirmPasswordController.text.trim();
 
     if (password.isEmpty || confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields.')),
-      );
+      _showSnackBar('Please fill in all fields.');
       return;
     }
 
     if (password.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Password must be at least 6 characters long.')),
-      );
+      _showSnackBar('Password must be at least 6 characters long.');
       return;
     }
 
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match.')),
-      );
+      _showSnackBar('Passwords do not match.');
       return;
     }
 
-    if (_resetCode == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Invalid reset token. Please request a new one.')),
-      );
+    final currentSession = supabase.auth.currentSession;
+
+    if (currentSession == null) {
+      _showSnackBar(
+          'Session not found. Please use a valid password reset link.');
       return;
     }
 
-    setState(() {
-      _isResetting = true;
-    });
+    setState(() => _isResetting = true);
 
     try {
-      print('Updating password...');
-
       await supabase.auth.updateUser(UserAttributes(password: password));
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Password reset successful! Please log in.')),
-      );
-
-      print('Password reset successful. Redirecting to login...');
+      _showSnackBar('Password reset successful! Please log in.');
       Navigator.pushReplacementNamed(context, '/login');
     } catch (error) {
       print('Error resetting password: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error resetting password: $error')),
-      );
+      _showSnackBar('Error resetting password: $error');
     } finally {
-      setState(() {
-        _isResetting = false;
-      });
+      setState(() => _isResetting = false);
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -151,9 +106,8 @@ class _ResetPasswordState extends State<ResetPassword> {
 
                   return SingleChildScrollView(
                     child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight,
-                      ),
+                      constraints:
+                          BoxConstraints(minHeight: constraints.maxHeight),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -165,7 +119,6 @@ class _ResetPasswordState extends State<ResetPassword> {
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Container(
                                   width: 80,
@@ -174,15 +127,11 @@ class _ResetPasswordState extends State<ResetPassword> {
                                     shape: BoxShape.circle,
                                     color: Colors.white,
                                     border: Border.all(
-                                      color: const Color(0xFF00AEEF),
-                                      width: 4,
-                                    ),
+                                        color: const Color(0xFF00AEEF),
+                                        width: 4),
                                   ),
-                                  child: const Icon(
-                                    Icons.lock,
-                                    size: 50,
-                                    color: Color(0xFF00AEEF),
-                                  ),
+                                  child: const Icon(Icons.lock,
+                                      size: 50, color: Color(0xFF00AEEF)),
                                 ),
                                 const SizedBox(height: 20),
                                 const Text(
@@ -279,16 +228,11 @@ Widget buildPasswordField({
           Text(
             label,
             style: const TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.normal,
-            ),
+                fontFamily: 'NunitoSans', fontWeight: FontWeight.normal),
           ),
           const Text(
             '*',
-            style: TextStyle(
-              color: Colors.red,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.red, fontSize: 14),
           ),
         ],
       ),
