@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_providers.dart';
 
 //Backend Things
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
@@ -16,20 +17,15 @@ class ArchiveItemModal extends ConsumerStatefulWidget {
 }
 
 class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
-  late int _intItemID;
-
-  @override
-  void initState() {
-    super.initState();
-    print('Archive Item - initState()');
-    _intItemID = widget.itemID;
-  }
+  bool _isArchiving = false;
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 400 : screenWidth * 0.9;
-    const double containerHeight = 160;
+    const double containerHeight = 180;
+
+    const bool isVisibleContext = true;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -68,12 +64,12 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
+             Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Center(
                 child: Text(
-                  'Are you sure you want to archive item?',
-                  style: TextStyle(
+                  'Are you sure you want to archive ${widget.itemID.toString()}?',
+                  style: const TextStyle(
                     fontFamily: 'NunitoSans',
                     fontSize: 16,
                   ),
@@ -81,7 +77,7 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
@@ -89,7 +85,7 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: () {
+                      onPressed: _isArchiving ? null : () {
                         Navigator.pop(context);
                       },
                       style: TextButton.styleFrom(
@@ -114,18 +110,25 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () async {
-                        print('Archive Item - Save changes');
-                        try {
-                          final InventoryService updateVisibility =
-                              InventoryService();
-                          await updateVisibility.updateVisibility(
-                              _intItemID, false);
-                          print('Successfully hid the item. $_intItemID');
-                        } catch (err) {
-                          print('Error archiving an item. $_intItemID');
+                      onPressed: _isArchiving ? null : () async {
+                        setState(() {
+                          _isArchiving = true; });
+
+                        try{
+                          await ref.read(InventoryNotifierProvider(isVisibleContext).notifier).setItemVisibility(widget.itemID, false);
+
+                          //Add Notification Status here michael
+
+                          Navigator.pop(context);
+                        }catch(error, stackTrace){
+                          print('Error archiving object. $error \n $stackTrace');
+
+                          //Add failed archiving item notification
+
+                          setState(() {
+                            _isArchiving = false;
+                          });
                         }
-                        Navigator.pop(context);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
@@ -134,14 +137,23 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
                           borderRadius: BorderRadius.circular(5),
                         ),
                       ),
-                      child: const Text(
-                        'Submit',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      child: _isArchiving
+                        ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                        : const Text(
+                          'Archive',
+                          style: TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white
+                          ),
                         ),
-                      ),
                     ),
                   ),
                 ],

@@ -1,9 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:jcsd_flutter/api/global_variables.dart';
 import 'package:jcsd_flutter/backend/date_converter.dart';
 
 ///Inventory Data - using the class that I made to store data
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
 import 'package:jcsd_flutter/backend/modules/audit_logs/audit_services.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_name_id.dart';
 
 // Notes inserted here
 // Dart allows ? as assigned null, added nako here para ma handle sa function if may empty na parameter when called
@@ -31,6 +33,20 @@ class InventoryService {
     } catch (err) {
       print('Error accessing table: $err');
       return null;
+    }
+  }
+
+  Future<bool?> fetchDataIsComplete(int itemID) async {
+    try {
+      final checker = await supabaseDB.from('item_inventory').select().eq('itemID', itemID).maybeSingle();
+
+      if(checker == null){
+        return false;
+      }
+      return true;
+    }catch(error, stackTrace){
+      print('Error accessing table: $error');
+      return false;
     }
   }
 
@@ -202,18 +218,17 @@ class InventoryService {
 
       //For the Search Filter
       if(searchQuery != null && searchQuery.isNotEmpty){
-        final searchText = "%$searchQuery%";
+        final searchText = '%$searchQuery%';
         initialQuery = initialQuery.or(
-          'itemName.ilike.$searchText'
-          'itemDescription.ilike.$searchText'
-          'itemQuantity::text.ilike.$searchText'
+          'itemName.ilike.$searchText,'
+          'itemDescription.ilike.$searchText,'
+          'itemQuantity::text.ilike.$searchText,'
           'supplierID::text.ilike.$searchText'
         );
       }
 
-
       //Pagination
-      final offset = (page-1)*itemsPerPage;
+      final offset = (page - 1 ) * itemsPerPage;
       final limit = offset + itemsPerPage - 1;
 
       //Combined function for both sorting and pagination
@@ -232,6 +247,21 @@ class InventoryService {
 
     } catch (err, stackTrace) {
       print('Error fetching items. $err \n $stackTrace');
+      return [];
+    }
+  }
+
+  Future<List<ItemNameID>> getActiveItemNamesAndID() async {
+    try{
+      final queryResults = await supabaseDB.from('item_inventory').select('itemID, itemName').eq('isVisible', true).order('itemName', ascending: true);
+
+      if(queryResults.isEmpty){
+        return [];
+      }else{
+        return queryResults.map((item) => ItemNameID(itemID: item['itemID'], itemName: item['itemName'])).toList();
+      }
+    }catch(error, stackTrace){  
+      print('Error fetching the active items from the database. \n $error \n $stackTrace');
       return [];
     }
   }
