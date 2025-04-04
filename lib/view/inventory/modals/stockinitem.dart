@@ -162,6 +162,7 @@ class _StockInItemModalState extends ConsumerState<StockInItemModal> {
                           print('Successfully stocked in: $itemID');
                           ToastManager().showToast(context, 'Item "$_selectedItem" stocked in successfully!', Color.fromARGB(255, 0, 143, 19));
                         } catch (err, stackTrace) {
+                          ToastManager().showToast(context, 'Error stocking in item. $err', Color.fromARGB(255, 255, 0, 0));
                           print('Error stocking in item. $err -- $stackTrace');
                         }
                         refreshTables();

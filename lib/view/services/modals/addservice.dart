@@ -223,6 +223,7 @@ class _AddServiceModalState extends ConsumerState<AddServiceModal> {
                             Navigator.pop(context); // To be updated
                           }
                         }catch(err){
+                          ToastManager().showToast(context, 'Error adding service. $err', Color.fromARGB(255, 255, 0, 0));
                           print('Error adding service. $err');
                         }
                       },

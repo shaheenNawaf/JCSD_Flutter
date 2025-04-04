@@ -126,6 +126,7 @@ class _ArchiveServiceModalState extends ConsumerState<ArchiveServiceModal> {
                           print('Successfully archived - $_serviceID');
                           ToastManager().showToast(context, 'Service archived successfully!', Color.fromARGB(255, 0, 143, 19));
                         } catch (err, stackTrace) {
+                          ToastManager().showToast(context, 'Error archiving service: $_serviceID -- $stackTrace', Color.fromARGB(255, 255, 0, 0));
                           print(
                               'Error archiving service: $_serviceID -- $stackTrace');
                         }

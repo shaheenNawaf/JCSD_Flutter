@@ -131,6 +131,7 @@ class _UnarchiveSupplierModalState extends ConsumerState<UnarchiveSupplierModal>
                           print('Successfully restored the supplier. ${_supplierData.supplierName}');
                           ToastManager().showToast(context, 'Supplier "${_supplierData.supplierName}" unarchived successfully!', Color.fromARGB(255, 0, 143, 19));
                         }catch(err){
+                          ToastManager().showToast(context, 'Error UNarchiving an item. $_supplierData', Color.fromARGB(255, 255, 0, 0));
                           print('Error UNarchiving an item. $_supplierData');
                         }
                         Navigator.pop(context);

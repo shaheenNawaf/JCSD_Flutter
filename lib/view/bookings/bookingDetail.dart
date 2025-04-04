@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/main.dart';
 import 'package:jcsd_flutter/modals/additemlist.dart';
 import 'package:jcsd_flutter/modals/bookingrequest.dart';
 import 'package:jcsd_flutter/modals/editbookingdetail.dart';
@@ -213,7 +215,7 @@ class _BookingDetailsState extends State<BookingDetails> {
                           const Spacer(),
                           ElevatedButton(
                             onPressed: () async {
-                              Navigator.pushNamed(context, '/bookingReceipt');
+                              context.go('/bookingReceipt');
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF00AEEF),

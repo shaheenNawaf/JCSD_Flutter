@@ -127,6 +127,7 @@ class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
                           Navigator.pop(context);
                           ToastManager().showToast(context, 'Item unarchived successfully!', Color.fromARGB(255, 0, 143, 19));
                         }catch(err){
+                          ToastManager().showToast(context, 'Error changing visibility of the item. $_itemData', Color.fromARGB(255, 255, 0, 0));
                           print('Error changing visibility of the item. $_itemData');
                         }
                         refreshTables();

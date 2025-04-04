@@ -1,12 +1,18 @@
 // ignore_for_file: library_private_types_in_public_api, unused_import
 
 import 'package:flutter/material.dart';
+import 'package:jcsd_flutter/view/generic/notification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 import 'dart:async';
 
 class EmailVerification extends StatefulWidget {
-  const EmailVerification({super.key});
+  final String? email;
+  
+  const EmailVerification({
+    super.key,
+    required this.email,
+  });
 
   @override
   _EmailVerificationState createState() => _EmailVerificationState();
@@ -15,29 +21,12 @@ class EmailVerification extends StatefulWidget {
 class _EmailVerificationState extends State<EmailVerification> {
   final SupabaseClient supabase = Supabase.instance.client;
   bool _isResending = false;
-  String? _email;
   int _countdown = 0;
   Timer? _timer;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final args = ModalRoute.of(context)?.settings.arguments;
-    if (args is String) {
-      setState(() {
-        _email = args;
-      });
-    }
-  }
 
-  Future<void> _resendVerificationEmail() async {
-    if (_email == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No email found. Please sign up again.')),
-      );
-      return;
-    }
-
+Future<void> _resendVerificationEmail() async {
     if (_isResending || _countdown > 0) return;
 
     setState(() {
@@ -48,14 +37,9 @@ class _EmailVerificationState extends State<EmailVerification> {
     try {
       await supabase.auth.resend(
         type: OtpType.signup,
-        email: _email!,
+        email: widget.email,
       );
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Verification email resent! Check your inbox.')),
-      );
-
+      ToastManager().showToast(context, 'Verification email resent! Check your inbox.', Color.fromARGB(255, 0, 143, 19));
       _timer?.cancel();
 
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -71,9 +55,7 @@ class _EmailVerificationState extends State<EmailVerification> {
         }
       });
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error resending verification email: $error')),
-      );
+      ToastManager().showToast(context, 'Error resending verification email: $error', Color.fromARGB(255, 255, 0, 0));
       setState(() {
         _isResending = false;
         _countdown = 0;

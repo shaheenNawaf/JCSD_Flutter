@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/main.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 
 class HomeView extends StatelessWidget {
@@ -99,7 +101,7 @@ class HomeView extends StatelessWidget {
                             /* Integrate backend here in such a way that it should not allow the user
                             to proceed to the booking page unless they are logged in */
                             onPressed: () {
-                              Navigator.pushNamed(context, '/booking1');
+                              context.go('/booking1');
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor:

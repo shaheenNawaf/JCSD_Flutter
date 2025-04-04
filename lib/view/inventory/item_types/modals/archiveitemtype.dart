@@ -125,6 +125,7 @@ class _ArchiveItemTypeModalState extends ConsumerState<ArchiveItemTypeModal> {
                           print('Successfully ARCHIVED: $_intItemTypeID');
                           ToastManager().showToast(context, 'Item Type archived successfully!', Color.fromARGB(255, 0, 143, 19));
                         } catch (err, stackTrace) {
+                          ToastManager().showToast(context, 'Archived Item Type failed. $err -- $stackTrace', Color.fromARGB(255, 0, 143, 19));
                           print('Archived Item Type failed. $err -- $stackTrace');
                         }
                         refreshTables();

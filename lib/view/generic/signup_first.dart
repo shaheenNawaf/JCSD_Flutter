@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/main.dart';
+import 'package:jcsd_flutter/view/generic/notification.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -42,26 +45,20 @@ class _SignupPage1State extends State<SignupPage1> {
     final repeatPassword = _repeatPasswordController.text.trim();
 
     if (email.isEmpty || password.isEmpty || repeatPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields.')),
-      );
+
+      ToastManager().showToast(context, 'Please fill in all fields.', Color.fromARGB(255, 255, 0, 0));
       setState(() => _isLoading = false);
       return;
     }
 
     if (password.length < 6) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Password must be at least 6 characters.')),
-      );
+      ToastManager().showToast(context, 'Password must be at least 6 characters.', Color.fromARGB(255, 255, 0, 0));
       setState(() => _isLoading = false);
       return;
     }
 
     if (password != repeatPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match.')),
-      );
+      ToastManager().showToast(context, 'Passwords do not match.', Color.fromARGB(255, 255, 0, 0));
       setState(() => _isLoading = false);
       return;
     }
@@ -71,22 +68,18 @@ class _SignupPage1State extends State<SignupPage1> {
           await supabaseDB.auth.signUp(email: email, password: password);
 
       if (response.user != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  'Signup successful! Check your email for verification.')),
-        );
+        ToastManager().showToast(context, 'Signup successful! Check your email for verification.', Color.fromARGB(255, 0, 143, 19));
 
         await supabaseDB.auth.signOut();
 
         if (mounted) {
-          Navigator.pushNamed(context, '/emailVerification', arguments: email);
+          context.push(
+            '/emailVerification?email=${Uri.encodeComponent(email)}',
+          );
         }
       }
     } on AuthException catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error.message)),
-      );
+      ToastManager().showToast(context, error.message, Color.fromARGB(255, 255, 0, 0));
       setState(() => _isLoading = false);
     }
   }
@@ -277,7 +270,7 @@ class _SignupPage1State extends State<SignupPage1> {
                                     ),
                                     TextButton(
                                       onPressed: () {
-                                        Navigator.pushNamed(context, '/login');
+                                        context.go('/login');
                                       },
                                       child: const Text(
                                         'Login here',

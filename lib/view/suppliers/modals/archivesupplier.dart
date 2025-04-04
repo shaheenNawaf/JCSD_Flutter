@@ -131,6 +131,7 @@ class _ArchiveSupplierModalState extends ConsumerState<ArchiveSupplierModal> {
                           print('Archived supplier: ${_supplierData.supplierName}');
                           ToastManager().showToast(context, 'Supplier "${_supplierData.supplierName}" archived successfully!', Color.fromARGB(255, 0, 143, 19));
                         }catch(err){
+                          ToastManager().showToast(context, 'Error archiving supplier. $err', Color.fromARGB(255, 255, 0, 0));
                           print('Error archiving supplier. $err');
                         }
                         refreshTables();

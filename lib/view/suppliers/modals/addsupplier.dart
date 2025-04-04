@@ -196,6 +196,7 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
                             ToastManager().showToast(context, 'Supplier "$supplierName" added successfully!', Color.fromARGB(255, 0, 143, 19));
                           }
                         }catch(err){
+                          ToastManager().showToast(context, 'Error adding supplier. $err', Color.fromARGB(255, 255, 0, 0));
                           print('Error adding supplier. $err');
                         }
                         ref.invalidate(fetchAvailableSuppliers);

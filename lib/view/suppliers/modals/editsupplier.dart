@@ -174,6 +174,7 @@ class _EditSupplierModalState extends ConsumerState<EditSupplierModal> {
                               supplierAddress);
                           ToastManager().showToast(context, 'Supplier "$supplierName" edited successfully!', Color.fromARGB(255, 0, 143, 19));
                         } catch (err) {
+                          ToastManager().showToast(context, 'Error updating supplier details. $err', Color.fromARGB(255, 255, 0, 0));
                           print('Tried updating supplier details. $err');
                         }
                         ref.invalidate(fetchAvailableSuppliers);

@@ -122,13 +122,8 @@ class _UnarchiveServiceModalState extends ConsumerState<UnarchiveServiceModal> {
                           refreshTables();
                           ToastManager().showToast(context, 'Service unarchived successfully!', Color.fromARGB(255, 0, 143, 19));
                         } catch (err) {
+                          ToastManager().showToast(context, 'Error archiving ${widget.servicesData.serviceName}', Color.fromARGB(255, 255, 0, 0));
                           print('Error unarchiving the service. $err');
-                          showDialog(
-                              context: context,
-                              builder: (context) => ErrorDialog(
-                                  title:
-                                      'Error archiving ${widget.servicesData.serviceName}',
-                                  content: 'Please try again. $err'));
                         }
                         Navigator.pop(context);
                       },

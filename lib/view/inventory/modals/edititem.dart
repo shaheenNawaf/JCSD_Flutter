@@ -260,6 +260,7 @@ class _EditItemModalState extends ConsumerState<EditItemModal> {
                               itemPrice);
                           ToastManager().showToast(context, 'Item "$itemName" edited successfully!', Color.fromARGB(255, 0, 143, 19));
                         } catch (err) {
+                          ToastManager().showToast(context, 'Tried updating item details. $err', Color.fromARGB(255, 255, 0, 0));
                           print('Tried updating item details. $err');
                         }
                         ref.invalidate(fetchActive);

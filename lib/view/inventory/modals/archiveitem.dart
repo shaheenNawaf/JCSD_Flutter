@@ -131,6 +131,7 @@ class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
                           print('Successfully hid the item. ${_itemData.itemName}');
                           ToastManager().showToast(context, 'Item "${_itemData.itemName}" archived successfully!', Color.fromARGB(255, 0, 143, 19));
                         } catch (err) {
+                          ToastManager().showToast(context, 'Error archiving an item. $_itemData', Color.fromARGB(255, 255, 0, 0));
                           print('Error archiving an item. $_itemData');
                         }
                         refreshTables();

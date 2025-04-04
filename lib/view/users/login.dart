@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, unused_import
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/view/generic/notification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
@@ -29,9 +30,7 @@ class _LoginState extends State<Login> {
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email and password cannot be empty!')),
-      );
+      ToastManager().showToast(context, 'Email and password cannot be empty!', Color.fromARGB(255, 255, 0, 0));
       setState(() {
         _isLoading = false;
       });
@@ -45,21 +44,14 @@ class _LoginState extends State<Login> {
       );
 
       if (response.user != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Login successful: ${response.user!.email}')),
-        );
         ToastManager().showToast(context, 'Welcome! "${response.user!.email}" logged in successfully!', Color.fromARGB(255, 0, 143, 19));
-        Navigator.pushReplacementNamed(context, '/dashboard');
+        context.go('/dashboard');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Login failed. Check your credentials.')),
-        );
+        ToastManager().showToast(context, 'Login failed. Check your credentials.', Color.fromARGB(255, 255, 0, 0));
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login error: $error')),
-      );
+      ToastManager().showToast(context, 'Login failed. Check your credentials.', Color.fromARGB(255, 255, 0, 0));
+      print('Error during login: $error');
     } finally {
       setState(() {
         _isLoading = false;
@@ -79,19 +71,13 @@ class _LoginState extends State<Login> {
       final session = supabase.auth.currentSession;
 
       if (session != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Google Sign-In successful')),
-        );
-        Navigator.pushReplacementNamed(context, '/dashboard');
+        ToastManager().showToast(context, 'Google Sign-In successful', Color.fromARGB(255, 0, 143, 19));
+        context.go('/dashboard');
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Google sign-in failed. Try again.')),
-        );
+        ToastManager().showToast(context, 'Google sign-in failed. Try again.', Color.fromARGB(255, 255, 0, 0));
       }
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Google Sign-In Error: $error')),
-      );
+      ToastManager().showToast(context, 'Google Sign-In error: $error', Color.fromARGB(255, 255, 0, 0));
     }
   }
 
@@ -200,8 +186,7 @@ class _LoginState extends State<Login> {
                                     ),
                                     TextButton(
                                       onPressed: () {
-                                        Navigator.pushNamed(
-                                            context, '/forgotPassword');
+                                        context.go('/forgotPassword');
                                       },
                                       child: const Text(
                                         'Forgot your details?',
@@ -282,8 +267,7 @@ class _LoginState extends State<Login> {
                                     const Text("Don’t have an Account?"),
                                     TextButton(
                                       onPressed: () {
-                                        Navigator.pushNamed(
-                                            context, '/signup1');
+                                        context.go('/signup1');
                                       },
                                       child: const Text(
                                         'Register',

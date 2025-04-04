@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/view/generic/email_verification.dart';
 import 'package:jcsd_flutter/view/generic/forgot_password.dart';
 import 'package:jcsd_flutter/view/generic/reset_password.dart';
@@ -43,10 +44,190 @@ import 'package:jcsd_flutter/view/client/booking_second.dart';
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
+final router = GoRouter(
+  initialLocation: '/',
+  debugLogDiagnostics: true,
+  routes: [
+    GoRoute(
+      path: '/',
+      redirect: (context, state) => '/home',
+    ),
+    GoRoute(
+      path: '/home',
+      builder: (context, state) => const HomeView(),
+    ),
+    GoRoute(
+      path: '/login',
+      builder: (context, state) => const Login(),
+    ),
+    GoRoute(
+      path: '/signup1',
+      builder: (context, state) => const SignupPage1(),
+    ),
+    GoRoute(
+      path: '/signup2',
+      builder: (context, state) => const SignupPage2(),
+    ),
+    GoRoute(
+      path: '/emailVerification',
+      builder: (context, state) {
+        final email = state.uri.queryParameters['email'];
+        return EmailVerification(email: email);
+      },
+    ),
+    GoRoute(
+      path: '/forgotPassword',
+      builder: (context, state) => const ForgotPassword(),
+    ),
+    GoRoute(
+      path: '/resetPassword',
+      builder: (context, state) => const ResetPassword(),
+    ),
+    GoRoute(
+      path: '/error',
+      builder: (context, state) => const ErrorPage(),
+    ),
+    GoRoute(
+      path: '/accessRestricted',
+      builder: (context, state) => const AccessRestrictedPage(),
+    ),
+    GoRoute(
+      path: '/accountList',
+      builder: (context, state) => const AccountListPage(),
+    ),
+    GoRoute(
+      path: '/bookingsCalendar',
+      builder: (context, state) => const BookingCalendarPage(),
+    ),
+    GoRoute(
+      path: '/employeeList',
+      builder: (context, state) => const EmployeeListPage(),
+    ),
+    GoRoute(
+      path: '/payroll',
+      builder: (context, state) => const Payroll(),
+    ),
+    GoRoute(
+      path: '/accountDetails',
+      builder: (context, state) => const ProfileAdminViewPage(),
+    ),
+    GoRoute(
+      path: '/leaveRequestList',
+      builder: (context, state) => const LeaveRequestList(),
+    ),
+    GoRoute(
+      path: '/booking1',
+      builder: (context, state) => const ClientBooking1(),
+    ),
+    GoRoute(
+      path: '/booking2',
+      builder: (context, state) => const ClientBooking2(),
+    ),
+    GoRoute(
+      path: '/profileClient',
+      builder: (context, state) => const ProfilePageClient(),
+    ),
+    GoRoute(
+      path: '/employeeLogin',
+      builder: (context, state) => const LoginEmployee(),
+    ),
+    GoRoute(
+      path: '/dashboard',
+      builder: (context, state) => const DashboardPage(),
+    ),
+    GoRoute(
+      path: '/inventory',
+      builder: (context, state) => const InventoryPage(),
+    ),
+    GoRoute(
+      path: '/suppliers',
+      builder: (context, state) => const SupplierPage(),
+    ),
+    GoRoute(
+      path: '/supplierArchive',
+      builder: (context, state) => const SupplierArchivePage(),
+    ),
+    GoRoute(
+      path: '/bookings',
+      builder: (context, state) => const BookingsPage(),
+    ),
+    GoRoute(
+      path: '/transactions',
+      builder: (context, state) => const TransactionsPage(),
+    ),
+    GoRoute(
+      path: '/archiveList',
+      builder: (context, state) => const ArchiveListPage(),
+    ),
+    GoRoute(
+      path: '/orderList',
+      builder: (context, state) => const OrderListPage(),
+    ),
+    GoRoute(
+      path: '/auditLog',
+      builder: (context, state) => const AuditLogPage(),
+    ),
+    GoRoute(
+      path: '/services',
+      builder: (context, state) => const ServicesPage(),
+    ),
+    GoRoute(
+      path: '/servicesArchive',
+      builder: (context, state) => const ServicesArchivePage(),
+    ),
+    GoRoute(
+      path: '/profile',
+      builder: (context, state) => const ProfilePage(),
+    ),
+    GoRoute(
+      path: '/leaveRequest',
+      builder: (context, state) => const LeaveRequest(),
+    ),
+    GoRoute(
+      path: '/bookingDetail',
+      builder: (context, state) => const BookingDetails(),
+    ),
+    GoRoute(
+      path: '/bookingReceipt',
+      builder: (context, state) => const BookingReceipt(),
+    ),
+    GoRoute(
+      path: '/payslip',
+      builder: (context, state) => const Payslip(),
+    ),
+    GoRoute(
+      path: '/itemTypes',
+      builder: (context, state) => const ItemTypesPage(),
+    ),
+  ],
+  errorBuilder: (context, state) => const ErrorPage(),
+  redirect: (context, state) {
+    final session = Supabase.instance.client.auth.currentSession;
+    final user = session?.user;
+
+    final isPublicRoute = ['/home'].contains(state.uri.path);
+    final isAuthRoute = ['/login', '/signup1', '/signup2', '/forgotPassword','/emailVerification'].contains(state.uri.path);
+    
+    if (isPublicRoute) {
+      return null;
+    }
+
+    if (user == null && !isAuthRoute) {
+      print(user);
+      return '/login';
+    }
+    
+    if (user != null && isAuthRoute) {
+      return '/home';
+    }
+    
+    return null;
+  },
+);
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Supabase before running the app
   await Supabase.initialize(
     url: returnAccessURL(),
     anonKey: returnAnonKey(),
@@ -67,12 +248,11 @@ class _MainAppState extends State<MainApp> {
   void initState() {
     super.initState();
 
-    // Listen for authentication state changes
     Supabase.instance.client.auth.onAuthStateChange.listen((event) {
       if (event.event == AuthChangeEvent.passwordRecovery) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            Navigator.of(context).pushReplacementNamed('/resetPassword');
+            router.go('/resetPassword');
           }
         });
       }
@@ -83,7 +263,6 @@ class _MainAppState extends State<MainApp> {
     });
   }
 
-  /// Handles deep link for password reset
   void _handleDeepLink() async {
     final Uri uri = Uri.base;
     print("Deep Link URI: ${uri.toString()}");
@@ -94,8 +273,7 @@ class _MainAppState extends State<MainApp> {
       print("Extracted reset code: $resetCode");
 
       try {
-        final response =
-            await Supabase.instance.client.auth.setSession(resetCode);
+        final response = await Supabase.instance.client.auth.setSession(resetCode);
 
         if (response.user == null) {
           throw Exception("User session not found. Token might be expired.");
@@ -103,7 +281,7 @@ class _MainAppState extends State<MainApp> {
 
         print("Session set successfully, redirecting to Reset Password page.");
         if (mounted) {
-          Navigator.of(context).pushReplacementNamed('/resetPassword');
+          router.go('/resetPassword');
         }
       } catch (error) {
         print("Error setting session: $error");
@@ -115,17 +293,11 @@ class _MainAppState extends State<MainApp> {
 
   @override
   Widget build(BuildContext context) {
-    final session = Supabase.instance.client.auth.currentSession;
-    final user = session?.user;
-
-    print('Checking Authentication State...');
-    print('Current Authenticated User: ${user?.email ?? "No user logged in"}');
-
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'JCSD',
       scaffoldMessengerKey: scaffoldMessengerKey,
-      initialRoute: user == null ? '/login' : '/home',
+      routerConfig: router,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF00AEEF),
@@ -139,44 +311,6 @@ class _MainAppState extends State<MainApp> {
           },
         ),
       ),
-      routes: {
-        '/home': (context) => const HomeView(),
-        '/login': (context) => const Login(),
-        '/signup1': (context) => const SignupPage1(),
-        '/signup2': (context) => const SignupPage2(),
-        '/emailVerification': (context) => const EmailVerification(),
-        '/forgotPassword': (context) => const ForgotPassword(),
-        '/resetPassword': (context) => const ResetPassword(),
-        '/error': (context) => const ErrorPage(),
-        '/accessRestricted': (context) => const AccessRestrictedPage(),
-        '/accountList': (context) => const AccountListPage(),
-        '/bookingsCalendar': (context) => const BookingCalendarPage(),
-        '/employeeList': (context) => const EmployeeListPage(),
-        '/payroll': (context) => const Payroll(),
-        '/accountDetails': (context) => const ProfileAdminViewPage(),
-        '/leaveRequestList': (context) => const LeaveRequestList(),
-        '/booking1': (context) => const ClientBooking1(),
-        '/booking2': (context) => const ClientBooking2(),
-        '/profileClient': (context) => const ProfilePageClient(),
-        '/employeeLogin': (context) => const LoginEmployee(),
-        '/dashboard': (context) => const DashboardPage(),
-        '/inventory': (context) => const InventoryPage(),
-        '/suppliers': (context) => const SupplierPage(),
-        '/supplierArchive': (context) => const SupplierArchivePage(),
-        '/bookings': (context) => const BookingsPage(),
-        '/transactions': (context) => const TransactionsPage(),
-        '/archiveList': (context) => const ArchiveListPage(),
-        '/orderList': (context) => const OrderListPage(),
-        '/auditLog': (context) => const AuditLogPage(),
-        '/services': (context) => const ServicesPage(),
-        '/servicesArchive': (context) => const ServicesArchivePage(),
-        '/profile': (context) => const ProfilePage(),
-        '/leaveRequest': (context) => const LeaveRequest(),
-        '/bookingDetail': (context) => const BookingDetails(),
-        '/bookingReceipt': (context) => const BookingReceipt(),
-        '/payslip': (context) => const Payslip(),
-        '/itemTypes': (context) => const ItemTypesPage(),
-      },
     );
   }
 }

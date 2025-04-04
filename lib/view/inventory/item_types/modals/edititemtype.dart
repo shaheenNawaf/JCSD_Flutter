@@ -151,6 +151,7 @@ class _EditItemTypeModalState extends ConsumerState<EditItemTypeModal> {
                           print(widget.typeID);
                           ToastManager().showToast(context, 'Item "$typeName" edited successfully!', Color.fromARGB(255, 0, 143, 19));
                         }catch(err){
+                          ToastManager().showToast(context, 'Error in updating item type. $err', Color.fromARGB(255, 255, 0, 0));
                           print('Error in updating item type. $err');
                         }
                         refreshTables();

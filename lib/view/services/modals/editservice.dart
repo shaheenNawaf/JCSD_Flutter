@@ -165,6 +165,7 @@ class _EditServiceModalState extends ConsumerState<EditServiceModal> {
                           Navigator.pop(context);
                           ToastManager().showToast(context, 'Service "$serviceName" edited successfully!', Color.fromARGB(255, 0, 143, 19));
                         }catch(err){
+                          ToastManager().showToast(context, 'Error editing service. $err', Color.fromARGB(255, 255, 0, 0));
                           print('Error editing service. $err');
                         }
                       },

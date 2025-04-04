@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
@@ -306,7 +307,7 @@ class _BookingsPageState extends State<BookingsPage> {
               width: 140,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/bookingDetail');
+                  context.go('/bookingDetail');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00AEEF),
