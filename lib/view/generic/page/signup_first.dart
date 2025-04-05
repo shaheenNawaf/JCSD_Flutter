@@ -82,6 +82,7 @@ class _SignupPage1State extends State<SignupPage1> {
             .single();
 
         debugPrint("Insert result: $insertResponse");
+      }
 
       if (response.user != null) {
         ToastManager().showToast(context, 'Signup successful! Check your email for verification.', Color.fromARGB(255, 0, 143, 19));
@@ -94,7 +95,8 @@ class _SignupPage1State extends State<SignupPage1> {
           );
         }
       }
-    } on AuthException catch (error) {
+    } 
+    on AuthException catch (error) {
       ToastManager().showToast(context, error.message, Color.fromARGB(255, 255, 0, 0));
       setState(() => _isLoading = false);
     } catch (e) {
@@ -413,4 +415,5 @@ class _SignupPage1State extends State<SignupPage1> {
       ],
     );
   }
+}
 }

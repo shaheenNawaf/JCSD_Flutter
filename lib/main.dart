@@ -1,8 +1,20 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:jcsd_flutter/view/generic/email_verification.dart';
+import 'package:jcsd_flutter/api/supa_details.dart';
+import 'package:jcsd_flutter/others/transition.dart';
+import 'package:jcsd_flutter/view/bookings/booking_detail.dart';
+import 'package:jcsd_flutter/view/bookings/booking_receipt.dart';
+import 'package:jcsd_flutter/view/employee/leave_requests.dart';
+import 'package:jcsd_flutter/view/employee/login_employee.dart';
 import 'package:jcsd_flutter/view/generic/forgot_password.dart';
+import 'package:jcsd_flutter/view/generic/page/access_restricted_page.dart';
+import 'package:jcsd_flutter/view/generic/page/email_verification.dart';
+import 'package:jcsd_flutter/view/generic/page/error_page.dart';
+import 'package:jcsd_flutter/view/generic/page/home_view.dart';
+import 'package:jcsd_flutter/view/generic/page/signup_first.dart';
 import 'package:jcsd_flutter/view/generic/reset_password.dart';
 import 'package:jcsd_flutter/view/admin/accountdetails.dart';
 import 'package:jcsd_flutter/view/admin/bookingcalendar.dart';
@@ -10,6 +22,7 @@ import 'package:jcsd_flutter/view/admin/leaverequestlist.dart';
 import 'package:jcsd_flutter/view/admin/payroll.dart';
 import 'package:jcsd_flutter/view/client/profile_client.dart';
 import 'package:jcsd_flutter/view/employee/dashboard.dart';
+import 'package:jcsd_flutter/view/order_item/order_list.dart';
 import 'package:jcsd_flutter/view/services/services.dart';
 import 'package:jcsd_flutter/view/services/services_archive.dart';
 import 'package:jcsd_flutter/view/inventory/item_types/item_types.dart';
@@ -28,11 +41,13 @@ import 'package:jcsd_flutter/view/admin/accountlist.dart';
 import 'package:jcsd_flutter/view/admin/employeelist.dart';
 import 'package:jcsd_flutter/view/client/booking_first.dart';
 import 'package:jcsd_flutter/view/client/booking_second.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
 final router = GoRouter(
+  refreshListenable: GoRouterRefreshStream(Supabase.instance.client.auth.onAuthStateChange),
   initialLocation: '/',
   debugLogDiagnostics: true,
   routes: [
@@ -85,7 +100,7 @@ final router = GoRouter(
       routes: <GoRoute>[
         GoRoute(
           path: 'accountDetail',
-          builder: (context, state) => ProfileAdminViewPage(),
+          builder: (context, state) => const ProfileAdminViewPage(),
         )
       ]
     ),
@@ -99,19 +114,19 @@ final router = GoRouter(
       routes: <GoRoute>[
         GoRoute(
           path: 'leaveRequestList',
-          builder: (context, state) => LeaveRequestList(),
+          builder: (context, state) => const LeaveRequestList(),
         ),
         GoRoute(
           path: 'profile',
-          builder: (context, state) => ProfilePage(),
+          builder: (context, state) => const ProfilePage(),
           routes: <GoRoute>[
             GoRoute(
               path: 'payslip',
-              builder: (context, state) => Payslip(),
+              builder: (context, state) => const Payslip(),
             ),
             GoRoute(
               path: 'leaveRequest',
-              builder: (context, state) => LeaveRequest(),
+              builder: (context, state) => const LeaveRequest(),
             )
           ]
         )
@@ -199,29 +214,101 @@ final router = GoRouter(
     ),
   ],
   errorBuilder: (context, state) => const ErrorPage(),
-  redirect: (context, state) {
+  redirect: (context, state) async{
+    try{
     final session = Supabase.instance.client.auth.currentSession;
     final user = session?.user;
+    final loggedIn = user != null;
+    final requestedLocation = state.uri.toString();
+    final authRoutes = ['/login', '/signup1', '/forgotPassword', '/emailVerification'];
+    final profileCompletionRoute = '/signup2';
+    final isGoingToAuthRoute = authRoutes.contains(requestedLocation);
+    final isGoingToProfileCompletion = requestedLocation == profileCompletionRoute;
+    
+    Future<bool> isProfileIncomplete(String userId) async {
+      try {
+        final data = await Supabase.instance.client
+          .from('accounts')
+          .select('firstName, middleName, lastName, birthDate, address, city, province, country, zipCode, contactNumber') // Select only needed fields
+          .eq('userID', userId)
+          .maybeSingle();
 
-    final isPublicRoute = ['/home'].contains(state.uri.path);
-    final isAuthRoute = ['/login', '/signup1', '/signup2', '/forgotPassword','/emailVerification'].contains(state.uri.path);
-    
-    if (isPublicRoute) {
-      return null;
+        bool isBlank(dynamic val) =>
+        val == null || (val is String && val.trim().isEmpty);
+
+        final requiredFields = [
+          'firstName',
+          'middleName', 
+          'lastName', 
+          'birthDate', 
+          'address',
+          'city', 
+          'province', 
+          'country', 
+          'zipCode', 
+          'contactNumber',
+        ];
+
+        final isIncomplete =
+            data == null || requiredFields.any((field) => isBlank(data[field]));
+
+        return isIncomplete;
+
+      } catch (e) {
+        debugPrint("Redirect profile check error: $e");
+        return true;
+      }
     }
 
-    if (user == null && !isAuthRoute) {
-      print(user);
-      return '/login';
+    if (!loggedIn) {
+      if (isGoingToAuthRoute || isGoingToProfileCompletion) {
+        return null;
+      } else {
+        return '/login';
+      }
     }
-    
-    if (user != null && isAuthRoute) {
-      return '/home';
+
+    if (loggedIn) {
+        final bool profileIsIncomplete = await isProfileIncomplete(user.id);
+
+        if (profileIsIncomplete) {
+          if (!isGoingToProfileCompletion) {
+            return profileCompletionRoute;
+          } else {
+            return null;
+          }
+        }
+        else {
+          if (isGoingToAuthRoute || isGoingToProfileCompletion) {
+             return '/home';
+          } else {
+             return null;
+          }
+        }
     }
-    
     return null;
+  }
+  catch (e) {
+    debugPrint("Redirect error: $e");
+    return '/error';
+  }
   },
 );
+
+class GoRouterRefreshStream extends ChangeNotifier {
+  late final StreamSubscription<dynamic> _subscription;
+
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    notifyListeners();
+    _subscription = stream.asBroadcastStream().listen((_) => notifyListeners());
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -241,85 +328,14 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
-
-  @override
-  void initState() {
-    super.initState();
-
-    Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
-      final user = data.session?.user;
-
-      if (user == null) {
-        _navigatorKey.currentState?.pushReplacementNamed('/login');
-        return;
-      }
-
-      await _redirectUser(user.id);
-    });
-
-    // Initial load (when user is already logged in)
-    final currentUser = Supabase.instance.client.auth.currentUser;
-    if (currentUser != null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _redirectUser(currentUser.id);
-      });
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _navigatorKey.currentState?.pushReplacementNamed('/login');
-      });
-    }
-  }
-
-  Future<void> _redirectUser(String userID) async {
-    try {
-      final data = await Supabase.instance.client
-          .from('accounts')
-          .select()
-          .eq('userID', userID)
-          .maybeSingle();
-
-      bool isBlank(dynamic val) =>
-          val == null || (val is String && val.trim().isEmpty);
-
-      final requiredFields = [
-        'firstName',
-        'middleName',
-        'lastName',
-        'birthDate',
-        'address',
-        'city',
-        'province',
-        'country',
-        'zipCode',
-        'contactNumber',
-      ];
-
-      final isIncomplete =
-          data == null || requiredFields.any((field) => isBlank(data[field]));
-
-      final currentRoute =
-          ModalRoute.of(_navigatorKey.currentContext!)?.settings.name;
-
-      final shouldRedirectTo = isIncomplete ? '/signup2' : '/home';
-
-      if (currentRoute != shouldRedirectTo) {
-        _navigatorKey.currentState?.pushReplacementNamed(shouldRedirectTo);
-      }
-    } catch (e) {
-      debugPrint("Redirect error: $e");
-      _navigatorKey.currentState?.pushReplacementNamed('/signup2');
-    }
-  }
-
+  
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      navigatorKey: _navigatorKey,
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'JCSD',
       scaffoldMessengerKey: scaffoldMessengerKey,
-      routerConfig: router,
+      routerDelegate: router.routerDelegate,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF00AEEF),
