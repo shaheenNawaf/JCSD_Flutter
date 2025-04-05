@@ -7,7 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 //Backend Imports
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_providers.dart';
 
 class EditItemTypeModal extends ConsumerStatefulWidget {
   final ItemTypesData typeData;

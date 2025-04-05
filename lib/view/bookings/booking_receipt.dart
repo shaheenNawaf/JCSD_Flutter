@@ -4,8 +4,6 @@
 import 'package:flutter/material.dart';
 // import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
-import 'dart:html' as html;
-import 'dart:typed_data';
 import 'package:pdf/widgets.dart' as pw;
 // import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
@@ -67,12 +65,7 @@ Future<void> generatePdfReceipt() async {
       ),
     ),
   );
-
-  final Uint8List pdfData = await pdf.save();
-  final blob = html.Blob([pdfData], 'application/pdf');
-  final url = html.Url.createObjectUrlFromBlob(blob);
-
-  html.Url.revokeObjectUrl(url);
+  //Add PDF Generator Function
 }
 
 class _BookingReceiptState extends State<BookingReceipt> {
@@ -122,7 +115,7 @@ class _WebView extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),

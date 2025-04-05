@@ -22,7 +22,7 @@ class ErrorPage extends StatelessWidget {
           ),
           Positioned.fill(
             child: Container(
-              color: Colors.black.withOpacity(0.7),
+              color: Colors.black.withValues(alpha: 0.7),
             ),
           ),
           Center(

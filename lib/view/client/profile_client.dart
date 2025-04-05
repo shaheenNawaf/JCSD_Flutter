@@ -578,7 +578,7 @@ class _ProfilePageClientState extends State<ProfilePageClient> {
                     'assets/images/logo.png',
                     height: 50,
                   ),
-                  Spacer(),
+                  const Spacer(),
                   if (MediaQuery.of(context).size.width <= 600)
                     IconButton(
                       icon: const Icon(Icons.close),
