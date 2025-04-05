@@ -39,30 +39,3 @@ class InventoryState {
     );
   }
 }
-
-// ----- NOTES ----- //
-// ?? -- Null-aware, used to provide default values, acts like an if-else statement
-
-// enum SortState {
-//   itemIDAscending,
-//   itemIDDesending,
-//   itemNameAscending,
-//   itemNameDesending,
-//   itemTypeAscending,
-//   itemTypeDescending,
-//   priceAscending,
-//   priceDescending,
-//   supplierAscending,
-//   supplierDescending,
-//   quantityAscending,
-//   quantityDescending,
-//   none
-// }
-
-// enum SortColumn {
-//   itemID,
-//   itemName,
-//   supplier,
-//   quantity,
-//   none,
-// }

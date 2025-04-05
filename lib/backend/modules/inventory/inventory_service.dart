@@ -38,13 +38,17 @@ class InventoryService {
 
   Future<bool?> fetchDataIsComplete(int itemID) async {
     try {
-      final checker = await supabaseDB.from('item_inventory').select().eq('itemID', itemID).maybeSingle();
+      final checker = await supabaseDB
+          .from('item_inventory')
+          .select()
+          .eq('itemID', itemID)
+          .maybeSingle();
 
-      if(checker == null){
+      if (checker == null) {
         return false;
       }
       return true;
-    }catch(error, stackTrace){
+    } catch (error, stackTrace) {
       print('Error accessing table: $error');
       return false;
     }
@@ -161,29 +165,25 @@ class InventoryService {
     }
   }
 
-  Future<int> totalItemCount({
-    required bool isVisible,
-    String? searchQuery
-  }) async {
-    try{
+  Future<int> totalItemCount(
+      {required bool isVisible, String? searchQuery}) async {
+    try {
       var initialQuery = supabaseDB.from('item_inventory').select();
 
       //Other filters
       initialQuery = initialQuery.eq('isVisible', isVisible);
       //For the Search Filter
-        if(searchQuery != null && searchQuery.isNotEmpty){
-          final searchText = "%$searchQuery%";
-          initialQuery = initialQuery.or(
-            'itemName.ilike.$searchText'
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        final searchText = "%$searchQuery%";
+        initialQuery = initialQuery.or('itemName.ilike.$searchText'
             'itemDescription.ilike.$searchText'
             'itemQuantity::text.ilike.$searchText'
-            'supplierID::text.ilike.$searchText'
-          );
-        }
+            'supplierID::text.ilike.$searchText');
+      }
 
       final finalFetchedItems = await initialQuery;
       return finalFetchedItems.length;
-    }catch(err){
+    } catch (err) {
       print('Error fetching item count. $err');
       return 0;
     }
@@ -204,7 +204,7 @@ class InventoryService {
     required bool? isVisible,
     String sortBy = 'itemID',
     bool ascending = true,
-    int page = 1, 
+    int page = 1,
     int itemsPerPage = defaultItemsPerPage,
     String? searchQuery,
   }) async {
@@ -212,39 +212,38 @@ class InventoryService {
       var initialQuery = supabaseDB.from('item_inventory').select();
 
       //For visibility params - archived/active
-      if(isVisible != null){
+      if (isVisible != null) {
         initialQuery = initialQuery.eq('isVisible', isVisible);
       }
 
       //For the Search Filter
-      if(searchQuery != null && searchQuery.isNotEmpty){
+      if (searchQuery != null && searchQuery.isNotEmpty) {
         final searchText = '%$searchQuery%';
-        initialQuery = initialQuery.or(
-          'itemName.ilike.$searchText,'
-          'itemDescription.ilike.$searchText,'
-          'itemQuantity::text.ilike.$searchText,'
-          'supplierID::text.ilike.$searchText'
-        );
+        initialQuery = initialQuery.or('itemName.ilike.$searchText,'
+            'itemDescription.ilike.$searchText');
       }
 
       //Pagination
-      final offset = (page - 1 ) * itemsPerPage;
+      final offset = (page - 1) * itemsPerPage;
       final limit = offset + itemsPerPage - 1;
 
       //Combined function for both sorting and pagination
       //Note: Sorting is still client-side
-      final fetchResults = await initialQuery.order(sortBy, ascending: ascending).range(offset, limit);
+      final fetchResults = await initialQuery
+          .order(sortBy, ascending: ascending)
+          .range(offset, limit);
 
       //Validation, just to check if may laman or wala
-      if(fetchResults.isEmpty){
+      if (fetchResults.isEmpty) {
         print('No items found on the database.');
         return [];
       }
 
       //Final - returning the results
-      final fetchedItems = fetchResults.map<InventoryData>((item) => InventoryData.fromJson(item)).toList();
+      final fetchedItems = fetchResults
+          .map<InventoryData>((item) => InventoryData.fromJson(item))
+          .toList();
       return fetchedItems;
-
     } catch (err, stackTrace) {
       print('Error fetching items. $err \n $stackTrace');
       return [];
@@ -252,16 +251,24 @@ class InventoryService {
   }
 
   Future<List<ItemNameID>> getActiveItemNamesAndID() async {
-    try{
-      final queryResults = await supabaseDB.from('item_inventory').select('itemID, itemName').eq('isVisible', true).order('itemName', ascending: true);
+    try {
+      final queryResults = await supabaseDB
+          .from('item_inventory')
+          .select('itemID, itemName')
+          .eq('isVisible', true)
+          .order('itemName', ascending: true);
 
-      if(queryResults.isEmpty){
+      if (queryResults.isEmpty) {
         return [];
-      }else{
-        return queryResults.map((item) => ItemNameID(itemID: item['itemID'], itemName: item['itemName'])).toList();
+      } else {
+        return queryResults
+            .map((item) =>
+                ItemNameID(itemID: item['itemID'], itemName: item['itemName']))
+            .toList();
       }
-    }catch(error, stackTrace){  
-      print('Error fetching the active items from the database. \n $error \n $stackTrace');
+    } catch (error, stackTrace) {
+      print(
+          'Error fetching the active items from the database. \n $error \n $stackTrace');
       return [];
     }
   }
@@ -329,17 +336,22 @@ class InventoryService {
     }
   }
 
-  Future<InventoryData> updateItem(int itemID, String itemName, int itemTypeID , int supplierID,
-      String itemDescription, double itemPrice) async {
+  Future<InventoryData> updateItem(int itemID, String itemName, int itemTypeID,
+      int supplierID, String itemDescription, double itemPrice) async {
     try {
-      final updatedItem = await supabaseDB.from('item_inventory').update({
-        'itemName': itemName,
-        'itemTypeID': itemTypeID,
-        'itemDescription': itemDescription,
-        'supplierID': supplierID,
-        'itemPrice': itemPrice,
-        'updateDate': returnCurrentDate(),
-      }).eq('itemID', itemID).select().single();
+      final updatedItem = await supabaseDB
+          .from('item_inventory')
+          .update({
+            'itemName': itemName,
+            'itemTypeID': itemTypeID,
+            'itemDescription': itemDescription,
+            'supplierID': supplierID,
+            'itemPrice': itemPrice,
+            'updateDate': returnCurrentDate(),
+          })
+          .eq('itemID', itemID)
+          .select()
+          .single();
 
       //For Audit Logs
       addAuditLogs.insertAuditLog('audit_inventory', 1,

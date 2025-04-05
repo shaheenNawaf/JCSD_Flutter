@@ -145,7 +145,7 @@ class InventoryPage extends ConsumerWidget {
                         } else {
                           return Center(
                             child: Text(
-                                'No items match your search query. ${inventoryData.searchText}'),
+                                'No items match your search query: ${inventoryData.searchText}'),
                           );
                         }
                       }
@@ -164,10 +164,7 @@ class InventoryPage extends ConsumerWidget {
   //Shimmer Row Loading indicator nako hehe
   Widget _buildLoadingIndicator() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _buildShimmerRow(),
-        _buildShimmerRow(),
         _buildShimmerRow(),
         _buildShimmerRow(),
         _buildShimmerRow(),
@@ -573,7 +570,7 @@ class InventoryPage extends ConsumerWidget {
             child: Text(
               'PHP ${items.itemPrice.toStringAsFixed(3)}',
               style: const TextStyle(fontFamily: 'NunitoSans'),
-              textAlign: TextAlign.start,
+              textAlign: TextAlign.center,
             ),
           ),
           //Actions
