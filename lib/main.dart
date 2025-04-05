@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:jcsd_flutter/view/generic/page/email_verification.dart';
+import 'package:jcsd_flutter/others/transition.dart';
+import 'package:jcsd_flutter/view/bookings/booking_detail.dart';
+import 'package:jcsd_flutter/view/bookings/booking_receipt.dart';
+import 'package:jcsd_flutter/view/employee/leave_requests.dart';
+import 'package:jcsd_flutter/view/employee/login_employee.dart';
+import 'package:jcsd_flutter/view/generic/page/access_restricted_page.dart';
+import 'package:jcsd_flutter/view/generic/page/error_page.dart';
+import 'package:jcsd_flutter/view/generic/page/home_view.dart';
+import 'package:jcsd_flutter/view/generic/page/signup_first.dart';
+import 'package:jcsd_flutter/view/order_item/order_list.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'api/supa_details.dart';
-import 'package:jcsd_flutter/view/generic/email_verification.dart';
+import 'package:jcsd_flutter/view/generic/page/email_verification.dart';
 import 'package:jcsd_flutter/view/generic/forgot_password.dart';
 import 'package:jcsd_flutter/view/generic/reset_password.dart';
 import 'package:jcsd_flutter/view/admin/accountdetails.dart';
@@ -13,28 +21,19 @@ import 'package:jcsd_flutter/view/admin/leaverequestlist.dart';
 import 'package:jcsd_flutter/view/admin/payroll.dart';
 import 'package:jcsd_flutter/view/client/profile_client.dart';
 import 'package:jcsd_flutter/view/employee/dashboard.dart';
-import 'package:jcsd_flutter/view/employee/login_employee.dart';
-import 'package:jcsd_flutter/view/generic/page/access_restricted_page.dart';
 import 'package:jcsd_flutter/view/services/services.dart';
 import 'package:jcsd_flutter/view/services/services_archive.dart';
 import 'package:jcsd_flutter/view/inventory/item_types/item_types.dart';
 import 'package:jcsd_flutter/view/suppliers/suppliers_archive.dart';
-import 'package:jcsd_flutter/view/generic/page/error_page.dart';
 import 'package:jcsd_flutter/view/users/login.dart';
-import 'package:jcsd_flutter/view/generic/page/signup_first.dart';
-import 'package:jcsd_flutter/view/generic/page/signup_second.dart';
+import 'package:jcsd_flutter/view/generic/signup_second.dart';
 import 'package:jcsd_flutter/view/inventory/inventory.dart';
 import 'package:jcsd_flutter/view/inventory/inventory_archive.dart';
 import 'package:jcsd_flutter/view/inventory/audit_log.dart';
-import 'package:jcsd_flutter/view/order_item/order_list.dart';
 import 'package:jcsd_flutter/view/bookings/bookings.dart';
 import 'package:jcsd_flutter/view/employee/transactions.dart';
 import 'package:jcsd_flutter/view/suppliers/suppliers.dart';
-import 'package:jcsd_flutter/view/generic/page/home_view.dart';
 import 'package:jcsd_flutter/view/employee/profile.dart';
-import 'package:jcsd_flutter/view/employee/leave_requests.dart';
-import 'package:jcsd_flutter/view/bookings/booking_detail.dart';
-import 'package:jcsd_flutter/view/bookings/booking_receipt.dart';
 import 'package:jcsd_flutter/view/employee/payslip.dart';
 import 'package:jcsd_flutter/view/admin/accountlist.dart';
 import 'package:jcsd_flutter/view/admin/employeelist.dart';
@@ -151,7 +150,7 @@ class _MainAppState extends State<MainApp> {
         pageTransitionsTheme: PageTransitionsTheme(
           builders: {
             TargetPlatform.windows: InstantPageTransitionsBuilder(),
-            TargetPlatform.android: InstantPageTransitionsBuilder()
+            TargetPlatform.android: InstantPageTransitionsBuilder(),
           },
         ),
       ),
