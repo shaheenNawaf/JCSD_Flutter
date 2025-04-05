@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
-import 'package:jcsd_flutter/modals/editprofile.dart';
+import 'package:jcsd_flutter/modals/edit_profile.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
-class ProfileAdminViewPage extends StatefulWidget {
+class ProfileAdminViewPage extends ConsumerStatefulWidget {
   const ProfileAdminViewPage({super.key});
 
   @override
-  _ProfileAdminViewPageState createState() => _ProfileAdminViewPageState();
+  ConsumerState<ProfileAdminViewPage> createState() =>
+      _ProfileAdminViewPageState();
 }
 
-class _ProfileAdminViewPageState extends State<ProfileAdminViewPage> {
+class _ProfileAdminViewPageState extends ConsumerState<ProfileAdminViewPage> {
   final String _activeSubItem = '/accountList';
 
   void _editBookingModal(AccountsData user) async {
