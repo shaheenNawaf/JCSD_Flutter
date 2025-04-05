@@ -2,8 +2,8 @@
 
 //Packages
 import 'package:intl/intl.dart';
-import 'package:jcsd_flutter/view/generic/error_dialog.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/error_dialog.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
@@ -44,19 +44,104 @@ class _SignupPage2State extends State<SignupPage2> {
   bool isLoading = false;
 
   @override
-  void dispose() {
-    _firstNameController.dispose();
-    _middleInitialController.dispose();
-    _lastNameController.dispose();
-    _addressController.dispose();
-    _cityController.dispose();
-    _provinceController.dispose();
-    _countryController.dispose();
-    _zipCodeController.dispose();
-    _contactNumberController.dispose();
-    _emailController.dispose();
-    _dobController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final user = supabaseDB.auth.currentUser;
+    if (user == null) return;
+
+    final data = await supabaseDB
+        .from('accounts')
+        .select()
+        .eq('userID', user.id)
+        .single();
+
+    setState(() {
+      _firstNameController.text = data['firstName'] ?? '';
+      _middleInitialController.text = data['middleName'] ?? '';
+      _lastNameController.text = data['lastName'] ?? '';
+      _addressController.text = data['address'] ?? '';
+      _cityController.text = data['city'] ?? '';
+      _provinceController.text = data['province'] ?? '';
+      _countryController.text = data['country'] ?? '';
+      _zipCodeController.text = data['zipCode'] ?? '';
+      _contactNumberController.text = data['contactNumber'] ?? '';
+      _emailController.text = data['email'] ?? '';
+      _dobController.text = data['birthDate'] != null
+          ? DateFormat('yyyy-MM-dd').format(DateTime.parse(data['birthDate']))
+          : '';
+    });
+  }
+
+  Future<void> _submit() async {
+    setState(() => isLoading = true);
+
+    final user = supabaseDB.auth.currentUser;
+    if (user == null) return;
+
+    final firstName = _firstNameController.text.trim();
+    final middleInitial = _middleInitialController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final address = _addressController.text.trim();
+    final city = _cityController.text.trim();
+    final province = _provinceController.text.trim();
+    final country = _countryController.text.trim();
+    final zipCode = _zipCodeController.text.trim();
+    final contactNumber = _contactNumberController.text.trim();
+    final dob = _dobController.text.trim();
+
+    if ([
+      firstName,
+      lastName,
+      address,
+      city,
+      province,
+      country,
+      zipCode,
+      contactNumber,
+      dob
+    ].any((value) => value.isEmpty)) {
+      setState(() {
+        errorText = 'Please fill in all fields.';
+        isLoading = false;
+      });
+      return;
+    }
+
+    try {
+      final updatedData = AccountsData(
+        userID: user.id,
+        firstName: firstName,
+        middleName: middleInitial,
+        lastname: lastName,
+        birthDate: DateTime.parse(dob),
+        address: address,
+        city: city,
+        province: province,
+        country: country,
+        zipCode: zipCode,
+        contactNumber: contactNumber,
+        email: _emailController.text,
+      );
+
+      await supabaseDB
+          .from('accounts')
+          .update(updatedData.toJson())
+          .eq('userID', user.id);
+
+      if (mounted) {
+        await Navigator.pushReplacementNamed(context, '/home');
+      }
+    } catch (e) {
+      debugPrint('Update failed: $e');
+      setState(() {
+        errorText = 'Something went wrong. Please try again.';
+        isLoading = false;
+      });
+    }
   }
 
   //Validators for each input
@@ -156,70 +241,73 @@ class _SignupPage2State extends State<SignupPage2> {
     return null;
   }
 
-  Future<void> _signUp() async {
-    setState(() {
-      isLoading = true;
-    });
+  // Future<void> _signUp() async {
+  //   setState(() {
+  //     isLoading = true;
+  //   });
 
-    final firstName = _firstNameController.text;
-    final middleInitial = _middleInitialController.text;
-    final lastName = _lastNameController.text;
-    final address = _addressController.text;
-    final city = _cityController.text;
-    final province = _provinceController.text;
-    final country = _countryController.text;
-    final zipCode = _zipCodeController.text;
-    final contactNumber = _contactNumberController.text;
-    final email = _emailController.text;
-    final dob = _dobController.text;
+  //   final firstName = _firstNameController.text;
+  //   final middleInitial = _middleInitialController.text;
+  //   final lastName = _lastNameController.text;
+  //   final address = _addressController.text;
+  //   final city = _cityController.text;
+  //   final province = _provinceController.text;
+  //   final country = _countryController.text;
+  //   final zipCode = _zipCodeController.text;
+  //   final contactNumber = _contactNumberController.text;
+  //   final email = _emailController.text;
+  //   final dob = _dobController.text;
 
-    final User? user = supabaseDB.auth.currentUser;
+  //   final User? user = supabaseDB.auth.currentUser;
 
-    if (firstName.isEmpty ||
-        lastName.isEmpty ||
-        address.isEmpty ||
-        city.isEmpty ||
-        province.isEmpty ||
-        country.isEmpty ||
-        zipCode.isEmpty ||
-        contactNumber.isEmpty ||
-        email.isEmpty ||
-        dob.isEmpty) {
-      setState(() {
-        errorText = 'Please fill in all fields.';
-        isLoading = false;
-      });
-      return;
-    }
+  //   if (firstName.isEmpty ||
+  //       lastName.isEmpty ||
+  //       address.isEmpty ||
+  //       city.isEmpty ||
+  //       province.isEmpty ||
+  //       country.isEmpty ||
+  //       zipCode.isEmpty ||
+  //       contactNumber.isEmpty ||
+  //       email.isEmpty ||
+  //       dob.isEmpty) {
+  //     setState(() {
+  //       errorText = 'Please fill in all fields.';
+  //       isLoading = false;
+  //     });
+  //     return;
+  //   }
 
-    try {
-      AccountsData accountsData = AccountsData(
-          userID: user!.id,
-          firstName: firstName,
-          middleName: middleInitial,
-          lastname: lastName,
-          birthDate: DateTime.parse(dob),
-          address: address,
-          city: city,
-          province: province,
-          country: country,
-          zipCode: zipCode,
-          contactNumber: contactNumber,
-          email: email);
+  //   try {
+  //     AccountsData accountsData = AccountsData(
+  //         userID: user!.id,
+  //         firstName: firstName,
+  //         middleName: middleInitial,
+  //         lastname: lastName,
+  //         birthDate: DateTime.parse(dob),
+  //         address: address,
+  //         city: city,
+  //         province: province,
+  //         country: country,
+  //         zipCode: zipCode,
+  //         contactNumber: contactNumber,
+  //         email: email);
 
-      // Calling the insert method to add the details on the accounts table
-      await supabaseDB.from('accounts').insert(accountsData.toJson());
+  //     // Check if the data was inserted successfully
+  //     await supabaseDB
+  //         .from('accounts')
+  //         .update(accountsData.toJson())
+  //         .eq('userID', user.id);
 
-      // Navigate to the next page
-      Navigator.pushNamed(context, '/home');
-    } on AuthException catch (error) {
-      print(error);
-      setState(() {
-        errorText = error.message;
-        isLoading = false;
-      });
-    }
-  }
+  //     // Navigate to the next page
+  //     Navigator.pushNamed(context, '/home');
+  //   } on AuthException catch (error) {
+  //     print(error);
+  //     setState(() {
+  //       errorText = error.message;
+  //       isLoading = false;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -505,9 +593,7 @@ class _SignupPage2State extends State<SignupPage2> {
                                         borderRadius: BorderRadius.circular(5),
                                       ),
                                     ),
-                                    onPressed: () {
-                                      _signUp();
-                                    },
+                                    onPressed: isLoading ? null : _submit,
                                     child: isLoading
                                         ? const CircularProgressIndicator(
                                             color: Colors.white,

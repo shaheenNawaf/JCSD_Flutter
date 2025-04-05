@@ -2,38 +2,31 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
-import 'package:jcsd_flutter/view/generic/notification.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_providers.dart';
 
-class UnarchiveItemModal extends ConsumerStatefulWidget {
-  final InventoryData itemData;
+//Backend Things
+import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
+
+class ArchiveItemModal extends ConsumerStatefulWidget {
   final int itemID;
 
-  const UnarchiveItemModal({super.key, required this.itemData, required this.itemID});
+  const ArchiveItemModal({super.key, required this.itemID});
 
   @override
-  ConsumerState<UnarchiveItemModal> createState() => _UnarchiveItemModalState();
+  ConsumerState<ArchiveItemModal> createState() => _ArchiveItemModalState();
 }
 
-class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
-  late int _intItemID;
-  late InventoryData _itemData;
-
-  @override
-  void initState(){
-    super.initState();
-    print('Archive Item - initState()');
-   _intItemID = widget.itemID;
-   _itemData = widget.itemData;
-  }
+class _ArchiveItemModalState extends ConsumerState<ArchiveItemModal> {
+  bool _isArchiving = false;
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 400 : screenWidth * 0.9;
-    const double containerHeight = 160;
+    const double containerHeight = 180;
+
+    const bool isVisibleContext = true;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -72,12 +65,12 @@ class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
+             Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Center(
                 child: Text(
-                  'Are you sure you want to restore item?',
-                  style: TextStyle(
+                  'Are you sure you want to archive ${widget.itemID.toString()}?',
+                  style: const TextStyle(
                     fontFamily: 'NunitoSans',
                     fontSize: 16,
                   ),
@@ -85,7 +78,7 @@ class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            const Spacer(),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
@@ -93,8 +86,7 @@ class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: () {
-                        ref.invalidate(fetchArchived);
+                      onPressed: _isArchiving ? null : () {
                         Navigator.pop(context);
                       },
                       style: TextButton.styleFrom(
@@ -119,18 +111,25 @@ class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () async {
+                      onPressed: _isArchiving ? null : () async {
+                        setState(() {
+                          _isArchiving = true; });
+
                         try{
-                          final InventoryService updateVisibility = InventoryService();
-                          updateVisibility.updateVisibility(_intItemID, true);
-                          print('Item Unarchived. $_intItemID');
+                          await ref.read(InventoryNotifierProvider(isVisibleContext).notifier).setItemVisibility(widget.itemID, false);
+                          ToastManager().showToast(context, 'Item archived successfully!', const Color.fromARGB(255, 0, 143, 19));
+
+
                           Navigator.pop(context);
-                          ToastManager().showToast(context, 'Item unarchived successfully!', Color.fromARGB(255, 0, 143, 19));
-                        }catch(err){
-                          ToastManager().showToast(context, 'Error changing visibility of the item. $_itemData', Color.fromARGB(255, 255, 0, 0));
-                          print('Error changing visibility of the item. $_itemData');
+                        }catch(error, stackTrace){
+                          print('Error archiving object. $error \n $stackTrace');
+
+                          ToastManager().showToast(context, 'Error archiving an item.', const Color.fromARGB(255, 255, 0, 0));
+
+                          setState(() {
+                            _isArchiving = false;
+                          });
                         }
-                        refreshTables();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
@@ -139,14 +138,23 @@ class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
                           borderRadius: BorderRadius.circular(5),
                         ),
                       ),
-                      child: const Text(
-                        'Restore',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      child: _isArchiving
+                        ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                        : const Text(
+                          'Archive',
+                          style: TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white
+                          ),
                         ),
-                      ),
                     ),
                   ),
                 ],
@@ -156,10 +164,5 @@ class _UnarchiveItemModalState extends ConsumerState<UnarchiveItemModal> {
         ),
       ),
     );
-  }
-
-  void refreshTables(){
-    ref.invalidate(fetchActive);
-    ref.invalidate(fetchArchived);
   }
 }

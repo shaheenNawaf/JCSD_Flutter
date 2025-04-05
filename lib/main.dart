@@ -4,37 +4,25 @@ import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/view/generic/email_verification.dart';
 import 'package:jcsd_flutter/view/generic/forgot_password.dart';
 import 'package:jcsd_flutter/view/generic/reset_password.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'api/supa_details.dart';
-import 'package:jcsd_flutter/others/transition.dart';
 import 'package:jcsd_flutter/view/admin/accountdetails.dart';
 import 'package:jcsd_flutter/view/admin/bookingcalendar.dart';
 import 'package:jcsd_flutter/view/admin/leaverequestlist.dart';
 import 'package:jcsd_flutter/view/admin/payroll.dart';
 import 'package:jcsd_flutter/view/client/profile_client.dart';
 import 'package:jcsd_flutter/view/employee/dashboard.dart';
-import 'package:jcsd_flutter/view/employee/loginEmployee.dart';
-import 'package:jcsd_flutter/view/generic/access_restricted_page.dart';
 import 'package:jcsd_flutter/view/services/services.dart';
 import 'package:jcsd_flutter/view/services/services_archive.dart';
 import 'package:jcsd_flutter/view/inventory/item_types/item_types.dart';
 import 'package:jcsd_flutter/view/suppliers/suppliers_archive.dart';
-import 'package:jcsd_flutter/view/generic/error_page.dart';
 import 'package:jcsd_flutter/view/users/login.dart';
-import 'package:jcsd_flutter/view/generic/signup_first.dart';
-import 'package:jcsd_flutter/view/generic/signup_second.dart';
+import 'package:jcsd_flutter/view/generic/page/signup_second.dart';
 import 'package:jcsd_flutter/view/inventory/inventory.dart';
 import 'package:jcsd_flutter/view/inventory/inventory_archive.dart';
 import 'package:jcsd_flutter/view/inventory/audit_log.dart';
-import 'package:jcsd_flutter/view/inventory/order_list.dart';
 import 'package:jcsd_flutter/view/bookings/bookings.dart';
 import 'package:jcsd_flutter/view/employee/transactions.dart';
 import 'package:jcsd_flutter/view/suppliers/suppliers.dart';
-import 'package:jcsd_flutter/view/generic/home_view.dart';
 import 'package:jcsd_flutter/view/employee/profile.dart';
-import 'package:jcsd_flutter/view/employee/leaveRequest.dart';
-import 'package:jcsd_flutter/view/bookings/bookingDetail.dart';
-import 'package:jcsd_flutter/view/bookings/bookingReceipt.dart';
 import 'package:jcsd_flutter/view/employee/payslip.dart';
 import 'package:jcsd_flutter/view/admin/accountlist.dart';
 import 'package:jcsd_flutter/view/admin/employeelist.dart';
@@ -242,7 +230,6 @@ Future<void> main() async {
     url: returnAccessURL(),
     anonKey: returnAnonKey(),
   );
-
   runApp(const ProviderScope(child: MainApp()));
 }
 
@@ -254,56 +241,81 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
   @override
   void initState() {
     super.initState();
 
-    Supabase.instance.client.auth.onAuthStateChange.listen((event) {
-      if (event.event == AuthChangeEvent.passwordRecovery) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            router.go('/resetPassword');
-          }
-        });
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) async {
+      final user = data.session?.user;
+
+      if (user == null) {
+        _navigatorKey.currentState?.pushReplacementNamed('/login');
+        return;
       }
+
+      await _redirectUser(user.id);
     });
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _handleDeepLink();
-    });
+    // Initial load (when user is already logged in)
+    final currentUser = Supabase.instance.client.auth.currentUser;
+    if (currentUser != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _redirectUser(currentUser.id);
+      });
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _navigatorKey.currentState?.pushReplacementNamed('/login');
+      });
+    }
   }
 
-  void _handleDeepLink() async {
-    final Uri uri = Uri.base;
-    print("Deep Link URI: ${uri.toString()}");
+  Future<void> _redirectUser(String userID) async {
+    try {
+      final data = await Supabase.instance.client
+          .from('accounts')
+          .select()
+          .eq('userID', userID)
+          .maybeSingle();
 
-    final resetCode = uri.queryParameters['code'];
+      bool isBlank(dynamic val) =>
+          val == null || (val is String && val.trim().isEmpty);
 
-    if (resetCode != null) {
-      print("Extracted reset code: $resetCode");
+      final requiredFields = [
+        'firstName',
+        'middleName',
+        'lastName',
+        'birthDate',
+        'address',
+        'city',
+        'province',
+        'country',
+        'zipCode',
+        'contactNumber',
+      ];
 
-      try {
-        final response = await Supabase.instance.client.auth.setSession(resetCode);
+      final isIncomplete =
+          data == null || requiredFields.any((field) => isBlank(data[field]));
 
-        if (response.user == null) {
-          throw Exception("User session not found. Token might be expired.");
-        }
+      final currentRoute =
+          ModalRoute.of(_navigatorKey.currentContext!)?.settings.name;
 
-        print("Session set successfully, redirecting to Reset Password page.");
-        if (mounted) {
-          router.go('/resetPassword');
-        }
-      } catch (error) {
-        print("Error setting session: $error");
+      final shouldRedirectTo = isIncomplete ? '/signup2' : '/home';
+
+      if (currentRoute != shouldRedirectTo) {
+        _navigatorKey.currentState?.pushReplacementNamed(shouldRedirectTo);
       }
-    } else {
-      print("No reset code found in URI.");
+    } catch (e) {
+      debugPrint("Redirect error: $e");
+      _navigatorKey.currentState?.pushReplacementNamed('/signup2');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
+    return MaterialApp(
+      navigatorKey: _navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'JCSD',
       scaffoldMessengerKey: scaffoldMessengerKey,
@@ -317,7 +329,7 @@ class _MainAppState extends State<MainApp> {
         pageTransitionsTheme: PageTransitionsTheme(
           builders: {
             TargetPlatform.windows: InstantPageTransitionsBuilder(),
-            TargetPlatform.android: InstantPageTransitionsBuilder()
+            TargetPlatform.android: InstantPageTransitionsBuilder(),
           },
         ),
       ),

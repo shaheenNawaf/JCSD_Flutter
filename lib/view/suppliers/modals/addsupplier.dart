@@ -7,8 +7,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 //BE Imports
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
-import 'package:jcsd_flutter/view/generic/error_dialog.dart';
-import 'package:jcsd_flutter/view/generic/notification.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/error_dialog.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 // import 'package:flutter/services.dart';
 
 class AddSupplierModal extends ConsumerStatefulWidget {

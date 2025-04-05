@@ -10,7 +10,7 @@ import 'package:jcsd_flutter/view/inventory/item_types/modals/unarchiveitemtype.
 
 //Backend Things
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_providers.dart';
 import 'package:shimmer/shimmer.dart';
 
 class ItemTypesArchivePage extends ConsumerStatefulWidget {

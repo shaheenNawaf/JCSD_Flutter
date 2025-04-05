@@ -7,8 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 //BE Imports
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services.dart';
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
-import 'package:jcsd_flutter/view/generic/error_dialog.dart';
-import 'package:jcsd_flutter/view/generic/notification.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/error_dialog.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 
 class AddServiceModal extends ConsumerStatefulWidget{
   const AddServiceModal({super.key});

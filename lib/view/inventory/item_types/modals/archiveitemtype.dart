@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 //Backend Things
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_state.dart';
-import 'package:jcsd_flutter/view/generic/notification.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_providers.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 
 class ArchiveItemTypeModal extends ConsumerStatefulWidget {
   final int typeID;

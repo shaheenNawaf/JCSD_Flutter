@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jcsd_flutter/modals/receipt.dart';
+import 'package:jcsd_flutter/view/bookings/modals/receipt.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -578,7 +578,7 @@ class _ProfilePageClientState extends State<ProfilePageClient> {
                     'assets/images/logo.png',
                     height: 50,
                   ),
-                  Spacer(),
+                  const Spacer(),
                   if (MediaQuery.of(context).size.width <= 600)
                     IconButton(
                       icon: const Icon(Icons.close),

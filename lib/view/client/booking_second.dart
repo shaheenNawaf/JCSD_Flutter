@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jcsd_flutter/view/bookings/bookingconfirmed.dart';
+import 'package:jcsd_flutter/view/bookings/booking_confirmed.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 
 class ClientBooking2 extends StatelessWidget {

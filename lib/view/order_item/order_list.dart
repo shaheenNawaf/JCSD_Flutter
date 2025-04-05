@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:jcsd_flutter/view/inventory/modals/confirmorder.dart';
-import 'package:jcsd_flutter/view/inventory/modals/deleteitem.dart';
-import 'package:jcsd_flutter/view/inventory/modals/editorder.dart';
+import 'package:jcsd_flutter/view/order_item/modals/confirm_order.dart';
+import 'package:jcsd_flutter/view/order_item/modals/delete_order.dart';
+import 'package:jcsd_flutter/view/order_item/modals/edit_order.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
@@ -128,7 +128,7 @@ class _OrderListPageState extends State<OrderListPage> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),

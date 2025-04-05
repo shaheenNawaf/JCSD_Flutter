@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/main.dart';
-import 'package:jcsd_flutter/view/generic/notification.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../api/global_variables.dart';
+import '../../../../api/global_variables.dart';
 
 class SignupPage1 extends StatefulWidget {
   const SignupPage1({super.key});
@@ -64,8 +64,24 @@ class _SignupPage1State extends State<SignupPage1> {
     }
 
     try {
-      final response =
-          await supabaseDB.auth.signUp(email: email, password: password);
+      final response = await supabaseDB.auth.signUp(
+        email: email,
+        password: password,
+      );
+
+      final user = response.user;
+
+      if (user != null) {
+        final insertResponse = await supabaseDB
+            .from('accounts')
+            .insert({
+              'email': user.email,
+              'userID': user.id,
+            })
+            .select()
+            .single();
+
+        debugPrint("Insert result: $insertResponse");
 
       if (response.user != null) {
         ToastManager().showToast(context, 'Signup successful! Check your email for verification.', Color.fromARGB(255, 0, 143, 19));
@@ -80,6 +96,12 @@ class _SignupPage1State extends State<SignupPage1> {
       }
     } on AuthException catch (error) {
       ToastManager().showToast(context, error.message, Color.fromARGB(255, 255, 0, 0));
+      setState(() => _isLoading = false);
+    } catch (e) {
+      debugPrint("Unexpected error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Something went wrong.')),
+      );
       setState(() => _isLoading = false);
     }
   }
@@ -100,7 +122,7 @@ class _SignupPage1State extends State<SignupPage1> {
           ),
           Positioned.fill(
             child: Container(
-              color: Colors.black.withOpacity(0.7),
+              color: Colors.black.withValues(alpha: 0.7),
             ),
           ),
           Center(
