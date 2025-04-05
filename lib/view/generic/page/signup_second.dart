@@ -3,7 +3,7 @@
 //Packages
 import 'package:intl/intl.dart';
 import 'package:jcsd_flutter/view/generic/dialogs/error_dialog.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 
@@ -12,7 +12,7 @@ import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 
 //Backend
-import '../../../../api/global_variables.dart';
+import '../../../api/global_variables.dart';
 
 class SignupPage2 extends StatefulWidget {
   const SignupPage2({super.key});
@@ -24,14 +24,16 @@ class SignupPage2 extends StatefulWidget {
 class _SignupPage2State extends State<SignupPage2> {
   // Controllers for the input fields
   final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _middleInitialController = TextEditingController();
+  final TextEditingController _middleInitialController =
+      TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _provinceController = TextEditingController();
   final TextEditingController _countryController = TextEditingController();
   final TextEditingController _zipCodeController = TextEditingController();
-  final TextEditingController _contactNumberController = TextEditingController();
+  final TextEditingController _contactNumberController =
+      TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
 
@@ -42,148 +44,66 @@ class _SignupPage2State extends State<SignupPage2> {
   bool isLoading = false;
 
   @override
-  void dispose() {
-    _firstNameController.dispose();
-    _middleInitialController.dispose();
-    _lastNameController.dispose();
-    _addressController.dispose();
-    _cityController.dispose();
-    _provinceController.dispose();
-    _countryController.dispose();
-    _zipCodeController.dispose();
-    _contactNumberController.dispose();
-    _emailController.dispose();
-    _dobController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _loadUserData();
   }
 
-  //Validators for each input
-  String? numberValidator(String? value) {
-    if (value == null || value.isEmpty) {
-       showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Validation Error',
-            content: 'Please enter a number',
-          ),
-        );
-      return ''; 
-    }
-    if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-      showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Validation Error',
-            content: 'Only numbers are allowed',
-          ),
-        );
-      return '';
-    }
-    return null;
-  }
+  Future<void> _loadUserData() async {
+    final user = supabaseDB.auth.currentUser;
+    if (user == null) return;
 
-  String? textValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Validation Error',
-            content: 'Please enter some text',
-          ),
-        );
-      return '';
-    }
-    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
-      showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Validation Error',
-            content: 'Only letters and spaces are allowed',
-          ),
-        );
-      return '';
-    }
-    return null;
-  }
+    final data = await supabaseDB
+        .from('accounts')
+        .select()
+        .eq('userID', user.id)
+        .single();
 
-  String? emailValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Empty Email field',
-            content: 'Please enter an email',
-          ),
-        );
-      return '';
-    }
-    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-      showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Validation Error',
-            content: 'Please enter a valid email',
-          ),
-        );
-      return '';
-    }
-    return
-  null;
-  }
-
-  String? contactNumberValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Empty Contact Number field',
-            content: 'Please enter a contact number',
-          ),
-        );
-      return '';
-    }
-    if (!RegExp(r'^((\+639|09)\d{9})$').hasMatch(value)) {
-      showDialog(
-          context: context,
-          builder: (context) => const ErrorDialog(
-            title: 'Validation Error',
-            content: 'Please enter a valid contact number',
-          ),
-        );
-      return '';
-    }
-    return null;
-  }
-
-  Future<void> _signUp() async {
     setState(() {
-      isLoading = true;
+      _firstNameController.text = data['firstName'] ?? '';
+      _middleInitialController.text = data['middleName'] ?? '';
+      _lastNameController.text = data['lastName'] ?? '';
+      _addressController.text = data['address'] ?? '';
+      _cityController.text = data['city'] ?? '';
+      _provinceController.text = data['province'] ?? '';
+      _countryController.text = data['country'] ?? '';
+      _zipCodeController.text = data['zipCode'] ?? '';
+      _contactNumberController.text = data['contactNumber'] ?? '';
+      _emailController.text = data['email'] ?? '';
+      _dobController.text = data['birthDate'] != null
+          ? DateFormat('yyyy-MM-dd').format(DateTime.parse(data['birthDate']))
+          : '';
     });
+  }
 
-    final firstName = _firstNameController.text;
-    final middleInitial = _middleInitialController.text;
-    final lastName = _lastNameController.text;
-    final address = _addressController.text;
-    final city = _cityController.text;
-    final province = _provinceController.text;
-    final country = _countryController.text;
-    final zipCode = _zipCodeController.text;
-    final contactNumber = _contactNumberController.text;
-    final email = _emailController.text;
-    final dob = _dobController.text;
+  Future<void> _submit() async {
+    setState(() => isLoading = true);
 
-    final User? user = supabaseDB.auth.currentUser;
+    final user = supabaseDB.auth.currentUser;
+    if (user == null) return;
 
-    if (firstName.isEmpty ||
-        lastName.isEmpty ||
-        address.isEmpty ||
-        city.isEmpty ||
-        province.isEmpty ||
-        country.isEmpty ||
-        zipCode.isEmpty ||
-        contactNumber.isEmpty ||
-        email.isEmpty ||
-        dob.isEmpty) {
+    final firstName = _firstNameController.text.trim();
+    final middleInitial = _middleInitialController.text.trim();
+    final lastName = _lastNameController.text.trim();
+    final address = _addressController.text.trim();
+    final city = _cityController.text.trim();
+    final province = _provinceController.text.trim();
+    final country = _countryController.text.trim();
+    final zipCode = _zipCodeController.text.trim();
+    final contactNumber = _contactNumberController.text.trim();
+    final dob = _dobController.text.trim();
+
+    if ([
+      firstName,
+      lastName,
+      address,
+      city,
+      province,
+      country,
+      zipCode,
+      contactNumber,
+      dob
+    ].any((value) => value.isEmpty)) {
       setState(() {
         errorText = 'Please fill in all fields.';
         isLoading = false;
@@ -192,33 +112,202 @@ class _SignupPage2State extends State<SignupPage2> {
     }
 
     try {
-      AccountsData accountsData = AccountsData(
-          userID: user!.id,
-          firstName: firstName,
-          middleName: middleInitial,
-          lastname: lastName,
-          birthDate: DateTime.parse(dob),
-          address: address,
-          city: city,
-          province: province,
-          country: country,
-          zipCode: zipCode,
-          contactNumber: contactNumber,
-          email: email);
+      final updatedData = AccountsData(
+        userID: user.id,
+        firstName: firstName,
+        middleName: middleInitial,
+        lastname: lastName,
+        birthDate: DateTime.parse(dob),
+        address: address,
+        city: city,
+        province: province,
+        country: country,
+        zipCode: zipCode,
+        contactNumber: contactNumber,
+        email: _emailController.text,
+      );
 
-      // Calling the insert method to add the details on the accounts table
-      await supabaseDB.from('accounts').insert(accountsData.toJson());
+      await supabaseDB
+          .from('accounts')
+          .update(updatedData.toJson())
+          .eq('userID', user.id);
 
-      // Navigate to the next page
-      Navigator.pushNamed(context, '/home');
-    } on AuthException catch (error) {
-      print(error);
+      if (mounted) {
+        await Navigator.pushReplacementNamed(context, '/home');
+      }
+    } catch (e) {
+      debugPrint('Update failed: $e');
       setState(() {
-        errorText = error.message;
+        errorText = 'Something went wrong. Please try again.';
         isLoading = false;
       });
     }
   }
+
+  //Validators for each input
+  String? numberValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Validation Error',
+          content: 'Please enter a number',
+        ),
+      );
+      return '';
+    }
+    if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+      showDialog(
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Validation Error',
+          content: 'Only numbers are allowed',
+        ),
+      );
+      return '';
+    }
+    return null;
+  }
+
+  String? textValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Validation Error',
+          content: 'Please enter some text',
+        ),
+      );
+      return '';
+    }
+    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+      showDialog(
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Validation Error',
+          content: 'Only letters and spaces are allowed',
+        ),
+      );
+      return '';
+    }
+    return null;
+  }
+
+  String? emailValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Empty Email field',
+          content: 'Please enter an email',
+        ),
+      );
+      return '';
+    }
+    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+      showDialog(
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Validation Error',
+          content: 'Please enter a valid email',
+        ),
+      );
+      return '';
+    }
+    return null;
+  }
+
+  String? contactNumberValidator(String? value) {
+    if (value == null || value.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Empty Contact Number field',
+          content: 'Please enter a contact number',
+        ),
+      );
+      return '';
+    }
+    if (!RegExp(r'^((\+639|09)\d{9})$').hasMatch(value)) {
+      showDialog(
+        context: context,
+        builder: (context) => const ErrorDialog(
+          title: 'Validation Error',
+          content: 'Please enter a valid contact number',
+        ),
+      );
+      return '';
+    }
+    return null;
+  }
+
+  // Future<void> _signUp() async {
+  //   setState(() {
+  //     isLoading = true;
+  //   });
+
+  //   final firstName = _firstNameController.text;
+  //   final middleInitial = _middleInitialController.text;
+  //   final lastName = _lastNameController.text;
+  //   final address = _addressController.text;
+  //   final city = _cityController.text;
+  //   final province = _provinceController.text;
+  //   final country = _countryController.text;
+  //   final zipCode = _zipCodeController.text;
+  //   final contactNumber = _contactNumberController.text;
+  //   final email = _emailController.text;
+  //   final dob = _dobController.text;
+
+  //   final User? user = supabaseDB.auth.currentUser;
+
+  //   if (firstName.isEmpty ||
+  //       lastName.isEmpty ||
+  //       address.isEmpty ||
+  //       city.isEmpty ||
+  //       province.isEmpty ||
+  //       country.isEmpty ||
+  //       zipCode.isEmpty ||
+  //       contactNumber.isEmpty ||
+  //       email.isEmpty ||
+  //       dob.isEmpty) {
+  //     setState(() {
+  //       errorText = 'Please fill in all fields.';
+  //       isLoading = false;
+  //     });
+  //     return;
+  //   }
+
+  //   try {
+  //     AccountsData accountsData = AccountsData(
+  //         userID: user!.id,
+  //         firstName: firstName,
+  //         middleName: middleInitial,
+  //         lastname: lastName,
+  //         birthDate: DateTime.parse(dob),
+  //         address: address,
+  //         city: city,
+  //         province: province,
+  //         country: country,
+  //         zipCode: zipCode,
+  //         contactNumber: contactNumber,
+  //         email: email);
+
+  //     // Check if the data was inserted successfully
+  //     await supabaseDB
+  //         .from('accounts')
+  //         .update(accountsData.toJson())
+  //         .eq('userID', user.id);
+
+  //     // Navigate to the next page
+  //     Navigator.pushNamed(context, '/home');
+  //   } on AuthException catch (error) {
+  //     print(error);
+  //     setState(() {
+  //       errorText = error.message;
+  //       isLoading = false;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -236,7 +325,7 @@ class _SignupPage2State extends State<SignupPage2> {
           ),
           Positioned.fill(
             child: Container(
-              color: Colors.black.withValues(alpha: 0.7),
+              color: Colors.black.withOpacity(0.7),
             ),
           ),
           Center(
@@ -286,53 +375,46 @@ class _SignupPage2State extends State<SignupPage2> {
                                   Column(
                                     children: [
                                       buildTextField(
-                                        controller: _firstNameController,
-                                        label: 'First Name',
-                                        hintText: 'Enter your first name',
-                                        validator: textValidator
-                                      ),
+                                          controller: _firstNameController,
+                                          label: 'First Name',
+                                          hintText: 'Enter your first name',
+                                          validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                        controller: _addressController,
-                                        label: 'Address',
-                                        hintText: 'Enter your address',
-                                        validator: textValidator
-                                      ),
+                                          controller: _addressController,
+                                          label: 'Address',
+                                          hintText: 'Enter your address',
+                                          validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                        controller: _middleInitialController,
-                                        label: 'Middle Initial (Optional)',
-                                        hintText: 'Enter your middle initial',
-                                        validator: textValidator
-                                      ),
+                                          controller: _middleInitialController,
+                                          label: 'Middle Initial (Optional)',
+                                          hintText: 'Enter your middle initial',
+                                          validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                        controller: _cityController,
-                                        label: 'City',
-                                        hintText: 'Enter your city',
-                                        validator: textValidator
-                                      ),
+                                          controller: _cityController,
+                                          label: 'City',
+                                          hintText: 'Enter your city',
+                                          validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                        controller: _provinceController,
-                                        label: 'Province',
-                                        hintText: 'Enter your province',
-                                        validator: textValidator
-                                      ),
+                                          controller: _provinceController,
+                                          label: 'Province',
+                                          hintText: 'Enter your province',
+                                          validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                        controller: _lastNameController,
-                                        label: 'Last Name',
-                                        hintText: 'Enter your last name',
-                                        validator: textValidator
-                                      ),
+                                          controller: _lastNameController,
+                                          label: 'Last Name',
+                                          hintText: 'Enter your last name',
+                                          validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                        controller: _countryController,
-                                        label: 'Country',
-                                        hintText: 'Enter your country',
-                                        validator: textValidator
-                                      ),
+                                          controller: _countryController,
+                                          label: 'Country',
+                                          hintText: 'Enter your country',
+                                          validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
                                         controller: _zipCodeController,
@@ -344,17 +426,14 @@ class _SignupPage2State extends State<SignupPage2> {
                                       buildTextField(
                                         controller: _dobController,
                                         label: 'Date of Birth',
-                                        hintText:
-                                            'Enter your date of birth',
+                                        hintText: 'Enter your date of birth',
                                       ),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                        controller: _contactNumberController,
-                                        label: 'Contact Number',
-                                        hintText:
-                                            'Enter your contact number',
-                                        validator: contactNumberValidator
-                                      ),
+                                          controller: _contactNumberController,
+                                          label: 'Contact Number',
+                                          hintText: 'Enter your contact number',
+                                          validator: contactNumberValidator),
                                     ],
                                   )
                                 else
@@ -367,8 +446,7 @@ class _SignupPage2State extends State<SignupPage2> {
                                             child: buildTextField(
                                               controller: _firstNameController,
                                               label: 'First Name',
-                                              hintText:
-                                                  'Enter your first name',
+                                              hintText: 'Enter your first name',
                                             ),
                                           ),
                                           const SizedBox(width: 10),
@@ -377,8 +455,7 @@ class _SignupPage2State extends State<SignupPage2> {
                                             child: buildTextField(
                                               controller: _addressController,
                                               label: 'Address',
-                                              hintText:
-                                                  'Enter your address',
+                                              hintText: 'Enter your address',
                                             ),
                                           ),
                                         ],
@@ -407,8 +484,7 @@ class _SignupPage2State extends State<SignupPage2> {
                                                   child: buildTextField(
                                                     controller: _cityController,
                                                     label: 'City',
-                                                    hintText:
-                                                        'Enter your city',
+                                                    hintText: 'Enter your city',
                                                   ),
                                                 ),
                                                 const SizedBox(width: 10),
@@ -435,8 +511,7 @@ class _SignupPage2State extends State<SignupPage2> {
                                             child: buildTextField(
                                               controller: _lastNameController,
                                               label: 'Last Name',
-                                              hintText:
-                                                  'Enter your last name',
+                                              hintText: 'Enter your last name',
                                             ),
                                           ),
                                           const SizedBox(width: 10),
@@ -518,9 +593,7 @@ class _SignupPage2State extends State<SignupPage2> {
                                         borderRadius: BorderRadius.circular(5),
                                       ),
                                     ),
-                                    onPressed: () {
-                                      _signUp();
-                                    },
+                                    onPressed: isLoading ? null : _submit,
                                     child: isLoading
                                         ? const CircularProgressIndicator(
                                             color: Colors.white,
@@ -579,14 +652,14 @@ class _SignupPage2State extends State<SignupPage2> {
     );
   }
 
-    Widget buildTextField({
+  Widget buildTextField({
     required String label,
     required String hintText,
     required TextEditingController controller,
     TextInputType keyboardType = TextInputType.text,
     String? Function(String?)? validator,
     bool isDateOfBirthField = false, // Add a flag for date of birth field
-    }) {
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -610,7 +683,7 @@ class _SignupPage2State extends State<SignupPage2> {
         ),
         const SizedBox(height: 5),
         //Added Conditional rendering for the DOB
-        if (isDateOfBirthField) 
+        if (isDateOfBirthField)
           GestureDetector(
             onTap: () async {
               // Show the date picker
@@ -618,7 +691,7 @@ class _SignupPage2State extends State<SignupPage2> {
                 context: context,
                 initialDate: DateTime.now(),
                 firstDate: DateTime(1900),
-                lastDate:DateTime.now(),
+                lastDate: DateTime.now(),
               );
 
               //For the controller to pick up the data

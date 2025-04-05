@@ -1,201 +1,245 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_state.dart';
+import '../../../api/global_variables.dart';
 
-class EditProfileModal extends StatefulWidget {
-  const EditProfileModal({super.key});
+class EditProfileModal extends ConsumerStatefulWidget {
+  final AccountsData account;
+
+  const EditProfileModal({super.key, required this.account});
 
   @override
-  _EditProfileModalState createState() => _EditProfileModalState();
+  ConsumerState<EditProfileModal> createState() => _EditProfileModalState();
 }
 
-class _EditProfileModalState extends State<EditProfileModal> {
-  final TextEditingController _priceController = TextEditingController();
+class _EditProfileModalState extends ConsumerState<EditProfileModal> {
+  late TextEditingController _firstNameController;
+  late TextEditingController _lastNameController;
+  late TextEditingController _middleNameController;
+  late TextEditingController _emailController;
+  late TextEditingController _phoneController;
+  late TextEditingController _birthdayController;
+  late TextEditingController _addressController;
+  late TextEditingController _cityController;
+  late TextEditingController _countryController;
+
+  @override
+  void initState() {
+    super.initState();
+    final a = widget.account;
+
+    _firstNameController = TextEditingController(text: a.firstName);
+    _lastNameController = TextEditingController(text: a.lastname);
+    _middleNameController = TextEditingController(text: a.middleName);
+    _emailController = TextEditingController(text: a.email);
+    _phoneController = TextEditingController(text: a.contactNumber);
+    _birthdayController = TextEditingController(
+        text: a.birthDate?.toIso8601String().split('T')[0] ?? '');
+    _addressController = TextEditingController(text: a.address);
+    _cityController = TextEditingController(text: a.city);
+    _countryController = TextEditingController(text: a.country);
+  }
 
   @override
   void dispose() {
-    _priceController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
+    _middleNameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _birthdayController.dispose();
+    _addressController.dispose();
+    _cityController.dispose();
+    _countryController.dispose();
     super.dispose();
+  }
+
+  Future<void> _submit() async {
+    try {
+      final updatedAccount = AccountsData(
+        userID: widget.account.userID,
+        firstName: _firstNameController.text.trim(),
+        lastname: _lastNameController.text.trim(),
+        middleName: _middleNameController.text.trim(),
+        email: _emailController.text.trim(),
+        contactNumber: _phoneController.text.trim(),
+        birthDate: _birthdayController.text.isNotEmpty
+            ? DateTime.tryParse(_birthdayController.text)
+            : null,
+        address: _addressController.text.trim(),
+        city: _cityController.text.trim(),
+        province: widget.account.province,
+        country: _countryController.text.trim(),
+        zipCode: widget.account.zipCode,
+      );
+
+      await supabaseDB
+          .from('accounts')
+          .update(updatedAccount.toJson())
+          .eq('userID', widget.account.userID);
+
+      //ref.invalidate(fetchAccountList);
+      print(fetchAccountList);
+
+      Navigator.pop(context, updatedAccount);
+    } catch (e) {
+      debugPrint("Update error: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Update failed. Try again.")),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 700 : screenWidth * 0.9;
-    const double containerHeight = 620;
 
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       insetPadding:
           EdgeInsets.symmetric(horizontal: screenWidth > 600 ? 50.0 : 16.0),
       child: Container(
         width: containerWidth,
-        height: containerHeight,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-        ),
+        padding: const EdgeInsets.all(20),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              decoration: const BoxDecoration(
-                color: Color(0xFF00AEEF),
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(10),
-                ),
-              ),
-              child: const Center(
-                child: Text(
-                  'Edit Profile',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
+            const Center(
+              child: Text(
+                'Edit Profile',
+                style: TextStyle(
+                  fontFamily: 'NunitoSans',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Color(0xFF00AEEF),
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        children: [
-                          _buildTextField(
-                            label: 'First Name',
-                            hintText: 'Enter first name',
-                          ),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            label: 'Last Name',
-                            hintText: 'Enter last name',
-                          ),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            label: 'Middle Initial',
-                            hintText: 'Enter middle initial',
-                          ),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            label: 'Username',
-                            hintText: 'Enter username',
-                          ),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            label: 'Password',
-                            hintText: 'Enter password',
-                          ),
-                          const SizedBox(height: 8),
-                          _buildDropdownField(
-                            onChanged: (String? value) {},
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      flex: 1,
-                      child: Column(
-                        children: [
-                          _buildTextField(
-                            label: 'Email',
-                            hintText: 'Enter email',
-                          ),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            label: 'Phone',
-                            hintText: 'Enter phone number',
-                          ),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            label: 'Birthday',
-                            hintText: 'Enter birthday',
-                          ),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            label: 'Address',
-                            hintText: 'Enter address',
-                          ),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            label: 'City',
-                            hintText: 'Enter city ',
-                          ),
-                          const SizedBox(height: 8),
-                          _buildTextField(
-                            label: 'Country',
-                            hintText: 'Enter country',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                    child: _buildTextField('First Name', _firstNameController)),
+                const SizedBox(width: 10),
+                Expanded(
+                    child: _buildTextField('Email', _emailController,
+                        readOnly: true)),
+              ],
             ),
-            const SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          side: const BorderSide(
-                            color: Color(0xFF00AEEF),
-                          ),
-                        ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                    child: _buildTextField('Last Name', _lastNameController)),
+                const SizedBox(width: 10),
+                Expanded(child: _buildTextField('Phone', _phoneController)),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                    child: _buildTextField(
+                        'Middle Initial', _middleNameController)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _buildTextField(
+                    'Birthday',
+                    _birthdayController,
+                    readOnly: true,
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime(1900),
+                        lastDate: DateTime.now(),
+                      );
+                      if (picked != null) {
+                        _birthdayController.text =
+                            picked.toIso8601String().split('T')[0];
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                    child:
+                        _buildTextField('Username', TextEditingController())),
+                const SizedBox(width: 10),
+                Expanded(child: _buildTextField('Address', _addressController)),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                    child:
+                        _buildTextField('Password', TextEditingController())),
+                const SizedBox(width: 10),
+                Expanded(child: _buildTextField('City', _cityController)),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(child: _buildDropdownField()),
+                const SizedBox(width: 10),
+                Expanded(child: _buildTextField('Country', _countryController)),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                        side: const BorderSide(color: Color(0xFF00AEEF)),
                       ),
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF00AEEF),
-                        ),
+                    ),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        fontFamily: 'NunitoSans',
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF00AEEF),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF00AEEF),
-                        padding: const EdgeInsets.symmetric(vertical: 16.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00AEEF),
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
                       ),
-                      child: const Text(
-                        'Save Changes',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                    ),
+                    child: const Text(
+                      'Save Changes',
+                      style: TextStyle(
+                        fontFamily: 'NunitoSans',
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
@@ -203,11 +247,8 @@ class _EditProfileModalState extends State<EditProfileModal> {
     );
   }
 
-  Widget _buildTextField({
-    required String label,
-    required String hintText,
-    int maxLines = 1,
-  }) {
+  Widget _buildTextField(String label, TextEditingController controller,
+      {bool readOnly = false, VoidCallback? onTap}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -231,9 +272,11 @@ class _EditProfileModalState extends State<EditProfileModal> {
         ),
         const SizedBox(height: 5),
         TextField(
-          maxLines: maxLines,
+          controller: controller,
+          readOnly: readOnly,
+          onTap: onTap,
           decoration: InputDecoration(
-            hintText: hintText,
+            hintText: 'Enter $label'.toLowerCase(),
             border: const OutlineInputBorder(),
             hintStyle: const TextStyle(
               fontFamily: 'Poppins',
@@ -246,9 +289,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
     );
   }
 
-  Widget _buildDropdownField({
-    required ValueChanged<String?> onChanged,
-  }) {
+  Widget _buildDropdownField() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -282,9 +323,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
             ),
           ),
           decoration: const InputDecoration(
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.black),
-            ),
+            border: OutlineInputBorder(),
           ),
           icon: const Icon(Icons.arrow_drop_down),
           dropdownColor: Colors.white,
@@ -301,7 +340,7 @@ class _EditProfileModalState extends State<EditProfileModal> {
               ),
             );
           }).toList(),
-          onChanged: onChanged,
+          onChanged: (value) {},
         ),
       ],
     );
