@@ -30,11 +30,12 @@ import 'package:jcsd_flutter/view/inventory/item_types/item_types.dart';
 // Suppliers
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
 
-class InventoryPage extends ConsumerWidget{
+class InventoryPage extends ConsumerWidget {
   const InventoryPage({super.key});
 
   final String _activeSubItem = '/inventory';
-  final bool isVisibleFilter = true; //Default Value, since in this page, only Active items are displayed
+  final bool isVisibleFilter =
+      true; //Default Value, since in this page, only Active items are displayed
 
   //Update Theses after the main inventory module
   void _showAddItemModal(BuildContext context, WidgetRef ref) {
@@ -62,7 +63,9 @@ class InventoryPage extends ConsumerWidget{
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return EditItemModal(item: itemData); // Adjust the parameter inside Edit Item Modal itself to accept the InventoryData
+        return EditItemModal(
+            item:
+                itemData); // Adjust the parameter inside Edit Item Modal itself to accept the InventoryData
       },
     );
   }
@@ -116,7 +119,8 @@ class InventoryPage extends ConsumerWidget{
   Widget build(BuildContext context, WidgetRef ref) {
     const bool isVisibleFilter = true;
 
-    final inventoryAsyncValue = ref.watch(InventoryNotifierProvider(isVisibleFilter));
+    final inventoryAsyncValue =
+        ref.watch(InventoryNotifierProvider(isVisibleFilter));
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
@@ -124,40 +128,37 @@ class InventoryPage extends ConsumerWidget{
         children: [
           Sidebar(activePage: _activeSubItem),
           Expanded(
-            child: Column(
-              children: [
-                const Header(
-                  title: 'Inventory'
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: inventoryAsyncValue.when(
-                      loading: () => _buildLoadingIndicator(),
-                      error:(error, stackTrace) => _buildErrorWidget(
-                        error.toString(), stackTrace),
-                      data: (inventoryData) {
-                        if(inventoryData.filteredData.isEmpty){
-                          if(inventoryData.searchText.isEmpty){
-                            return _buildEmptyState(context, ref);
-                          }else{
-                            return Center(
-                              child: Text('No items match your search query. ${inventoryData.searchText}'
-                              ),
-                            );
-                          }
+              child: Column(
+            children: [
+              const Header(title: 'Inventory'),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: inventoryAsyncValue.when(
+                    loading: () => _buildLoadingIndicator(),
+                    error: (error, stackTrace) =>
+                        _buildErrorWidget(error.toString(), stackTrace),
+                    data: (inventoryData) {
+                      if (inventoryData.filteredData.isEmpty) {
+                        if (inventoryData.searchText.isEmpty) {
+                          return _buildEmptyState(context, ref);
+                        } else {
+                          return Center(
+                            child: Text(
+                                'No items match your search query. ${inventoryData.searchText}'),
+                          );
                         }
-                        return _buildWebView(context, ref, inventoryData);
-                      },
-                    ),
+                      }
+                      return _buildWebView(context, ref, inventoryData);
+                    },
                   ),
                 ),
-              ],
-            )
-          ),
+              ),
+            ],
+          )),
         ],
       ),
-    );  
+    );
   }
 
   //Shimmer Row Loading indicator nako hehe
@@ -180,21 +181,21 @@ class InventoryPage extends ConsumerWidget{
   Widget _buildErrorWidget(String error, StackTrace? stackTrace) {
     print('General Inventory Error. Kindly check: $error \n $stackTrace');
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(FontAwesomeIcons.bug, color: Color.fromARGB(255, 25, 122, 206), size: 70),
-          const SizedBox(height: 16),
-          _buildGenericTextInformation('Error loading inventory data.'),
-          const SizedBox(height: 8),
-          _buildGenericTextInformation(error),
-        ],
-      )
-    );
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Icon(FontAwesomeIcons.bug,
+            color: Color.fromARGB(255, 25, 122, 206), size: 70),
+        const SizedBox(height: 16),
+        _buildGenericTextInformation('Error loading inventory data.'),
+        const SizedBox(height: 8),
+        _buildGenericTextInformation(error),
+      ],
+    ));
   }
 
   //Generic Text Widget, for cleaner code
-  Widget _buildGenericTextInformation(String textMessage){
+  Widget _buildGenericTextInformation(String textMessage) {
     return Text(
       textMessage,
       style: const TextStyle(
@@ -207,32 +208,37 @@ class InventoryPage extends ConsumerWidget{
 
   //Empty State Widget - just to show na "hey walay data sa imong gisearch boo!"
   //Michael or Bea, just adjust the design for this thx
-  Widget _buildEmptyState(BuildContext context, WidgetRef ref){
+  Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-         const Icon(FontAwesomeIcons.xmark, color: Color.fromARGB(255, 25, 122, 206), size: 70),
+          const Icon(FontAwesomeIcons.xmark,
+              color: Color.fromARGB(255, 25, 122, 206), size: 70),
           const SizedBox(height: 16),
           _buildGenericTextInformation('No active inventory items found.'),
           const SizedBox(height: 8),
           ElevatedButton.icon(
-            icon: const Icon(FontAwesomeIcons.plus, color: Colors.blue, size: 12,),
-            onPressed: () => _showAddItemModal(context, ref), 
-            label: _buildGenericTextInformation('Add a new item'),
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Theme.of(context).primaryColor,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12)
-            )
-          )
+              icon: const Icon(
+                FontAwesomeIcons.plus,
+                color: Colors.blue,
+                size: 12,
+              ),
+              onPressed: () => _showAddItemModal(context, ref),
+              label: _buildGenericTextInformation('Add a new item'),
+              style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Theme.of(context).primaryColor,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12)))
         ],
       ),
     );
   }
 
   //Leaving Notes kay it's not that readable ba, sakit sa mata
-  Widget _buildWebView(BuildContext context, WidgetRef ref, InventoryState inventoryState){
+  Widget _buildWebView(
+      BuildContext context, WidgetRef ref, InventoryState inventoryState) {
     return Column(
       children: [
         //First Row: Item Types and Borrowed Items
@@ -242,25 +248,21 @@ class InventoryPage extends ConsumerWidget{
             Row(
               children: [
                 ElevatedButton.icon(
-                onPressed: () => _navigateToItemTypesPage(context),
-                icon: const Icon(
-                  Icons.topic_rounded, 
-                  color: Colors.white
-                ),
-                label: const Text(
-                  'Item Types', 
-                  style: TextStyle(
-                    color: Colors.white
-                  )
-                ),
-                style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00AEEF)),
+                  onPressed: () => _navigateToItemTypesPage(context),
+                  icon: const Icon(Icons.topic_rounded, color: Colors.white),
+                  label: const Text('Item Types',
+                      style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00AEEF)),
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton.icon(
                   onPressed: () => _showBorrowedItemsModal(context),
                   icon: const Icon(Icons.topic_rounded, color: Colors.white),
-                  label: const Text('Borrowed Items', style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00AEEF)),
+                  label: const Text('Borrowed Items',
+                      style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00AEEF)),
                 ),
                 const Spacer(),
                 SizedBox(
@@ -270,11 +272,16 @@ class InventoryPage extends ConsumerWidget{
                     decoration: InputDecoration(
                       hintText: 'Search Name/Description....',
                       prefixIcon: const Icon(Icons.search, size: 20),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 10),
                     ),
                     onChanged: (searchText) {
-                      ref.read(InventoryNotifierProvider(isVisibleFilter).notifier).searchItems(searchText);
+                      ref
+                          .read(InventoryNotifierProvider(isVisibleFilter)
+                              .notifier)
+                          .searchItems(searchText);
                     },
                   ),
                 ),
@@ -282,21 +289,25 @@ class InventoryPage extends ConsumerWidget{
                 ElevatedButton.icon(
                   onPressed: () => _showStockInItemModal(context),
                   icon: const Icon(Icons.add_business, color: Colors.white),
-                  label: const Text('Stock In', style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00AEEF)),
+                  label: const Text('Stock In',
+                      style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF00AEEF)),
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton.icon(
                   onPressed: () => _showAddItemModal(context, ref),
                   icon: const Icon(Icons.add, color: Colors.white),
-                  label: const Text('Add Item', style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.greenAccent),
+                  label: const Text('Add Item',
+                      style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.greenAccent),
                 ),
               ],
             )
           ],
         ),
-        
+
         const SizedBox(height: 16),
         Expanded(
           child: _buildDataTable(context, ref, inventoryState),
@@ -307,7 +318,8 @@ class InventoryPage extends ConsumerWidget{
     );
   }
 
-  Widget _buildDataTable(BuildContext context, WidgetRef ref, InventoryState inventoryState) {
+  Widget _buildDataTable(
+      BuildContext context, WidgetRef ref, InventoryState inventoryState) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -340,34 +352,75 @@ class InventoryPage extends ConsumerWidget{
   }
 
   //Refactoring _buildHeaderCell first
-  Widget _buildHeaderRow(BuildContext context, WidgetRef ref, InventoryState inventoryState) {
-      // Use a helper for consistency or define style here
-      const headerTextStyle = TextStyle(fontFamily: 'NunitoSans', fontWeight: FontWeight.bold, color: Colors.white);
+  Widget _buildHeaderRow(
+      BuildContext context, WidgetRef ref, InventoryState inventoryState) {
+    // Use a helper for consistency or define style here
+    const headerTextStyle = TextStyle(
+        fontFamily: 'NunitoSans',
+        fontWeight: FontWeight.bold,
+        color: Colors.white);
 
-      return Container(
-          color: const Color.fromRGBO(0, 174, 239, 1),
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildHeaderCell(context: context,ref: ref, state: inventoryState, columnTitle: 'Item ID', sortByColumn: 'itemID', textStyle: headerTextStyle),
-              _buildHeaderCell(context: context,ref: ref, state: inventoryState, columnTitle: 'Item Name', sortByColumn: 'itemName', textStyle: headerTextStyle),
-              _buildHeaderCell(context: context,ref: ref, state: inventoryState, columnTitle: 'Product Type', sortByColumn: 'itemTypeID', textStyle: headerTextStyle), // Sort by ID, display name later
-              _buildHeaderCell(context: context,ref: ref, state: inventoryState, columnTitle: 'Supplier', sortByColumn: 'supplierID', textStyle: headerTextStyle), // Sort by ID, display name later
-              _buildHeaderCell(context: context,ref: ref, state: inventoryState, columnTitle: 'Quantity', sortByColumn: 'itemQuantity', textStyle: headerTextStyle),
-              _buildHeaderCell(context: context,ref: ref, state: inventoryState, columnTitle: 'Price', sortByColumn: 'itemPrice', textStyle: headerTextStyle),
-              const Expanded( 
-                  child: Text('Actions', style: headerTextStyle, textAlign: TextAlign.center),
-              ),
-            ],
+    return Container(
+      color: const Color.fromRGBO(0, 174, 239, 1),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildHeaderCell(
+              context: context,
+              ref: ref,
+              state: inventoryState,
+              columnTitle: 'Item ID',
+              sortByColumn: 'itemID',
+              textStyle: headerTextStyle),
+          _buildHeaderCell(
+              context: context,
+              ref: ref,
+              state: inventoryState,
+              columnTitle: 'Item Name',
+              sortByColumn: 'itemName',
+              textStyle: headerTextStyle),
+          _buildHeaderCell(
+              context: context,
+              ref: ref,
+              state: inventoryState,
+              columnTitle: 'Product Type',
+              sortByColumn: 'itemTypeID',
+              textStyle: headerTextStyle), // Sort by ID, display name later
+          _buildHeaderCell(
+              context: context,
+              ref: ref,
+              state: inventoryState,
+              columnTitle: 'Supplier',
+              sortByColumn: 'supplierID',
+              textStyle: headerTextStyle), // Sort by ID, display name later
+          _buildHeaderCell(
+              context: context,
+              ref: ref,
+              state: inventoryState,
+              columnTitle: 'Quantity',
+              sortByColumn: 'itemQuantity',
+              textStyle: headerTextStyle),
+          _buildHeaderCell(
+              context: context,
+              ref: ref,
+              state: inventoryState,
+              columnTitle: 'Price',
+              sortByColumn: 'itemPrice',
+              textStyle: headerTextStyle),
+          const Expanded(
+            child: Text('Actions',
+                style: headerTextStyle, textAlign: TextAlign.center),
           ),
-      );
+        ],
+      ),
+    );
   }
 
   Widget _buildHeaderCell({
-    required BuildContext context, 
+    required BuildContext context,
     required WidgetRef ref,
-    required InventoryState state, 
+    required InventoryState state,
     required String columnTitle,
     required String sortByColumn,
     required TextStyle textStyle,
@@ -376,35 +429,40 @@ class InventoryPage extends ConsumerWidget{
     Icon? sortIcon;
 
     //For the icon activity -- UI Only
-    if(isCurrentlySorted){
+    if (isCurrentlySorted) {
       sortIcon = state.ascending
-      ? const Icon(Icons.arrow_drop_up, color: Colors.white)
-      : const Icon(Icons.arrow_drop_down, color: Colors.white);
+          ? const Icon(Icons.arrow_drop_up, color: Colors.white)
+          : const Icon(Icons.arrow_drop_down, color: Colors.white);
     }
 
     return Expanded(
         child: InkWell(
-      onTap: () {
-        ref.read(InventoryNotifierProvider(isVisibleFilter).notifier).sort(sortByColumn);
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text(columnTitle, style: textStyle),
-            const SizedBox(width: 4),
-            if(sortIcon != null) sortIcon,
-          ],
-        ))
-    ));
+            onTap: () {
+              ref
+                  .read(InventoryNotifierProvider(isVisibleFilter).notifier)
+                  .sort(sortByColumn);
+            },
+            child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      columnTitle,
+                      style: textStyle,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(width: 4),
+                    if (sortIcon != null) sortIcon,
+                  ],
+                ))));
   }
 
-  Widget _buildItemRow(
-      BuildContext context, WidgetRef ref, InventoryData items, InventoryState inventorystate) {
+  Widget _buildItemRow(BuildContext context, WidgetRef ref, InventoryData items,
+      InventoryState inventorystate) {
     final SuppliersService suppliersService = SuppliersService();
     final ItemtypesService itemTypesService = ItemtypesService();
-    String itemIDForDisplay = 'PROD ${items.itemID.toString()}'; 
+    String itemIDForDisplay = 'PROD ${items.itemID.toString()}';
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
@@ -433,17 +491,19 @@ class InventoryPage extends ConsumerWidget{
           ),
           Expanded(
             child: FutureBuilder<String?>(
-              future: itemTypesService.getTypeNameByID(items.itemTypeID), 
+              future: itemTypesService.getTypeNameByID(items.itemTypeID),
               builder: (context, snapshot) {
-                if(snapshot.connectionState == ConnectionState.waiting) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: SizedBox(
                       width: 15,
                       height: 15,
-                      child: Text('Loading..'),
+                      child: Text('...'),
                     ),
                   );
-                }else if (snapshot.hasError || !snapshot.hasData || snapshot.data == null){
+                } else if (snapshot.hasError ||
+                    !snapshot.hasData ||
+                    snapshot.data == null) {
                   return const Text(
                     'Type N/A',
                     style: TextStyle(
@@ -451,10 +511,10 @@ class InventoryPage extends ConsumerWidget{
                     ),
                     textAlign: TextAlign.center,
                   );
-                }else {
+                } else {
                   return Text(snapshot.data!,
-                  textAlign: TextAlign.center
-                  );
+                      style: const TextStyle(fontFamily: 'NunitoSans'),
+                      textAlign: TextAlign.center);
                 }
               },
             ),
@@ -464,15 +524,17 @@ class InventoryPage extends ConsumerWidget{
               future: suppliersService
                   .getSupplierNameByID(items.supplierID.toInt()),
               builder: (context, snapshot) {
-                if(snapshot.connectionState == ConnectionState.waiting) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: SizedBox(
                       width: 15,
                       height: 15,
-                      child: Text('Loading..'),
+                      child: Text('...'),
                     ),
                   );
-                }else if (snapshot.hasError || !snapshot.hasData || snapshot.data == null){
+                } else if (snapshot.hasError ||
+                    !snapshot.hasData ||
+                    snapshot.data == null) {
                   return const Text(
                     'Supplier N/A',
                     style: TextStyle(
@@ -480,10 +542,12 @@ class InventoryPage extends ConsumerWidget{
                     ),
                     textAlign: TextAlign.center,
                   );
-                }else {
+                } else {
                   return Text(snapshot.data!,
-                  textAlign: TextAlign.center
-                  );
+                      style: const TextStyle(
+                        fontFamily: 'NunitoSans',
+                      ),
+                      textAlign: TextAlign.center);
                 }
               },
             ),
@@ -515,24 +579,33 @@ class InventoryPage extends ConsumerWidget{
           //Actions
           Expanded(
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconButton(
-                  icon:const Icon(Icons.edit, color: Colors.white),
-                  onPressed: () {
-                    _showEditItemModal(context, items);
-                  },
-                  splashRadius: 20,
-                  constraints: const BoxConstraints(),
-                ), 
-                IconButton(
-                  icon:const Icon(Icons.archive, color: Colors.red),
-                  onPressed: () {
-                    _showArchiveItemModal(context, items.itemID, ref);
-                  },
-                  splashRadius: 20,
-                  constraints: const BoxConstraints(),
-                ), 
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: Colors.blue,
+                  child: IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.white),
+                    onPressed: () {
+                      _showEditItemModal(context, items);
+                    },
+                    splashRadius: 20,
+                    constraints: const BoxConstraints(),
+                  ),
+                ),
+                const SizedBox(width: 20),
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: Colors.red,
+                  child: IconButton(
+                    icon: const Icon(Icons.archive, color: Colors.white),
+                    onPressed: () {
+                      _showArchiveItemModal(context, items.itemID, ref);
+                    },
+                    splashRadius: 20,
+                    constraints: const BoxConstraints(),
+                  ),
+                ),
               ],
             ),
           ),
@@ -541,8 +614,10 @@ class InventoryPage extends ConsumerWidget{
     );
   }
 
-  Widget _buildPaginationControls(BuildContext context, WidgetRef ref, InventoryState inventoryState){
-    final inventoryNotifierAccess = ref.read(InventoryNotifierProvider(isVisibleFilter).notifier);
+  Widget _buildPaginationControls(
+      BuildContext context, WidgetRef ref, InventoryState inventoryState) {
+    final inventoryNotifierAccess =
+        ref.read(InventoryNotifierProvider(isVisibleFilter).notifier);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -550,33 +625,41 @@ class InventoryPage extends ConsumerWidget{
         IconButton(
           icon: const Icon(Icons.first_page),
           tooltip: 'First Page',
-          onPressed: inventoryState.currentPage > 1 ? () => inventoryNotifierAccess.goToPage(1) : null,
+          onPressed: inventoryState.currentPage > 1
+              ? () => inventoryNotifierAccess.goToPage(1)
+              : null,
         ),
         IconButton(
           icon: const Icon(Icons.chevron_left),
           tooltip: 'Previous Page',
-          onPressed: inventoryState.currentPage > 1 ? () => inventoryNotifierAccess.goToPage(inventoryState.currentPage - 1) : null,
+          onPressed: inventoryState.currentPage > 1
+              ? () => inventoryNotifierAccess
+                  .goToPage(inventoryState.currentPage - 1)
+              : null,
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
             'Page ${inventoryState.currentPage} of ${inventoryState.totalPages}',
-            style: const TextStyle(
-              fontSize: 14, 
-              fontFamily: 'NunitoSans'
-            ),
+            style: const TextStyle(fontSize: 14, fontFamily: 'NunitoSans'),
           ),
         ),
         IconButton(
           icon: const Icon(Icons.chevron_right),
           tooltip: 'Next Page',
-          onPressed: inventoryState.currentPage < inventoryState.totalPages ? () => inventoryNotifierAccess.goToPage(inventoryState.currentPage + 1) : null,
+          onPressed: inventoryState.currentPage < inventoryState.totalPages
+              ? () => inventoryNotifierAccess
+                  .goToPage(inventoryState.currentPage + 1)
+              : null,
           splashRadius: 20,
         ),
-         IconButton(
+        IconButton(
           icon: const Icon(Icons.last_page),
           tooltip: 'Last Page',
-          onPressed: inventoryState.currentPage < inventoryState.totalPages ? () => inventoryNotifierAccess.goToPage(inventoryState.totalPages) : null,
+          onPressed: inventoryState.currentPage < inventoryState.totalPages
+              ? () =>
+                  inventoryNotifierAccess.goToPage(inventoryState.totalPages)
+              : null,
           splashRadius: 20,
         ),
       ],
@@ -601,7 +684,8 @@ class InventoryPage extends ConsumerWidget{
                   child: SizedBox(
                     width: 200,
                     height: 10,
-                    child: Container(color: const Color.fromARGB(255, 94, 157, 208)),
+                    child: Container(
+                        color: const Color.fromARGB(255, 94, 157, 208)),
                   ),
                 ),
               ],
