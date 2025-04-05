@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:jcsd_flutter/modals/confirmleaverequest.dart';
-import 'package:jcsd_flutter/modals/rejectleaverequest.dart';
+import 'package:jcsd_flutter/modals/confirm_leaverequest.dart';
+import 'package:jcsd_flutter/modals/reject_leave_request.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:jcsd_flutter/modals/editpayroll.dart';
+import 'package:jcsd_flutter/modals/edit_payroll.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 
