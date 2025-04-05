@@ -47,12 +47,7 @@ class _LoginState extends State<Login> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login successful: ${response.user!.email}')),
         );
-        Navigator.pushReplacementNamed(context, '/dashboard');
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Login failed. Check your credentials.')),
-        );
+        Navigator.pushNamedAndRemoveUntil(context, '/', (_) => false);
       }
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -196,12 +191,18 @@ class _LoginState extends State<Login> {
                                         ),
                                       ],
                                     ),
-                                    const Text(
-                                      'Forgot your details?',
-                                      style: TextStyle(
-                                        fontFamily: 'Nunito',
-                                        fontWeight: FontWeight.w300,
-                                        color: Colors.black,
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pushNamed(
+                                            context, '/forgotPassword');
+                                      },
+                                      child: const Text(
+                                        'Forgot your details?',
+                                        style: TextStyle(
+                                          fontFamily: 'Nunito',
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.w300,
+                                        ),
                                       ),
                                     ),
                                   ],
