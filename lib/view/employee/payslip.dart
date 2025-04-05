@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
@@ -30,7 +31,7 @@ class _PayslipState extends State<Payslip> {
                   leading: IconButton(
                     icon:
                         const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => context.pop(),
                   ),
                 ),
                 Expanded(

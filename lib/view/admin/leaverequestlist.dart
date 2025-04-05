@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/main.dart';
 import 'package:jcsd_flutter/modals/confirmleaverequest.dart';
 import 'package:jcsd_flutter/modals/rejectleaverequest.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
@@ -29,7 +31,7 @@ class _LeaveRequestListState extends State<LeaveRequestList> {
                   leading: IconButton(
                     icon:
                         const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => context.pop(),
                   ),
                 ),
                 Expanded(

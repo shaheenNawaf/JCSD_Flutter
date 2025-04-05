@@ -94,7 +94,12 @@ final router = GoRouter(
     GoRoute(
       path: '/accountList',
       builder: (context, state) => const AccountListPage(),
-      routes: []
+      routes: <GoRoute>[
+        GoRoute(
+          path: 'accountDetail',
+          builder: (context, state) => ProfileAdminViewPage(),
+        )
+      ]
     ),
     GoRoute(
       path: '/bookingsCalendar',
@@ -103,6 +108,26 @@ final router = GoRouter(
     GoRoute(
       path: '/employeeList',
       builder: (context, state) => const EmployeeListPage(),
+      routes: <GoRoute>[
+        GoRoute(
+          path: 'leaveRequestList',
+          builder: (context, state) => LeaveRequestList(),
+        ),
+        GoRoute(
+          path: 'profile',
+          builder: (context, state) => ProfilePage(),
+          routes: <GoRoute>[
+            GoRoute(
+              path: 'payslip',
+              builder: (context, state) => Payslip(),
+            ),
+            GoRoute(
+              path: 'leaveRequest',
+              builder: (context, state) => LeaveRequest(),
+            )
+          ]
+        )
+      ]
     ),
     GoRoute(
       path: '/payroll',
@@ -111,10 +136,6 @@ final router = GoRouter(
     GoRoute(
       path: '/accountDetails',
       builder: (context, state) => const ProfileAdminViewPage(),
-    ),
-    GoRoute(
-      path: '/leaveRequestList',
-      builder: (context, state) => const LeaveRequestList(),
     ),
     GoRoute(
       path: '/booking1',
@@ -177,24 +198,12 @@ final router = GoRouter(
       builder: (context, state) => const ServicesArchivePage(),
     ),
     GoRoute(
-      path: '/profile',
-      builder: (context, state) => const ProfilePage(),
-    ),
-    GoRoute(
-      path: '/leaveRequest',
-      builder: (context, state) => const LeaveRequest(),
-    ),
-    GoRoute(
       path: '/bookingDetail',
       builder: (context, state) => const BookingDetails(),
     ),
     GoRoute(
       path: '/bookingReceipt',
       builder: (context, state) => const BookingReceipt(),
-    ),
-    GoRoute(
-      path: '/payslip',
-      builder: (context, state) => const Payslip(),
     ),
     GoRoute(
       path: '/itemTypes',

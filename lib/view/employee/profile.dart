@@ -49,7 +49,7 @@ class _ProfilePageState extends State<ProfilePage>
                   leading: IconButton(
                     icon:
                         const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
-                    onPressed: () => context.go('/employeeList'),
+                    onPressed: () => context.pop(),
                   ),
                 ),
                 Expanded(
@@ -378,7 +378,7 @@ class _ProfilePageState extends State<ProfilePage>
                           ),
                         ),
                         onPressed: () {
-                          context.go('/payslip');
+                          context.go('/employeeList/profile/payslip');
                         },
                         icon: const FaIcon(
                           FontAwesomeIcons.fileInvoiceDollar,
@@ -398,7 +398,7 @@ class _ProfilePageState extends State<ProfilePage>
                           ),
                         ),
                         onPressed: () {
-                          context.go('/leaveRequest');
+                          context.go('/employeeList/profile/leaveRequest');
                         },
                         icon: const FaIcon(FontAwesomeIcons.suitcaseRolling,
                             color: Colors.white),

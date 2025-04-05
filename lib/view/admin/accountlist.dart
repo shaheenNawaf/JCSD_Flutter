@@ -221,7 +221,7 @@ class _AccountListPageState extends State<AccountListPage> {
               width: 140,
               child: ElevatedButton(
                 onPressed: () {
-                  context.go( '/accountDetails');
+                  context.go( '/accountList/accountDetail');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00AEEF),

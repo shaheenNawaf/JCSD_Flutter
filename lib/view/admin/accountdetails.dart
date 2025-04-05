@@ -41,7 +41,7 @@ class _ProfileAdminViewPageState extends State<ProfileAdminViewPage> {
                     leading: IconButton(
                     icon:
                       const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
-                    onPressed: () => context.go('/accountList'),
+                    onPressed: () => context.pop(),
                   ),
                 ),
                 Expanded(

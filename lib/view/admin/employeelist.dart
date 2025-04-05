@@ -44,7 +44,7 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          context.go('/leaveRequestList');
+                          context.go('/employeeList/leaveRequestList');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF00AEEF),
@@ -278,7 +278,7 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
               width: 140,
               child: ElevatedButton(
                 onPressed: () {
-                  context.go('/profile');
+                  context.go('/employeeList/profile');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00AEEF),
