@@ -26,7 +26,7 @@ import 'package:jcsd_flutter/view/services/services_archive.dart';
 import 'package:jcsd_flutter/view/inventory/item_types/item_types.dart';
 import 'package:jcsd_flutter/view/suppliers/suppliers_archive.dart';
 import 'package:jcsd_flutter/view/users/login.dart';
-import 'package:jcsd_flutter/view/generic/signup_second.dart';
+import 'package:jcsd_flutter/view/generic/page/signup_second.dart';
 import 'package:jcsd_flutter/view/inventory/inventory.dart';
 import 'package:jcsd_flutter/view/inventory/inventory_archive.dart';
 import 'package:jcsd_flutter/view/inventory/audit_log.dart';
