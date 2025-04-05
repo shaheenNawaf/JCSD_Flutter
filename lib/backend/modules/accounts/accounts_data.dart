@@ -3,7 +3,7 @@ class AccountsData {
   final String firstName;
   final String middleName;
   final String lastname;
-  final DateTime birthDate;
+  final DateTime? birthDate;
   final String address;
   final String city;
   final String province;
@@ -13,46 +13,54 @@ class AccountsData {
   final String email;
 
   AccountsData({
-    required this.userID, 
-    required this.firstName, 
-    required this.middleName, 
+    required this.userID,
+    required this.firstName,
+    required this.middleName,
     required this.lastname,
-    required this.birthDate, 
-    required this.address, 
-    required this.city, 
-    required this.province, 
-    required this.country, 
-    required this.zipCode, 
-    required this.contactNumber, 
-    required this.email
+    required this.birthDate,
+    required this.address,
+    required this.city,
+    required this.province,
+    required this.country,
+    required this.zipCode,
+    required this.contactNumber,
+    required this.email,
   });
 
-  //JSON to Accounts Information
+  // Helper to convert null or empty string to 'N/A'
+  static String _stringOrNA(dynamic value) {
+    if (value == null || (value is String && value.trim().isEmpty)) {
+      return 'N/A';
+    }
+    return value.toString();
+  }
+
   factory AccountsData.fromJson(Map<String, dynamic> json) {
     return AccountsData(
-      userID: json['userID'] as String, 
-      firstName: json['firstName'] as String, 
-      middleName: json['middleName'] as String, 
-      lastname: json['lastName'] as String,
-      birthDate: json['birthDate'] as DateTime, 
-      address: json['address'] as String, 
-      city: json['city'] as String,
-      province: json['province'] as String, 
-      country: json['country'] as String, 
-      zipCode: json['zipCode'] as String,
-      contactNumber: json['contactNumber'] as String,
-      email: json['email'] as String,
+      userID: _stringOrNA(json['userID']),
+      firstName: _stringOrNA(json['firstName']),
+      middleName: _stringOrNA(json['middleName']),
+      lastname: _stringOrNA(json['lastName']),
+      birthDate: json['birthDate'] != null
+          ? DateTime.tryParse(json['birthDate'])
+          : null,
+      address: _stringOrNA(json['address']),
+      city: _stringOrNA(json['city']),
+      province: _stringOrNA(json['province']),
+      country: _stringOrNA(json['country']),
+      zipCode: _stringOrNA(json['zipCode']),
+      contactNumber: _stringOrNA(json['contactNumber']),
+      email: _stringOrNA(json['email']),
     );
   }
 
-  //Returning the data to a JSON format
   Map<String, dynamic> toJson() {
     return {
       'userID': userID,
       'firstName': firstName,
       'middleName': middleName,
       'lastName': lastname,
-      'birthDate': birthDate,
+      'birthDate': birthDate?.toIso8601String(),
       'address': address,
       'city': city,
       'province': province,
