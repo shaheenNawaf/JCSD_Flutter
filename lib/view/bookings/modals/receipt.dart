@@ -24,7 +24,7 @@ class _ReceiptState extends State<Receipt> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -58,9 +58,7 @@ class _ReceiptState extends State<Receipt> {
                       ),
                     ],
                   ),
-                  const Expanded(
-                    flex: 3,
-                    child: _ReceiptDetails()),
+                  const Expanded(flex: 3, child: _ReceiptDetails()),
                   const Expanded(
                     flex: 7,
                     child: SingleChildScrollView(
@@ -146,27 +144,39 @@ class _ReceiptTable extends StatelessWidget {
           children: [
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(index == 0 ? 'Item' : (index).toString(), style: TextStyle(
-                fontSize: MediaQuery.of(context).size.width <= 600 ? 10 : 16,
-              ),),
+              child: Text(
+                index == 0 ? 'Item' : (index).toString(),
+                style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width <= 600 ? 10 : 16,
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(index == 0 ? 'Description' : 'Service Charge', style: TextStyle(
-                fontSize: MediaQuery.of(context).size.width <= 600 ? 10 : 16,
-              ),),
+              child: Text(
+                index == 0 ? 'Description' : 'Service Charge',
+                style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width <= 600 ? 10 : 16,
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(index == 0 ? 'Quantity' : '3', style: TextStyle(
-                fontSize: MediaQuery.of(context).size.width <= 600 ? 10 : 16,
-              ),),
+              child: Text(
+                index == 0 ? 'Quantity' : '3',
+                style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width <= 600 ? 10 : 16,
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(index == 0 ? 'Amount' : 'P1000', style: TextStyle(
-                fontSize: MediaQuery.of(context).size.width <= 600 ? 10 : 16,
-              ),),
+              child: Text(
+                index == 0 ? 'Amount' : 'P1000',
+                style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width <= 600 ? 10 : 16,
+                ),
+              ),
             ),
           ],
         );

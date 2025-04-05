@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../api/global_variables.dart';
+import '../../../../api/global_variables.dart';
 
 class SignupPage1 extends StatefulWidget {
   const SignupPage1({super.key});
@@ -107,7 +107,7 @@ class _SignupPage1State extends State<SignupPage1> {
           ),
           Positioned.fill(
             child: Container(
-              color: Colors.black.withOpacity(0.7),
+              color: Colors.black.withValues(alpha: 0.7),
             ),
           ),
           Center(

@@ -22,7 +22,7 @@ class ToastManager {
             color: Colors.white,
             child: Container(
               decoration: BoxDecoration(
-                color: color.withOpacity(0.4),
+                color: color.withValues(alpha: 0.7),
               ),
               child: Container(
                 decoration: BoxDecoration(
@@ -30,7 +30,8 @@ class ToastManager {
                     top: BorderSide(color: color, width: 2),
                   ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
                   children: [
                     Icon(

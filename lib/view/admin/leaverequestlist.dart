@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:jcsd_flutter/modals/confirmleaverequest.dart';
-import 'package:jcsd_flutter/modals/rejectleaverequest.dart';
+import 'package:jcsd_flutter/modals/confirm_leaverequest.dart';
+import 'package:jcsd_flutter/modals/reject_leave_request.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
@@ -53,7 +53,7 @@ class _LeaveRequestListState extends State<LeaveRequestList> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
+            color: Colors.grey.withValues(alpha: 0.3),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),

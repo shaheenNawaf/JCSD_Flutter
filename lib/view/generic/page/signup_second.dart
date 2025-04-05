@@ -2,7 +2,7 @@
 
 //Packages
 import 'package:intl/intl.dart';
-import 'package:jcsd_flutter/view/generic/error_dialog.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/error_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +12,7 @@ import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 
 //Backend
-import '../../../api/global_variables.dart';
+import '../../../../api/global_variables.dart';
 
 class SignupPage2 extends StatefulWidget {
   const SignupPage2({super.key});
@@ -236,7 +236,7 @@ class _SignupPage2State extends State<SignupPage2> {
           ),
           Positioned.fill(
             child: Container(
-              color: Colors.black.withOpacity(0.7),
+              color: Colors.black.withValues(alpha: 0.7),
             ),
           ),
           Center(
