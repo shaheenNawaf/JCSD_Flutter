@@ -6,19 +6,20 @@ class EmployeeData {
   final bool isActive;
   final DateTime createDate;
 
-  EmployeeData(
-      {required this.employeeID,
-      required this.userID,
-      required this.isAdmin,
-      required this.companyRole,
-      required this.isActive,
-      required this.createDate});
+  EmployeeData({
+    required this.employeeID,
+    required this.userID,
+    required this.isAdmin,
+    required this.companyRole,
+    required this.isActive,
+    required this.createDate,
+  });
 
   //JSON to Inventory classitem
   factory EmployeeData.fromJson(Map<String, dynamic> json) {
     return EmployeeData(
       employeeID: json['employeeID'] as String,
-      userID: json['userID'] as String,
+      userID: json['userID'].toString(),
       isAdmin: json['isAdmin'] as bool,
       companyRole: json['companyRole'] as String,
       isActive: json['isActive'] as bool,
