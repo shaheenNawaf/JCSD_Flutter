@@ -27,7 +27,6 @@ class AccountsData {
     required this.email,
   });
 
-  // Helper to convert null or empty string to 'N/A'
   static String _stringOrNA(dynamic value) {
     if (value == null || (value is String && value.trim().isEmpty)) {
       return 'N/A';
@@ -51,6 +50,23 @@ class AccountsData {
       zipCode: _stringOrNA(json['zipCode']),
       contactNumber: _stringOrNA(json['contactNumber']),
       email: _stringOrNA(json['email']),
+    );
+  }
+
+  factory AccountsData.empty(String userId) {
+    return AccountsData(
+      userID: userId,
+      firstName: '',
+      middleName: '',
+      lastname: '',
+      birthDate: null,
+      address: '',
+      city: '',
+      province: '',
+      country: '',
+      zipCode: '',
+      contactNumber: '',
+      email: '',
     );
   }
 

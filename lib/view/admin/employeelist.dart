@@ -1,29 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_state.dart';
+// import 'package:jcsd_flutter/backend/modules/employee/employee_providers.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_state.dart';
 import 'package:jcsd_flutter/modals/add_employee.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 
-class EmployeeListPage extends StatefulWidget {
+final employeeAccountProvider =
+    FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
+  final employees = await ref.watch(fetchAllEmployeesProvider.future);
+  final accountsService = ref.read(accountServiceProvider);
+  final accounts = await accountsService.fetchAccounts();
+
+  List<Map<String, dynamic>> combinedData = [];
+
+  for (final emp in employees) {
+    AccountsData? matchingAccount;
+
+    try {
+      matchingAccount = accounts.firstWhere(
+        (acc) => acc.userID == emp.userID.toString(),
+      );
+    } catch (e) {
+      continue;
+    }
+
+    combinedData.add({
+      'employee': emp,
+      'account': matchingAccount,
+      'fullName':
+          '${matchingAccount.firstName} ${matchingAccount.lastname}'.trim(),
+    });
+  }
+
+  return combinedData;
+});
+
+class EmployeeListPage extends ConsumerWidget {
   const EmployeeListPage({super.key});
 
-  @override
-  _EmployeeListPageState createState() => _EmployeeListPageState();
-}
-
-class _EmployeeListPageState extends State<EmployeeListPage> {
-  void _AddEmployeeModal() {
+  void _AddEmployeeModal(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
         return const AddEmployeeModal();
       },
-    );
+    ).then((_) {
+      ref.invalidate(
+          fetchAllEmployeesProvider); // Refresh the list after adding
+    });
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final employeeAsync = ref.watch(employeeAccountProvider);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       body: Row(
@@ -32,9 +68,7 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
           Expanded(
             child: Column(
               children: [
-                const Header(
-                  title: 'Employee List',
-                ),
+                const Header(title: 'Employee List'),
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -88,7 +122,7 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
                           const SizedBox(width: 16),
                           ElevatedButton.icon(
                             onPressed: () {
-                              _AddEmployeeModal();
+                              _AddEmployeeModal(context, ref);
                             },
                             icon: const Icon(Icons.add, color: Colors.white),
                             label: const Text(
@@ -115,7 +149,12 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: _buildDataTable(),
+                    child: employeeAsync.when(
+                      data: (list) => _buildDataTable(context, list, ref),
+                      loading: () =>
+                          const Center(child: CircularProgressIndicator()),
+                      error: (e, s) => Center(child: Text('Error: $e')),
+                    ),
                   ),
                 ),
               ],
@@ -126,14 +165,15 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
     );
   }
 
-  Widget _buildDataTable() {
+  Widget _buildDataTable(
+      BuildContext context, List<Map<String, dynamic>> data, WidgetRef ref) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.3),
+            color: Colors.grey.withOpacity(0.3),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -143,157 +183,79 @@ class _EmployeeListPageState extends State<EmployeeListPage> {
       child: ListView(
         children: [
           DataTable(
-            headingRowColor: WidgetStateProperty.all(
-              const Color(0xFF00AEEF),
-            ),
-            columns: const [
-              DataColumn(
-                label: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                  child: Text(
-                    'Name',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                  child: Text(
-                    'Status',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                  child: Text(
-                    'Position',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                  child: Text(
-                    'Contact Info',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              DataColumn(
-                label: Padding(
-                  padding: EdgeInsets.only(left: 40),
-                  child: Center(
-                    child: Text(
-                      'Action',
-                      style: TextStyle(
-                        fontFamily: 'NunitoSans',
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
+            headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
+            columns: [
+              DataColumn(label: _buildHeaderText('Name')),
+              DataColumn(label: _buildHeaderText('Email')),
+              DataColumn(label: _buildHeaderText('Position')),
+              DataColumn(label: _buildHeaderText('Contact Info')),
+              DataColumn(label: _buildHeaderText('Action', center: true)),
+            ],
+            rows: data.map((row) {
+              final emp = row['employee'] as EmployeeData;
+              final acc = row['account'] as AccountsData;
+              final fullName = row['fullName'] as String;
+              return DataRow(
+                cells: [
+                  DataCell(Text(fullName, style: _tableBodyStyle)),
+                  DataCell(Text(acc.email, style: _tableBodyStyle)),
+                  DataCell(Text(emp.companyRole, style: _tableBodyStyle)),
+                  DataCell(Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(acc.email, style: _tableBodyStyle),
+                      Text(acc.contactNumber, style: _tableBodyStyle),
+                    ],
+                  )),
+                  DataCell(
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: SizedBox(
+                        width: 140,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/profile',
+                                arguments: acc);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF00AEEF),
+                          ),
+                          child: const Text(
+                            'View Details',
+                            style: TextStyle(
+                              fontFamily: 'NunitoSans',
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
-            ],
-            rows: [
-              _buildDataRow(
-                'Amy D. Polie',
-                'Active',
-                'Technician',
-                '@gmail.com',
-                '(***) ***-****',
-              ),
-            ],
+                ],
+              );
+            }).toList(),
           ),
         ],
       ),
     );
   }
 
-  DataRow _buildDataRow(
-      String name, String status, String position, String email, String phone) {
-    return DataRow(
-      cells: [
-        DataCell(Text(
-          name,
-          style: const TextStyle(
-            fontFamily: 'NunitoSans',
-          ),
-        )),
-        DataCell(Text(
-          status,
-          style: const TextStyle(
-            fontFamily: 'NunitoSans',
-          ),
-        )),
-        DataCell(Text(
-          position,
-          style: const TextStyle(
-            fontFamily: 'NunitoSans',
-          ),
-        )),
-        DataCell(Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              email,
-              style: const TextStyle(
-                fontFamily: 'NunitoSans',
-              ),
-            ),
-            Text(
-              phone,
-              style: const TextStyle(
-                fontFamily: 'NunitoSans',
-              ),
-            ),
-          ],
-        )),
-        DataCell(
-          Align(
-            alignment: Alignment.centerLeft,
-            child: SizedBox(
-              width: 140,
-              child: ElevatedButton(
-                onPressed: () {
-                  context.go('/employeeList/profile');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00AEEF),
-                ),
-                child: const Text(
-                  'View Details',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
+  static Widget _buildHeaderText(String text, {bool center = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontFamily: 'NunitoSans',
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
         ),
-      ],
+        textAlign: center ? TextAlign.center : TextAlign.start,
+      ),
     );
   }
 }
+
+const TextStyle _tableBodyStyle = TextStyle(
+  fontFamily: 'NunitoSans',
+);
