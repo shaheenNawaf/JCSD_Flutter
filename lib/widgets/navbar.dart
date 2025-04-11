@@ -1,6 +1,3 @@
-// ignore: file_names
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -16,7 +13,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
       Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Logout failed: $error')),
+        SnackBar(content: Text('Logout failed: \$error')),
       );
     }
   }
@@ -24,18 +21,16 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    bool isMobileView = screenWidth < 600;
-
-    // Check if user is logged in
+    final isMobileView = screenWidth < 600;
     final session = Supabase.instance.client.auth.currentSession;
     final user = session?.user;
     final bool isLoggedIn = user != null;
+    final username = user?.email ?? 'Guest';
 
     return AppBar(
       automaticallyImplyLeading: false,
       title: Row(
         children: [
-          // Logo for all pages except Access Restricted
           if (activePage != 'accessRestricted')
             Image.asset(
               isMobileView
@@ -44,8 +39,6 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
               height: 40,
             ),
           if (activePage != 'accessRestricted') const Spacer(),
-
-          // Back to Home for Access Restricted
           if (activePage == 'accessRestricted')
             Align(
               alignment: Alignment.centerRight,
@@ -64,7 +57,6 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
             )
-          // Mobile View Navbar (PopupMenu)
           else if (isMobileView)
             PopupMenuButton<String>(
               icon: const Icon(FontAwesomeIcons.bars, color: Color(0xFF00AEEF)),
@@ -77,49 +69,20 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
               },
               color: Colors.white,
               itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: '/home',
-                  child: Text(
-                    'Home',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: activePage == 'home'
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: const Color(0xFF00AEEF),
-                    ),
-                  ),
+                  child: Text('Home'),
                 ),
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: '/services',
-                  child: Text(
-                    'Services',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight: activePage == 'services'
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: const Color(0xFF00AEEF),
-                    ),
-                  ),
+                  child: Text('Services'),
                 ),
                 PopupMenuItem<String>(
                   value: isLoggedIn ? 'logout' : '/login',
-                  child: Text(
-                    isLoggedIn ? 'Logout' : 'Login',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontWeight:
-                          (activePage == 'login' || activePage == 'register')
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                      color: const Color(0xFF00AEEF),
-                    ),
-                  ),
+                  child: Text(isLoggedIn ? 'Logout' : 'Login'),
                 ),
               ],
             )
-          // Regular Navbar for larger screens
           else
             Row(
               children: [
@@ -128,23 +91,58 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                   route: '/home',
                   isActive: activePage == 'home' || activePage == 'HomeView',
                 ),
+                const SizedBox(width: 10),
                 NavItem(
                   title: 'Services',
                   route: '/services',
                   isActive: activePage == 'services',
                 ),
-                NavItem(
-                  title: isLoggedIn ? 'Logout' : 'Login',
-                  route: isLoggedIn ? '' : '/login',
-                  isActive: activePage == 'login' || activePage == 'register',
-                  onTap: () {
-                    if (isLoggedIn) {
-                      _logout(context);
-                    } else {
-                      Navigator.pushNamed(context, '/login');
-                    }
-                  },
-                ),
+                const SizedBox(width: 15),
+                if (isLoggedIn)
+                  Stack(
+                    children: [
+                      PopupMenuButton<String>(
+                        onSelected: (value) {
+                          if (value == 'profile') {
+                            Navigator.pushNamed(context, '/profileClient');
+                          } else if (value == 'logout') {
+                            _logout(context);
+                          }
+                        },
+                        offset: const Offset(0, 40),
+                        itemBuilder: (BuildContext context) =>
+                            <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            value: 'profile',
+                            child: Text('Profile'),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'logout',
+                            child: Text('Logout'),
+                          ),
+                        ],
+                        child: CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.blue,
+                          child: Text(
+                            username.isNotEmpty
+                                ? username[0].toUpperCase()
+                                : '',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  NavItem(
+                    title: 'Login',
+                    route: '/login',
+                    isActive: activePage == 'login',
+                  ),
               ],
             ),
         ],
@@ -175,10 +173,7 @@ class NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: onTap ??
-          () {
-            Navigator.pushNamed(context, route);
-          },
+      onPressed: onTap ?? () => Navigator.pushNamed(context, route),
       child: Text(
         title,
         style: TextStyle(

@@ -1,7 +1,8 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_state.dart';
-// import 'package:jcsd_flutter/backend/modules/employee/employee_providers.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_state.dart';
 import 'package:jcsd_flutter/modals/add_employee.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
@@ -50,8 +51,7 @@ class EmployeeListPage extends ConsumerWidget {
         return const AddEmployeeModal();
       },
     ).then((_) {
-      ref.invalidate(
-          fetchAllEmployeesProvider); // Refresh the list after adding
+      ref.invalidate(fetchAllEmployeesProvider);
     });
   }
 
@@ -68,91 +68,97 @@ class EmployeeListPage extends ConsumerWidget {
             child: Column(
               children: [
                 const Header(title: 'Employee List'),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/leaveRequestList');
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00AEEF),
-                          minimumSize: const Size(120, 48),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        child: const Text(
-                          'Leave Requests',
-                          style: TextStyle(
-                            fontFamily: 'NunitoSans',
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SizedBox(
-                            width: 250,
-                            height: 40,
-                            child: TextField(
-                              decoration: InputDecoration(
-                                hintText: 'Search',
-                                hintStyle: const TextStyle(
-                                  color: Color(0xFFABABAB),
-                                  fontFamily: 'NunitoSans',
-                                ),
-                                prefixIcon: const Icon(Icons.search),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 0,
-                                  horizontal: 16,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              _AddEmployeeModal(context, ref);
-                            },
-                            icon: const Icon(Icons.add, color: Colors.white),
-                            label: const Text(
-                              'Add',
-                              style: TextStyle(
-                                fontFamily: 'NunitoSans',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF00AEEF),
-                              minimumSize: const Size(0, 48),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: employeeAsync.when(
-                      data: (list) => _buildDataTable(context, list, ref),
-                      loading: () =>
-                          const Center(child: CircularProgressIndicator()),
-                      error: (e, s) => Center(child: Text('Error: $e')),
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamed(
+                                    context, '/leaveRequestList');
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF00AEEF),
+                                minimumSize: const Size(120, 48),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: const Text(
+                                'Leave Requests',
+                                style: TextStyle(
+                                  fontFamily: 'NunitoSans',
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  width: 250,
+                                  height: 40,
+                                  child: TextField(
+                                    decoration: InputDecoration(
+                                      hintText: 'Search',
+                                      hintStyle: const TextStyle(
+                                        color: Color(0xFFABABAB),
+                                        fontFamily: 'NunitoSans',
+                                      ),
+                                      prefixIcon: const Icon(Icons.search),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                        vertical: 0,
+                                        horizontal: 16,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    _AddEmployeeModal(context, ref);
+                                  },
+                                  icon: const Icon(Icons.add,
+                                      color: Colors.white),
+                                  label: const Text(
+                                    'Add',
+                                    style: TextStyle(
+                                      fontFamily: 'NunitoSans',
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF00AEEF),
+                                    minimumSize: const Size(0, 48),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        Expanded(
+                          child: employeeAsync.when(
+                            data: (list) => _buildDataTable(context, list, ref),
+                            loading: () => const Center(
+                                child: CircularProgressIndicator()),
+                            error: (e, s) => Center(child: Text('Error: $e')),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

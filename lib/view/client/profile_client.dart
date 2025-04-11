@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jcsd_flutter/view/bookings/modals/receipt.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfilePageClient extends StatefulWidget {
   const ProfilePageClient({super.key});
@@ -11,6 +12,34 @@ class ProfilePageClient extends StatefulWidget {
 }
 
 class _ProfilePageClientState extends State<ProfilePageClient> {
+  Map<String, dynamic>? userProfile;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+  }
+
+  Future<void> _loadUserProfile() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+
+    final response = await Supabase.instance.client
+        .from('accounts')
+        .select()
+        .eq('userID', user.id)
+        .maybeSingle();
+
+    setState(() {
+      userProfile = response;
+    });
+  }
+
+  String display(String? val) {
+    if (val == null || val.trim().isEmpty) return "N/A";
+    return val;
+  }
+
   Map<String, String>? selectedBooking;
 
   final List<String> time = [
@@ -476,20 +505,23 @@ class _ProfilePageClientState extends State<ProfilePageClient> {
         _buildProfileHeader(),
         const SizedBox(height: 20),
         _buildSectionTitle('About'),
-        _buildInfoRow(
-            FontAwesomeIcons.envelope, 'Email: ', 'mebguevara@gmail.com'),
-        _buildInfoRow(FontAwesomeIcons.phone, 'Phone: ', '09278645368'),
-        _buildInfoRow(
-            FontAwesomeIcons.cakeCandles, 'Birthday: ', 'May 5, 2001'),
+        _buildInfoRow(FontAwesomeIcons.envelope, 'Email: ',
+            display(userProfile?['email'])),
+        _buildInfoRow(FontAwesomeIcons.phone, 'Phone: ',
+            display(userProfile?['contactNumber'])),
+        _buildInfoRow(FontAwesomeIcons.cakeCandles, 'Birthday: ',
+            display(userProfile?['birthDate'])),
         _buildDivider(),
         _buildSectionTitle('Address'),
+        _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ',
+            display(userProfile?['address'])),
         _buildInfoRow(
-            FontAwesomeIcons.locationDot, 'Address: ', '106-6 CM Recto Ave.'),
-        _buildInfoRow(FontAwesomeIcons.city, 'City: ', 'Manila'),
-        _buildInfoRow(FontAwesomeIcons.globe, 'Country: ', 'Philippines'),
+            FontAwesomeIcons.city, 'City: ', display(userProfile?['city'])),
+        _buildInfoRow(FontAwesomeIcons.globe, 'Country: ',
+            display(userProfile?['country'])),
         _buildDivider(),
         _buildSectionTitle('Account Details'),
-        _buildInfoRow(FontAwesomeIcons.user, 'Username: ', 'Kami'),
+        _buildInfoRow(FontAwesomeIcons.user, 'Username: ', ''),
         _buildInfoRow(FontAwesomeIcons.calendar, 'Password: ', '**********'),
       ],
     );
@@ -503,22 +535,26 @@ class _ProfilePageClientState extends State<ProfilePageClient> {
           Container(
             padding: const EdgeInsets.all(30.0),
             decoration: const BoxDecoration(
-                shape: BoxShape.circle, color: Colors.black38),
+              shape: BoxShape.circle,
+              color: Colors.black38,
+            ),
             child: const FaIcon(FontAwesomeIcons.user,
                 color: Colors.white, size: 35),
           ),
           const SizedBox(width: 20),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Amy D. Polie',
-                style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16),
+                display(
+                    "${userProfile?["firstName"] ?? "N/A"} ${userProfile?["lastname"] ?? ""}"),
+                style: const TextStyle(
+                  fontFamily: 'NunitoSans',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
-              Text(
+              const Text(
                 'Employee',
                 style: TextStyle(fontFamily: 'NunitoSans', fontSize: 14),
               ),
@@ -534,7 +570,11 @@ class _ProfilePageClientState extends State<ProfilePageClient> {
       padding: const EdgeInsets.fromLTRB(20, 10, 0, 20),
       child: Text(
         title,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        style: const TextStyle(
+          fontFamily: 'NunitoSans',
+          fontWeight: FontWeight.bold,
+          fontSize: 18,
+        ),
       ),
     );
   }
@@ -578,7 +618,7 @@ class _ProfilePageClientState extends State<ProfilePageClient> {
                     'assets/images/logo.png',
                     height: 50,
                   ),
-                  const Spacer(),
+                  Spacer(),
                   if (MediaQuery.of(context).size.width <= 600)
                     IconButton(
                       icon: const Icon(Icons.close),
