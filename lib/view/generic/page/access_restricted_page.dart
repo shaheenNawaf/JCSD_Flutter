@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 
 class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final String activePage;
@@ -227,7 +228,7 @@ class AccessRestrictedPage extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/home');
+                    context.go('/home');
                   },
                   child: const Text(
                     'Back to Home',

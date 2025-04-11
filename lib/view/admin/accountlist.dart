@@ -152,6 +152,7 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
               width: 140,
               child: ElevatedButton(
                 onPressed: () {
+                  print('View Details pressed for ${user.firstName}');
                   context.push( '/accountList/accountDetail', extra: user);
                 },
                 style: ElevatedButton.styleFrom(

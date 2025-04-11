@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 
 class ErrorPage extends StatelessWidget {
@@ -44,7 +45,7 @@ class ErrorPage extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.pushNamed(context, '/home');
+                    context.go('/home');
                   },
                   child: const Text(
                     'Back to Home',

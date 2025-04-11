@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,7 +10,7 @@ import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 class ProfileAdminViewPage extends ConsumerStatefulWidget {
-  final String? user;
+  final AccountsData? user;
   const ProfileAdminViewPage({super.key, this.user});
 
   @override
@@ -21,18 +20,18 @@ class ProfileAdminViewPage extends ConsumerStatefulWidget {
 
 class _ProfileAdminViewPageState extends ConsumerState<ProfileAdminViewPage> {
   final String _activeSubItem = '/accountList';
-  void _editBookingModal(AccountsData user) async {
+
+  void _editBookingModal(AccountsData currentUser) async {
     final updated = await showDialog<AccountsData>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return EditProfileModal(account: user);
+        return EditProfileModal(account: currentUser);
       },
     );
 
     if (updated != null) {
-      setState(() {
-      });
+      setState(() {});
     }
   }
 
@@ -49,9 +48,9 @@ class _ProfileAdminViewPageState extends ConsumerState<ProfileAdminViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    final AccountsData? user =
-        ModalRoute.of(context)?.settings.arguments as AccountsData?;
-    print(widget.user);
+    final AccountsData? user = widget.user;
+
+    print(widget.user?.firstName);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
@@ -63,9 +62,8 @@ class _ProfileAdminViewPageState extends ConsumerState<ProfileAdminViewPage> {
               children: [
                 Header(
                   title: 'Account Details',
-                    leading: IconButton(
-                    icon:
-                      const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                  leading: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
                     onPressed: () => context.pop(),
                   ),
                 ),
@@ -85,7 +83,7 @@ class _ProfileAdminViewPageState extends ConsumerState<ProfileAdminViewPage> {
 
   Widget _buildProfileView(AccountsData? user) {
     if (user == null) {
-      return const Center(child: Text("No data available."));
+      return Center(child: Text("No data available. $user"));
     }
 
     return Container(

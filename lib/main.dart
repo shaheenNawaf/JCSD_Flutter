@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/api/supa_details.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/others/transition.dart';
 import 'package:jcsd_flutter/view/bookings/booking_detail.dart';
 import 'package:jcsd_flutter/view/bookings/booking_receipt.dart';
@@ -103,7 +104,7 @@ final router = GoRouter(
           path: 'accountDetail',
           builder: (context, state){
             final AccountsData? user = state.extra as AccountsData?;
-            return const ProfileAdminViewPage();
+            return ProfileAdminViewPage(user: user);
           }
         )
       ]
@@ -216,87 +217,123 @@ final router = GoRouter(
       path: '/itemTypes',
       builder: (context, state) => const ItemTypesPage(),
     ),
+    GoRoute(
+      path: '/error',
+      builder: (context, state) => const ErrorPage(),
+    ),
   ],
   errorBuilder: (context, state) => const ErrorPage(),
   redirect: (context, state) async{
     try{
     final session = Supabase.instance.client.auth.currentSession;
-    final user = session?.user;
-    final loggedIn = user != null;
+    final loggedIn = session?.user;
     final requestedLocation = state.uri.toString();
     final authRoutes = ['/login', '/signup1', '/forgotPassword', '/emailVerification'];
     const profileCompletionRoute = '/signup2';
     final isGoingToAuthRoute = authRoutes.contains(requestedLocation);
     final isGoingToProfileCompletion = requestedLocation == profileCompletionRoute;
-    
-    Future<bool> isProfileIncomplete(String userId) async {
-      try {
-        debugPrint("Checking profile completeness for user: $userId");
-        final List<String> requiredDbFields = [
-          'firstName',
-          'middleName', 
-          'lastName', 
-          'birthDate', 
-          'address',
-          'city', 
-          'province', 
-          'country', 
-          'zipCode', 
-          'contactNumber',
-        ];
 
-        final data = await Supabase.instance.client
+    final container = ProviderContainer();
+    final userRole = await container.read(userRoleProvider.future);
+
+    if (loggedIn == null) {
+      return isGoingToAuthRoute ? null : '/login';
+    }
+
+    Future<bool> isProfileIncomplete(String? role) async {
+      if (role == 'employee' || role == 'admin') return false;
+
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (userId == null) return true;
+
+      final accountData = await Supabase.instance.client
           .from('accounts')
-          .select(requiredDbFields.join(','))
+          .select('firstName, middleName, lastName, birthDate, address, city, province, country, zipCode, contactNumber')
           .eq('userID', userId)
           .maybeSingle();
 
-        if (data == null) {
-          debugPrint("Redirect profile check: No account data found for user $userId (Expected if profile not complete).");
-          return true;
-        }
+      if (accountData == null) return true;
 
-        bool isBlank(dynamic val) =>
-        val == null || (val is String && val.trim().isEmpty);
-
-        final isIncomplete =
-            requiredDbFields.any((field) => isBlank(data[field]));
-
-        return isIncomplete;
-
-      } catch (e) {
-        debugPrint("Redirect profile check error: $e");
-        return true;
-      }
+      final List<String> requiredDbFields = [
+        'firstName', 'middleName', 'lastName', 'birthDate', 'address', 'city',
+        'province', 'country', 'zipCode', 'contactNumber',
+      ];
+      bool isBlank(dynamic val) => val == null || (val is String && val.trim().isEmpty);
+      return requiredDbFields.any((field) => isBlank(accountData[field]));
     }
 
-    if (!loggedIn) {
+    final isIncompleteProfile = await isProfileIncomplete(userRole);
+    if (isIncompleteProfile && userRole != 'employee' && userRole != 'admin') {
+      return !isGoingToProfileCompletion ? profileCompletionRoute : null;
+    }
+
+    const Map<String, String> initialRoutes = {
+      'admin': '/dashboard',
+      'employee': '/dashboard',
+      'client': '/home',
+    };
+
+    const Map<String, List<String>> roleBasedRoutes = {
+      'admin': [
+        '/home',
+        '/accountList',
+        '/accountList/accountDetail',
+        '/bookingsCalendar',
+        '/employeeList',
+        '/employeeList/leaveRequestList',
+        '/payroll',
+        '/accountDetails',
+        '/dashboard',
+        '/inventory',
+        '/suppliers',
+        '/supplierArchive',
+        '/bookings',
+        '/transactions',
+        '/archiveList',
+        '/orderList',
+        '/auditLog',
+        '/services',
+        '/servicesArchive',
+        '/bookingDetail',
+        '/bookingReceipt',
+        '/itemTypes',
+      ],
+      'employee': [
+        '/dashboard',
+        '/bookingsCalendar',
+        '/inventory',
+        '/suppliers',
+        '/bookings',
+        '/services',
+        '/itemTypes',
+        '/employeeList/profile',
+        '/employeeList/profile/payslip',
+        '/employeeList/profile/leaveRequest',
+        '/dashboard', 
+        '/itemTypes',
+      ],
+      'client': [
+        '/home',
+        '/inventory',
+        '/booking1',
+        '/booking2',
+        '/profileClient',
+        '/transactions',
+        '/bookingDetail',
+        '/bookingReceipt',
+      ],
+    };
+
       if (isGoingToAuthRoute || isGoingToProfileCompletion) {
-        return null;
-      } else {
-        return '/login';
+        return initialRoutes[userRole] ?? '/home';
       }
-    }
 
-    if (loggedIn) {
-        final bool profileIsIncomplete = await isProfileIncomplete(user.id);
-
-        if (profileIsIncomplete) {
-          if (!isGoingToProfileCompletion) {
-            return profileCompletionRoute;
-          } else {
-            return null;
-          }
-        }
-        else {
-          if (isGoingToAuthRoute || isGoingToProfileCompletion) {
-             return '/home';
-          } else {
-             return null;
-          }
-        }
-    }
-    return null;
+    if (userRole != null && roleBasedRoutes.containsKey(userRole)) {
+        return roleBasedRoutes[userRole]!.contains(requestedLocation) ? null : '/accessRestricted';
+      } else {
+        debugPrint("User has no determined role or route access configuration.");
+        return '/error';
+      }
   }
   catch (e) {
     debugPrint("Redirect error: $e");

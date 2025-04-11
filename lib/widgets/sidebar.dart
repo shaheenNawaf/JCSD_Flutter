@@ -1,8 +1,10 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
  
   import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
   import 'package:font_awesome_flutter/font_awesome_flutter.dart';
   import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
   import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
   import 'package:supabase_flutter/supabase_flutter.dart';
  
@@ -15,6 +17,10 @@
    @override
    _SidebarState createState() => _SidebarState();
  }
+
+  final container = ProviderContainer();
+  final userRole = container.read(userRoleProvider.future);
+ 
  
  class _SidebarState extends State<Sidebar> {
    bool _isInventoryExpanded = false;
@@ -142,13 +148,14 @@
                            isActive: _activeSubItem == '/orderList',
                            onTap: () => _navigateTo('/orderList'),
                          ),
-                         SubSidebarItem(
-                           icon: FontAwesomeIcons.clockRotateLeft,
-                           title: 'Audit Log',
-                           route: '/auditLog',
-                           isActive: _activeSubItem == '/auditLog',
-                           onTap: () => _navigateTo('/auditLog'),
-                         ),
+                         if (userRole != 'employee') //test for userrole display condition
+                          SubSidebarItem(
+                            icon: FontAwesomeIcons.clockRotateLeft,
+                            title: 'Audit Log',
+                            route: '/auditLog',
+                            isActive: _activeSubItem == '/auditLog',
+                            onTap: () => _navigateTo('/auditLog'),
+                          ),
                        ],
                        SidebarItemWithDropdown(
                          icon: FontAwesomeIcons.calendarDays,
