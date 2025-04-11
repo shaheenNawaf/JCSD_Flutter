@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/services/services_data.dart';
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services.dart';
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
-import 'package:jcsd_flutter/view/generic/notification.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 
 class ArchiveServiceModal extends ConsumerStatefulWidget {
   final int serviceID;
@@ -124,9 +124,9 @@ class _ArchiveServiceModalState extends ConsumerState<ArchiveServiceModal> {
                           final updateVisibility = JcsdServices();
                           updateVisibility.updateVisibility(_serviceID, false);
                           print('Successfully archived - $_serviceID');
-                          ToastManager().showToast(context, 'Service archived successfully!', Color.fromARGB(255, 0, 143, 19));
+                          ToastManager().showToast(context, 'Service archived successfully!', const Color.fromARGB(255, 0, 143, 19));
                         } catch (err, stackTrace) {
-                          ToastManager().showToast(context, 'Error archiving service: $_serviceID -- $stackTrace', Color.fromARGB(255, 255, 0, 0));
+                          ToastManager().showToast(context, 'Error archiving service: $_serviceID -- $stackTrace', const Color.fromARGB(255, 255, 0, 0));
                           print(
                               'Error archiving service: $_serviceID -- $stackTrace');
                         }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jcsd_flutter/view/generic/notification.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 
@@ -36,24 +36,24 @@ class _ResetPasswordState extends State<ResetPassword> {
     final confirmPassword = _confirmPasswordController.text.trim();
 
     if (password.isEmpty || confirmPassword.isEmpty) {
-      ToastManager().showToast(context, 'Please fill in all fields', Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, 'Please fill in all fields', const Color.fromARGB(255, 255, 0, 0));
       return;
     }
 
     if (password.length < 6) {
-      ToastManager().showToast(context, 'Password must be at least 6 characters long', Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, 'Password must be at least 6 characters long', const Color.fromARGB(255, 255, 0, 0));
       return;
     }
 
     if (password != confirmPassword) {
-      ToastManager().showToast(context, 'Passwords do not match.', Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, 'Passwords do not match.', const Color.fromARGB(255, 255, 0, 0));
       return;
     }
 
     final currentSession = supabase.auth.currentSession;
 
     if (currentSession == null) {
-      ToastManager().showToast(context, 'Session not found. Please use a valid password reset link.', Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, 'Session not found. Please use a valid password reset link.', const Color.fromARGB(255, 255, 0, 0));
 
       return;
     }
@@ -62,11 +62,11 @@ class _ResetPasswordState extends State<ResetPassword> {
 
     try {
       await supabase.auth.updateUser(UserAttributes(password: password));
-      ToastManager().showToast(context, 'Password reset successful! Please log in.', Color.fromARGB(255, 0, 143, 19));
+      ToastManager().showToast(context, 'Password reset successful! Please log in.', const Color.fromARGB(255, 0, 143, 19));
       Navigator.pushReplacementNamed(context, '/login');
     } catch (error) {
       print('Error resetting password: $error');
-      ToastManager().showToast(context, 'Error resetting password: $error', Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, 'Error resetting password: $error', const Color.fromARGB(255, 255, 0, 0));
     } finally {
       setState(() => _isResetting = false);
     }

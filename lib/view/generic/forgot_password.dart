@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jcsd_flutter/view/generic/notification.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 import 'dart:async';
@@ -29,7 +29,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     final email = _emailController.text.trim();
 
     if (email.isEmpty) {
-      ToastManager().showToast(context, 'Please enter your email address.', Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, 'Please enter your email address.', const Color.fromARGB(255, 255, 0, 0));
       return;
     }
 
@@ -45,11 +45,11 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         email,
         redirectTo: "http://localhost:3000/resetPassword",
       );
-      ToastManager().showToast(context, 'Password reset email sent! Check your inbox.', Color.fromARGB(255, 0, 143, 19));
+      ToastManager().showToast(context, 'Password reset email sent! Check your inbox.', const Color.fromARGB(255, 0, 143, 19));
 
       _startCountdown();
     } catch (error) {
-      ToastManager().showToast(context, 'Error sending reset email:', Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, 'Error sending reset email:', const Color.fromARGB(255, 255, 0, 0));
       setState(() {
         _isSending = false;
         _countdown = 0;

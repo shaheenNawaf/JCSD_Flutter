@@ -1,7 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, unused_import
 
 import 'package:flutter/material.dart';
-import 'package:jcsd_flutter/view/generic/notification.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
 import 'dart:async';
@@ -39,7 +39,7 @@ Future<void> _resendVerificationEmail() async {
         type: OtpType.signup,
         email: widget.email,
       );
-      ToastManager().showToast(context, 'Verification email resent! Check your inbox.', Color.fromARGB(255, 0, 143, 19));
+      ToastManager().showToast(context, 'Verification email resent! Check your inbox.', const Color.fromARGB(255, 0, 143, 19));
       _timer?.cancel();
 
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -55,7 +55,7 @@ Future<void> _resendVerificationEmail() async {
         }
       });
     } catch (error) {
-      ToastManager().showToast(context, 'Error resending verification email: $error', Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, 'Error resending verification email: $error', const Color.fromARGB(255, 255, 0, 0));
       setState(() {
         _isResending = false;
         _countdown = 0;

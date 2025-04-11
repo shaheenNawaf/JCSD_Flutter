@@ -4,7 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:jcsd_flutter/view/generic/notification.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Navbar extends StatelessWidget implements PreferredSizeWidget {
@@ -25,7 +25,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
       }
     } catch (error) {
       if (context.mounted) {
-        ToastManager().showToast(context, 'Logout failed: $error', Color.fromARGB(255, 255, 0, 0));
+        ToastManager().showToast(context, 'Logout failed: $error', const Color.fromARGB(255, 255, 0, 0));
       }
     }
   }

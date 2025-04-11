@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 //Inventory Backend
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_notifier.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_providers.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 

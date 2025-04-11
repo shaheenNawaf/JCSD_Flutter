@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:jcsd_flutter/main.dart';
 import 'package:jcsd_flutter/modals/confirm_leaverequest.dart';
 import 'package:jcsd_flutter/modals/reject_leave_request.dart';
 import 'package:jcsd_flutter/widgets/header.dart';

@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
 //Packages
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:jcsd_flutter/view/generic/dialogs/error_dialog.dart';
 // import 'package:supabase_flutter/supabase_flutter.dart';
@@ -24,16 +25,14 @@ class SignupPage2 extends StatefulWidget {
 class _SignupPage2State extends State<SignupPage2> {
   // Controllers for the input fields
   final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _middleInitialController =
-      TextEditingController();
+  final TextEditingController _middleInitialController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _provinceController = TextEditingController();
   final TextEditingController _countryController = TextEditingController();
   final TextEditingController _zipCodeController = TextEditingController();
-  final TextEditingController _contactNumberController =
-      TextEditingController();
+  final TextEditingController _contactNumberController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
 
@@ -58,7 +57,7 @@ class _SignupPage2State extends State<SignupPage2> {
         .select()
         .eq('userID', user.id)
         .single();
-
+    print(user.id);
     setState(() {
       _firstNameController.text = data['firstName'] ?? '';
       _middleInitialController.text = data['middleName'] ?? '';
@@ -133,7 +132,7 @@ class _SignupPage2State extends State<SignupPage2> {
           .eq('userID', user.id);
 
       if (mounted) {
-        await Navigator.pushReplacementNamed(context, '/home');
+        context.go('/login');
       }
     } catch (e) {
       debugPrint('Update failed: $e');
@@ -623,7 +622,7 @@ class _SignupPage2State extends State<SignupPage2> {
                                     const SizedBox(width: 5),
                                     TextButton(
                                       onPressed: () {
-                                        Navigator.pushNamed(context, '/login');
+                                        context.go('/login');
                                       },
                                       child: const Text(
                                         'Login',

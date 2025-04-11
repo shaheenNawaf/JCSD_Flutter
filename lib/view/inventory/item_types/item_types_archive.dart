@@ -9,7 +9,6 @@ import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/view/inventory/item_types/modals/unarchiveitemtype.dart';
 
 //Backend Things
-import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_service.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_providers.dart';
 import 'package:shimmer/shimmer.dart';
 

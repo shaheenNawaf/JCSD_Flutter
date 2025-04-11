@@ -11,7 +11,7 @@ class LoginEmployee extends StatefulWidget {
 
 class _LoginEmployeeState extends State<LoginEmployee> {
   bool _isPasswordHidden = true;
-  bool _rememberMe = false;
+  final bool _rememberMe = false;
 
   @override
   Widget build(BuildContext context) {

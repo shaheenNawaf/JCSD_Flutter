@@ -46,19 +46,19 @@ class _SignupPage1State extends State<SignupPage1> {
 
     if (email.isEmpty || password.isEmpty || repeatPassword.isEmpty) {
 
-      ToastManager().showToast(context, 'Please fill in all fields.', Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, 'Please fill in all fields.', const Color.fromARGB(255, 255, 0, 0));
       setState(() => _isLoading = false);
       return;
     }
 
     if (password.length < 6) {
-      ToastManager().showToast(context, 'Password must be at least 6 characters.', Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, 'Password must be at least 6 characters.', const Color.fromARGB(255, 255, 0, 0));
       setState(() => _isLoading = false);
       return;
     }
 
     if (password != repeatPassword) {
-      ToastManager().showToast(context, 'Passwords do not match.', Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, 'Passwords do not match.', const Color.fromARGB(255, 255, 0, 0));
       setState(() => _isLoading = false);
       return;
     }
@@ -85,7 +85,7 @@ class _SignupPage1State extends State<SignupPage1> {
       }
 
       if (response.user != null) {
-        ToastManager().showToast(context, 'Signup successful! Check your email for verification.', Color.fromARGB(255, 0, 143, 19));
+        ToastManager().showToast(context, 'Signup successful! Check your email for verification.', const Color.fromARGB(255, 0, 143, 19));
 
         await supabaseDB.auth.signOut();
 
@@ -97,7 +97,7 @@ class _SignupPage1State extends State<SignupPage1> {
       }
     } 
     on AuthException catch (error) {
-      ToastManager().showToast(context, error.message, Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, error.message, const Color.fromARGB(255, 255, 0, 0));
       setState(() => _isLoading = false);
     } catch (e) {
       debugPrint("Unexpected error: $e");
@@ -415,5 +415,4 @@ class _SignupPage1State extends State<SignupPage1> {
       ],
     );
   }
-}
 }

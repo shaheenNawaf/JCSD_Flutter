@@ -7,7 +7,7 @@ import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_data.dart';
 //Backend Imports
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
-import 'package:jcsd_flutter/view/generic/notification.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 
 class EditSupplierModal extends ConsumerStatefulWidget {
   final SuppliersData supplierData;
@@ -172,9 +172,9 @@ class _EditSupplierModalState extends ConsumerState<EditSupplierModal> {
                               supplierEmail,
                               contactNumber,
                               supplierAddress);
-                          ToastManager().showToast(context, 'Supplier "$supplierName" edited successfully!', Color.fromARGB(255, 0, 143, 19));
+                          ToastManager().showToast(context, 'Supplier "$supplierName" edited successfully!', const Color.fromARGB(255, 0, 143, 19));
                         } catch (err) {
-                          ToastManager().showToast(context, 'Error updating supplier details. $err', Color.fromARGB(255, 255, 0, 0));
+                          ToastManager().showToast(context, 'Error updating supplier details. $err', const Color.fromARGB(255, 255, 0, 0));
                           print('Tried updating supplier details. $err');
                         }
                         ref.invalidate(fetchAvailableSuppliers);

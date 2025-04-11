@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -5,13 +7,13 @@ import 'package:intl/intl.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_state.dart';
 import 'package:go_router/go_router.dart';
-import 'package:jcsd_flutter/main.dart';
 import 'package:jcsd_flutter/modals/edit_profile.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
 class ProfileAdminViewPage extends ConsumerStatefulWidget {
-  const ProfileAdminViewPage({super.key});
+  final String? user;
+  const ProfileAdminViewPage({super.key, this.user});
 
   @override
   ConsumerState<ProfileAdminViewPage> createState() =>
@@ -20,7 +22,6 @@ class ProfileAdminViewPage extends ConsumerStatefulWidget {
 
 class _ProfileAdminViewPageState extends ConsumerState<ProfileAdminViewPage> {
   final String _activeSubItem = '/accountList';
-
   void _editBookingModal(AccountsData user) async {
     final updated = await showDialog<AccountsData>(
       context: context,
@@ -32,7 +33,6 @@ class _ProfileAdminViewPageState extends ConsumerState<ProfileAdminViewPage> {
 
     if (updated != null) {
       setState(() {
-        // Replace with updated info
       });
     }
   }
@@ -52,6 +52,7 @@ class _ProfileAdminViewPageState extends ConsumerState<ProfileAdminViewPage> {
   Widget build(BuildContext context) {
     final AccountsData? user =
         ModalRoute.of(context)?.settings.arguments as AccountsData?;
+    print(widget.user);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),

@@ -193,10 +193,10 @@ class _AddSupplierModalState extends ConsumerState<AddSupplierModal> {
                             String address = _addressController.text;
                             
                             await addNewSupplier.addSupplier(supplierName, supplierEmail, contactNumber, address);
-                            ToastManager().showToast(context, 'Supplier "$supplierName" added successfully!', Color.fromARGB(255, 0, 143, 19));
+                            ToastManager().showToast(context, 'Supplier "$supplierName" added successfully!', const Color.fromARGB(255, 0, 143, 19));
                           }
                         }catch(err){
-                          ToastManager().showToast(context, 'Error adding supplier. $err', Color.fromARGB(255, 255, 0, 0));
+                          ToastManager().showToast(context, 'Error adding supplier. $err', const Color.fromARGB(255, 255, 0, 0));
                           print('Error adding supplier. $err');
                         }
                         ref.invalidate(fetchAvailableSuppliers);

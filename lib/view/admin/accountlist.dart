@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_state.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:go_router/go_router.dart';
-import 'package:jcsd_flutter/main.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
@@ -153,7 +152,7 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
               width: 140,
               child: ElevatedButton(
                 onPressed: () {
-                  context.go( '/accountList/accountDetail');
+                  context.push( '/accountList/accountDetail', extra: user);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00AEEF),

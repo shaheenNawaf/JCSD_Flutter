@@ -1,10 +1,10 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
  
- import 'package:flutter/material.dart';
- import 'package:font_awesome_flutter/font_awesome_flutter.dart';
- import 'package:go_router/go_router.dart';
- import 'package:jcsd_flutter/view/generic/notification.dart';
- import 'package:supabase_flutter/supabase_flutter.dart';
+  import 'package:flutter/material.dart';
+  import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+  import 'package:go_router/go_router.dart';
+  import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
+  import 'package:supabase_flutter/supabase_flutter.dart';
  
  class Sidebar extends StatefulWidget {
    final String activePage;
@@ -459,7 +459,7 @@
        await Supabase.instance.client.auth.signOut();
        context.go('/login');
      } catch (error) {
-      ToastManager().showToast(context, 'Logout failed: $error', Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, 'Logout failed: $error', const Color.fromARGB(255, 255, 0, 0));
      }
    }
  

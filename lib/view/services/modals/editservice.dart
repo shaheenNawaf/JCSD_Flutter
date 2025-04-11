@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services.dart';
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
 import 'package:jcsd_flutter/backend/modules/services/services_data.dart';
-import 'package:jcsd_flutter/view/generic/notification.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 
 class EditServiceModal extends ConsumerStatefulWidget {
   final ServicesData servicesData;
@@ -163,9 +163,9 @@ class _EditServiceModalState extends ConsumerState<EditServiceModal> {
 
                           ref.invalidate(fetchAvailableServices);
                           Navigator.pop(context);
-                          ToastManager().showToast(context, 'Service "$serviceName" edited successfully!', Color.fromARGB(255, 0, 143, 19));
+                          ToastManager().showToast(context, 'Service "$serviceName" edited successfully!', const Color.fromARGB(255, 0, 143, 19));
                         }catch(err){
-                          ToastManager().showToast(context, 'Error editing service. $err', Color.fromARGB(255, 255, 0, 0));
+                          ToastManager().showToast(context, 'Error editing service. $err', const Color.fromARGB(255, 255, 0, 0));
                           print('Error editing service. $err');
                         }
                       },

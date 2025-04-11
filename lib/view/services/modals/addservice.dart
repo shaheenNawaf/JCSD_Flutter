@@ -219,11 +219,11 @@ class _AddServiceModalState extends ConsumerState<AddServiceModal> {
 
                             //Force refresh
                             ref.invalidate(fetchAvailableServices);
-                            ToastManager().showToast(context, 'Service "$serviceName" added successfully!', Color.fromARGB(255, 0, 143, 19));
+                            ToastManager().showToast(context, 'Service "$serviceName" added successfully!', const Color.fromARGB(255, 0, 143, 19));
                             Navigator.pop(context); // To be updated
                           }
                         }catch(err){
-                          ToastManager().showToast(context, 'Error adding service. $err', Color.fromARGB(255, 255, 0, 0));
+                          ToastManager().showToast(context, 'Error adding service. $err', const Color.fromARGB(255, 255, 0, 0));
                           print('Error adding service. $err');
                         }
                       },

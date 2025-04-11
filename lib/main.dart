@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/api/supa_details.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/others/transition.dart';
 import 'package:jcsd_flutter/view/bookings/booking_detail.dart';
 import 'package:jcsd_flutter/view/bookings/booking_receipt.dart';
@@ -48,7 +49,7 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
 
 final router = GoRouter(
   refreshListenable: GoRouterRefreshStream(Supabase.instance.client.auth.onAuthStateChange),
-  initialLocation: '/',
+  initialLocation: '/login',
   debugLogDiagnostics: true,
   routes: [
     GoRoute(
@@ -100,7 +101,10 @@ final router = GoRouter(
       routes: <GoRoute>[
         GoRoute(
           path: 'accountDetail',
-          builder: (context, state) => const ProfileAdminViewPage(),
+          builder: (context, state){
+            final AccountsData? user = state.extra as AccountsData?;
+            return ProfileAdminViewPage(user: user!);
+          }
         )
       ]
     ),
@@ -221,22 +225,14 @@ final router = GoRouter(
     final loggedIn = user != null;
     final requestedLocation = state.uri.toString();
     final authRoutes = ['/login', '/signup1', '/forgotPassword', '/emailVerification'];
-    final profileCompletionRoute = '/signup2';
+    const profileCompletionRoute = '/signup2';
     final isGoingToAuthRoute = authRoutes.contains(requestedLocation);
     final isGoingToProfileCompletion = requestedLocation == profileCompletionRoute;
     
     Future<bool> isProfileIncomplete(String userId) async {
       try {
-        final data = await Supabase.instance.client
-          .from('accounts')
-          .select('firstName, middleName, lastName, birthDate, address, city, province, country, zipCode, contactNumber') // Select only needed fields
-          .eq('userID', userId)
-          .maybeSingle();
-
-        bool isBlank(dynamic val) =>
-        val == null || (val is String && val.trim().isEmpty);
-
-        final requiredFields = [
+        debugPrint("Checking profile completeness for user: $userId");
+        final List<String> requiredDbFields = [
           'firstName',
           'middleName', 
           'lastName', 
@@ -249,8 +245,22 @@ final router = GoRouter(
           'contactNumber',
         ];
 
+        final data = await Supabase.instance.client
+          .from('accounts')
+          .select(requiredDbFields.join(','))
+          .eq('userID', userId)
+          .maybeSingle();
+
+        if (data == null) {
+          debugPrint("Redirect profile check: No account data found for user $userId (Expected if profile not complete).");
+          return true;
+        }
+
+        bool isBlank(dynamic val) =>
+        val == null || (val is String && val.trim().isEmpty);
+
         final isIncomplete =
-            data == null || requiredFields.any((field) => isBlank(data[field]));
+            requiredDbFields.any((field) => isBlank(data[field]));
 
         return isIncomplete;
 
@@ -334,8 +344,8 @@ class _MainAppState extends State<MainApp> {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'JCSD',
+      routerConfig: router,
       scaffoldMessengerKey: scaffoldMessengerKey,
-      routerDelegate: router.routerDelegate,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF00AEEF),

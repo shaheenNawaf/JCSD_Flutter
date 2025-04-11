@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/inventory_providers.dart';
 
 //Backend Things
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
 import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 
 class ArchiveItemModal extends ConsumerStatefulWidget {

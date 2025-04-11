@@ -48,7 +48,7 @@ class InventoryService {
         return false;
       }
       return true;
-    } catch (error, stackTrace) {
+    } catch (error) {
       print('Error accessing table: $error');
       return false;
     }
