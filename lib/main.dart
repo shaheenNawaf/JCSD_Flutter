@@ -103,7 +103,7 @@ final router = GoRouter(
           path: 'accountDetail',
           builder: (context, state){
             final AccountsData? user = state.extra as AccountsData?;
-            return ProfileAdminViewPage(user: user!);
+            return const ProfileAdminViewPage();
           }
         )
       ]
