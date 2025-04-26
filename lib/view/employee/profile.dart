@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -14,6 +14,25 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage>
     with SingleTickerProviderStateMixin {
+  AccountsData? user;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    user = ModalRoute.of(context)?.settings.arguments as AccountsData?;
+  }
+
+  String displayValue(dynamic value) {
+    if (value == null) return 'N/A';
+    if (value is String && value.trim().isEmpty) return 'N/A';
+    return value.toString();
+  }
+
+  String formatDate(DateTime? date) {
+    if (date == null) return 'N/A';
+    return '${date.month}/${date.day}/${date.year}';
+  }
+
   final String _activeSubItem = '/employeeList';
   late AnimationController _animationController;
   DateTime selectedDate = DateTime.now();
@@ -48,7 +67,7 @@ class _ProfilePageState extends State<ProfilePage>
                   leading: IconButton(
                     icon:
                         const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
-                    onPressed: () => context.pop(),
+                    onPressed: () => Navigator.pop(context),
                   ),
                 ),
                 Expanded(
@@ -92,18 +111,19 @@ class _ProfilePageState extends State<ProfilePage>
                   const SizedBox(height: 20),
                   _buildSectionTitle('About'),
                   _buildInfoRow(FontAwesomeIcons.envelope, 'Email: ',
-                      'mebguevara@gmail.com'),
-                  _buildInfoRow(
-                      FontAwesomeIcons.phone, 'Phone: ', '09278645368'),
+                      displayValue(user?.email)),
+                  _buildInfoRow(FontAwesomeIcons.phone, 'Phone: ',
+                      displayValue(user?.contactNumber)),
                   _buildInfoRow(FontAwesomeIcons.cakeCandles, 'Birthday: ',
-                      'May 5, 2001'),
+                      formatDate(user?.birthDate)),
                   _buildDivider(),
                   _buildSectionTitle('Address'),
                   _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ',
-                      '106-6 CM Recto Ave.'),
-                  _buildInfoRow(FontAwesomeIcons.city, 'City: ', 'Manila'),
-                  _buildInfoRow(
-                      FontAwesomeIcons.globe, 'Country: ', 'Philippines'),
+                      displayValue(user?.address)),
+                  _buildInfoRow(FontAwesomeIcons.city, 'City: ',
+                      displayValue(user?.city)),
+                  _buildInfoRow(FontAwesomeIcons.globe, 'Country: ',
+                      displayValue(user?.country)),
                   _buildDivider(),
                   _buildSectionTitle('Employee Details'),
                   _buildInfoRow(FontAwesomeIcons.user, 'Title: ', 'Employee.'),
@@ -377,7 +397,7 @@ class _ProfilePageState extends State<ProfilePage>
                           ),
                         ),
                         onPressed: () {
-                          context.go('/employeeList/profile/payslip');
+                          Navigator.pushNamed(context, '/payslip');
                         },
                         icon: const FaIcon(
                           FontAwesomeIcons.fileInvoiceDollar,
@@ -397,7 +417,7 @@ class _ProfilePageState extends State<ProfilePage>
                           ),
                         ),
                         onPressed: () {
-                          context.go('/employeeList/profile/leaveRequest');
+                          Navigator.pushNamed(context, '/leaveRequest');
                         },
                         icon: const FaIcon(FontAwesomeIcons.suitcaseRolling,
                             color: Colors.white),
@@ -422,22 +442,25 @@ class _ProfilePageState extends State<ProfilePage>
           Container(
             padding: const EdgeInsets.all(30.0),
             decoration: const BoxDecoration(
-                shape: BoxShape.circle, color: Colors.black38),
+              shape: BoxShape.circle,
+              color: Colors.black38,
+            ),
             child: const FaIcon(FontAwesomeIcons.user,
                 color: Colors.white, size: 35),
           ),
           const SizedBox(width: 20),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Amy D. Polie',
-                style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16),
+                "${user?.firstName ?? 'N/A'} ${user?.lastname ?? ''}",
+                style: const TextStyle(
+                  fontFamily: 'NunitoSans',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
-              Text(
+              const Text(
                 'Employee',
                 style: TextStyle(fontFamily: 'NunitoSans', fontSize: 14),
               ),
