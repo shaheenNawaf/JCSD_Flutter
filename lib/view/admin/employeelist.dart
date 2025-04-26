@@ -1,8 +1,9 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_state.dart';
-// import 'package:jcsd_flutter/backend/modules/employee/employee_providers.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_state.dart';
 import 'package:jcsd_flutter/modals/add_employee.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
@@ -51,8 +52,7 @@ class EmployeeListPage extends ConsumerWidget {
         return const AddEmployeeModal();
       },
     ).then((_) {
-      ref.invalidate(
-          fetchAllEmployeesProvider); // Refresh the list after adding
+      ref.invalidate(fetchAllEmployeesProvider);
     });
   }
 

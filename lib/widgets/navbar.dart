@@ -1,6 +1,3 @@
-// ignore: file_names
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
@@ -35,13 +32,14 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final isMobileView = screenWidth < 600;
     final session = Supabase.instance.client.auth.currentSession;
-    final isLoggedIn = session != null;
+    final user = session?.user;
+    final bool isLoggedIn = user != null;
+    final username = user?.email ?? 'Guest';
 
     return AppBar(
       automaticallyImplyLeading: false,
       title: Row(
         children: [
-          // Logo for all pages except Access Restricted
           if (activePage != 'accessRestricted')
             Image.asset(
               isMobileView
@@ -49,26 +47,116 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                   : 'assets/images/logo.png',
               height: 40,
             ),
-          
-          const Spacer(),
-
-          if (showBackButton)
-            TextButton(
-              onPressed: () => context.pop(),
-              child: const Text(
-                'Back',
-                style: TextStyle(
-                  fontFamily: 'NunitoSans',
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Color(0xFF00AEEF),
+          if (activePage != 'accessRestricted') const Spacer(),
+          if (activePage == 'accessRestricted')
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/home');
+                },
+                child: const Text(
+                  'Back to Home',
+                  style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Color(0xFF00AEEF),
+                  ),
                 ),
               ),
             )
           else if (isMobileView)
-            _buildMobileMenu(context, isLoggedIn)
+            PopupMenuButton<String>(
+              icon: const Icon(FontAwesomeIcons.bars, color: Color(0xFF00AEEF)),
+              onSelected: (value) {
+                if (value == 'logout') {
+                  _logout(context);
+                } else {
+                  Navigator.pushNamed(context, value);
+                }
+              },
+              color: Colors.white,
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                const PopupMenuItem<String>(
+                  value: '/home',
+                  child: Text('Home'),
+                ),
+                const PopupMenuItem<String>(
+                  value: '/services',
+                  child: Text('Services'),
+                ),
+                PopupMenuItem<String>(
+                  value: isLoggedIn ? 'logout' : '/login',
+                  child: Text(isLoggedIn ? 'Logout' : 'Login'),
+                ),
+              ],
+            )
           else
-            _buildDesktopMenu(context, isLoggedIn),
+            Row(
+              children: [
+                NavItem(
+                  onTap: () => context.go('/home'),
+                  title: 'Home',
+                  route: '/home',
+                  isActive: activePage == 'home' || activePage == 'HomeView',
+                ),
+                const SizedBox(width: 10),
+                NavItem(
+                  onTap: () => context.go('/services'),
+                  title: 'Services',
+                  route: '/services',
+                  isActive: activePage == 'services',
+                ),
+                const SizedBox(width: 15),
+                if (isLoggedIn)
+                  Stack(
+                    children: [
+                      PopupMenuButton<String>(
+                        onSelected: (value) {
+                          if (value == 'profile') {
+                            Navigator.pushNamed(context, '/profileClient');
+                          } else if (value == 'logout') {
+                            _logout(context);
+                          }
+                        },
+                        offset: const Offset(0, 40),
+                        itemBuilder: (BuildContext context) =>
+                            <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            value: 'profile',
+                            child: Text('Profile'),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'logout',
+                            child: Text('Logout'),
+                          ),
+                        ],
+                        child: CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.blue,
+                          child: Text(
+                            username.isNotEmpty
+                                ? username[0].toUpperCase()
+                                : '',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                else
+                  NavItem(
+                    onTap: () => context.go('/login'),
+                    title: 'Login',
+                    route: '/login',
+                    isActive: activePage == 'login',
+                  ),
+              ],
+            ),
         ],
       ),
       backgroundColor: Colors.white,
@@ -158,18 +246,14 @@ class NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: TextButton(
-        onPressed: onTap,
-        child: Text(
-          title,
-          style: TextStyle(
-            fontFamily: 'NunitoSans',
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-            color: const Color(0xFF00AEEF),
-            fontSize: 16,
-          ),
+    return TextButton(
+      onPressed: onTap ?? () => Navigator.pushNamed(context, route),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontFamily: 'NunitoSans',
+          fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+          color: const Color(0xFF00AEEF),
         ),
       ),
     );

@@ -59,11 +59,11 @@ class Header extends StatelessWidget {
                   radius: 20,
                   backgroundColor: Colors.blue,
                   child: Text(
-                  username.isNotEmpty ? username[0].toUpperCase() : '',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+                    username.isNotEmpty ? username[0].toUpperCase() : '',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
