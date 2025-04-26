@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  const ProfilePage({super.key, this.acc});
+  final AccountsData? acc;
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -17,9 +19,13 @@ class _ProfilePageState extends State<ProfilePage>
   AccountsData? user;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    user = ModalRoute.of(context)?.settings.arguments as AccountsData?;
+  void initState() {
+    super.initState();
+    user = widget.acc;
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
   }
 
   String displayValue(dynamic value) {
@@ -37,14 +43,6 @@ class _ProfilePageState extends State<ProfilePage>
   late AnimationController _animationController;
   DateTime selectedDate = DateTime.now();
 
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-  }
 
   @override
   void dispose() {
@@ -397,7 +395,7 @@ class _ProfilePageState extends State<ProfilePage>
                           ),
                         ),
                         onPressed: () {
-                          Navigator.pushNamed(context, '/payslip');
+                          context.push('/employeeList/profile/payslip');
                         },
                         icon: const FaIcon(
                           FontAwesomeIcons.fileInvoiceDollar,
@@ -417,7 +415,7 @@ class _ProfilePageState extends State<ProfilePage>
                           ),
                         ),
                         onPressed: () {
-                          Navigator.pushNamed(context, '/leaveRequest');
+                          context.push('/employeeList/profile/leaveRequest');
                         },
                         icon: const FaIcon(FontAwesomeIcons.suitcaseRolling,
                             color: Colors.white),

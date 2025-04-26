@@ -123,7 +123,10 @@ final router = GoRouter(
         ),
         GoRoute(
           path: 'profile',
-          builder: (context, state) => const ProfilePage(),
+          builder: (context, state){
+            final AccountsData? acc = state.extra as AccountsData?;
+            return ProfilePage(acc: acc);
+          },
           routes: <GoRoute>[
             GoRoute(
               path: 'payslip',
@@ -274,12 +277,15 @@ final router = GoRouter(
     };
 
     const Map<String, List<String>> roleBasedRoutes = {
-      'admin': [
+      'client': [
         '/home',
         '/accountList',
         '/accountList/accountDetail',
         '/bookingsCalendar',
         '/employeeList',
+        '/employeeList/profile',
+        '/employeeList/profile/payslip',
+        '/employeeList/profile/leaveRequest',
         '/employeeList/leaveRequestList',
         '/payroll',
         '/accountDetails',
@@ -312,7 +318,7 @@ final router = GoRouter(
         '/dashboard', 
         '/itemTypes',
       ],
-      'client': [
+      'admin': [
         '/home',
         '/inventory',
         '/booking1',
