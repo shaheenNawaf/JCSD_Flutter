@@ -1,6 +1,3 @@
-// --- serialized_item_service.dart ---
-
-import 'package:flutter/widgets.dart';
 import 'package:jcsd_flutter/api/global_variables.dart';
 
 // Inventory Related Backend
@@ -11,8 +8,6 @@ import 'package:jcsd_flutter/backend/modules/audit_logs/audit_services.dart';
 
 // User Settable or constant
 const int defaultItemsPerPage = 10;
-
-// Renamed class for consistency
 class ManufacturersService {
   final AuditServices addAuditLogs = AuditServices(); // Uncomment if using
 
@@ -62,6 +57,7 @@ class ManufacturersService {
     }
   }
 
+  //Gets the toal count of manufactures based on optional filters (kanang ma-grab niyag tarong ang count for the different results based on the applied filters and serach)
   Future<int> getTotalManufacturerCount({
     bool? isActive,
     String? searchQuery,
@@ -93,19 +89,26 @@ class ManufacturersService {
     }
   }
 
-  //For Dropdown functionality
+  //For Dropdown functionality, displaying only the active ones
   Future<List<ManufacturersData>> getAllManufacturersForSelect({
-    bool activeOny = false,
+    bool activeOnly = true
   }) async {
     try{
-       var fetchAllManufacturers = supabaseDB.from('manufacturers').select();
-  
+      var fetchAllManufacturers = supabaseDB.from('manufacturers').select('manufacturerID, manufacturerName, manufacturerEmail, contactNumber, createdDate, updateDate, isActive, address');
        
-       if(activeOny){
-        fetchAllManufacturers = fetchAllManufacturers.eq('isActive', activeOny);
-       }
+      if(activeOnly){
+      fetchAllManufacturers = fetchAllManufacturers.eq('isActive', true);
+      }
 
-       
+      //Default Ascending order for proper display
+      final filteredManufacturers = await fetchAllManufacturers.order('manufacturerName', ascending: true);
+
+      //Checking for if list isn't empty
+      if(filteredManufacturers.isEmpty) {
+        return [];
+      }
+
+      return filteredManufacturers.map((item) => ManufacturersData.fromJson(item)).toList();
     }catch(err, st){
       print('Error fetching the active manufacturers: $err \n $st');
       rethrow;
@@ -114,4 +117,73 @@ class ManufacturersService {
 
   //Add-Update-Update Visibility
 
+  Future<ManufacturersData> addNewManufacturer({
+    required String manufacturerName,
+    required String manufacturerEmail,
+    required String contactNumber,
+    required String address,
+  }) async {
+    try{
+      final newManufacturer = {
+        'manufacturerName': manufacturerName,
+        'manufacturerEmail': manufacturerEmail,
+        'contactNumber': contactNumber,
+        'address': address,
+        'isActive': true, 
+      };
+
+      final addedManufacturer = await supabaseDB.from('manufacturers').insert(newManufacturer).select('manufacturerID, manufacturerName, manufacturerEmail, contactNumber, createdDate, updateDate, isActive, address').single();
+      
+      print("NEW MANUFACTURER ADDED: $manufacturerName");
+
+      return ManufacturersData.fromJson(addedManufacturer);
+    }catch(err,st){
+      print('ERROR ADDING MANUFACTURER ($manufacturerName): $err \n $st');
+      rethrow;
+    }
+  }
+
+  //Update Manufacturer
+  Future<ManufacturersData> updateManufacturer({
+    required int manufacturerID,
+    required String manufacturerName,
+    required String manufacturerEmail,
+    required String contactNumber,
+    required String address,
+  }) async {
+    try{
+      final manufacturerData = {
+        'manufacturerName': manufacturerName,
+        'manufacturerEmail': manufacturerEmail,
+        'contactNumber': contactNumber,
+        'address': address,
+      }; 
+
+      final updatedManufacturerDetails = await supabaseDB.from('manufacturers').update(manufacturerData).eq('manufacturerID', manufacturerID).select('manufacturerID, manufacturerName, manufacturerEmail, contactNumber, createdDate, updateDate, isActive, address').single();
+      
+      print("UPDATED MANUFACTURER: $manufacturerName (ID: $manufacturerID)");
+
+      return ManufacturersData.fromJson(updatedManufacturerDetails);
+    }catch(err, st){
+      print('ERROR UPDATING MANUFACTURER ($manufacturerName): $err \n $st');
+      rethrow;
+    }
+  }
+
+  //updateManufacturer Visibility
+  Future<void> updateManufacturerVisibility({
+    required int manufacturerID,
+    required bool isActive,
+    int? employeeID,
+  }) async {
+    await supabaseDB.from('manufacturers').update({
+        'isActive': isActive,
+        // 'updateDate': returnCurrentDateTime(), // Update timestamp if needed
+      }).eq('manufacturerID', manufacturerID);
+
+      final action = isActive ? "Restored" : "Archived";
+      print("$action Manufacturer ID: $manufacturerID");
+
+      //Adding Audit Logs here -- add employeeID parameter on all functionable items
+  }
 }

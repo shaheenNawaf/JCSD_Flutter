@@ -1,5 +1,4 @@
 import 'package:jcsd_flutter/api/global_variables.dart';
-import 'package:jcsd_flutter/backend/date_converter.dart'; // Date Defaults only
 
 // Inventory Related Backend 
 import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_data.dart'; 
@@ -26,7 +25,7 @@ class ProductDefinitionServices{
 
     //Additional filters that I added lang
     int? itemTypeID,
-    int? manufacturerID,
+    String? manufacturerName,
   }) async {
     try{
       //Added JOINS for single-query for multiple reach functionality. Really powerful stuff.
@@ -36,7 +35,6 @@ class ProductDefinitionServices{
       const String selectPDQuery = '''
         *,
         item_types ( itemType ),
-        manufacturers ( manufacturerName ) 
       ''';
 
       var fetchPDQuery = supabaseDB.from('product_definitions').select(selectPDQuery).eq('isVisible', isVisible);
@@ -47,8 +45,8 @@ class ProductDefinitionServices{
         fetchPDQuery.eq('itemTypeID', itemTypeID);
       }
 
-      if (manufacturerID != null){
-        fetchPDQuery.eq('manufacturerID', manufacturerID);
+      if (manufacturerName != null && manufacturerName.isNotEmpty){
+        fetchPDQuery.eq('manufacturerName', manufacturerName);
       }
 
 
@@ -58,10 +56,8 @@ class ProductDefinitionServices{
         fetchPDQuery = fetchPDQuery.or(
           'prodDefName.ilike.$searchTerm,'
           'prodDefDescription.ilike.$searchTerm,'
-          'itemTypeID::text.ilike.$searchTerm,' 
-          'manufacturerID::text.ilike.$searchTerm,'
           'item_types.itemType.ilike.$searchTerm,'
-          'manufacturers.manufacturerName.ilike.$searchTerm'
+          'manufacturerName.ilike.$searchTerm'
         );
       }
 
@@ -88,10 +84,10 @@ class ProductDefinitionServices{
     String? searchQuery,
     bool isVisible = true,
     int? itemTypeID,
-    int? manufacturerID,
+    String? manufacturerName,
   }) async {
     try{
-      var countTotalPD = supabaseDB.from('product_definitions').select();
+      var countTotalPD = supabaseDB.from('product_definitions').select('prodDefID');
 
       countTotalPD = countTotalPD.eq('isVisible', isVisible);
       
@@ -100,10 +96,11 @@ class ProductDefinitionServices{
         countTotalPD.eq('itemTypeID', itemTypeID);
       }
 
-      if (manufacturerID != null){
-        countTotalPD.eq('manufacturerID', manufacturerID);
+      if (manufacturerName != null){
+        countTotalPD.eq('manufacturerName', manufacturerName);
       }
 
+      //Search is only applied to these 4 data types
       if(searchQuery != null && searchQuery.isNotEmpty){
         final searchTerm = "%$searchQuery%";
 
@@ -117,6 +114,7 @@ class ProductDefinitionServices{
 
       final finalCount = await countTotalPD;
       return finalCount.length;
+
     }catch(err, st){
       print('Error fetching product definition count: $err \n $st');
       return 0;
@@ -127,8 +125,9 @@ class ProductDefinitionServices{
   //Para rani sa dropdown, so strict ang viewing ani. Removed pagination function
   Future<List<ProductDefinitionData>> getAllActiveProductDefinitions() async {
     try{
-      //JOINS purpose, can search on other tables too, but limited lang for the itemType and ManufacturerName kay sa table nato mga IDs ra ang reference, but thru this pwede nato ma fetch ilang data with a single query nalang. Aamzing
-      const String selectPDQuery = '''*, item_types ( itemType ), manufacturers ( manufacturerName )''';
+      //Force JOINS to fetch results from the ItemTypes - bale ItemTypeID: 1 {Accesorries} - gidikit sa isa ka result ba. No need for a separate query na
+
+      const String selectPDQuery = '''*, item_types ( itemType )''';
 
       final activePDQuery = await supabaseDB.from('product_definitions').select(selectPDQuery).eq('isVisible', true).order('prodDefName',ascending: true);
 
@@ -144,11 +143,11 @@ class ProductDefinitionServices{
   //Add - Update - Archive Methods
   Future<ProductDefinitionData> addProductDefinition(ProductDefinitionData newProdDef) async {
     try{
-       const String returnSelectQuery = '''*, item_types ( itemType ), manufacturers ( manufacturerName )''';
+      const String returnSelectQuery = '''*, item_types ( itemType )''';
 
       final addNewProdDef = await supabaseDB.from('product_definitions').insert(newProdDef.toJson()).select(returnSelectQuery).single();
 
-      print('ADDED NEW PRODUCT DEFINITION: ${newProdDef.profDefName}');
+      print('ADDED NEW PRODUCT DEFINITION: ${newProdDef.prodDefName}');
       return ProductDefinitionData.fromJson(addNewProdDef);
 
       //TODO: Add Audit Logs
@@ -158,14 +157,16 @@ class ProductDefinitionServices{
     }
   }
 
-  Future<ProductDefinitionData> updateProductDefinition(ProductDefinitionData newProdDef) async {
-    try{
-      const String returnSelectQuery = '''*, item_types ( itemType ), manufacturers ( manufacturerName )''';
+  Future<ProductDefinitionData> updateProductDefinition(ProductDefinitionData updProdDef) async {
+    final dataToUpdate = updProdDef.toJson();
 
-      final updateProdDef = await supabaseDB.from('product_definitions').update(newProdDef.toJson()).eq('prodDefID', newProdDef.profDefID).select(returnSelectQuery).single();
+    try{
+      const String returnSelectQuery = '''*, item_types ( itemType )''';
+
+      final updateProdDef = await supabaseDB.from('product_definitions').update(dataToUpdate).eq('prodDefID', updProdDef.prodDefID).select(returnSelectQuery).single();
 
       //Insert Audit Log for Update Here - TBA lang
-      print('UPDATED PRODUCT DEFINITION: ${newProdDef.profDefName}');
+      print('UPDATED PRODUCT DEFINITION: ${updProdDef.prodDefName}');
       return ProductDefinitionData.fromJson(updateProdDef);
     }catch(err, st){
       print('Error updating product definition.\n $err \n $st');

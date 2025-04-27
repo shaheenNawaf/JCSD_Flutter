@@ -1,22 +1,22 @@
 class ProductDefinitionData {
-  final int profDefID;
-  final String profDefName;
-  final String? profDefDescription;
-  final int? manufacturerID;
-  final DateTime createDate;
+  final String? prodDefID;
+  final String prodDefName;
+  final String? prodDefDescription;
+  final String manufacturerName;
+  final DateTime? createDate;
   final DateTime? updateDate;
-  final double? profDefMSRP;
+  final double? prodDefMSRP;
   final bool isVisible;
   final int itemTypeID;
 
     ProductDefinitionData({
-      required this.profDefID,
-      required this.profDefName,
-      this.profDefDescription,
-      this.manufacturerID,
-      required this.createDate,
+      this.prodDefID,
+      required this.prodDefName,
+      this.prodDefDescription,
+      required this.manufacturerName,
+      this.createDate,
       this.updateDate,
-      this.profDefMSRP,
+      this.prodDefMSRP,
       required this.isVisible,
       required this.itemTypeID
     });
@@ -37,13 +37,13 @@ class ProductDefinitionData {
 
 
     return ProductDefinitionData(
-      profDefID: json['profDefID'],
-      profDefName: json['profDefName'] as String,
-      profDefDescription: json['profDefDescription'] as String?,
-      manufacturerID: json['manufacturerID'] as int?, 
+      prodDefID: json['prodDefID'] as String,
+      prodDefName: json['prodDefName'] as String,
+      prodDefDescription: json['prodDefDescription'] as String?,
+      manufacturerName: json['manufacturerName'] as String, 
       createDate: json['createDate'],
       updateDate: parseOptionalDateTime(json['updateDate']),
-      profDefMSRP: parseOptionalDouble(json['profDefMSRP']),
+      prodDefMSRP: parseOptionalDouble(json['prodDefMSRP']),
       isVisible: json['isVisible'] as bool,
       itemTypeID: json['itemTypeID']
     );
@@ -51,10 +51,10 @@ class ProductDefinitionData {
 
   Map<String, dynamic> toJson() {
     return {
-      'profDefName': profDefName,
-      'profDefDescription': profDefDescription,
-      'manufacturerID': manufacturerID,
-      'profDefMSRP': profDefMSRP,
+      'prodDefName': prodDefName,
+      'prodDefDescription': prodDefDescription,
+      'manufacturerName': manufacturerName,
+      'prodDefMSRP': prodDefMSRP,
       'isVisible': isVisible,
       'itemTypeID': itemTypeID,
     };
@@ -62,24 +62,24 @@ class ProductDefinitionData {
 
   //Specifically used for the state handling
   ProductDefinitionData copyWith({
-    int? profDefID,
-    String? profDefName,
-    String? profDefDescription,
-    int? manufacturerID,
+    String? prodDefID,
+    String? prodDefName,
+    String? prodDefDescription,
+    String? manufacturerName,
     DateTime? createDate,
     DateTime? updateDate,
-    double? profDefMSRP,
+    double? prodDefMSRP,
     bool? isVisible,
     int? itemTypeID,
   }) {
     return ProductDefinitionData(
-      profDefID: profDefID ?? this.profDefID,
-      profDefName: profDefName ?? this.profDefName,
-      profDefDescription: profDefDescription ?? this.profDefDescription,
-      manufacturerID: manufacturerID ?? this.manufacturerID,
+      prodDefID: prodDefID ?? this.prodDefID,
+      prodDefName: prodDefName ?? this.prodDefName,
+      prodDefDescription: prodDefDescription ?? this.prodDefDescription,
+      manufacturerName: manufacturerName ?? this.manufacturerName,
       createDate: createDate ?? this.createDate,
       updateDate: updateDate ?? this.updateDate,
-      profDefMSRP: profDefMSRP ?? this.profDefMSRP,
+      prodDefMSRP: prodDefMSRP ?? this.prodDefMSRP,
       isVisible: isVisible ?? this.isVisible,
       itemTypeID: itemTypeID ?? this.itemTypeID,
     );

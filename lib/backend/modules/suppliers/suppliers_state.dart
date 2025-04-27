@@ -1,67 +1,115 @@
+import 'package:flutter/foundation.dart'; // For listEquals and immutable
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'suppliers_data.dart';
-import 'suppliers_service.dart';
 
-//Base Provider for the Suppliers Mini-System -- USED FOR THE ENTIRE STATE MANAGEMENT -- DON'T TOUCH
-final supplierServiceProv = Provider<SuppliersService>((ref){
-    return SuppliersService();
+// Import related files
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_data.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_notifiers.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_notifiers.dart'; // Will be created next
+
+// --- State Class Definition ---
+
+@immutable // Ensures the state class is immutable
+class SuppliersState {
+  final List<SuppliersData> suppliers; // Current page's data
+  final String searchText; // Current search query
+  final int currentPage; // Current page number
+  final int totalPages; // Total number of pages
+  final int itemsPerPage; // Items displayed per page
+  final String sortBy; // Column currently sorted by
+  final bool ascending; // Current sort direction
+
+  // Constructor with default values
+  const SuppliersState({
+    this.suppliers = const [], // Default to empty list
+    this.searchText = '',
+    this.currentPage = 1,
+    this.totalPages = 1, // Default to 1 page until calculated
+    this.itemsPerPage = 10, // Match default in service or make configurable
+    this.sortBy = 'supplierName', // Default sort column
+    this.ascending = true,
+  });
+
+  // Creates a copy of the state, updating specified fields
+  SuppliersState copyWith({
+    List<SuppliersData>? suppliers,
+    String? searchText,
+    int? currentPage,
+    int? totalPages,
+    int? itemsPerPage,
+    String? sortBy,
+    bool? ascending,
+  }) {
+    return SuppliersState(
+      suppliers: suppliers ?? this.suppliers,
+      searchText: searchText ?? this.searchText,
+      currentPage: currentPage ?? this.currentPage,
+      totalPages: totalPages ?? this.totalPages,
+      itemsPerPage: itemsPerPage ?? this.itemsPerPage,
+      sortBy: sortBy ?? this.sortBy,
+      ascending: ascending ?? this.ascending,
+    );
+  }
+
+  // Equality operator for state comparison
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is SuppliersState &&
+        listEquals(other.suppliers, suppliers) &&
+        other.searchText == searchText &&
+        other.currentPage == currentPage &&
+        other.totalPages == totalPages &&
+        other.itemsPerPage == itemsPerPage &&
+        other.sortBy == sortBy &&
+        other.ascending == ascending;
+  }
+
+  // Hash code implementation
+  @override
+  int get hashCode {
+    return Object.hash(
+      Object.hashAll(suppliers), // Use Object.hashAll for lists
+      searchText,
+      currentPage,
+      totalPages,
+      itemsPerPage,
+      sortBy,
+      ascending,
+    );
+  }
+
+  // String representation for debugging
+  @override
+  String toString() {
+    return 'SuppliersState(suppliers: ${suppliers.length} items, searchText: $searchText, currentPage: $currentPage, totalPages: $totalPages, itemsPerPage: $itemsPerPage, sortBy: $sortBy, ascending: $ascending)';
+  }
+}
+
+// --- Provider Definitions ---
+
+/// Provider that creates and exposes an instance of [SuppliersService].
+final suppliersServiceProvider = Provider<SuppliersService>((ref) {
+  return SuppliersService(); // Creates a new instance of the service
 });
 
-// -- ALL OTHER METHODS FOR THE DIFFERENT FUNCTIONALITIES -- //
+/// Notifier provider for managing Suppliers (Active/Archived). Family param bool: true=Active, false=Archived.
+final suppliersNotifierProvider = AutoDisposeAsyncNotifierProviderFamily<
+    SuppliersNotifier, SuppliersState, bool>(
+  () => SuppliersNotifier(),
+);
 
-//Grab Supplier List
-final fetchSupplierList = FutureProvider<List<SuppliersData>>((ref) async {
-    final baseSupplier = ref.read(supplierServiceProv);
-
-    List<SuppliersData> allSuppliers = await baseSupplier.allSuppliers();
-    return allSuppliers;
+/// FutureProvider specifically for fetching active suppliers for dropdowns.
+final activeSuppliersForDropdownProvider = FutureProvider.autoDispose<List<SuppliersData>>((ref) async {
+  final service = ref.watch(suppliersServiceProvider);
+  // Fetch only active suppliers using the service method
+  // Assuming getAllSuppliersForSelect is similar to manufacturers or a dedicated method exists
+  // Let's use availableSuppliers for now, adjust if needed.
+  return service.availableSuppliers();
+  // Or ideally: return service.getAllSuppliersForSelect(activeOnly: true); if you add that method.
 });
 
-//Available Suppliers
-final fetchAvailableSuppliers = FutureProvider<List<SuppliersData>>((ref) async {
-    final baseSupplier = ref.read(supplierServiceProv);
-
-    List<SuppliersData> allSuppliers = await baseSupplier.availableSuppliers();
-    return allSuppliers;
-});
-
-//Arvhived Suppliers
-final fetchHiddenSuppliers = FutureProvider<List<SuppliersData>>((ref) async {
-    final baseSupplier = ref.read(supplierServiceProv);
-
-    List<SuppliersData> allSuppliers = await baseSupplier.archivedSupliers();
-    return allSuppliers;
-});
-
-//Hold Query Search - can be null/empty
-final supplierQuery = StateProvider<String?>((ref) => null);
-
-
-//Search Function
-final supplierSearchResult = FutureProvider<List<SuppliersData>>((ref) async {
-    final supplierService = ref.read(supplierServiceProv);
-    final queryResult = ref.watch(supplierQuery);
-
-    //Standard Conditionals
-    if (queryResult == null || queryResult.isEmpty) return [];
-
-    //Call to my supplier service to refer to my search method
-    return await supplierService.searchSuppliers(supplierName: queryResult, supplierEmail: queryResult, supplierID: int.tryParse(queryResult));
-});
-
-//Loading Visual
-final supplierLoadingStateProvider = StateProvider<bool>((ref) => false);
-
-//Visibility/Soft-delete
-final updateServiceVisibilityProvider = FutureProvider.family<void, SuppliersData>((ref, updateSupplier) async {
-    final supplierService = ref.read(supplierServiceProv);
-    ref.read(supplierLoadingStateProvider.notifier).state = true;
-
-    try {
-        await supplierService.updateSupplierVisbility(updateSupplier.supplierID, updateSupplier.isActive);
-    }catch(err){
-    ref.read(supplierLoadingStateProvider.notifier).state = false;
-    print('Failed to update Service: ${updateSupplier.supplierName} \n View message: $err');
-    }
-});
-
+// NOTE: Removed old FutureProviders (fetchSupplierList, fetchAvailableSuppliers, fetchHiddenSuppliers)
+// and state providers (supplierQuery, supplierSearchResult, supplierLoadingStateProvider, updateServiceVisibilityProvider)
+// as their functionality is now handled by the suppliersNotifierProvider.

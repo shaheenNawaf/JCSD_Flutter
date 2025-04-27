@@ -1,30 +1,28 @@
 class SerializedItem {
   final String serialNumber;
-  final int itemID;
+  final String prodDefID;
   final DateTime? purchaseDate;
   final int? employeeID;
   final int supplierID;
-  final DateTime createdDate;
+  final DateTime? createdDate;
   final DateTime? updateDate;
   final double? costPrice;
   final String? notes;
   final String status;
   final int? currentBookingID;
-  final bool isVisible;
 
   SerializedItem({
     required this.serialNumber,
-    required this.itemID,
+    required this.prodDefID,
     this.purchaseDate,
     this.employeeID,
     required this.supplierID,
-    required this.createdDate,
+    this.createdDate,
     this.updateDate,
     this.costPrice,
     this.notes,
     required this.status,
     this.currentBookingID,
-    required this.isVisible
   });
 
   // Factory constructor for parsing JSON from Supabase
@@ -44,7 +42,7 @@ class SerializedItem {
 
     return SerializedItem(
       serialNumber: json['serialNumber'] as String, // Ensure this matches DB type
-      itemID: json['itemID'],
+      prodDefID: json['prodDefID'],
       purchaseDate: parseOptionalDateTime(json['purchaseDate']),
       employeeID: json['employeeID'] as int?,
       supplierID: json['supplierID'] as int,
@@ -54,7 +52,6 @@ class SerializedItem {
       notes: json['notes'] as String?,
       status: json['status'] as String? ?? 'Available', // Provide default if status could be null
       currentBookingID: json['current_booking_id'] as int?,
-      isVisible: json['isVisible'] as bool? ?? true,
     );
   }
 
@@ -62,7 +59,7 @@ class SerializedItem {
    Map<String, dynamic> toJson() {
      return {
        'serialNumber': serialNumber, // Usually needed for inserts/updates
-       'itemID': itemID,
+       'prodDefID': prodDefID,
        'purchaseDate': purchaseDate?.toIso8601String(),
        'employeeID': employeeID,
        'supplierID': supplierID,
@@ -70,20 +67,19 @@ class SerializedItem {
        'notes': notes,
        'status': status,
        'current_booking_id': currentBookingID,
-       'isVisible': isVisible,
      };
    }
 
    // copyWith method for immutable updates
   SerializedItem copyWith({
     String? serialNumber,
-    int? itemID,
+    String? prodDefID,
     DateTime? purchaseDate,
-    int? userID,
+    int? employeeID,
     int? supplierID,
     DateTime? createdDate,
     DateTime? updateDate,
-    double? itemPrice,
+    double? costPrice,
     String? notes,
     String? status,
     int? currentBookingID,
@@ -91,17 +87,16 @@ class SerializedItem {
   }) {
     return SerializedItem(
       serialNumber: serialNumber ?? this.serialNumber,
-      itemID: itemID ?? this.itemID,
+      prodDefID: prodDefID ?? this.prodDefID,
       purchaseDate: purchaseDate ?? this.purchaseDate,
-      employeeID: userID ?? this.employeeID,
+      employeeID: employeeID ?? this.employeeID,
       supplierID: supplierID ?? this.supplierID,
       createdDate: createdDate ?? this.createdDate,
       updateDate: updateDate ?? this.updateDate,
-      itemPrice: itemPrice ?? this.itemPrice,
+      costPrice: costPrice ?? this.costPrice,
       notes: notes ?? this.notes,
       status: status ?? this.status,
       currentBookingID: currentBookingID ?? this.currentBookingID,
-      isVisible: isVisible ?? this.isVisible,
     );
   }
 }

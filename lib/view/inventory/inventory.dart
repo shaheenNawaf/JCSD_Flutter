@@ -1,13 +1,12 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
+/// Product Definitions View
+/// --> Item Serials View (Embedded)
+
 // Packages for usage
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-//Inventory Backend
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_providers.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
 
 //For Animation
 import 'package:shimmer/shimmer.dart';
@@ -22,12 +21,17 @@ import 'package:jcsd_flutter/view/inventory/borrowed_items/view_borrowed.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 
-// Inventory
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
-import 'package:jcsd_flutter/view/inventory/item_types/item_types.dart';
+//Updated Inventory Backend
+import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_providers.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_state.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_notifier.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_data.dart';
 
 // Suppliers
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
+
+//Manufacturers: To grab the Manufacturers list
+import 'package:jcsd_flutter/backend/modules/inventory/manufacturers/manufacturers_service.dart';
 
 class InventoryPage extends ConsumerWidget {
   const InventoryPage({super.key});
@@ -35,6 +39,10 @@ class InventoryPage extends ConsumerWidget {
   final String _activeSubItem = '/inventory';
   final bool isVisibleFilter =
       true; //Default Value, since in this page, only Active items are displayed
+  
+
+  //Adding Placeholder
+  void _showAddProductDefinitionModal(BuildContext context, Widg)
 
   //Update Theses after the main inventory module
   void _showAddItemModal(BuildContext context, WidgetRef ref) {
@@ -118,8 +126,8 @@ class InventoryPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     const bool isVisibleFilter = true;
 
-    final inventoryAsyncValue =
-        ref.watch(InventoryNotifierProvider(isVisibleFilter));
+    final productDefinitionsAsnycValue =
+        ref.watch(productDefinitionNotifierProvider(isVisibleFilter));
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
@@ -133,12 +141,12 @@ class InventoryPage extends ConsumerWidget {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: inventoryAsyncValue.when(
+                  child: productDefinitionsAsnycValue.when(
                     loading: () => _buildLoadingIndicator(),
                     error: (error, stackTrace) =>
                         _buildErrorWidget(error.toString(), stackTrace),
-                    data: (inventoryData) {
-                      if (inventoryData.filteredData.isEmpty) {
+                    data: (productDefinitions) {
+                      if (productDefinitions.filteredData.isEmpty) {
                         if (inventoryData.searchText.isEmpty) {
                           return _buildEmptyState(context, ref);
                         } else {

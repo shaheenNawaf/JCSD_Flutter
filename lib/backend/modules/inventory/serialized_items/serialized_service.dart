@@ -14,8 +14,6 @@ const int defaultItemsPerPage = 10;
 class SerialitemService {
   final AuditServices addAuditLogs = AuditServices();
 
-
-
   String commonlyUsedJoin() {
     return ''' *,
       product_definitions ( prodDefName, prodDefMSRP ),
@@ -31,7 +29,6 @@ class SerialitemService {
     int? currentBookingID,
     int? employeeID,
     int? supplierID,
-    bool? isVisible = true,
     String? searchQuery,
 
     //For Pagination and Sorting
@@ -53,8 +50,6 @@ class SerialitemService {
       if (currentBookingID != null) fetchItemSerials = fetchItemSerials.eq('bookingID', currentBookingID);
       if (employeeID != null) fetchItemSerials = fetchItemSerials.eq('employeeID', employeeID);
       if (supplierID != null) fetchItemSerials = fetchItemSerials.eq('supplierID', supplierID);
-      if (isVisible != null) fetchItemSerials = fetchItemSerials.eq('isVisible', isVisible);
-
       //Apply the search here
       if(searchQuery != null && searchQuery.isNotEmpty){
         final searchTerm = '%$searchQuery%';
@@ -92,7 +87,6 @@ class SerialitemService {
     int? employeeID,
     int? supplierID,
     String? searchQuery,
-    bool? isVisible = true,
   }) async {
     try{
       var fetchSerialsCount = supabaseDB.from('item_serials').select();
@@ -103,7 +97,6 @@ class SerialitemService {
       if (currentBookingID != null) fetchSerialsCount = fetchSerialsCount.eq('bookingID', currentBookingID);
       if (employeeID != null) fetchSerialsCount = fetchSerialsCount.eq('employeeID', employeeID);
       if (supplierID != null) fetchSerialsCount = fetchSerialsCount.eq('supplierID', supplierID);
-      if (isVisible != null) fetchSerialsCount = fetchSerialsCount.eq('isVisible', isVisible);
 
       if (searchQuery != null && searchQuery.isNotEmpty) {
         final searchTerm = '%$searchQuery%';
@@ -134,13 +127,31 @@ class SerialitemService {
     }
   }
 
+  /// Fetches all visible status names from the item_status table.
+  Future<List<String>> getAllItemStatuses() async {
+    try {
+      final results = await supabaseDB
+          .from('item_status')
+          .select('statusName')
+          .order('statusName', ascending: true); // Optional: order them
+
+      if (results.isEmpty) {
+        print("No visible item statuses found.");
+        return [];
+      }
+      // Extract just the status names into a list of strings
+      return results.map<String>((row) => row['statusName'] as String).toList();
+    } catch (err, st) {
+      print('Error fetching item statuses: $err \n $st');
+      rethrow;
+    }
+  }
+
   //Actual Methods for Adding, Updating
 
   Future<SerializedItem> addSerializedItem (SerializedItem newItem) async {
     try{
       final Map<String, dynamic> newSerialItem = newItem.toJson();
-      newSerialItem['isVisible'] ??= true; //Defaults to true, iwas error; ofc any new item is visible by default
-
       String returnSelectQuery = commonlyUsedJoin();
 
       final serialResult = await supabaseDB.from('item_serials').insert(newSerialItem).select(returnSelectQuery).single();
@@ -178,25 +189,4 @@ class SerialitemService {
       rethrow;
     }
   }
-
-  Future<void> updateSerializedItemVisiblity(String serialNumber, bool isVisible) async {
-    try{
-      String actionSelected;
-
-      if(isVisible){
-        actionSelected = 'Restored';
-      }else{
-        actionSelected = 'Archived';
-      }
-
-      print("$actionSelected Serialized Item: $serialNumber");
-
-      await supabaseDB.from('item_serials').update({'isVisible': isVisible}).eq('serialNumber', serialNumber);
-      print("Serialized Item $serialNumber visibility set to $isVisible");
-    }catch(err, st){
-      print('Error updating Serialized Item $serialNumber visibility: $err');
-      rethrow;
-    }
-  }
-
 }
