@@ -115,7 +115,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                       PopupMenuButton<String>(
                         onSelected: (value) {
                           if (value == 'profile') {
-                            Navigator.pushNamed(context, '/profileClient');
+                            context.go('/profileClient');
                           } else if (value == 'logout') {
                             _logout(context);
                           }
