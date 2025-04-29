@@ -24,7 +24,7 @@ class ProductDefinitionData {
     factory ProductDefinitionData.fromJson(Map<String, dynamic> json) {
     DateTime? parseOptionalDateTime(String? dateString) {
       return dateString != null ? DateTime.tryParse(dateString) : null;
-    }
+      } 
 
      // Helper for safe double parsing from numeric/decimal/float
     double? parseOptionalDouble(dynamic priceValue) {
@@ -35,14 +35,13 @@ class ProductDefinitionData {
        return null; // Or throw error / default value
     }
 
-
     return ProductDefinitionData(
       prodDefID: json['prodDefID'] as String,
       prodDefName: json['prodDefName'] as String,
       prodDefDescription: json['prodDefDescription'] as String?,
       manufacturerName: json['manufacturerName'] as String, 
-      createDate: json['createDate'],
-      updateDate: parseOptionalDateTime(json['updateDate']),
+      createDate: DateTime.tryParse(json['createDate']),
+      updateDate: DateTime.tryParse(json['updateDate']),
       prodDefMSRP: parseOptionalDouble(json['prodDefMSRP']),
       isVisible: json['isVisible'] as bool,
       itemTypeID: json['itemTypeID']

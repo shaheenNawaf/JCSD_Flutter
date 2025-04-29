@@ -37,7 +37,7 @@ class ProductDefinitionServices{
         item_types ( itemType ),
       ''';
 
-      var fetchPDQuery = supabaseDB.from('product_definitions').select(selectPDQuery).eq('isVisible', isVisible);
+      var fetchPDQuery = supabaseDB.from('product_definitions').select().eq('isVisible', isVisible);
 
 
       //Added new queries - for both itemTypeID and manufacturerID
