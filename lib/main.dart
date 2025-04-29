@@ -277,7 +277,7 @@ final router = GoRouter(
     };
 
     const Map<String, List<String>> roleBasedRoutes = {
-      'client': [
+      'admin': [
         '/home',
         '/accountList',
         '/accountList/accountDetail',
@@ -321,7 +321,7 @@ final router = GoRouter(
         '/dashboard', 
         '/itemTypes',
       ],
-      'admin': [
+      'client': [
         '/home',
         '/inventory',
         '/booking1',
