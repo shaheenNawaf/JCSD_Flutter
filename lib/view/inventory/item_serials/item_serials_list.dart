@@ -435,7 +435,7 @@ class SerializedItemListPage extends ConsumerWidget {
   Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
     return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       const Icon(FontAwesomeIcons.barcode, size: 80, color: Colors.grey), SizedBox(height: 16),
-      Text('No Serial Items found for".', style: const TextStyle(fontSize: 18, color: Colors.grey), textAlign: TextAlign.center), SizedBox(height: 12),
+      Text('No Serial Items found for "$prodDefName".', style: const TextStyle(fontSize: 18, color: Colors.grey), textAlign: TextAlign.center), SizedBox(height: 12),
       ElevatedButton.icon(icon: const Icon(Icons.add), onPressed: () => _showAddSerializedItemModal(context, ref), label: const Text('Add First Serial Item'), style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12))),
     ]));
   }

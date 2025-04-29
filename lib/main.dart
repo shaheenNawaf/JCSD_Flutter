@@ -24,6 +24,7 @@ import 'package:jcsd_flutter/view/admin/leaverequestlist.dart';
 import 'package:jcsd_flutter/view/admin/payroll.dart';
 import 'package:jcsd_flutter/view/client/profile_client.dart';
 import 'package:jcsd_flutter/view/employee/dashboard.dart';
+import 'package:jcsd_flutter/view/inventory/item_serials/item_serials_list.dart';
 import 'package:jcsd_flutter/view/order_item/order_list.dart';
 import 'package:jcsd_flutter/view/services/services.dart';
 import 'package:jcsd_flutter/view/services/services_archive.dart';
@@ -171,6 +172,20 @@ final router = GoRouter(
     GoRoute(
       path: '/inventory',
       builder: (context, state) => const InventoryPage(),
+      routes: <GoRoute>[
+        GoRoute(
+          path: 'serials',
+          builder: (context, state){
+            final Map<String, dynamic>? extraData = state.extra as Map<String, dynamic>?;
+            final String? prodDefID = extraData?['prodDefId'] as String?;
+            final String? prodDefName = extraData?['prodDefName'] as String?;
+            return SerializedItemListPage(
+              prodDefID: prodDefID ?? '', 
+              prodDefName: prodDefName ?? ''
+            );
+          }
+        )
+      ]
     ),
     GoRoute(
       path: '/suppliers',
@@ -294,6 +309,7 @@ final router = GoRouter(
         '/accountDetails',
         '/dashboard',
         '/inventory',
+        '/inventory/serials',
         '/suppliers',
         '/supplierArchive',
         '/bookings',

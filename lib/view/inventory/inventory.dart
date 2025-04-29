@@ -250,7 +250,12 @@ class InventoryPage extends ConsumerWidget {
               Tooltip(message: 'View Serials', child: IconButton(icon: const Icon(Icons.list_alt, color: Colors.indigo, size: 18), onPressed: () {
                  // Ensure ID is not null before navigating
                  if (item.prodDefID != null) {
-                   context.go('/inventory/serials/${item.prodDefID}');
+                    final String? productDefinitionId = item.prodDefID;
+                    final String productDefinitionName = item.prodDefName;
+                    context.go(
+                      '/inventory/serials',
+                      extra: {'prodDefId': productDefinitionId, 'prodDefName': productDefinitionName},
+                    );
                  } else {
                    print("Error: Cannot view serials for null prodDefID");
                    // Optionally show feedback to user
