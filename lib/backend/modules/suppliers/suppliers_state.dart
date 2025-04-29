@@ -110,6 +110,10 @@ final activeSuppliersForDropdownProvider = FutureProvider.autoDispose<List<Suppl
   // Or ideally: return service.getAllSuppliersForSelect(activeOnly: true); if you add that method.
 });
 
-// NOTE: Removed old FutureProviders (fetchSupplierList, fetchAvailableSuppliers, fetchHiddenSuppliers)
-// and state providers (supplierQuery, supplierSearchResult, supplierLoadingStateProvider, updateServiceVisibilityProvider)
-// as their functionality is now handled by the suppliersNotifierProvider.
+///Fetches only active suppliers
+final supplierNameMapProvider = FutureProvider.autoDispose<Map<int, String>>((ref) async {
+  final suppliersList = await ref.watch(activeSuppliersForDropdownProvider.future);
+  return {
+    for (var supplier in suppliersList) supplier.supplierID : supplier.supplierName
+  };
+});

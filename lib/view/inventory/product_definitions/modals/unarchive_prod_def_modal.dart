@@ -1,0 +1,126 @@
+// lib/view/inventory/modals/unarchive_prod_def_modal.dart
+// ignore_for_file: library_private_types_in_public_api, avoid_print, use_build_context_synchronously
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_notifier.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_providers.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
+
+class UnarchiveProductDefinitionModal extends ConsumerStatefulWidget {
+  final String prodDefID;
+  final String prodDefName;
+  final bool isVisibleContext; // Context from which it was called (false = archive list)
+
+  const UnarchiveProductDefinitionModal({
+    super.key,
+    required this.prodDefID,
+    required this.prodDefName,
+    this.isVisibleContext = false, // Default to being called from archive list
+  });
+
+  @override
+  ConsumerState<UnarchiveProductDefinitionModal> createState() => _UnarchiveProductDefinitionModalState();
+}
+
+class _UnarchiveProductDefinitionModalState extends ConsumerState<UnarchiveProductDefinitionModal> {
+  bool _isRestoring = false;
+
+  Future<void> _restoreItem() async {
+    setState(() => _isRestoring = true);
+
+    try {
+      await ref.read(productDefinitionNotifierProvider(widget.isVisibleContext).notifier)
+               .updateProductDefinitionVisibility(widget.prodDefID, true); // true = restore
+
+      ToastManager().showToast(context, 'Product "${widget.prodDefName}" restored.', Colors.green);
+      Navigator.pop(context);
+
+    } catch (e, st) {
+      print("Error restoring Product Definition ${widget.prodDefID}: $e\n$st");
+      ToastManager().showToast(context, 'Failed to restore: ${e.toString()}', Colors.red);
+       if (mounted) {
+         setState(() => _isRestoring = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    double containerWidth = screenWidth > 600 ? 450 : screenWidth * 0.9;
+    const double dialogHeight = 190;
+
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      insetPadding: EdgeInsets.symmetric(horizontal: screenWidth > 600 ? 50.0 : 16.0),
+      child: SizedBox(
+        width: containerWidth,
+        height: dialogHeight,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              decoration: const BoxDecoration(
+                color: Colors.green, // Use positive color for restore
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+              ),
+              child: const Center(
+                child: Text('Confirm Restore', style: TextStyle(fontFamily: 'NunitoSans', fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Center(
+                child: Text(
+                  'Are you sure you want to restore\n"${widget.prodDefName}"?',
+                  style: const TextStyle(fontFamily: 'NunitoSans', fontSize: 16, height: 1.4),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: _isRestoring ? null : () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14.0),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5), side: const BorderSide(color: Colors.grey)),
+                      ),
+                      child: const Text('Cancel', style: TextStyle(fontFamily: 'NunitoSans', fontWeight: FontWeight.bold, color: Colors.black54)),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      icon: _isRestoring ? Container() : const Icon(Icons.unarchive, size: 18),
+                      label: _isRestoring
+                          ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : const Text('Restore'),
+                      onPressed: _isRestoring ? null : _restoreItem,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green, // Positive color
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14.0),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+                         textStyle: const TextStyle(fontFamily: 'NunitoSans', fontWeight: FontWeight.bold)
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -160,10 +160,16 @@ class ProductDefinitionServices{
   Future<ProductDefinitionData> updateProductDefinition(ProductDefinitionData updProdDef) async {
     final dataToUpdate = updProdDef.toJson();
 
+    if(updProdDef.prodDefID == null){
+      throw ArgumentError('Cannot update PD without a PD ID \n Product Defition has a null ID.');
+    }
+
     try{
       const String returnSelectQuery = '''*, item_types ( itemType )''';
+      
 
-      final updateProdDef = await supabaseDB.from('product_definitions').update(dataToUpdate).eq('prodDefID', updProdDef.prodDefID).select(returnSelectQuery).single();
+      //Added non-null to consider the nullable nature of out PD id
+      final updateProdDef = await supabaseDB.from('product_definitions').update(dataToUpdate).eq('prodDefID', updProdDef.prodDefID!).select(returnSelectQuery).single();
 
       //Insert Audit Log for Update Here - TBA lang
       print('UPDATED PRODUCT DEFINITION: ${updProdDef.prodDefName}');

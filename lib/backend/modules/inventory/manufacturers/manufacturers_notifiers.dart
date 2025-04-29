@@ -95,11 +95,12 @@ class ManufacturersNotifier
     );
   }
 
-  // --- UI Action Methods ---
+  // UI Action Methods
 
-  /// Action: Navigates to the specified page number.
+  /// Action: Page Navigation
   Future<void> goToPage(int page) async {
     final currentState = state.valueOrNull; // Get current state data safely
+
     // Prevents navigation if state is invalid or page is out of bounds
     if (currentState == null || page < 1 || page > currentState.totalPages) return;
 
@@ -121,7 +122,7 @@ class ManufacturersNotifier
     });
   }
 
-  /// Action: Sorts the list by a column, toggling direction if needed.
+  /// Action: Sorting, toggling direction/ascending or not
   Future<void> sort(String newSortBy) async {
     final currentState = state.valueOrNull;
     if (currentState == null) return;
@@ -129,7 +130,7 @@ class ManufacturersNotifier
     // Toggles ascending state if sorting by the same column, else defaults to true
     final newAscending =
         currentState.sortBy == newSortBy ? !currentState.ascending : true;
-    const newPage = 1; // Resets to page 1 on sort change
+    const newPage = 1; // force reset on every sort change
 
     state = const AsyncValue.loading(); // Set loading state
     // Fetches sorted data and updates state; handles errors
@@ -151,7 +152,7 @@ class ManufacturersNotifier
     });
   }
 
-  /// Action: Updates search text and fetches results after a debounce period.
+  /// Action: Search functionality, always active
   void search(String newSearchText) {
     _debounce?.cancel(); // Cancels any existing debounce timer
     // Sets a new timer to delay the search execution
