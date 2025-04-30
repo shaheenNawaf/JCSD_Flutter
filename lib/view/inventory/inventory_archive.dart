@@ -62,10 +62,8 @@ class ArchiveListPage extends ConsumerWidget {
                     loading: () => _buildLoadingIndicator(),
                     error: (error, stackTrace) => _buildErrorWidget(error, stackTrace, ref),
                     data: (productDefState) {
-                      if (productDefState.productDefinitions.isEmpty) {
-                        return productDefState.searchText.isEmpty
-                            ? _buildEmptyState()
-                            : Center(child: Text('No Archived Products match search: "${productDefState.searchText}"'));
+                      if (productDefState.productDefinitions.isEmpty && productDefState.searchText.isEmpty) {
+                        return _buildEmptyState();
                       }
                       return _buildWebView(context, ref, productDefState);
                     },

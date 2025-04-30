@@ -9,7 +9,6 @@ import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 
 // Product Definition Imports
-import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_providers.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_state.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_notifier.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_data.dart';
@@ -96,16 +95,12 @@ class InventoryPage extends ConsumerWidget {
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  // Handle loading, error, and data states
                   child: asyncValue.when(
                     loading: () => _buildLoadingIndicator(),
                     error: (error, stackTrace) => _buildErrorWidget(error, stackTrace, ref),
                     data: (productDefState) {
-                      // Display empty state or the data table
-                      if (productDefState.productDefinitions.isEmpty) {
-                        return productDefState.searchText.isEmpty
-                            ? _buildEmptyState(context, ref)
-                            : Center(child: Text('No Product Definitions match search: "${productDefState.searchText}"'));
+                      if (productDefState.productDefinitions.isEmpty && productDefState.searchText.isEmpty) {
+                        return _buildEmptyState(context, ref);
                       }
                       return _buildWebView(context, ref, productDefState);
                     },
