@@ -18,7 +18,6 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
   final TextEditingController _firstName = TextEditingController();
   final TextEditingController _lastName = TextEditingController();
   final TextEditingController _middleInitial = TextEditingController();
-  final TextEditingController _username = TextEditingController();
   final TextEditingController _password = TextEditingController();
   final TextEditingController _email = TextEditingController();
   final TextEditingController _phone = TextEditingController();
@@ -45,7 +44,6 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
         await EmployeeService().registerNewEmployeeWithProfile(
           email: _email.text.trim(),
           password: _password.text.trim(),
-          username: _username.text.trim(),
           role: _selectedRole,
           isAdmin: _selectedRole == 'Admin',
           firstName: _firstName.text.trim(),
@@ -89,7 +87,6 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
     _firstName.dispose();
     _lastName.dispose();
     _middleInitial.dispose();
-    _username.dispose();
     _password.dispose();
     _email.dispose();
     _phone.dispose();
@@ -159,8 +156,6 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
                             _buildTextField(
                                 label: 'Middle Initial',
                                 controller: _middleInitial),
-                            _buildTextField(
-                                label: 'Username', controller: _username),
                             _buildTextField(
                                 label: 'Password',
                                 controller: _password,

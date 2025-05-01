@@ -214,7 +214,7 @@ class EmployeeListPage extends ConsumerWidget {
                         width: 140,
                         child: ElevatedButton(
                           onPressed: () {
-                            context.push( '/employeeList/profile', extra: acc);
+                            context.push('/employeeList/profile', extra: acc);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF00AEEF),

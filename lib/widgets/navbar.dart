@@ -9,7 +9,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackButton;
 
   const Navbar({
-    super.key, 
+    super.key,
     this.activePage = '',
     this.showBackButton = false,
   });
@@ -22,7 +22,8 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
       }
     } catch (error) {
       if (context.mounted) {
-        ToastManager().showToast(context, 'Logout failed: $error', const Color.fromARGB(255, 255, 0, 0));
+        ToastManager().showToast(context, 'Logout failed: $error',
+            const Color.fromARGB(255, 255, 0, 0));
       }
     }
   }
@@ -164,68 +165,6 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildMobileMenu(BuildContext context, bool isLoggedIn) {
-    return PopupMenuButton<String>(
-      icon: const Icon(FontAwesomeIcons.bars, color: Color(0xFF00AEEF)),
-      onSelected: (value) {
-        if (value == 'logout') {
-          _logout(context);
-        } else {
-          context.go(value);
-        }
-      },
-      color: Colors.white,
-      itemBuilder: (BuildContext context) => [
-        _buildPopupItem('Home', '/home', 'home'),
-        _buildPopupItem('Services', '/services', 'services'),
-        _buildPopupItem(
-          isLoggedIn ? 'Logout' : 'Login',
-          isLoggedIn ? 'logout' : '/login',
-          isLoggedIn ? '' : 'login',
-        ),
-      ],
-    );
-  }
-
-  PopupMenuItem<String> _buildPopupItem(String title, String value, String page) {
-    return PopupMenuItem<String>(
-      value: value,
-      child: Text(
-        title,
-        style: TextStyle(
-          fontFamily: 'NunitoSans',
-          fontWeight: activePage == page ? FontWeight.bold : FontWeight.normal,
-          color: const Color(0xFF00AEEF),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDesktopMenu(BuildContext context, bool isLoggedIn) {
-    return Row(
-      children: [
-        NavItem(
-          title: 'Home',
-          route: '/home',
-          isActive: activePage == 'home',
-          onTap: () => context.go('/home'),
-        ),
-        NavItem(
-          title: 'Services',
-          route: '/services',
-          isActive: activePage == 'services',
-          onTap: () => context.go('/services'),
-        ),
-        NavItem(
-          title: isLoggedIn ? 'Logout' : 'Login',
-          route: isLoggedIn ? '' : '/login',
-          isActive: activePage == 'login',
-          onTap: () => isLoggedIn ? _logout(context) : context.go('/login'),
-        ),
-      ],
-    );
-  }
-
   @override
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
@@ -247,7 +186,7 @@ class NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton(
-      onPressed: onTap ?? () => Navigator.pushNamed(context, route),
+      onPressed: onTap,
       child: Text(
         title,
         style: TextStyle(
