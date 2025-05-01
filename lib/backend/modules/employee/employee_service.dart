@@ -6,7 +6,6 @@ class EmployeeService {
   Future<void> registerNewEmployee({
     required String email,
     required String password,
-    required String username,
     required String role,
     required bool isAdmin,
   }) async {
@@ -37,7 +36,6 @@ class EmployeeService {
   Future<void> registerNewEmployeeWithProfile({
     required String email,
     required String password,
-    required String username,
     required String role,
     required bool isAdmin,
     required String firstName,

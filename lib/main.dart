@@ -50,7 +50,8 @@ final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
 final router = GoRouter(
-  refreshListenable: GoRouterRefreshStream(Supabase.instance.client.auth.onAuthStateChange),
+  refreshListenable:
+      GoRouterRefreshStream(Supabase.instance.client.auth.onAuthStateChange),
   initialLocation: '/login',
   debugLogDiagnostics: true,
   routes: [
@@ -98,56 +99,56 @@ final router = GoRouter(
       builder: (context, state) => const AccessRestrictedPage(),
     ),
     GoRoute(
-      path: '/accountList',
-      builder: (context, state) => const AccountListPage(),
-      routes: <GoRoute>[
-        GoRoute(
-          path: 'accountDetail',
-          builder: (context, state){
-            final AccountsData? user = state.extra as AccountsData?;
-            return ProfileAdminViewPage(user: user);
-          }
-        )
-      ]
-    ),
+        path: '/accountList',
+        builder: (context, state) => const AccountListPage(),
+        routes: <GoRoute>[
+          GoRoute(
+              path: 'accountDetail',
+              builder: (context, state) {
+                final AccountsData? user = state.extra as AccountsData?;
+                return ProfileAdminViewPage(user: user);
+              })
+        ]),
     GoRoute(
       path: '/bookingsCalendar',
       builder: (context, state) => const BookingCalendarPage(),
     ),
     GoRoute(
-      path: '/employeeList',
-      builder: (context, state) => const EmployeeListPage(),
-      routes: <GoRoute>[
-        GoRoute(
-          path: 'leaveRequestList',
-          builder: (context, state) => const LeaveRequestList(),
-        ),
-        GoRoute(
-          path: 'profile',
-          builder: (context, state){
-            final AccountsData? acc = state.extra as AccountsData?;
-            return ProfilePage(acc: acc);
-          },
-          routes: <GoRoute>[
-            GoRoute(
-              path: 'payslip',
-              builder: (context, state) => const Payslip(),
-            ),
-            GoRoute(
-              path: 'leaveRequest',
-              builder: (context, state) => const LeaveRequest(),
-            )
-          ]
-        )
-      ]
-    ),
+        path: '/employeeList',
+        builder: (context, state) => const EmployeeListPage(),
+        routes: <GoRoute>[
+          GoRoute(
+            path: 'leaveRequestList',
+            builder: (context, state) => const LeaveRequestList(),
+          ),
+          GoRoute(
+              path: 'profile',
+              builder: (context, state) {
+                final AccountsData? acc = state.extra as AccountsData?;
+                return ProfilePage(acc: acc);
+              },
+              routes: <GoRoute>[
+                GoRoute(
+                  path: 'payslip',
+                  builder: (context, state) => const Payslip(),
+                ),
+                GoRoute(
+                  path: 'leaveRequest',
+                  builder: (context, state) => const LeaveRequest(),
+                )
+              ])
+        ]),
     GoRoute(
       path: '/payroll',
       builder: (context, state) => const Payroll(),
     ),
     GoRoute(
       path: '/accountDetails',
-      builder: (context, state) => const ProfileAdminViewPage(),
+      name: 'accountDetails',
+      builder: (context, state) {
+        final account = state.extra as AccountsData;
+        return ProfileAdminViewPage(user: account);
+      },
     ),
     GoRoute(
       path: '/booking1',
@@ -170,23 +171,21 @@ final router = GoRouter(
       builder: (context, state) => const DashboardPage(),
     ),
     GoRoute(
-      path: '/inventory',
-      builder: (context, state) => const InventoryPage(),
-      routes: <GoRoute>[
-        GoRoute(
-          path: 'serials',
-          builder: (context, state){
-            final Map<String, dynamic>? extraData = state.extra as Map<String, dynamic>?;
-            final String? prodDefID = extraData?['prodDefId'] as String?;
-            final String? prodDefName = extraData?['prodDefName'] as String?;
-            return SerializedItemListPage(
-              prodDefID: prodDefID ?? '', 
-              prodDefName: prodDefName ?? ''
-            );
-          }
-        )
-      ]
-    ),
+        path: '/inventory',
+        builder: (context, state) => const InventoryPage(),
+        routes: <GoRoute>[
+          GoRoute(
+              path: 'serials',
+              builder: (context, state) {
+                final Map<String, dynamic>? extraData =
+                    state.extra as Map<String, dynamic>?;
+                final String? prodDefID = extraData?['prodDefId'] as String?;
+                final String? prodDefName =
+                    extraData?['prodDefName'] as String?;
+                return SerializedItemListPage(
+                    prodDefID: prodDefID ?? '', prodDefName: prodDefName ?? '');
+              })
+        ]),
     GoRoute(
       path: '/suppliers',
       builder: (context, state) => const SupplierPage(),
@@ -241,129 +240,150 @@ final router = GoRouter(
     ),
   ],
   errorBuilder: (context, state) => const ErrorPage(),
-  redirect: (context, state) async{
-    try{
-    final session = Supabase.instance.client.auth.currentSession;
-    final loggedIn = session?.user;
-    final requestedLocation = state.uri.toString();
-    final authRoutes = ['/login', '/signup1', '/forgotPassword', '/emailVerification'];
-    const profileCompletionRoute = '/signup2';
-    final isGoingToAuthRoute = authRoutes.contains(requestedLocation);
-    final isGoingToProfileCompletion = requestedLocation == profileCompletionRoute;
-
-    final container = ProviderContainer();
-    final userRole = await container.read(userRoleProvider.future);
-
-    if (loggedIn == null) {
-      return isGoingToAuthRoute ? null : '/login';
-    }
-
-    Future<bool> isProfileIncomplete(String? role) async {
-      if (role == 'employee' || role == 'admin') return false;
-
-      final userId = Supabase.instance.client.auth.currentUser?.id;
-      if (userId == null) return true;
-
-      final accountData = await Supabase.instance.client
-          .from('accounts')
-          .select('firstName, middleName, lastName, birthDate, address, city, province, country, zipCode, contactNumber')
-          .eq('userID', userId)
-          .maybeSingle();
-
-      if (accountData == null) return true;
-
-      final List<String> requiredDbFields = [
-        'firstName', 'middleName', 'lastName', 'birthDate', 'address', 'city',
-        'province', 'country', 'zipCode', 'contactNumber',
+  redirect: (context, state) async {
+    try {
+      final session = Supabase.instance.client.auth.currentSession;
+      final loggedIn = session?.user;
+      final requestedLocation = state.uri.toString();
+      final authRoutes = [
+        '/login',
+        '/signup1',
+        '/forgotPassword',
+        '/emailVerification'
       ];
-      bool isBlank(dynamic val) => val == null || (val is String && val.trim().isEmpty);
-      return requiredDbFields.any((field) => isBlank(accountData[field]));
-    }
+      const profileCompletionRoute = '/signup2';
+      final isGoingToAuthRoute = authRoutes.contains(requestedLocation);
+      final isGoingToProfileCompletion =
+          requestedLocation == profileCompletionRoute;
 
-    final isIncompleteProfile = await isProfileIncomplete(userRole);
-    if (isIncompleteProfile && userRole != 'employee' && userRole != 'admin') {
-      return !isGoingToProfileCompletion ? profileCompletionRoute : null;
-    }
+      final container = ProviderContainer();
+      final userRole = await container.read(userRoleProvider.future);
 
-    const Map<String, String> initialRoutes = {
-      'admin': '/dashboard',
-      'employee': '/dashboard',
-      'client': '/home',
-    };
+      if (loggedIn == null) {
+        return isGoingToAuthRoute ? null : '/login';
+      }
 
-    const Map<String, List<String>> roleBasedRoutes = {
-      'admin': [
-        '/home',
-        '/accountList',
-        '/accountList/accountDetail',
-        '/bookingsCalendar',
-        '/booking1',
-        '/booking2',
-        '/profileClient',
-        '/employeeList',
-        '/employeeList/profile',
-        '/employeeList/profile/payslip',
-        '/employeeList/profile/leaveRequest',
-        '/employeeList/leaveRequestList',
-        '/payroll',
-        '/accountDetails',
-        '/dashboard',
-        '/inventory',
-        '/inventory/serials',
-        '/suppliers',
-        '/supplierArchive',
-        '/bookings',
-        '/transactions',
-        '/archiveList',
-        '/orderList',
-        '/auditLog',
-        '/services',
-        '/servicesArchive',
-        '/bookingDetail',
-        '/bookingReceipt',
-        '/itemTypes',
-      ],
-      'employee': [
-        '/dashboard',
-        '/bookingsCalendar',
-        '/inventory',
-        '/suppliers',
-        '/bookings',
-        '/services',
-        '/itemTypes',
-        '/employeeList/profile',
-        '/employeeList/profile/payslip',
-        '/employeeList/profile/leaveRequest',
-        '/dashboard', 
-        '/itemTypes',
-      ],
-      'client': [
-        '/home',
-        '/inventory',
-        '/booking1',
-        '/booking2',
-        '/profileClient',
-        '/transactions',
-        '/bookingDetail',
-        '/bookingReceipt',
-      ],
-    };
+      Future<bool> isProfileIncomplete(String? role) async {
+        if (role == 'employee' || role == 'admin') return false;
+
+        final userId = Supabase.instance.client.auth.currentUser?.id;
+        if (userId == null) return true;
+
+        final accountData = await Supabase.instance.client
+            .from('accounts')
+            .select(
+                'firstName, middleName, lastName, birthDate, address, city, province, country, zipCode, contactNumber')
+            .eq('userID', userId)
+            .maybeSingle();
+
+        if (accountData == null) return true;
+
+        final List<String> requiredDbFields = [
+          'firstName',
+          'middleName',
+          'lastName',
+          'birthDate',
+          'address',
+          'city',
+          'province',
+          'country',
+          'zipCode',
+          'contactNumber',
+        ];
+        bool isBlank(dynamic val) =>
+            val == null || (val is String && val.trim().isEmpty);
+        return requiredDbFields.any((field) => isBlank(accountData[field]));
+      }
+
+      final isIncompleteProfile = await isProfileIncomplete(userRole);
+      if (isIncompleteProfile &&
+          userRole != 'employee' &&
+          userRole != 'admin') {
+        return !isGoingToProfileCompletion ? profileCompletionRoute : null;
+      }
+
+      const Map<String, String> initialRoutes = {
+        'admin': '/dashboard',
+        'employee': '/dashboard',
+        'client': '/home',
+      };
+
+      const Map<String, List<String>> roleBasedRoutes = {
+        'admin': [
+          '/home',
+          '/accountList',
+          '/accountList/accountDetail',
+          '/bookingsCalendar',
+          '/booking1',
+          '/booking2',
+          '/profileClient',
+          '/employeeList',
+          '/employeeList/profile',
+          '/employeeList/profile/payslip',
+          '/employeeList/profile/leaveRequest',
+          '/employeeList/leaveRequestList',
+          '/payroll',
+          '/accountDetails',
+          '/dashboard',
+          '/inventory',
+          '/inventory/serials',
+          '/suppliers',
+          '/supplierArchive',
+          '/bookings',
+          '/transactions',
+          '/archiveList',
+          '/orderList',
+          '/auditLog',
+          '/services',
+          '/servicesArchive',
+          '/bookingDetail',
+          '/bookingReceipt',
+          '/itemTypes',
+          '/profileClient'
+        ],
+        'employee': [
+          '/dashboard',
+          '/bookingsCalendar',
+          '/inventory',
+          '/suppliers',
+          '/bookings',
+          '/services',
+          '/itemTypes',
+          '/employeeList/profile',
+          '/employeeList/profile/payslip',
+          '/employeeList/profile/leaveRequest',
+          '/dashboard',
+          '/itemTypes',
+        ],
+        'client': [
+          '/home',
+          '/inventory',
+          '/booking1',
+          '/booking2',
+          '/profileClient',
+          '/transactions',
+          '/bookingDetail',
+          '/bookingReceipt',
+        ],
+      };
 
       if (isGoingToAuthRoute || isGoingToProfileCompletion) {
         return initialRoutes[userRole] ?? '/home';
       }
 
-    if (userRole != null && roleBasedRoutes.containsKey(userRole)) {
-        return roleBasedRoutes[userRole]!.contains(requestedLocation) ? null : '/accessRestricted';
+      if (userRole != null && roleBasedRoutes.containsKey(userRole)) {
+        return roleBasedRoutes[userRole]!.contains(requestedLocation)
+            ? null
+            : '/accessRestricted';
       } else {
-        debugPrint("User has no determined role or route access configuration.");
+        debugPrint(
+            "User has no determined role or route access configuration.");
         return '/error';
       }
-  }
-  catch (e) {
-    debugPrint("Redirect error: $e");
-    return '/error';
-  }
+    } catch (e) {
+      debugPrint("Redirect error: $e");
+      return '/error';
+    }
   },
 );
 
@@ -400,7 +420,6 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
-  
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(

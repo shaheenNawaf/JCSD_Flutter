@@ -3,11 +3,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_state.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_state.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
-import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
+
+final accountWithPositionProvider =
+    FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
+  final accountsService = ref.read(accountServiceProvider);
+  final employeeList = await ref.watch(fetchAllEmployeesProvider.future);
+  final accounts = await accountsService.fetchAccounts();
+
+  return accounts.map((account) {
+    final matchingEmployee = employeeList.where(
+      (emp) => emp.userID == account.userID,
+    );
+
+    if (matchingEmployee.isEmpty) {
+      return {
+        'account': account,
+        'position': 'Client',
+      };
+    }
+
+    final employee = matchingEmployee.first;
+    final position = employee.isAdmin ? 'Admin' : 'Employee';
+
+    return {
+      'account': account,
+      'position': position,
+    };
+  }).toList();
+});
 
 class AccountListPage extends ConsumerStatefulWidget {
   const AccountListPage({super.key});
@@ -72,7 +101,7 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
   }
 
   Widget _buildDataTable() {
-    final accountAsync = ref.watch(fetchAccountList);
+    final accountAsync = ref.watch(accountWithPositionProvider);
 
     return accountAsync.when(
       data: (users) => _buildUserTable(users),
@@ -81,7 +110,7 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
     );
   }
 
-  Widget _buildUserTable(List<AccountsData> users) {
+  Widget _buildUserTable(List<Map<String, dynamic>> users) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -101,19 +130,21 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
             headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
             columns: [
               DataColumn(label: _buildHeaderText('Name')),
-              DataColumn(label: _buildHeaderText('Status')),
-              DataColumn(label: _buildHeaderText('Role')),
+              DataColumn(label: _buildHeaderText('Position')),
               DataColumn(label: _buildHeaderText('Contact Info')),
               DataColumn(label: _buildHeaderText('Action', center: true)),
             ],
-            rows: users.map((user) => _buildDataRow(user)).toList(),
+            rows: users.map((map) => _buildDataRow(map)).toList(),
           ),
         ],
       ),
     );
   }
 
-  DataRow _buildDataRow(AccountsData user) {
+  DataRow _buildDataRow(Map<String, dynamic> data) {
+    final user = data['account'] as AccountsData;
+    final position = data['position'] as String;
+
     String safe(String? value) =>
         (value == null || value.trim().isEmpty) ? 'N/A' : value;
 
@@ -123,13 +154,9 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
           '${safe(user.firstName)} ${safe(user.middleName)}. ${safe(user.lastname)}',
           style: const TextStyle(fontFamily: 'NunitoSans'),
         )),
-        const DataCell(Text(
-          'Authenticated',
-          style: TextStyle(fontFamily: 'NunitoSans'),
-        )),
-        const DataCell(Text(
-          'Client',
-          style: TextStyle(fontFamily: 'NunitoSans'),
+        DataCell(Text(
+          position,
+          style: const TextStyle(fontFamily: 'NunitoSans'),
         )),
         DataCell(Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,8 +179,7 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
               width: 140,
               child: ElevatedButton(
                 onPressed: () {
-                  print('View Details pressed for ${user.firstName}');
-                  context.push( '/accountList/accountDetail', extra: user);
+                  context.push('/accountList/accountDetail', extra: user);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00AEEF),

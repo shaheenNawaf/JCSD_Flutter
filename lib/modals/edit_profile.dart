@@ -24,6 +24,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
   late TextEditingController _addressController;
   late TextEditingController _cityController;
   late TextEditingController _countryController;
+  late TextEditingController _passwordController;
 
   @override
   void initState() {
@@ -39,6 +40,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
     _addressController = TextEditingController(text: a.address);
     _cityController = TextEditingController(text: a.city);
     _countryController = TextEditingController(text: a.country);
+    _passwordController = TextEditingController(); // not prefilled
   }
 
   @override
@@ -52,6 +54,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
     _addressController.dispose();
     _cityController.dispose();
     _countryController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
@@ -186,7 +189,8 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                       children: [
                         Expanded(
                             child: _buildTextField(
-                                'Username', TextEditingController())),
+                                'Password', _passwordController,
+                                isPassword: true)),
                         const SizedBox(width: 10),
                         Expanded(
                             child:
@@ -197,21 +201,18 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                     Row(
                       children: [
                         Expanded(
-                            child: _buildTextField(
-                                'Password', TextEditingController())),
+                            child: _buildTextField('City', _cityController)),
                         const SizedBox(width: 10),
                         Expanded(
-                            child: _buildTextField('City', _cityController)),
+                            child:
+                                _buildTextField('Country', _countryController)),
                       ],
                     ),
                     const SizedBox(height: 10),
                     Row(
                       children: [
                         Expanded(child: _buildDropdownField()),
-                        const SizedBox(width: 10),
-                        Expanded(
-                            child:
-                                _buildTextField('Country', _countryController)),
+                        const SizedBox(width: 340),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -274,7 +275,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
   }
 
   Widget _buildTextField(String label, TextEditingController controller,
-      {bool readOnly = false, VoidCallback? onTap}) {
+      {bool readOnly = false, VoidCallback? onTap, bool isPassword = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -289,6 +290,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
           controller: controller,
           readOnly: readOnly,
           onTap: onTap,
+          obscureText: isPassword,
           decoration: InputDecoration(
             hintText: 'Enter \$label'.toLowerCase(),
             border: const OutlineInputBorder(),
