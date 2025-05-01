@@ -1,7 +1,9 @@
 // ignore_for_file: library_private_types_in_public_api, unused_import
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
@@ -44,8 +46,17 @@ class _LoginState extends State<Login> {
       );
 
       if (response.user != null) {
+        final container = ProviderContainer();
+        final role = await container.read(userRoleProvider.future);
+
         ToastManager().showToast(context, 'Welcome! "${response.user!.email}" logged in successfully!', const Color.fromARGB(255, 0, 143, 19));
-        context.go('/dashboard');
+        if (role == 'client') {
+          context.go('/home');
+        } else if (role == 'employee' || role == 'admin') {
+          context.go('/dashboard');
+        } else {
+          context.go('/login');
+      }
       } else {
         ToastManager().showToast(context, 'Login failed. Check your credentials.', const Color.fromARGB(255, 255, 0, 0));
       }
