@@ -314,7 +314,7 @@ class SerializedItemNotifier
     }
 
     // Show loading indicator, keep previous data if available
-    state = AsyncLoading<SerializedItemState>().copyWithPrevious(state);
+    state = const AsyncLoading<SerializedItemState>().copyWithPrevious(state);
     try {
       await _service.addSerializedItem(newItem); // Call service method
       await refreshCurrentPage(); // Refresh the list view after adding

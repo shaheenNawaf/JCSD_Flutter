@@ -17,8 +17,7 @@ class SerialitemService {
   String commonlyUsedJoin() {
     return ''' *,
       product_definitions ( prodDefName, prodDefMSRP ),
-      suppliers ( supplierName ),
-      booking_details ( bookingID )
+      suppliers ( supplierName )
     ''';
   }
 

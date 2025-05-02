@@ -1,4 +1,4 @@
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/unused_forcleaning/inventory_data.dart';
 
 class InventoryState {
   final List<InventoryData> filteredData;

@@ -51,7 +51,7 @@ class SerializedItem {
       costPrice: parseOptionalDouble(json['costPrice']),
       notes: json['notes'] as String?,
       status: json['status'] as String? ?? 'Available', // Provide default if status could be null
-      currentBookingID: json['current_booking_id'] as int?,
+      currentBookingID: json['bookingID'] as int?,
     );
   }
 
@@ -66,7 +66,7 @@ class SerializedItem {
        'costPrice': costPrice,
        'notes': notes,
        'status': status,
-       'current_booking_id': currentBookingID,
+       'bookingID': currentBookingID,
      };
    }
 

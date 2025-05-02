@@ -2,7 +2,7 @@ import 'package:jcsd_flutter/api/global_variables.dart';
 import 'package:jcsd_flutter/backend/date_converter.dart';
 
 ///Inventory Data - using the class that I made to store data
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/unused_forcleaning/inventory_data.dart';
 import 'package:jcsd_flutter/backend/modules/audit_logs/audit_services.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_name_id.dart';
 

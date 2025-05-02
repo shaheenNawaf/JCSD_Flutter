@@ -13,7 +13,7 @@ import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serializ
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_state.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_notifiers.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_item.dart';
-import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart'; // For supplier name lookup
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart'; // For supplier name lookup only
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
 
 // Widgets & Modals

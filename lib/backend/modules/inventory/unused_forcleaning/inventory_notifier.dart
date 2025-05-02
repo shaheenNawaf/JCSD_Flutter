@@ -6,10 +6,10 @@ import 'dart:core';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 //Backend Imports, handling the state
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_data.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_providers.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_service.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/inventory_state.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/unused_forcleaning/inventory_data.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/unused_forcleaning/inventory_providers.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/unused_forcleaning/inventory_service.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/unused_forcleaning/inventory_state.dart';
 
 const int _defaultItemsPerPage = 10;
 

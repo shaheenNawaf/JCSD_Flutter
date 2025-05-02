@@ -7,8 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-//Item Serials I
-import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_notifiers.dart';
+//Item Serials Imports
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_providers.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_item.dart';
 
@@ -86,12 +85,11 @@ class _AddSerializedItemModalState extends ConsumerState<AddSerializedItemModal>
       status: _selectedStatus!,
       notes: _notesController.text.trim(),
       purchaseDate: _selectedPurchaseDate,
-      // employeeID, bookingID, createdDate, updateDate are handled by backend/DB
+      //Other relevant values are handled na by the Supabase
     );
 
     try {
-      await ref.read(serializedItemNotifierProvider(widget.prodDefID).notifier)
-               .addSerializedItem(newItem);
+      await ref.read(serializedItemNotifierProvider(widget.prodDefID).notifier).addSerializedItem(newItem);
       ToastManager().showToast(context, 'Serial item added successfully!', Colors.green);
       Navigator.pop(context);
     } catch (e, st) {
