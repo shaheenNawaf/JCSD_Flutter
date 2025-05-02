@@ -1,7 +1,9 @@
 // ignore_for_file: library_private_types_in_public_api, unused_import
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jcsd_flutter/widgets/navbar.dart';
@@ -30,7 +32,8 @@ class _LoginState extends State<Login> {
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      ToastManager().showToast(context, 'Email and password cannot be empty!', const Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, 'Email and password cannot be empty!',
+          const Color.fromARGB(255, 255, 0, 0));
       setState(() {
         _isLoading = false;
       });
@@ -44,13 +47,26 @@ class _LoginState extends State<Login> {
       );
 
       if (response.user != null) {
+        final container = ProviderContainer();
+        final role = await container.read(userRoleProvider.future);
+
         ToastManager().showToast(context, 'Welcome! "${response.user!.email}" logged in successfully!', const Color.fromARGB(255, 0, 143, 19));
-        context.go('/dashboard');
+        if (role == 'client') {
+          context.go('/home');
+        } else if (role == 'employee' || role == 'admin') {
+          context.go('/dashboard');
+        } else {
+          context.go('/login');
+      }
       } else {
-        ToastManager().showToast(context, 'Login failed. Check your credentials.', const Color.fromARGB(255, 255, 0, 0));
+        ToastManager().showToast(
+            context,
+            'Login failed. Check your credentials.',
+            const Color.fromARGB(255, 255, 0, 0));
       }
     } catch (error) {
-      ToastManager().showToast(context, 'Login failed. Check your credentials.', const Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, 'Login failed. Check your credentials.',
+          const Color.fromARGB(255, 255, 0, 0));
       print('Error during login: $error');
     } finally {
       setState(() {
@@ -71,13 +87,16 @@ class _LoginState extends State<Login> {
       final session = supabase.auth.currentSession;
 
       if (session != null) {
-        ToastManager().showToast(context, 'Google Sign-In successful', const Color.fromARGB(255, 0, 143, 19));
+        ToastManager().showToast(context, 'Google Sign-In successful',
+            const Color.fromARGB(255, 0, 143, 19));
         context.go('/dashboard');
       } else {
-        ToastManager().showToast(context, 'Google sign-in failed. Try again.', const Color.fromARGB(255, 255, 0, 0));
+        ToastManager().showToast(context, 'Google sign-in failed. Try again.',
+            const Color.fromARGB(255, 255, 0, 0));
       }
     } catch (error) {
-      ToastManager().showToast(context, 'Google Sign-In error: $error', const Color.fromARGB(255, 255, 0, 0));
+      ToastManager().showToast(context, 'Google Sign-In error: $error',
+          const Color.fromARGB(255, 255, 0, 0));
     }
   }
 
@@ -144,8 +163,8 @@ class _LoginState extends State<Login> {
                                 ),
                                 const SizedBox(height: 20),
                                 buildTextField(
-                                  label: 'Username or Email',
-                                  hintText: 'Enter Username or Email',
+                                  label: 'Email',
+                                  hintText: 'Email',
                                   controller: _emailController,
                                 ),
                                 const SizedBox(height: 10),

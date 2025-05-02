@@ -521,7 +521,6 @@ class _ProfilePageClientState extends State<ProfilePageClient> {
             display(userProfile?['country'])),
         _buildDivider(),
         _buildSectionTitle('Account Details'),
-        _buildInfoRow(FontAwesomeIcons.user, 'Username: ', ''),
         _buildInfoRow(FontAwesomeIcons.calendar, 'Password: ', '**********'),
       ],
     );

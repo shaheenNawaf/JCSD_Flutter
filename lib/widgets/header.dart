@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 
 class Header extends StatelessWidget {
   final String title;
@@ -12,6 +14,26 @@ class Header extends StatelessWidget {
     this.leading,
     this.onAvatarTap,
   });
+
+  Future<void> _navigateToAccountDetails(BuildContext context) async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      final response = await Supabase.instance.client
+          .from('accounts')
+          .select()
+          .eq('userID', user.id)
+          .maybeSingle();
+
+      if (response != null) {
+        final account = AccountsData.fromJson(response);
+        context.pushNamed('accountDetails', extra: account);
+      }
+    } catch (e) {
+      debugPrint('Error navigating to account details: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +76,7 @@ class Header extends StatelessWidget {
                 ),
               ),
               GestureDetector(
-                onTap: onAvatarTap,
+                onTap: onAvatarTap ?? () => _navigateToAccountDetails(context),
                 child: CircleAvatar(
                   radius: 20,
                   backgroundColor: Colors.blue,
