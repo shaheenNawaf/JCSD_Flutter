@@ -27,7 +27,6 @@ import 'package:jcsd_flutter/view/inventory/item_serials/modals/dispose_item_ser
 
 // For UI and User-Feedback
 import 'package:shimmer/shimmer.dart';
-import 'package:jcsd_flutter/view/generic/dialogs/notification.dart'; 
 
 class SerializedItemListPage extends ConsumerWidget {
   final String prodDefID; 
@@ -81,18 +80,13 @@ class SerializedItemListPage extends ConsumerWidget {
                   padding: const EdgeInsets.all(16),
                   child: asyncValue.when(
                     loading: () => _buildLoadingIndicator(),
-                    error: (error, stackTrace) => _buildErrorWidget(error, stackTrace, ref),
+                    error: (error, stackTrace) => _buildErrorWidget(error, stackTrace, ref, context),
                     data: (serialItemState) {
-                      if (serialItemState.serializedItems.isEmpty) {
-                        return serialItemState.searchText.isEmpty && serialItemState.statusFilter == null
-                            ? _buildEmptyState(context, ref) // No items and no filters
-                            : const Center(child: Text('No Serial Items match current filters/search.')); // No results
-                      }
-                      final suppliersMapGetter  =ref.watch(supplierNameMapProvider);
+                      final suppliersMapGetter = ref.watch(supplierNameMapProvider);
                       return suppliersMapGetter.when(
                         data: (supplierMap) => _buildWebView(context, ref, serialItemState, supplierMap),
                         loading: () => _buildLoadingIndicator(),
-                        error: (err, stack) => _buildErrorWidget(err, stack, ref),
+                        error: (err, stack) => _buildErrorWidget(err, stack, ref, context),
                       );
                     },
                   ),
@@ -226,7 +220,20 @@ class SerializedItemListPage extends ConsumerWidget {
         _buildHeaderRow(context, ref, serialItemState),
         const Divider(height: 1, color: Color.fromARGB(255, 224, 224, 224)),
         Expanded(
-          child: ListView.builder(
+          child: serialItemState.serializedItems.isEmpty
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Text(
+                      serialItemState.searchText.isEmpty && serialItemState.statusFilter == null
+                          ? 'No Serial Items found for "$prodDefName".' // Initial empty message
+                          : 'No Serial Items match current filters/search.', // Empty after filter/search
+                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                )
+          : ListView.builder(
             itemCount: serialItemState.serializedItems.length,
             itemBuilder: (BuildContext context, int index) {
               final item = serialItemState.serializedItems[index];
@@ -299,7 +306,6 @@ class SerializedItemListPage extends ConsumerWidget {
           Expanded(flex: 2, child: Text(costPrice, style: rowTextStyle, textAlign: TextAlign.start, overflow: TextOverflow.ellipsis)),
           Expanded(flex: 2, child: Text(purchaseDate, style: rowTextStyle, textAlign: TextAlign.start, overflow: TextOverflow.ellipsis)),
           Expanded(flex: 4, child: Tooltip(message: notes, child: Text(notes, style: rowTextStyle, overflow: TextOverflow.ellipsis, maxLines: 1))),
-          // Action Buttons
           Expanded(flex: 2, child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Tooltip(message: 'Edit Item', child: IconButton(icon: const Icon(Icons.edit, color: Colors.blueAccent, size: 18), onPressed: () => _showEditSerializedItemModal(context, ref, item), splashRadius: 18, constraints: const BoxConstraints(), padding: const EdgeInsets.symmetric(horizontal: 5))),
               const SizedBox(width: 4),
@@ -314,6 +320,9 @@ class SerializedItemListPage extends ConsumerWidget {
   // Builds the pagination controls
   Widget _buildPaginationControls(BuildContext context, WidgetRef ref, SerializedItemState serialItemState) {
     final notifier = ref.read(serializedItemNotifierProvider(prodDefID).notifier);
+    if(serialItemState.totalPages <= 1 && serialItemState.serializedItems.isEmpty) {
+      return const SizedBox.shrink();
+    }
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -379,28 +388,31 @@ class SerializedItemListPage extends ConsumerWidget {
     ),
   );
   }
+
+  //Loading UI -- Ignore
   Widget _buildLoadingIndicator() {
      return Column(children: [
-       _buildTopControlsPlaceholder(), SizedBox(height: 16),
+       _buildTopControlsPlaceholder(), const SizedBox(height: 16),
        Expanded(child: Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
          child: Shimmer.fromColors(baseColor: Colors.grey[300]!, highlightColor: Colors.grey[100]!,
            child: Column(children: [
-             _buildShimmerHeader(), Divider(height: 1, color: Color.fromARGB(255, 224, 224, 224)),
+             _buildShimmerHeader(), const Divider(height: 1, color: Color.fromARGB(255, 224, 224, 224)),
              Expanded(child: ListView(children: List.generate(8, (_) => _buildShimmerRow()))),
            ]),
          ),
-       )), SizedBox(height: 16),
+       )),const SizedBox(height: 16),
        _buildPaginationPlaceholder(),
      ]);
   }
+
   Widget _buildTopControlsPlaceholder() {
      return Padding(padding: const EdgeInsets.symmetric(vertical: 10),
       child: Shimmer.fromColors(baseColor: Colors.grey[300]!, highlightColor: Colors.grey[100]!,
         child: Row(children: [
-          Container(height: 36, width: 36, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)), SizedBox(width: 10), // Back button
+          Container(height: 36, width: 36, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),const SizedBox(width: 10), // Back button
           Container(height: 40, width: 180, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8))), // Filter dropdown
           const Spacer(),
-          Container(height: 40, width: 250, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8))), SizedBox(width: 16), // Search
+          Container(height: 40, width: 250, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8))),const SizedBox(width: 16), // Search
           Container(height: 36, width: 80, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8))), // Add button
         ]),
       ),
@@ -410,10 +422,10 @@ class SerializedItemListPage extends ConsumerWidget {
       return Padding(padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Shimmer.fromColors(baseColor: Colors.grey[300]!, highlightColor: Colors.grey[100]!,
          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Container(height: 36, width: 36, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)), SizedBox(width: 8),
-            Container(height: 36, width: 36, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)), SizedBox(width: 12),
-            Container(height: 20, width: 120, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))), SizedBox(width: 12),
-            Container(height: 36, width: 36, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)), SizedBox(width: 8),
+            Container(height: 36, width: 36, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)), const SizedBox(width: 8),
+            Container(height: 36, width: 36, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)), const SizedBox(width: 12),
+            Container(height: 20, width: 120, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4))),const SizedBox(width: 12),
+            Container(height: 36, width: 36, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)), const SizedBox(width: 8),
             Container(height: 36, width: 36, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
           ]),
         ),
@@ -421,22 +433,101 @@ class SerializedItemListPage extends ConsumerWidget {
   }
 
   // Builds the error display widget
-  Widget _buildErrorWidget(Object error, StackTrace? stackTrace, WidgetRef ref) {
+  Widget _buildErrorWidget(Object error, StackTrace? stackTrace, WidgetRef ref, BuildContext context) {
     print('Serialized Item List Page Error: $error \n $stackTrace');
-    return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      const Icon(FontAwesomeIcons.circleExclamation, color: Colors.redAccent, size: 60), SizedBox(height: 16),
-      const Text('Error Loading Serialized Items', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)), SizedBox(height: 8),
-      Text('$error', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey[700])), SizedBox(height: 20),
-      ElevatedButton.icon(icon: const Icon(Icons.refresh), label: const Text("Retry"), onPressed: () => ref.invalidate(serializedItemNotifierProvider(prodDefID))),
-    ]));
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center, 
+        children: [
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: IconButton(
+                tooltip: 'Back to Product Definitions',
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.go('/inventory'), 
+              ),
+            ),
+          ),
+          const Icon(
+            FontAwesomeIcons.circleExclamation, 
+            color: Colors.redAccent, 
+            size: 60
+          ), 
+          const SizedBox(height: 16),
+          const Text(
+            'Error Loading Serialized Items', 
+            style: TextStyle(
+              fontSize: 18, 
+              fontWeight: FontWeight.bold
+              )
+            ),
+          const SizedBox(height: 8),
+          Text(
+            '$error', 
+            textAlign: TextAlign.center, 
+            style: TextStyle(
+              color: Colors.grey[700]
+            )
+          ), const SizedBox(height: 20),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.refresh), 
+            label: const Text("Retry"), 
+            onPressed: () => ref.invalidate(serializedItemNotifierProvider(prodDefID)
+            )
+          ),
+        ]
+      )
+    );
   }
 
   // Builds the empty state display widget
   Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
-    return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      const Icon(FontAwesomeIcons.barcode, size: 80, color: Colors.grey), SizedBox(height: 16),
-      Text('No Serial Items found for "$prodDefName".', style: const TextStyle(fontSize: 18, color: Colors.grey), textAlign: TextAlign.center), SizedBox(height: 12),
-      ElevatedButton.icon(icon: const Icon(Icons.add), onPressed: () => _showAddSerializedItemModal(context, ref), label: const Text('Add First Serial Item'), style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12))),
-    ]));
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center, 
+        children: [
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: IconButton(
+                tooltip: 'Back to Product Definitions',
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.go('/inventory'), 
+              ),
+            ),
+          ),
+        const Icon(
+          FontAwesomeIcons.barcode, 
+          size: 80, 
+          color: Colors.grey
+        ), 
+        const SizedBox(height: 16),
+        Text(
+          'No Serial Items found for "$prodDefName".', 
+          style: const TextStyle(
+            fontSize: 18, 
+            color: Colors.grey
+          ), 
+          textAlign: TextAlign.center), 
+        const SizedBox(height: 12),
+        ElevatedButton.icon(
+          icon: const Icon(Icons.add), 
+          onPressed: () => _showAddSerializedItemModal(context, ref), 
+          label: const Text('Add First Serial Item'), 
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green, 
+            foregroundColor: Colors.white, 
+            padding: const EdgeInsets.symmetric(
+              horizontal: 20, 
+              vertical: 12
+                )
+              )
+            ),
+          ]
+      )
+    );
   }
 }
