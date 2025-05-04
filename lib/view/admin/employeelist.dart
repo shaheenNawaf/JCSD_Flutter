@@ -3,43 +3,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jcsd_flutter/backend/modules/accounts/accounts_state.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_state.dart';
 import 'package:jcsd_flutter/modals/add_employee.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
-
-final employeeAccountProvider =
-    FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
-  final employees = await ref.watch(fetchAllEmployeesProvider.future);
-  final accountsService = ref.read(accountServiceProvider);
-  final accounts = await accountsService.fetchAccounts();
-
-  List<Map<String, dynamic>> combinedData = [];
-
-  for (final emp in employees) {
-    AccountsData? matchingAccount;
-
-    try {
-      matchingAccount = accounts.firstWhere(
-        (acc) => acc.userID == emp.userID.toString(),
-      );
-    } catch (e) {
-      continue;
-    }
-
-    combinedData.add({
-      'employee': emp,
-      'account': matchingAccount,
-      'fullName':
-          '${matchingAccount.firstName} ${matchingAccount.lastname}'.trim(),
-    });
-  }
-
-  return combinedData;
-});
+import 'package:jcsd_flutter/backend/modules/employee/employee_notifier.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_providers.dart';
 
 class EmployeeListPage extends ConsumerWidget {
   const EmployeeListPage({super.key});
@@ -52,13 +23,14 @@ class EmployeeListPage extends ConsumerWidget {
         return const AddEmployeeModal();
       },
     ).then((_) {
-      ref.invalidate(fetchAllEmployeesProvider);
+      ref.invalidate(employeeNotifierProvider);
     });
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final employeeAsync = ref.watch(employeeAccountProvider);
+    final state = ref.watch(employeeNotifierProvider);
+    final notifier = ref.read(employeeNotifierProvider.notifier);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
@@ -70,8 +42,7 @@ class EmployeeListPage extends ConsumerWidget {
               children: [
                 const Header(title: 'Employee List'),
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -102,6 +73,7 @@ class EmployeeListPage extends ConsumerWidget {
                             width: 250,
                             height: 40,
                             child: TextField(
+                              enabled: true,
                               decoration: InputDecoration(
                                 hintText: 'Search',
                                 hintStyle: const TextStyle(
@@ -148,15 +120,18 @@ class EmployeeListPage extends ConsumerWidget {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: employeeAsync.when(
-                      data: (list) => _buildDataTable(context, list, ref),
-                      loading: () =>
-                          const Center(child: CircularProgressIndicator()),
-                      error: (e, s) => Center(child: Text('Error: $e')),
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: _buildDataTable(
+                      context,
+                      state.employeeAccounts,
+                      notifier,
+                      state,
                     ),
                   ),
                 ),
+                const SizedBox(height: 10),
+                _buildPagination(state, notifier),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -166,8 +141,40 @@ class EmployeeListPage extends ConsumerWidget {
   }
 
   Widget _buildDataTable(
-      BuildContext context, List<Map<String, dynamic>> data, WidgetRef ref) {
+    BuildContext context,
+    List<Map<String, dynamic>> data,
+    EmployeeNotifier notifier,
+    EmployeeState state,
+  ) {
+    final sortedData = List<Map<String, dynamic>>.from(data);
+    if (state.sortBy == 'firstName') {
+      sortedData.sort((a, b) {
+        final aAcc = a['account'] as AccountsData?;
+        final bAcc = b['account'] as AccountsData?;
+        return state.ascending
+            ? (aAcc?.firstName ?? '')
+                .toLowerCase()
+                .compareTo((bAcc?.firstName ?? '').toLowerCase())
+            : (bAcc?.firstName ?? '')
+                .toLowerCase()
+                .compareTo((aAcc?.firstName ?? '').toLowerCase());
+      });
+    } else if (state.sortBy == 'email') {
+      sortedData.sort((a, b) {
+        final aAcc = a['account'] as AccountsData?;
+        final bAcc = b['account'] as AccountsData?;
+        return state.ascending
+            ? (aAcc?.email ?? '')
+                .toLowerCase()
+                .compareTo((bAcc?.email ?? '').toLowerCase())
+            : (bAcc?.email ?? '')
+                .toLowerCase()
+                .compareTo((aAcc?.email ?? '').toLowerCase());
+      });
+    }
+
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -184,17 +191,25 @@ class EmployeeListPage extends ConsumerWidget {
         children: [
           DataTable(
             headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
+            columnSpacing: 24,
             columns: [
-              DataColumn(label: _buildHeaderText('Name')),
-              DataColumn(label: _buildHeaderText('Email')),
-              DataColumn(label: _buildHeaderText('Position')),
+              DataColumn(
+                  label: _buildSortableHeader(
+                      'Name', 'firstName', notifier, state)),
+              DataColumn(
+                  label:
+                      _buildSortableHeader('Email', 'email', notifier, state)),
+              DataColumn(
+                  label: _buildSortableHeader(
+                      'Position', 'companyRole', notifier, state)),
               DataColumn(label: _buildHeaderText('Contact Info')),
               DataColumn(label: _buildHeaderText('Action', center: true)),
             ],
-            rows: data.map((row) {
+            rows: sortedData.map((row) {
               final emp = row['employee'] as EmployeeData;
               final acc = row['account'] as AccountsData;
-              final fullName = row['fullName'] as String;
+              final fullName =
+                  '${acc.firstName} ${acc.middleName} ${acc.lastname}'.trim();
               return DataRow(
                 cells: [
                   DataCell(Text(fullName, style: _tableBodyStyle)),
@@ -239,9 +254,61 @@ class EmployeeListPage extends ConsumerWidget {
     );
   }
 
+  Widget _buildSortableHeader(String title, String column,
+      EmployeeNotifier notifier, EmployeeState state) {
+    return InkWell(
+      onTap: () => notifier.sort(column),
+      child: Row(
+        children: [
+          _buildHeaderText(title),
+          if (state.sortBy == column)
+            Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: Icon(
+                state.ascending ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPagination(EmployeeState state, EmployeeNotifier notifier) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.first_page),
+          onPressed: state.currentPage > 1 ? () => notifier.goToPage(1) : null,
+        ),
+        IconButton(
+          icon: const Icon(Icons.navigate_before),
+          onPressed: state.currentPage > 1
+              ? () => notifier.goToPage(state.currentPage - 1)
+              : null,
+        ),
+        Text('Page ${state.currentPage} of ${state.totalPages}'),
+        IconButton(
+          icon: const Icon(Icons.navigate_next),
+          onPressed: state.currentPage < state.totalPages
+              ? () => notifier.goToPage(state.currentPage + 1)
+              : null,
+        ),
+        IconButton(
+          icon: const Icon(Icons.last_page),
+          onPressed: state.currentPage < state.totalPages
+              ? () => notifier.goToPage(state.totalPages)
+              : null,
+        ),
+      ],
+    );
+  }
+
   static Widget _buildHeaderText(String text, {bool center = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Text(
         text,
         style: const TextStyle(

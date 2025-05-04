@@ -21,7 +21,7 @@ class _LoginState extends State<Login> {
   final SupabaseClient supabase = Supabase.instance.client;
   bool _isPasswordHidden = true;
   bool _isLoading = false;
-  bool _rememberMe = false;
+  // bool _rememberMe = false;
 
   Future<void> _signInWithEmail() async {
     setState(() {
@@ -50,14 +50,17 @@ class _LoginState extends State<Login> {
         final container = ProviderContainer();
         final role = await container.read(userRoleProvider.future);
 
-        ToastManager().showToast(context, 'Welcome! "${response.user!.email}" logged in successfully!', const Color.fromARGB(255, 0, 143, 19));
+        ToastManager().showToast(
+            context,
+            'Welcome! "${response.user!.email}" logged in successfully!',
+            const Color.fromARGB(255, 0, 143, 19));
         if (role == 'client') {
           context.go('/home');
         } else if (role == 'employee' || role == 'admin') {
           context.go('/dashboard');
         } else {
           context.go('/login');
-      }
+        }
       } else {
         ToastManager().showToast(
             context,
@@ -163,8 +166,8 @@ class _LoginState extends State<Login> {
                                 ),
                                 const SizedBox(height: 20),
                                 buildTextField(
-                                  label: 'Email',
-                                  hintText: 'Email',
+                                  label: 'Email Address',
+                                  hintText: 'Email Address',
                                   controller: _emailController,
                                 ),
                                 const SizedBox(height: 10),
@@ -184,25 +187,25 @@ class _LoginState extends State<Login> {
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
-                                      children: [
-                                        Checkbox(
-                                          value: _rememberMe,
-                                          onChanged: (bool? value) {
-                                            setState(() {
-                                              _rememberMe = value!;
-                                            });
-                                          },
+                                    const Row(
+                                        // children: [
+                                        //   Checkbox(
+                                        //     value: _rememberMe,
+                                        //     onChanged: (bool? value) {
+                                        //       setState(() {
+                                        //         _rememberMe = value!;
+                                        //       });
+                                        //     },
+                                        //   ),
+                                        //   const Text(
+                                        //     'Remember me',
+                                        //     style: TextStyle(
+                                        //       fontFamily: 'Nunito',
+                                        //       fontWeight: FontWeight.w300,
+                                        //     ),
+                                        //   ),
+                                        // ],
                                         ),
-                                        const Text(
-                                          'Remember me',
-                                          style: TextStyle(
-                                            fontFamily: 'Nunito',
-                                            fontWeight: FontWeight.w300,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
                                     TextButton(
                                       onPressed: () {
                                         context.go('/forgotPassword');

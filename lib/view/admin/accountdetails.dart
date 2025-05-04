@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
-import 'package:jcsd_flutter/backend/modules/accounts/accounts_state.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/modals/edit_profile.dart';
+import 'package:jcsd_flutter/view/admin/accountlist.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
@@ -63,7 +63,8 @@ class _ProfileAdminViewPageState extends ConsumerState<ProfileAdminViewPage> {
                 Header(
                   title: 'Account Details',
                   leading: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                    icon:
+                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
                     onPressed: () => context.pop(),
                   ),
                 ),
@@ -118,7 +119,10 @@ class _ProfileAdminViewPageState extends ConsumerState<ProfileAdminViewPage> {
                       padding: const EdgeInsets.all(40.0),
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          ref.invalidate(fetchAccountList);
+                          ref
+                              .read(accountNotifierProvider.notifier)
+                              .goToPage(1);
+
                           _editBookingModal(user);
                         },
                         icon: const FaIcon(FontAwesomeIcons.penToSquare,

@@ -1,35 +1,96 @@
 import 'package:jcsd_flutter/api/global_variables.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
+
+const int defaultItemsPerPage = 10;
 
 class EmployeeService {
-  Future<void> registerNewEmployee({
-    required String email,
-    required String password,
-    required String role,
-    required bool isAdmin,
+  Future<List<EmployeeData>> fetchEmployees({
+    String sortBy = 'createDate',
+    bool ascending = true,
+    int page = 1,
+    int itemsPerPage = defaultItemsPerPage,
   }) async {
     try {
-      final authResponse = await supabaseDB.auth.admin.createUser(
-        AdminUserAttributes(email: email, password: password),
+      final from = (page - 1) * itemsPerPage;
+      final to = from + itemsPerPage - 1;
+
+      final results = await supabaseDB
+          .from('employee')
+          .select(
+              'employeeID, userID, isAdmin, companyRole, isActive, createDate')
+          .order(sortBy, ascending: ascending)
+          .range(from, to);
+
+      return results.map<EmployeeData>((e) {
+        return EmployeeData(
+          employeeID: e['employeeID'].toString(),
+          userID: e['userID'].toString(),
+          isAdmin: e['isAdmin'] as bool,
+          companyRole: e['companyRole'] as String,
+          isActive: e['isActive'] as bool,
+          createDate: DateTime.parse(e['createDate']),
+        );
+      }).toList();
+    } catch (err) {
+      print('Error fetching paginated employees: $err');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchEmployeesWithAccounts({
+    String sortBy = 'createDate',
+    bool ascending = true,
+    int page = 1,
+    int itemsPerPage = defaultItemsPerPage,
+  }) async {
+    try {
+      final employees = await fetchEmployees(
+        sortBy: sortBy,
+        ascending: ascending,
+        page: page,
+        itemsPerPage: itemsPerPage,
       );
 
-      final userId = authResponse.user?.id;
-      if (userId == null) throw Exception("User creation failed.");
+      final userIds = employees.map((e) => e.userID).toList();
 
-      await supabaseDB.from('accounts').insert({
-        'userID': userId,
-        'email': email,
-      });
+      final accountResponse = await supabaseDB.from('accounts').select();
 
-      await supabaseDB.from('employee').insert({
-        'userID': userId,
-        'companyRole': role,
-        'isAdmin': isAdmin,
-        'isActive': true,
-      });
+      final accounts = accountResponse
+          .where((acc) => userIds.contains(acc['userID'].toString()))
+          .toList();
+
+      List<Map<String, dynamic>> result = [];
+
+      for (final emp in employees) {
+        final acc = accounts.firstWhere(
+          (a) => a['userID'].toString() == emp.userID,
+          orElse: () => {},
+        );
+
+        if (acc.isNotEmpty) {
+          result.add({
+            'employee': emp,
+            'account': AccountsData.fromJson(acc),
+            'fullName': '${acc['firstName']} ${acc['lastname']}',
+          });
+        }
+      }
+
+      return result;
+    } catch (e) {
+      print('Error combining employees and accounts: $e');
+      return [];
+    }
+  }
+
+  Future<int> getTotalEmployeeCount() async {
+    try {
+      final result = await supabaseDB.from('employee').select('employeeID');
+      return result.length;
     } catch (err) {
-      print('Error registering employee: $err');
+      print('Error fetching employee count: $err');
+      return 0;
     }
   }
 
@@ -47,60 +108,30 @@ class EmployeeService {
     required String city,
     required String country,
   }) async {
-    try {
-      final authResponse = await supabaseDB.auth.signUp(
-        email: email,
-        password: password,
-      );
-
-      final user = authResponse.user;
-      if (user == null) throw Exception("Sign-up failed.");
-
-      final userId = user.id;
-
-      await supabaseDB.from('accounts').insert({
-        'userID': userId,
-        'email': email,
-        'firstName': firstName,
-        'lastName': lastName,
-        'middleName': middleInitial,
-        'contactNumber': phone,
-        'birthDate': birthday,
-        'address': address,
-        'city': city,
-        'country': country,
-      });
-
-      await supabaseDB.from('employee').insert({
-        'userID': userId,
-        'companyRole': role,
-        'isAdmin': isAdmin,
-        'isActive': true,
-      });
-    } catch (err) {
-      print('Error registering employee with profile (signUp): $err');
+    final user = supabaseDB.auth.currentUser;
+    if (user == null) {
+      throw Exception("No authenticated user to link employee record.");
     }
-  }
 
-  Future<List<EmployeeData>> fetchAllEmployees() async {
-    try {
-      final results = await supabaseDB.from('employee').select(
-            'employeeID, userID, isAdmin, companyRole, isActive, createDate',
-          );
-      return results.map<EmployeeData>((e) {
-        String parsedUserId = e['userID'] != null ? e['userID'].toString() : '';
-        return EmployeeData(
-          employeeID: e['employeeID'].toString(),
-          userID: parsedUserId,
-          isAdmin: e['isAdmin'] as bool,
-          companyRole: e['companyRole'] as String,
-          isActive: e['isActive'] as bool,
-          createDate: DateTime.parse(e['createDate']),
-        );
-      }).toList();
-    } catch (err) {
-      print('Error fetching employees: $err');
-      return [];
-    }
+    final userID = user.id;
+
+    await supabaseDB.from('accounts').insert({
+      'userID': userID,
+      'email': email,
+      'firstName': firstName,
+      'lastname': lastName,
+      'middleName': middleInitial,
+      'contactNumber': phone,
+      'birthDate': birthday,
+      'address': address,
+      'city': city,
+      'country': country,
+    });
+
+    await supabaseDB.from('employee').insert({
+      'userID': userID,
+      'companyRole': role,
+      'isAdmin': isAdmin,
+    });
   }
 }

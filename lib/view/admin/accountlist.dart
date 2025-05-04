@@ -1,42 +1,17 @@
-// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:jcsd_flutter/backend/modules/accounts/accounts_state.dart';
-import 'package:jcsd_flutter/backend/modules/employee/employee_state.dart';
-import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/account_notifier.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_service.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_state.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
-final accountWithPositionProvider =
-    FutureProvider.autoDispose<List<Map<String, dynamic>>>((ref) async {
-  final accountsService = ref.read(accountServiceProvider);
-  final employeeList = await ref.watch(fetchAllEmployeesProvider.future);
-  final accounts = await accountsService.fetchAccounts();
-
-  return accounts.map((account) {
-    final matchingEmployee = employeeList.where(
-      (emp) => emp.userID == account.userID,
-    );
-
-    if (matchingEmployee.isEmpty) {
-      return {
-        'account': account,
-        'position': 'Client',
-      };
-    }
-
-    final employee = matchingEmployee.first;
-    final position = employee.isAdmin ? 'Admin' : 'Employee';
-
-    return {
-      'account': account,
-      'position': position,
-    };
-  }).toList();
-});
+final accountNotifierProvider =
+    StateNotifierProvider<AccountNotifier, AccountsState>(
+  (ref) => AccountNotifier(AccountService()),
+);
 
 class AccountListPage extends ConsumerStatefulWidget {
   const AccountListPage({super.key});
@@ -48,6 +23,9 @@ class AccountListPage extends ConsumerStatefulWidget {
 class _AccountListPageState extends ConsumerState<AccountListPage> {
   @override
   Widget build(BuildContext context) {
+    final state = ref.watch(accountNotifierProvider);
+    final notifier = ref.read(accountNotifierProvider.notifier);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       body: Row(
@@ -59,7 +37,7 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
                 const Header(title: 'Account List'),
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
                     child: Column(
                       children: [
                         Align(
@@ -70,15 +48,15 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
                             child: TextField(
                               decoration: InputDecoration(
                                 hintText: 'Search',
-                                hintStyle: const TextStyle(
+                                hintStyle: TextStyle(
                                   color: Color(0xFFABABAB),
                                   fontFamily: 'NunitoSans',
                                 ),
-                                prefixIcon: const Icon(Icons.search),
+                                prefixIcon: Icon(Icons.search),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                contentPadding: const EdgeInsets.symmetric(
+                                contentPadding: EdgeInsets.symmetric(
                                   vertical: 0,
                                   horizontal: 16,
                                 ),
@@ -87,7 +65,11 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Expanded(child: _buildDataTable()),
+                        Expanded(
+                            child: _buildDataTable(
+                                state.accounts, notifier, state)),
+                        const SizedBox(height: 8),
+                        _buildPagination(state, notifier),
                       ],
                     ),
                   ),
@@ -100,18 +82,10 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
     );
   }
 
-  Widget _buildDataTable() {
-    final accountAsync = ref.watch(accountWithPositionProvider);
-
-    return accountAsync.when(
-      data: (users) => _buildUserTable(users),
-      loading: () => _buildShimmer(),
-      error: (err, _) => Center(child: Text('Error: $err')),
-    );
-  }
-
-  Widget _buildUserTable(List<Map<String, dynamic>> users) {
+  Widget _buildDataTable(
+      List<AccountsData> users, AccountNotifier notifier, AccountsState state) {
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -124,84 +98,89 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
           ),
         ],
       ),
-      child: ListView(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: DataTable(
+          headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
+          columnSpacing: 24,
+          columns: [
+            DataColumn(
+                label:
+                    _buildSortableHeader('Name', 'firstName', notifier, state)),
+            DataColumn(
+                label: _buildSortableHeader('Email', 'email', notifier, state)),
+            DataColumn(
+                label: _buildSortableHeader('City', 'city', notifier, state)),
+            DataColumn(label: _buildHeaderText('Action', center: true)),
+          ],
+          rows: users.map((user) {
+            return DataRow(cells: [
+              DataCell(Text(
+                _safe('${user.firstName} ${user.middleName} ${user.lastname}'),
+                style: const TextStyle(fontFamily: 'NunitoSans'),
+              )),
+              DataCell(Text(
+                _safe(user.email),
+                style: const TextStyle(fontFamily: 'NunitoSans'),
+              )),
+              DataCell(Text(
+                _safe(user.city),
+                style: const TextStyle(fontFamily: 'NunitoSans'),
+              )),
+              DataCell(
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: SizedBox(
+                    width: 140,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        context.push('/accountList/accountDetail', extra: user);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF00AEEF),
+                      ),
+                      child: const Text(
+                        'View Details',
+                        style: TextStyle(
+                          fontFamily: 'NunitoSans',
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ]);
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSortableHeader(String title, String column,
+      AccountNotifier notifier, AccountsState state) {
+    return InkWell(
+      onTap: () => notifier.sort(column),
+      child: Row(
         children: [
-          DataTable(
-            headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
-            columns: [
-              DataColumn(label: _buildHeaderText('Name')),
-              DataColumn(label: _buildHeaderText('Position')),
-              DataColumn(label: _buildHeaderText('Contact Info')),
-              DataColumn(label: _buildHeaderText('Action', center: true)),
-            ],
-            rows: users.map((map) => _buildDataRow(map)).toList(),
-          ),
+          _buildHeaderText(title),
+          if (state.sortBy == column)
+            Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: Icon(
+                state.ascending ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
         ],
       ),
     );
   }
 
-  DataRow _buildDataRow(Map<String, dynamic> data) {
-    final user = data['account'] as AccountsData;
-    final position = data['position'] as String;
-
-    String safe(String? value) =>
-        (value == null || value.trim().isEmpty) ? 'N/A' : value;
-
-    return DataRow(
-      cells: [
-        DataCell(Text(
-          '${safe(user.firstName)} ${safe(user.middleName)}. ${safe(user.lastname)}',
-          style: const TextStyle(fontFamily: 'NunitoSans'),
-        )),
-        DataCell(Text(
-          position,
-          style: const TextStyle(fontFamily: 'NunitoSans'),
-        )),
-        DataCell(Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              safe(user.email),
-              style: const TextStyle(fontFamily: 'NunitoSans'),
-            ),
-            Text(
-              safe(user.contactNumber),
-              style: const TextStyle(fontFamily: 'NunitoSans'),
-            ),
-          ],
-        )),
-        DataCell(
-          Align(
-            alignment: Alignment.centerLeft,
-            child: SizedBox(
-              width: 140,
-              child: ElevatedButton(
-                onPressed: () {
-                  context.push('/accountList/accountDetail', extra: user);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00AEEF),
-                ),
-                child: const Text(
-                  'View Details',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  static Widget _buildHeaderText(String text, {bool center = false}) {
+  Widget _buildHeaderText(String text, {bool center = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Text(
         text,
         style: const TextStyle(
@@ -214,25 +193,37 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
     );
   }
 
-  Widget _buildShimmer() {
-    return Shimmer.fromColors(
-      baseColor: const Color.fromARGB(255, 207, 233, 255),
-      highlightColor: const Color.fromARGB(255, 114, 190, 253),
-      child: ListView.builder(
-        itemCount: 6,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            child: Container(
-              height: 48,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-          );
-        },
-      ),
+  Widget _buildPagination(AccountsState state, AccountNotifier notifier) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.first_page),
+          onPressed: state.currentPage > 1 ? () => notifier.goToPage(1) : null,
+        ),
+        IconButton(
+          icon: const Icon(Icons.navigate_before),
+          onPressed: state.currentPage > 1
+              ? () => notifier.goToPage(state.currentPage - 1)
+              : null,
+        ),
+        Text('Page ${state.currentPage} of ${state.totalPages}'),
+        IconButton(
+          icon: const Icon(Icons.navigate_next),
+          onPressed: state.currentPage < state.totalPages
+              ? () => notifier.goToPage(state.currentPage + 1)
+              : null,
+        ),
+        IconButton(
+          icon: const Icon(Icons.last_page),
+          onPressed: state.currentPage < state.totalPages
+              ? () => notifier.goToPage(state.totalPages)
+              : null,
+        ),
+      ],
     );
   }
+
+  String _safe(String? val) =>
+      (val == null || val.trim().isEmpty) ? 'N/A' : val;
 }
