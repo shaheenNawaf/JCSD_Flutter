@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_data.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_notifiers.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_service.dart';
-import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_notifiers.dart'; // Will be created next
 
 // --- State Class Definition ---
 
@@ -101,7 +100,8 @@ final suppliersNotifierProvider = AutoDisposeAsyncNotifierProviderFamily<
 );
 
 /// FutureProvider specifically for fetching active suppliers for dropdowns.
-final activeSuppliersForDropdownProvider = FutureProvider.autoDispose<List<SuppliersData>>((ref) async {
+final activeSuppliersForDropdownProvider =
+    FutureProvider.autoDispose<List<SuppliersData>>((ref) async {
   final service = ref.watch(suppliersServiceProvider);
   // Fetch only active suppliers using the service method
   // Assuming getAllSuppliersForSelect is similar to manufacturers or a dedicated method exists
@@ -111,9 +111,12 @@ final activeSuppliersForDropdownProvider = FutureProvider.autoDispose<List<Suppl
 });
 
 ///Fetches only active suppliers
-final supplierNameMapProvider = FutureProvider.autoDispose<Map<int, String>>((ref) async {
-  final suppliersList = await ref.watch(activeSuppliersForDropdownProvider.future);
+final supplierNameMapProvider =
+    FutureProvider.autoDispose<Map<int, String>>((ref) async {
+  final suppliersList =
+      await ref.watch(activeSuppliersForDropdownProvider.future);
   return {
-    for (var supplier in suppliersList) supplier.supplierID : supplier.supplierName
+    for (var supplier in suppliersList)
+      supplier.supplierID: supplier.supplierName
   };
 });

@@ -1,5 +1,5 @@
 // lib/view/inventory/inventory.dart
-// ignore_for_file: library_private_types_in_public_api, avoid_print
+// ignore_for_file: library_private_types_in_public_api, avoid_print, deprecated_member_use
 
 //Default Imports
 import 'package:flutter/material.dart';
@@ -504,17 +504,17 @@ class InventoryPage extends ConsumerWidget {
         child: Row(children: [
           // Match header flex values
           Expanded(flex: 2, child: Container(height: 16, color: Colors.white)),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Expanded(flex: 4, child: Container(height: 16, color: Colors.white)),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Expanded(flex: 3, child: Container(height: 16, color: Colors.white)),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Expanded(flex: 3, child: Container(height: 16, color: Colors.white)),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Expanded(flex: 2, child: Container(height: 16, color: Colors.white)),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Expanded(flex: 5, child: Container(height: 16, color: Colors.white)),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Expanded(flex: 3, child: Container(height: 16, color: Colors.white)),
         ]),
       ),
@@ -528,36 +528,36 @@ class InventoryPage extends ConsumerWidget {
       child: Row(children: [
         // Match row flex values
         Expanded(flex: 2, child: Container(height: 14.0, color: Colors.white)),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(flex: 4, child: Container(height: 14.0, color: Colors.white)),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(flex: 3, child: Container(height: 14.0, color: Colors.white)),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(flex: 3, child: Container(height: 14.0, color: Colors.white)),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(flex: 2, child: Container(height: 14.0, color: Colors.white)),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(flex: 5, child: Container(height: 14.0, color: Colors.white)),
-        SizedBox(width: 8),
+        const SizedBox(width: 8),
         Expanded(
             flex: 3,
             child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
               Container(
                   width: 18,
                   height: 18,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       color: Colors.white, shape: BoxShape.circle)),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Container(
                   width: 18,
                   height: 18,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       color: Colors.white, shape: BoxShape.circle)),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Container(
                   width: 18,
                   height: 18,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                       color: Colors.white, shape: BoxShape.circle))
             ])),
       ]),

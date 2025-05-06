@@ -74,7 +74,7 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
       } catch (e) {
         print('Error during employee registration: $e');
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('An unexpected error occurred.')),
+          const SnackBar(content: Text('An unexpected error occurred.')),
         );
       } finally {
         setState(() => _isSubmitting = false);

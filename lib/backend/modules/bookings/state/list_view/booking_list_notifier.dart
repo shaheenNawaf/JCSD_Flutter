@@ -27,7 +27,8 @@ class BookingListNotifier extends AutoDisposeAsyncNotifier<BookingListState> {
   @override
   Future<BookingListState> build() async {
     ref.onDispose(() => _debounce?.cancel());
-    final initialState = BookingListState(itemsPerPage: _bookingItemsPerPage);
+    final initialState =
+        const BookingListState(itemsPerPage: _bookingItemsPerPage);
     final totalItems = await _fetchTotalCount(state: initialState);
     final totalPages = (totalItems / initialState.itemsPerPage).ceil();
     final items = await _fetchPageData(
@@ -77,7 +78,9 @@ class BookingListNotifier extends AutoDisposeAsyncNotifier<BookingListState> {
     if (currentState == null ||
         page < 1 ||
         page > currentState.totalPages ||
-        page == currentState.currentPage) return;
+        page == currentState.currentPage) {
+      return;
+    }
 
     state = const AsyncLoading<BookingListState>().copyWithPrevious(state);
     state = await AsyncValue.guard(() async {

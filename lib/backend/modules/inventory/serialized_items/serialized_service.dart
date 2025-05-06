@@ -45,16 +45,21 @@ class SerialitemService {
           supabaseDB.from('item_serials').select(selectQuery);
 
       //Different Filters
-      if (prodDefID != null)
+      if (prodDefID != null) {
         fetchItemSerials = fetchItemSerials.eq('prodDefID', prodDefID);
-      if (status != null)
+      }
+      if (status != null) {
         fetchItemSerials = fetchItemSerials.eq('status', status);
-      if (currentBookingID != null)
+      }
+      if (currentBookingID != null) {
         fetchItemSerials = fetchItemSerials.eq('bookingID', currentBookingID);
-      if (employeeID != null)
+      }
+      if (employeeID != null) {
         fetchItemSerials = fetchItemSerials.eq('employeeID', employeeID);
-      if (supplierID != null)
+      }
+      if (supplierID != null) {
         fetchItemSerials = fetchItemSerials.eq('supplierID', supplierID);
+      }
       //Apply the search here
       if (searchQuery != null && searchQuery.isNotEmpty) {
         final searchTerm = '%$searchQuery%';
@@ -99,16 +104,21 @@ class SerialitemService {
       var fetchSerialsCount = supabaseDB.from('item_serials').select();
 
       //Filters
-      if (prodDefID != null)
+      if (prodDefID != null) {
         fetchSerialsCount = fetchSerialsCount.eq('prodDefID', prodDefID);
-      if (status != null)
+      }
+      if (status != null) {
         fetchSerialsCount = fetchSerialsCount.eq('status', status);
-      if (currentBookingID != null)
+      }
+      if (currentBookingID != null) {
         fetchSerialsCount = fetchSerialsCount.eq('bookingID', currentBookingID);
-      if (employeeID != null)
+      }
+      if (employeeID != null) {
         fetchSerialsCount = fetchSerialsCount.eq('employeeID', employeeID);
-      if (supplierID != null)
+      }
+      if (supplierID != null) {
         fetchSerialsCount = fetchSerialsCount.eq('supplierID', supplierID);
+      }
 
       if (searchQuery != null && searchQuery.isNotEmpty) {
         final searchTerm = '%$searchQuery%';

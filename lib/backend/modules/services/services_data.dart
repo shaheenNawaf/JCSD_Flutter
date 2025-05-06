@@ -22,9 +22,10 @@ class ServicesData {
   });
 
   static double _parseDefaultPrices(dynamic servicePrice) {
-    if (servicePrice == null)
+    if (servicePrice == null) {
       throw const FormatException(
           "Required price field received null: price_at_addition");
+    }
 
     if (servicePrice is int) return servicePrice.toDouble();
     if (servicePrice is String) return double.parse(servicePrice);
@@ -34,9 +35,10 @@ class ServicesData {
   }
 
   static int _parseEstimatedDuration(dynamic serviceDuration) {
-    if (serviceDuration == null)
+    if (serviceDuration == null) {
       throw const FormatException(
           "Required price field received null: price_at_addition");
+    }
 
     if (serviceDuration is int) return serviceDuration;
     if (serviceDuration is String) return int.parse(serviceDuration);

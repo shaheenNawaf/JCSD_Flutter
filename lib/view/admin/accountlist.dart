@@ -48,15 +48,15 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
                             child: TextField(
                               decoration: InputDecoration(
                                 hintText: 'Search',
-                                hintStyle: TextStyle(
+                                hintStyle: const TextStyle(
                                   color: Color(0xFFABABAB),
                                   fontFamily: 'NunitoSans',
                                 ),
-                                prefixIcon: Icon(Icons.search),
+                                prefixIcon: const Icon(Icons.search),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                contentPadding: EdgeInsets.symmetric(
+                                contentPadding: const EdgeInsets.symmetric(
                                   vertical: 0,
                                   horizontal: 16,
                                 ),
