@@ -10,6 +10,7 @@ import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serializ
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_notifiers.dart'; // To get serials for a PD
 import 'package:jcsd_flutter/backend/modules/bookings/providers/booking_providers.dart'; // For bookingDetailNotifierProvider
 import 'package:jcsd_flutter/api/global_variables.dart'; // For supabaseDB to get current user
+import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_providers.dart';
 import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 
 // State providers for the modal's internal state
@@ -280,7 +281,6 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
   }
 
   Widget _buildSerialNumberDropdown(WidgetRef ref, String prodDefId) {
-    // Watch the specific notifier for the selected product definition's serials
     final serialsAsync = ref.watch(serializedItemNotifierProvider(prodDefId));
 
     return serialsAsync.when(
@@ -340,8 +340,9 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
       },
       validator: (value) {
         if (value == null || value.isEmpty) return 'Price is required';
-        if (double.tryParse(value) == null || double.parse(value) < 0)
+        if (double.tryParse(value) == null || double.parse(value) < 0) {
           return 'Invalid price';
+        }
         return null;
       },
     );
@@ -360,8 +361,9 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
       readOnly: true, // Quantity is 1 for serialized items
       validator: (value) {
         if (value == null || value.isEmpty) return 'Quantity is required';
-        if (int.tryParse(value) != 1)
+        if (int.tryParse(value) != 1) {
           return 'Quantity must be 1 for serialized items';
+        }
         return null;
       },
     );
