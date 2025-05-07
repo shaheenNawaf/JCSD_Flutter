@@ -6,7 +6,6 @@ import 'package:jcsd_flutter/backend/modules/bookings/application/booking_servic
 //Backend Imports
 import 'package:jcsd_flutter/backend/modules/bookings/data/booking.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/providers/booking_providers.dart'; // Import providers
-import 'package:jcsd_flutter/backend/modules/bookings/application/booking_module_services.dart';
 
 //Default Enums
 import 'package:jcsd_flutter/backend/modules/bookings/booking_enums.dart';

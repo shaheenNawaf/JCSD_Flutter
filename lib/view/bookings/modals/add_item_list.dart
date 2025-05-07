@@ -1,30 +1,23 @@
-//Default Imports
+// lib/modals/add_item_list.dart
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-//Supabase and UI
-import 'package:jcsd_flutter/api/global_variables.dart'; // For supabaseDB to get current user
-import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_providers.dart';
-import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
-
-//Backend Imports
-// Inventory
 import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_notifier.dart'; // To get all product defs
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_item.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_notifiers.dart'; // To get serials for a PD
-
-// Bookings
 import 'package:jcsd_flutter/backend/modules/bookings/providers/booking_providers.dart'; // For bookingDetailNotifierProvider
+import 'package:jcsd_flutter/api/global_variables.dart'; // For supabaseDB to get current user
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 
-// Defined State Providers
-final _selectedProdDefIdProvider =
-    StateProvider.autoDispose<String?>((ref) => null);
-final _selectedSerialNumberProvider =
-    StateProvider.autoDispose<String?>((ref) => null);
-final _priceAtAdditionProvider =
-    StateProvider.autoDispose<double?>((ref) => null);
+
+// State providers for the modal's internal state
+final _selectedProdDefIdProvider = StateProvider.autoDispose<String?>((ref) => null);
+final _selectedSerialNumberProvider = StateProvider.autoDispose<String?>((ref) => null);
+final _priceAtAdditionProvider = StateProvider.autoDispose<double?>((ref) => null);
+
 
 class AddItemListModal extends ConsumerStatefulWidget {
   final int bookingId;
@@ -44,8 +37,7 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
   final _formKey = GlobalKey<FormState>();
   bool _isAdding = false;
   final TextEditingController _priceController = TextEditingController();
-  final TextEditingController _quantityController =
-      TextEditingController(text: '1'); // Default to 1
+  final TextEditingController _quantityController = TextEditingController(text: '1'); // Default to 1
 
   @override
   void initState() {
@@ -67,8 +59,7 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
 
   Future<void> _addItemToBooking() async {
     if (!_formKey.currentState!.validate()) {
-      ToastManager()
-          .showToast(context, 'Please correct the errors.', Colors.orange);
+      ToastManager().showToast(context, 'Please correct the errors.', Colors.orange);
       return;
     }
 
@@ -76,8 +67,7 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
     final priceAtAddition = ref.read(_priceAtAdditionProvider);
 
     if (selectedSerialNumber == null || priceAtAddition == null) {
-      ToastManager().showToast(
-          context, 'Please select an item and confirm price.', Colors.orange);
+      ToastManager().showToast(context, 'Please select an item and confirm price.', Colors.orange);
       return;
     }
 
@@ -85,56 +75,50 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
     // This is a placeholder. In a real app, you'd get this from your auth state.
     final currentUserId = supabaseDB.auth.currentUser?.id;
     if (currentUserId == null) {
-      ToastManager().showToast(
-          context, 'Error: Could not identify current user.', Colors.red);
-      return;
+        ToastManager().showToast(context, 'Error: Could not identify current user.', Colors.red);
+        return;
     }
     // You might need to fetch the employee's 'employeeID' (bigint) from the 'employee' table
     // using the 'userID' (uuid) from auth. For simplicity, if your BookingService
     // can accept userID and resolve it to employeeID, that's fine.
     // Otherwise, you'd fetch it here. Let's assume for now your service handles it or you pass a placeholder.
     // For demonstration, let's assume employeeID is 1. Replace with actual logic.
-    int placeholderEmployeeId =
-        1; // Placeholder - REPLACE WITH ACTUAL LOGIC TO GET EMPLOYEE PK
+    int placeholderEmployeeId = 1; // Placeholder - REPLACE WITH ACTUAL LOGIC TO GET EMPLOYEE PK
 
     // Fetch the actual Employee Primary Key (employeeID) based on the current UserID (uuid)
     try {
-      final employeeResponse = await supabaseDB
-          .from('employee')
-          .select('employeeID')
-          .eq('userID', currentUserId)
-          .maybeSingle();
+        final employeeResponse = await supabaseDB
+            .from('employee')
+            .select('employeeID')
+            .eq('userID', currentUserId)
+            .maybeSingle();
 
-      if (employeeResponse == null || employeeResponse['employeeID'] == null) {
-        ToastManager().showToast(context,
-            'Error: Employee record not found for current user.', Colors.red);
-        return;
-      }
-      placeholderEmployeeId = employeeResponse['employeeID'] as int;
+        if (employeeResponse == null || employeeResponse['employeeID'] == null) {
+            ToastManager().showToast(context, 'Error: Employee record not found for current user.', Colors.red);
+            return;
+        }
+        placeholderEmployeeId = employeeResponse['employeeID'] as int;
+
     } catch (e) {
-      ToastManager().showToast(
-          context, 'Error fetching employee ID: ${e.toString()}', Colors.red);
-      return;
+        ToastManager().showToast(context, 'Error fetching employee ID: ${e.toString()}', Colors.red);
+        return;
     }
+
 
     setState(() => _isAdding = true);
 
     try {
-      await ref
-          .read(bookingDetailNotifierProvider(widget.bookingId).notifier)
-          .addItem(
+      await ref.read(bookingDetailNotifierProvider(widget.bookingId).notifier).addItem(
             selectedSerialNumber,
             priceAtAddition,
             placeholderEmployeeId, // Pass the fetched or placeholder employee ID
           );
-      ToastManager().showToast(
-          context, 'Item added to booking successfully!', Colors.green);
+      ToastManager().showToast(context, 'Item added to booking successfully!', Colors.green);
       Navigator.pop(context);
     } catch (e) {
-      ToastManager().showToast(
-          context, 'Failed to add item: ${e.toString()}', Colors.red);
+      ToastManager().showToast(context, 'Failed to add item: ${e.toString()}', Colors.red);
     } finally {
-      if (mounted) {
+      if(mounted){
         setState(() => _isAdding = false);
       }
     }
@@ -149,13 +133,11 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      insetPadding:
-          EdgeInsets.symmetric(horizontal: screenWidth > 600 ? 50.0 : 16.0),
+      insetPadding: EdgeInsets.symmetric(horizontal: screenWidth > 600 ? 50.0 : 16.0),
       child: Container(
         width: containerWidth,
         padding: const EdgeInsets.all(0), // No padding for the main container
-        decoration: BoxDecoration(
-            color: Colors.white, borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)),
         child: Form(
           key: _formKey,
           child: Column(
@@ -171,19 +153,13 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
                   borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
                 ),
                 child: const Center(
-                  child: Text('Add Item to Booking',
-                      style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.white)),
+                  child: Text('Add Item to Booking', style: TextStyle(fontFamily: 'NunitoSans', fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white)),
                 ),
               ),
               // Content
               Padding(
                 padding: const EdgeInsets.all(20.0),
-                child: SingleChildScrollView(
-                  // Make content scrollable
+                child: SingleChildScrollView( // Make content scrollable
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -207,22 +183,15 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(
-                      onPressed:
-                          _isAdding ? null : () => Navigator.pop(context),
+                      onPressed: _isAdding ? null : () => Navigator.pop(context),
                       child: const Text('Cancel'),
                     ),
                     const SizedBox(width: 10),
                     ElevatedButton(
                       onPressed: _isAdding ? null : _addItemToBooking,
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00AEEF),
-                          foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF00AEEF), foregroundColor: Colors.white),
                       child: _isAdding
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white))
+                          ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                           : const Text('Add Item'),
                     ),
                   ],
@@ -237,8 +206,7 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
 
   Widget _buildProductDefinitionDropdown(WidgetRef ref) {
     // Fetch active product definitions. Assuming isVisibleFilter = true for active.
-    final productDefinitionsAsync =
-        ref.watch(productDefinitionNotifierProvider(true));
+    final productDefinitionsAsync = ref.watch(productDefinitionNotifierProvider(true));
 
     return productDefinitionsAsync.when(
       data: (state) {
@@ -247,13 +215,9 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
         }
         return DropdownButtonFormField<String?>(
           value: ref.watch(_selectedProdDefIdProvider),
-          hint: const Text('Select Product Category',
-              style: TextStyle(fontSize: 14)),
+          hint: const Text('Select Product Category', style: TextStyle(fontSize: 14)),
           isExpanded: true,
-          decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 12, vertical: 15)),
+          decoration: const InputDecoration(border: OutlineInputBorder(), contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 15)),
           items: state.productDefinitions.map((ProductDefinitionData pd) {
             return DropdownMenuItem<String?>(
               value: pd.prodDefID,
@@ -262,11 +226,9 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
           }).toList(),
           onChanged: (String? newValue) {
             ref.read(_selectedProdDefIdProvider.notifier).state = newValue;
-            ref.read(_selectedSerialNumberProvider.notifier).state =
-                null; // Reset serial when PD changes
+            ref.read(_selectedSerialNumberProvider.notifier).state = null; // Reset serial when PD changes
             if (newValue != null) {
-              final selectedPd = state.productDefinitions
-                  .firstWhere((pd) => pd.prodDefID == newValue);
+              final selectedPd = state.productDefinitions.firstWhere((pd) => pd.prodDefID == newValue);
               final msrp = selectedPd.prodDefMSRP;
               ref.read(_priceAtAdditionProvider.notifier).state = msrp;
               _priceController.text = msrp?.toStringAsFixed(2) ?? '';
@@ -275,13 +237,11 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
               _priceController.clear();
             }
           },
-          validator: (value) =>
-              value == null ? 'Please select a product' : null,
+          validator: (value) => value == null ? 'Please select a product' : null,
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, _) => Text('Error loading products: $err',
-          style: const TextStyle(color: Colors.red)),
+      error: (err, _) => Text('Error loading products: $err', style: const TextStyle(color: Colors.red)),
     );
   }
 
@@ -291,43 +251,33 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
 
     return serialsAsync.when(
       data: (serialState) {
-        final availableSerials = serialState.serializedItems
-            .where((item) => item.status.toLowerCase() == 'available')
-            .toList();
+        final availableSerials = serialState.serializedItems.where((item) => item.status.toLowerCase() == 'available').toList();
         if (availableSerials.isEmpty) {
-          return const Text("No available serial numbers for this product.",
-              style: TextStyle(fontSize: 14));
+          return const Text("No available serial numbers for this product.", style: TextStyle(fontSize: 14));
         }
         return DropdownButtonFormField<String?>(
           value: ref.watch(_selectedSerialNumberProvider),
-          hint: const Text('Select Serial Number',
-              style: TextStyle(fontSize: 14)),
+          hint: const Text('Select Serial Number', style: TextStyle(fontSize: 14)),
           isExpanded: true,
-          decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: 12, vertical: 15)),
+          decoration: const InputDecoration(border: OutlineInputBorder(), contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 15)),
           items: availableSerials.map((SerializedItem item) {
             return DropdownMenuItem<String?>(
               value: item.serialNumber,
-              child:
-                  Text(item.serialNumber, style: const TextStyle(fontSize: 14)),
+              child: Text(item.serialNumber, style: const TextStyle(fontSize: 14)),
             );
           }).toList(),
           onChanged: (String? newValue) {
             ref.read(_selectedSerialNumberProvider.notifier).state = newValue;
           },
-          validator: (value) =>
-              value == null ? 'Please select a serial number' : null,
+          validator: (value) => value == null ? 'Please select a serial number' : null,
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, _) => Text('Error loading serials: $err',
-          style: const TextStyle(color: Colors.red)),
+      error: (err, _) => Text('Error loading serials: $err', style: const TextStyle(color: Colors.red)),
     );
   }
 
-  Widget _buildPriceField() {
+   Widget _buildPriceField() {
     return TextFormField(
       controller: _priceController,
       decoration: const InputDecoration(
@@ -337,21 +287,18 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
         contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 15),
       ),
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [
-        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))
-      ],
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}'))],
       onChanged: (value) {
-        ref.read(_priceAtAdditionProvider.notifier).state =
-            double.tryParse(value);
+        ref.read(_priceAtAdditionProvider.notifier).state = double.tryParse(value);
       },
       validator: (value) {
         if (value == null || value.isEmpty) return 'Price is required';
-        if (double.tryParse(value) == null || double.parse(value) < 0)
-          return 'Invalid price';
+        if (double.tryParse(value) == null || double.parse(value) < 0) return 'Invalid price';
         return null;
       },
     );
   }
+
 
   Widget _buildQuantityField() {
     return TextFormField(
@@ -366,10 +313,51 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
       readOnly: true, // Quantity is 1 for serialized items
       validator: (value) {
         if (value == null || value.isEmpty) return 'Quantity is required';
-        if (int.tryParse(value) != 1)
-          return 'Quantity must be 1 for serialized items';
+        if (int.tryParse(value) != 1) return 'Quantity must be 1 for serialized items';
         return null;
       },
     );
   }
 }
+```
+
+**Key changes in `AddItemListModal`:**
+
+1.  **State Providers:** Added `_selectedProdDefIdProvider`, `_selectedSerialNumberProvider`, and `_priceAtAdditionProvider` for managing the modal's internal state.
+2.  **Constructor:** Takes `bookingId`. The `employeeId` will be fetched from the currently authenticated user.
+3.  **`_addItemToBooking()`:**
+    * Validates that a product, serial, and price are selected/entered.
+    * **ACTION REQUIRED:** It currently uses a `placeholderEmployeeId`. You need to implement logic to fetch the actual `employeeID` (the primary key from your `employee` table, which is likely a `bigint`) based on the `supabaseDB.auth.currentUser.id` (which is a UUID). This typically involves another Supabase query:
+        ```dart
+        final authUserId = supabaseDB.auth.currentUser?.id;
+        if (authUserId == null) { /* handle error */ return; }
+        final employeeResponse = await supabaseDB
+            .from('employee')
+            .select('employeeID') // Assuming your PK column is employeeID
+            .eq('userID', authUserId) // Assuming userID is the FK to auth.users
+            .maybeSingle();
+
+        if (employeeResponse == null || employeeResponse['employeeID'] == null) {
+            // Handle error: employee record not found for the authenticated user
+            ToastManager().showToast(context, 'Error: Employee record not found.', Colors.red);
+            return;
+        }
+        final int actualEmployeeId = employeeResponse['employeeID'];
+        // Now use actualEmployeeId when calling addItem
+        ```
+    * Calls `ref.read(bookingDetailNotifierProvider(widget.bookingId).notifier).addItem(...)`.
+4.  **`_buildProductDefinitionDropdown()`:**
+    * Watches `productDefinitionNotifierProvider(true)` to get active product definitions.
+    * Populates a `DropdownButtonFormField` with product names.
+    * When a product is selected, it updates `_selectedProdDefIdProvider`, resets the serial number selection, and attempts to pre-fill the price from the product's MSRP.
+5.  **`_buildSerialNumberDropdown()`:**
+    * Is only visible if a product definition is selected.
+    * Watches `serializedItemNotifierProvider(selectedProdDefId)` to get serials for the chosen product.
+    * Filters these serials to show only those with `status == 'Available'`.
+    * Populates a dropdown with available serial numbers.
+6.  **`_buildPriceField()`:** An editable `TextFormField` for the price, pre-filled when a product definition is selected.
+7.  **`_buildQuantityField()`:** A read-only `TextFormField` fixed to "1".
+
+This modal is now more tailored to adding specific serialized items. Remember to implement the employee ID fetching logic.
+
+Next, would you like to work on `RemoveItemModal` or the `ReceiptModa

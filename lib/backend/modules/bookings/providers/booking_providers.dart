@@ -4,7 +4,9 @@ import 'package:jcsd_flutter/backend/modules/bookings/application/booking_module
 
 //Booking Imports
 import 'package:jcsd_flutter/backend/modules/bookings/application/booking_services.dart';
+import 'package:jcsd_flutter/backend/modules/bookings/data/booking.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/infrastructure/booking_repository.dart';
+import 'package:jcsd_flutter/backend/modules/bookings/state/detail_view/booking_detail_notifier.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/state/list_view/booking_list_notifier.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/state/list_view/booking_list_state.dart';
 
@@ -33,4 +35,9 @@ final bookingServiceProvider = Provider<BookingService>((ref) {
 final bookingListNotifierProvider =
     AutoDisposeAsyncNotifierProvider<BookingListNotifier, BookingListState>(
   () => BookingListNotifier(),
+);
+
+final bookingDetailNotifierProvider = AutoDisposeAsyncNotifierProviderFamily<
+    BookingDetailNotifier, Booking?, int>(
+  () => BookingDetailNotifier(),
 );

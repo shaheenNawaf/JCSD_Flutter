@@ -3,14 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:jcsd_flutter/api/global_variables.dart';
 import 'package:jcsd_flutter/api/supa_details.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/others/transition.dart';
 import 'package:jcsd_flutter/view/bookings/booking_detail.dart';
 import 'package:jcsd_flutter/view/bookings/booking_receipt.dart';
-import 'package:jcsd_flutter/view/client/create_booking_screen.dart';
 import 'package:jcsd_flutter/view/employee/leave_requests.dart';
 import 'package:jcsd_flutter/view/employee/login_employee.dart';
 import 'package:jcsd_flutter/view/generic/forgot_password.dart';
@@ -153,11 +151,6 @@ final router = GoRouter(
       },
     ),
     GoRoute(
-      path: '/create-booking',
-      name: 'create-booking',
-      builder: (context, state) => const CreateBookingScreen(),
-    ),
-    GoRoute(
       path: '/booking1',
       builder: (context, state) => const ClientBooking1(),
     ),
@@ -231,7 +224,7 @@ final router = GoRouter(
     ),
     GoRoute(
       path: '/bookingDetail',
-      builder: (context, state) => const BookingDetails(),
+      builder: (context, state) => const BookingDetailsPage(bookingId: null),
     ),
     GoRoute(
       path: '/bookingReceipt',

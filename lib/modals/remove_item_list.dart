@@ -1,15 +1,51 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jcsd_flutter/backend/modules/bookings/providers/booking_providers.dart'; // For bookingDetailNotifierProvider
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart'; // For ToastManager
 
-class RemoveItemModal extends StatelessWidget {
-  const RemoveItemModal({super.key});
+class RemoveItemModal extends ConsumerStatefulWidget {
+  final int bookingId;
+  final int bookingItemId; // The ID of the record in the 'booking_items' table
+  final String itemName; // Name or serial of the item for display
+
+  const RemoveItemModal({
+    super.key,
+    required this.bookingId,
+    required this.bookingItemId,
+    required this.itemName,
+  });
+
+  @override
+  ConsumerState<RemoveItemModal> createState() => _RemoveItemModalState();
+}
+
+class _RemoveItemModalState extends ConsumerState<RemoveItemModal> {
+  bool _isRemoving = false;
+
+  Future<void> _removeItemFromBooking() async {
+    setState(() => _isRemoving = true);
+    try {
+      await ref
+          .read(bookingDetailNotifierProvider(widget.bookingId).notifier)
+          .removeItem(widget.bookingItemId);
+
+      ToastManager().showToast(context,
+          'Item "${widget.itemName}" removed successfully!', Colors.green);
+      Navigator.pop(context);
+    } catch (e) {
+      ToastManager().showToast(
+          context, 'Failed to remove item: ${e.toString()}', Colors.red);
+    } finally {
+      if (mounted) {
+        setState(() => _isRemoving = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 400 : screenWidth * 0.9;
-    const double containerHeight = 180;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -19,12 +55,12 @@ class RemoveItemModal extends StatelessWidget {
           EdgeInsets.symmetric(horizontal: screenWidth > 600 ? 50.0 : 16.0),
       child: Container(
         width: containerWidth,
-        height: containerHeight,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
@@ -38,7 +74,7 @@ class RemoveItemModal extends StatelessWidget {
               ),
               child: const Center(
                 child: Text(
-                  'Confirmation',
+                  'Confirm Removal',
                   style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontWeight: FontWeight.bold,
@@ -48,12 +84,12 @@ class RemoveItemModal extends StatelessWidget {
                 ),
               ),
             ),
-            const Padding(
-              padding: EdgeInsets.all(16.0),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Center(
                 child: Text(
-                  'Are you sure you want to remove this item from the list?',
-                  style: TextStyle(
+                  'Are you sure you want to remove "${widget.itemName}" from this booking?',
+                  style: const TextStyle(
                     fontFamily: 'NunitoSans',
                     fontSize: 16,
                   ),
@@ -61,23 +97,22 @@ class RemoveItemModal extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      onPressed:
+                          _isRemoving ? null : () => Navigator.pop(context),
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14.0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
                           side: const BorderSide(
-                            color: Color.fromARGB(255, 239, 0, 0),
+                            color: Color.fromARGB(255, 158, 158, 158),
                           ),
                         ),
                       ),
@@ -86,7 +121,7 @@ class RemoveItemModal extends StatelessWidget {
                         style: TextStyle(
                           fontFamily: 'NunitoSans',
                           fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 239, 0, 0),
+                          color: Color.fromARGB(255, 80, 80, 80),
                         ),
                       ),
                     ),
@@ -94,7 +129,7 @@ class RemoveItemModal extends StatelessWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: _isRemoving ? null : _removeItemFromBooking,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromARGB(255, 239, 0, 0),
                         padding: const EdgeInsets.symmetric(vertical: 14.0),
@@ -102,14 +137,24 @@ class RemoveItemModal extends StatelessWidget {
                           borderRadius: BorderRadius.circular(5),
                         ),
                       ),
-                      child: const Text(
-                        'Remove',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                      child: _isRemoving
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : const Text(
+                              'Remove',
+                              style: TextStyle(
+                                fontFamily: 'NunitoSans',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
                   ),
                 ],

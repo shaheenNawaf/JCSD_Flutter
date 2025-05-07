@@ -8,6 +8,8 @@ class ServicesData {
   final int? estimatedDuration;
   final bool isWalkInOnly;
   final bool requiresAddress;
+  final DateTime? createDate;
+  final DateTime? updateDate;
 
   ServicesData({
     required this.serviceID,
@@ -19,58 +21,64 @@ class ServicesData {
     this.estimatedDuration,
     required this.isWalkInOnly,
     required this.requiresAddress,
+    this.createDate,
+    this.updateDate,
   });
 
-  static double _parseDefaultPrices(dynamic servicePrice) {
-    if (servicePrice == null) {
-      throw const FormatException(
-          "Required price field received null: price_at_addition");
-    }
-
-    if (servicePrice is int) return servicePrice.toDouble();
-    if (servicePrice is String) return double.parse(servicePrice);
-    if (servicePrice is double) return servicePrice;
-    throw FormatException(
-        "Invalid Type received for ${servicePrice.runtimeType}");
+  static double? _parseOptionalDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    print(
+        "Warning: Could not parse double from value: $value (Type: ${value.runtimeType})");
+    return null;
   }
 
-  static int _parseEstimatedDuration(dynamic serviceDuration) {
-    if (serviceDuration == null) {
-      throw const FormatException(
-          "Required price field received null: price_at_addition");
-    }
-
-    if (serviceDuration is int) return serviceDuration;
-    if (serviceDuration is String) return int.parse(serviceDuration);
-    if (serviceDuration is double) return serviceDuration.toInt();
-
-    throw FormatException(
-        "Invalid Type received for ${serviceDuration.runtimeType}");
+  static int? _parseOptionalInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    print(
+        "Warning: Could not parse int from value: $value (Type: ${value.runtimeType})");
+    return null;
   }
 
-  //fromJSON Method - Receive
+  static DateTime? _parseOptionalDateTime(String? dateString) {
+    if (dateString == null || dateString.isEmpty) return null;
+    return DateTime.tryParse(dateString);
+  }
+
   factory ServicesData.fromJson(Map<String, dynamic> json) {
-    //Addign validation parses
+    if (json['serviceID'] == null ||
+        json['serviceName'] == null ||
+        json['isActive'] == null) {
+      print(
+          "Warning: Missing required field(s) in ServicesData JSON: $json. Service will not be created.");
+      throw FormatException(
+          "Missing required fields (serviceID, serviceName, or isActive) in service JSON: $json");
+    }
 
     return ServicesData(
-      serviceID: json['serviceID'],
-      serviceName: json['serviceName'],
-      isActive: json['isActive'],
-      minPrice: _parseDefaultPrices(json['minPrice']),
-      maxPrice: _parseDefaultPrices(json['maxPrice']),
-      description: (json['description'].toString().isEmpty)
-          ? json['description']
-          : 'Empty description',
-      estimatedDuration: _parseEstimatedDuration(json['estimatedDuration']),
-      isWalkInOnly: json['isWalkInOnly'],
-      requiresAddress: json['requiresAddress'],
+      serviceID: json['serviceID'] as int,
+      serviceName: json['serviceName'] as String,
+      isActive: json['isActive'] as bool,
+      minPrice: _parseOptionalDouble(
+          json['minPrice']), // CORRECTED: Use _parseOptionalDouble
+      maxPrice: _parseOptionalDouble(
+          json['maxPrice']), // CORRECTED: Use _parseOptionalDouble
+      description: json['description'] as String?,
+      estimatedDuration: _parseOptionalInt(json['estimatedDuration']),
+      isWalkInOnly: json['isWalkInOnly'] as bool? ?? false,
+      requiresAddress: json['requiresAddress'] as bool? ?? false,
+      createDate: _parseOptionalDateTime(json['createDate'] as String?),
+      updateDate: _parseOptionalDateTime(json['updateDate'] as String?),
     );
   }
 
-  //toJSON - Return/Send to DB
   Map<String, dynamic> toJson() {
     return {
-      'serviceID': serviceID,
       'serviceName': serviceName,
       'isActive': isActive,
       'minPrice': minPrice,
@@ -81,9 +89,4 @@ class ServicesData {
       'requiresAddress': requiresAddress,
     };
   }
-
-  // //For Handling State - only if needed
-  // ServicesData copyWith({
-
-  // })
 }
