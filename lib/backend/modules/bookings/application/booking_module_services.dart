@@ -15,10 +15,26 @@ import 'package:jcsd_flutter/api/global_variables.dart'; // Your global Supabase
 class BookingModuleServices implements BookingRepository {
   /// Base Select Query
   final String _baseQueryWithRelations = '''
-    *,
-    booking_services!inner ( *, jcsd_services!inner ( serviceID, serviceName, minPrice, maxPrice ) ),
-    booking_items!inner ( *, item_serials!inner ( serialNumber, product_definitions!inner ( prodDefName, prodDefMSRP ) ) ),
-    booking_assignments!inner ( *, employee!inner ( employeeID, accounts!inner ( firstName, lastName ) ) )
+   *,
+    booking_services!inner ( 
+      *, 
+      jcsd_services!inner ( serviceID, serviceName, minPrice, maxPrice, estimatedDuration, isWalkInOnly, requiresAddress ) 
+    ),
+    booking_items ( 
+      *, 
+      item_serials!inner ( 
+        serialNumber, 
+        product_definitions!inner ( prodDefID, prodDefName, prodDefMSRP ) 
+      ) 
+    ),
+    booking_assignments ( 
+      *, 
+      employee!inner ( 
+        employeeID, 
+        userID, 
+        accounts!inner ( userID, firstName, lastName, email ) 
+      ) 
+    )
   ''';
 
   //Fetch Operations under here

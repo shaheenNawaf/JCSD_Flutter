@@ -281,7 +281,6 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
   }
 
   Widget _buildSerialNumberDropdown(WidgetRef ref, String prodDefId) {
-    // Watch the specific notifier for the selected product definition's serials
     final serialsAsync = ref.watch(serializedItemNotifierProvider(prodDefId));
 
     return serialsAsync.when(
@@ -341,8 +340,9 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
       },
       validator: (value) {
         if (value == null || value.isEmpty) return 'Price is required';
-        if (double.tryParse(value) == null || double.parse(value) < 0)
+        if (double.tryParse(value) == null || double.parse(value) < 0) {
           return 'Invalid price';
+        }
         return null;
       },
     );
@@ -361,8 +361,9 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
       readOnly: true, // Quantity is 1 for serialized items
       validator: (value) {
         if (value == null || value.isEmpty) return 'Quantity is required';
-        if (int.tryParse(value) != 1)
+        if (int.tryParse(value) != 1) {
           return 'Quantity must be 1 for serialized items';
+        }
         return null;
       },
     );

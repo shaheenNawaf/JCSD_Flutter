@@ -94,6 +94,7 @@ class _ClientBooking1State extends ConsumerState<ClientBooking1> {
     '17:00'
   ];
 
+  @override
   void initState() {
     super.initState();
     final now = DateTime.now();
@@ -112,6 +113,7 @@ class _ClientBooking1State extends ConsumerState<ClientBooking1> {
     });
   }
 
+  @override
   void dispose() {
     notesController.dispose();
     super.dispose();

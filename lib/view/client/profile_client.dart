@@ -576,8 +576,9 @@ class _ProfilePageClientState extends ConsumerState<ProfilePageClient> {
                     'Service ID: ${bs.serviceId}')
                 .join(', ') ??
             'N/A';
-        if (serviceNames.length > 50 && !isMobile)
+        if (serviceNames.length > 50 && !isMobile) {
           serviceNames = "${serviceNames.substring(0, 47)}...";
+        }
 
         return Card(
           elevation: 1,

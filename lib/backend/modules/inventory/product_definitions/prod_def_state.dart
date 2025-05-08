@@ -1,4 +1,4 @@
-import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_data.dart'; 
+import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_data.dart';
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -21,7 +21,7 @@ class ProductDefinitionState {
     this.ascending = true,
   });
 
-   ProductDefinitionState copyWith({
+  ProductDefinitionState copyWith({
     List<ProductDefinitionData>? productDefinitions,
     String? searchText,
     int? currentPage,
@@ -41,20 +41,19 @@ class ProductDefinitionState {
     );
   }
 
-
   //Data Checking only
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
     return other is ProductDefinitionState &&
-      listEquals(other.productDefinitions, productDefinitions) &&
-      other.searchText == searchText &&
-      other.currentPage == currentPage &&
-      other.totalPages == totalPages &&
-      other.itemsPerPage == itemsPerPage &&
-      other.sortBy == sortBy &&
-      other.ascending == ascending;
+        listEquals(other.productDefinitions, productDefinitions) &&
+        other.searchText == searchText &&
+        other.currentPage == currentPage &&
+        other.totalPages == totalPages &&
+        other.itemsPerPage == itemsPerPage &&
+        other.sortBy == sortBy &&
+        other.ascending == ascending;
   }
 
   @override
@@ -70,9 +69,9 @@ class ProductDefinitionState {
     );
   }
 
-    //TY Gemini - mainly for debugging rani and to check if the data has been pushed thru
-   @override
-   String toString() {
-     return 'ProductDefinitionState(productDefinitions: ${productDefinitions.length} items, searchText: $searchText, currentPage: $currentPage, totalPages: $totalPages, itemsPerPage: $itemsPerPage, sortBy: $sortBy, ascending: $ascending)';
-   }
+  //TY Gemini - mainly for debugging rani and to check if the data has been pushed thru
+  @override
+  String toString() {
+    return 'ProductDefinitionState(productDefinitions: ${productDefinitions.length} items, searchText: $searchText, currentPage: $currentPage, totalPages: $totalPages, itemsPerPage: $itemsPerPage, sortBy: $sortBy, ascending: $ascending)';
+  }
 }

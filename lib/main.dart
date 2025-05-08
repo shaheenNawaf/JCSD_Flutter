@@ -224,7 +224,22 @@ final router = GoRouter(
     ),
     GoRoute(
       path: '/bookingDetail',
-      builder: (context, state) => const BookingDetailsPage(bookingId: null),
+      name: 'bookingDetail',
+      builder: (context, state) {
+        final bookingID = state.extra as int?;
+
+        if (bookingID == null) {
+          print(
+              "Error: Navigated to BookingDetailsPage without a valid bookingId.");
+          return const Scaffold(
+            body: Center(
+              child:
+                  Text("Error: Booking ID is missing. Cannot display details."),
+            ),
+          );
+        }
+        return BookingDetailsPage(bookingId: bookingID);
+      },
     ),
     GoRoute(
       path: '/bookingReceipt',
