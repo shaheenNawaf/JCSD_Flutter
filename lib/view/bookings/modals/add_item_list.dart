@@ -1,4 +1,3 @@
-// lib/modals/add_item_list.dart
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
@@ -9,7 +8,9 @@ import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_item.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_notifiers.dart'; // To get serials for a PD
 import 'package:jcsd_flutter/backend/modules/bookings/providers/booking_providers.dart'; // For bookingDetailNotifierProvider
+
 import 'package:jcsd_flutter/api/global_variables.dart'; // For supabaseDB to get current user
+import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_providers.dart';
 import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 
 // State providers for the modal's internal state
