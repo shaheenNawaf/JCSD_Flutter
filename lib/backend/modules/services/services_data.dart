@@ -64,10 +64,8 @@ class ServicesData {
       serviceID: json['serviceID'] as int,
       serviceName: json['serviceName'] as String,
       isActive: json['isActive'] as bool,
-      minPrice: _parseOptionalDouble(
-          json['minPrice']), // CORRECTED: Use _parseOptionalDouble
-      maxPrice: _parseOptionalDouble(
-          json['maxPrice']), // CORRECTED: Use _parseOptionalDouble
+      minPrice: _parseOptionalDouble(json['minPrice']),
+      maxPrice: _parseOptionalDouble(json['maxPrice']),
       description: json['description'] as String?,
       estimatedDuration: _parseOptionalInt(json['estimatedDuration']),
       isWalkInOnly: json['isWalkInOnly'] as bool? ?? false,
