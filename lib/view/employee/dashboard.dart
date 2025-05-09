@@ -28,7 +28,6 @@ class _DashboardPageState extends State<DashboardPage> {
               children: [
                 Header(
                   title: 'Dashboard',
-                  onAvatarTap: () {},
                 ),
                 Expanded(
                   child: Padding(

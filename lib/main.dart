@@ -147,7 +147,7 @@ final router = GoRouter(
       name: 'accountDetails',
       builder: (context, state) {
         final account = state.extra as AccountsData;
-        return ProfileAdminViewPage(user: account);
+        return ProfilePage(acc: account);
       },
     ),
     GoRoute(
@@ -360,6 +360,7 @@ final router = GoRouter(
         'employee': [
           '/dashboard',
           '/bookingsCalendar',
+          '/bookingDetail',
           '/inventory',
           '/suppliers',
           '/bookings',

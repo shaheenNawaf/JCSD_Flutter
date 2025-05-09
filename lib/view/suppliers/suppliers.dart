@@ -145,12 +145,15 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
           child: TextField(
             decoration: InputDecoration(
                 hintText: 'Search Name/Email/Contact...',
+                
                 prefixIcon: const Icon(Icons.search, size: 20),
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 contentPadding:
                     const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                hintStyle: const TextStyle(fontSize: 12)),
+                hintStyle: const TextStyle(
+                    color: Color(0xFFABABAB),
+                    fontFamily: 'NunitoSans',),),
             onChanged: (searchText) => ref
                 .read(suppliersNotifierProvider(isVisibleFilter).notifier)
                 .search(searchText), // Connect to notifier search
@@ -164,9 +167,12 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
           label:
               const Text('Add Supplier', style: TextStyle(color: Colors.white)),
           style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 15, vertical: 10)),
+            backgroundColor: const Color(0xFF00AEEF),
+            minimumSize: const Size(0, 48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
         ),
       ],
     );
@@ -330,24 +336,38 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Tooltip(
-                      message: 'Edit Supplier',
-                      child: IconButton(
-                          icon: const Icon(Icons.edit,
-                              color: Colors.blueAccent, size: 18),
-                          onPressed: () => _showEditSupplierModal(supplier),
-                          splashRadius: 18,
-                          constraints: const BoxConstraints(),
-                          padding: const EdgeInsets.symmetric(horizontal: 5))),
+                    message: 'Edit Supplier',
+                    child: 
+                    ElevatedButton(
+                      onPressed: () => _showEditSupplierModal(supplier),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: const Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                  ),
                   const SizedBox(width: 4),
                   Tooltip(
-                      message: 'Archive Supplier',
-                      child: IconButton(
-                          icon: const Icon(Icons.archive,
-                              color: Colors.redAccent, size: 18),
-                          onPressed: () => _showArchiveSupplierModal(supplier),
-                          splashRadius: 18,
-                          constraints: const BoxConstraints(),
-                          padding: const EdgeInsets.symmetric(horizontal: 5))),
+                    message: 'Archive Supplier',
+                    child: 
+                    ElevatedButton(
+                      onPressed: () => _showArchiveSupplierModal(supplier),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: const Icon(
+                        Icons.archive,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                  ),
                 ],
               )),
         ],

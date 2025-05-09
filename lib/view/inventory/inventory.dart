@@ -144,11 +144,19 @@ class InventoryPage extends ConsumerWidget {
               size: 16,
             ),
             label: const Text('Item Types',
-                style: TextStyle(color: Colors.white, fontSize: 12)),
+                style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),),
             style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5C6BC0),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10))),
+                backgroundColor: const Color(0xFF00AEEF),
+                minimumSize: const Size(0, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+          ),
         const SizedBox(width: 10),
         ElevatedButton.icon(
             onPressed: () {
@@ -161,11 +169,18 @@ class InventoryPage extends ConsumerWidget {
               size: 16,
             ),
             label: const Text('Manufacturers',
-                style: TextStyle(color: Colors.white, fontSize: 12)),
+                style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),),
             style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5C6BC0),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10))),
+                backgroundColor: const Color(0xFF00AEEF),
+                minimumSize: const Size(0, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),),
         const SizedBox(width: 10),
         ElevatedButton.icon(
             onPressed: () => context.go('/suppliers'),
@@ -175,11 +190,18 @@ class InventoryPage extends ConsumerWidget {
               size: 16,
             ),
             label: const Text('Suppliers',
-                style: TextStyle(color: Colors.white, fontSize: 12)),
+                style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),),
             style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF5C6BC0),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10))),
+                backgroundColor: const Color(0xFF00AEEF),
+                minimumSize: const Size(0, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),),
         const Spacer(),
         // Search Field
         SizedBox(
@@ -193,7 +215,10 @@ class InventoryPage extends ConsumerWidget {
                     OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 contentPadding:
                     const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                hintStyle: const TextStyle(fontSize: 12)),
+                hintStyle: const TextStyle(
+                    color: Color(0xFFABABAB),
+                    fontFamily: 'NunitoSans',
+                  ),),
             onChanged: (searchText) => ref
                 .read(
                     productDefinitionNotifierProvider(isVisibleFilter).notifier)
@@ -207,9 +232,13 @@ class InventoryPage extends ConsumerWidget {
             label: const Text('Add Product',
                 style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10))),
+                backgroundColor: const Color(0xFF00AEEF),
+                minimumSize: const Size(0, 48),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
       ],
     );
   }
@@ -391,10 +420,9 @@ class InventoryPage extends ConsumerWidget {
                 children: [
                   Tooltip(
                       message: 'View Serials',
-                      child: IconButton(
-                          icon: const Icon(Icons.list_alt,
-                              color: Colors.indigo, size: 18),
-                          onPressed: () {
+                      child: 
+                      ElevatedButton(
+                        onPressed: () {
                             // Ensure ID is not null before navigating
                             if (item.prodDefID != null) {
                               final String? productDefinitionId =
@@ -414,31 +442,53 @@ class InventoryPage extends ConsumerWidget {
                               // Optionally show feedback to user
                             }
                           },
-                          splashRadius: 18,
-                          constraints: const BoxConstraints(),
-                          padding: const EdgeInsets.symmetric(horizontal: 5))),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.indigo,
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: const Icon(
+                          Icons.list_alt,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      ),
+                  ),
                   const SizedBox(width: 4),
                   Tooltip(
                       message: 'Edit Product',
-                      child: IconButton(
-                          icon: const Icon(Icons.edit,
-                              color: Colors.blueAccent, size: 18),
-                          onPressed: () => _showEditProductDefinitionModal(
+                      child: 
+                      ElevatedButton(
+                        onPressed: () => _showEditProductDefinitionModal(
                               context, ref, item),
-                          splashRadius: 18,
-                          constraints: const BoxConstraints(),
-                          padding: const EdgeInsets.symmetric(horizontal: 5))),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: const Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      ),
+                  ),
                   const SizedBox(width: 4),
                   Tooltip(
                       message: 'Archive Product',
-                      child: IconButton(
-                          icon: const Icon(Icons.archive,
-                              color: Colors.redAccent, size: 18),
-                          onPressed: () => _showArchiveProductDefinitionModal(
+                      child: 
+                      ElevatedButton(
+                        onPressed: () => _showArchiveProductDefinitionModal(
                               context, ref, item),
-                          splashRadius: 18,
-                          constraints: const BoxConstraints(),
-                          padding: const EdgeInsets.symmetric(horizontal: 5))),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          padding: EdgeInsets.zero,
+                        ),
+                        child: const Icon(
+                          Icons.archive,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      ),
+                  ),
                 ],
               )),
         ],

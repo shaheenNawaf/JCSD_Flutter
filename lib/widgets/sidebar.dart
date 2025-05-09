@@ -8,21 +8,19 @@ import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
   import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
   import 'package:supabase_flutter/supabase_flutter.dart';
  
- class Sidebar extends StatefulWidget {
+ class Sidebar extends ConsumerStatefulWidget {
    final String activePage;
    final VoidCallback? onClose;
  
    const Sidebar({super.key, this.activePage = '', this.onClose});
  
    @override
-   _SidebarState createState() => _SidebarState();
+   ConsumerState<Sidebar> createState() => _SidebarState();
  }
 
-  final container = ProviderContainer();
-  final userRole = container.read(userRoleProvider.future);
  
  
- class _SidebarState extends State<Sidebar> {
+class _SidebarState extends ConsumerState<Sidebar> {
    bool _isInventoryExpanded = false;
    bool _isBookingsExpanded = false;
    bool _isSuppliersExpanded = false;
@@ -88,7 +86,8 @@ import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
  
    @override
    Widget build(BuildContext context) {
-     final bool isMobile = MediaQuery.of(context).size.width < 600;
+    final bool isMobile = MediaQuery.of(context).size.width < 600;
+    final userRoleAsyncValue = ref.watch(userRoleProvider);
  
      return isMobile
          ? _buildDrawer(context)
@@ -98,15 +97,46 @@ import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
              child: Column(
                children: [
                  Padding(
-                   padding: const EdgeInsets.symmetric(vertical: 24.0),
-                   child: Center(
-                     child: Image.asset(
-                       'assets/images/logo_white.png',
-                       height: 60,
-                     ),
+                   padding: const EdgeInsets.symmetric(vertical: 24.0, horizontal: 20),
+                   child: Column(
+                     children: [
+                       Center(
+                         child: Image.asset(
+                           'assets/images/logo_white.png',
+                           height: 60,
+                         ),
+                       ),
+                       const SizedBox(height: 5),
+                       userRoleAsyncValue.when(
+                        data: (userRole) => Text(
+                            'Welcome! ${userRole?[0].toUpperCase()}${userRole?.substring(1)}.',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        loading: () => const Text(
+                          'Welcome! (Loading...)',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        error: (error, stackTrace) => Text(
+                          'Welcome! (Error: $error)',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                       )
+                     ],
                    ),
                  ),
-                 const SizedBox(height: 30),
+                 const SizedBox(height: 15),
                  Expanded(
                    child: Column(
                      children: [
@@ -148,14 +178,19 @@ import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
                            isActive: _activeSubItem == '/orderList',
                            onTap: () => _navigateTo('/orderList'),
                          ),
-                         if (userRole != 'employee') //test for userrole display condition
-                          SubSidebarItem(
-                            icon: FontAwesomeIcons.clockRotateLeft,
-                            title: 'Audit Log',
-                            route: '/auditLog',
-                            isActive: _activeSubItem == '/auditLog',
-                            onTap: () => _navigateTo('/auditLog'),
-                          ),
+                         userRoleAsyncValue.when(
+                          data: (role) => role != 'employee'
+                              ? SubSidebarItem(
+                                  icon: FontAwesomeIcons.clockRotateLeft,
+                                  title: 'Audit Log',
+                                  route: '/auditLog',
+                                  isActive: _activeSubItem == '/auditLog',
+                                  onTap: () => _navigateTo('/auditLog'),
+                                )
+                              : const SizedBox.shrink(),
+                          loading: () => const SizedBox.shrink(),
+                          error: (error, stackTrace) => const SizedBox.shrink(),
+                        ),
                        ],
                        SidebarItemWithDropdown(
                          icon: FontAwesomeIcons.calendarDays,

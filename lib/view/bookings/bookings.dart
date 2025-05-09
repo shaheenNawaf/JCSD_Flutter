@@ -108,7 +108,7 @@ class BookingsPage extends ConsumerWidget {
                 value: null, // Represents "All"
                 child: Text('All Statuses',
                     style:
-                        TextStyle(fontSize: 13, fontStyle: FontStyle.italic)),
+                        TextStyle(fontSize: 13,fontFamily: 'NunitoSans')),
               ),
               ...BookingStatus.values
                   .where((s) => s != BookingStatus.unknown) // Exclude 'unknown'
@@ -141,8 +141,7 @@ class BookingsPage extends ConsumerWidget {
               hintText: 'Search ID, Customer, Notes...',
               hintStyle: const TextStyle(
                   color: Color(0xFFABABAB),
-                  fontFamily: 'NunitoSans',
-                  fontSize: 13),
+                  fontFamily: 'NunitoSans'),
               prefixIcon: const Icon(Icons.search, size: 20),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -184,28 +183,35 @@ class BookingsPage extends ConsumerWidget {
           ),
         ],
       ),
-      child: SingleChildScrollView(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
         scrollDirection: Axis.horizontal,
-        child: DataTable(
-          headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
-          columnSpacing: 20,
-          columns: [
-            _buildSortableHeader('ID', 'id', state, notifier),
-            _buildSortableHeader(
-                'Customer', 'walk_in_customer_name', state, notifier),
-            _buildSortableHeader(
-                'Scheduled At', 'scheduled_start_time', state, notifier),
-            DataColumn(
-                label: _buildHeaderText(
-                    'Services')), // Not easily sortable directly
-            _buildSortableHeader('Type', 'booking_type', state, notifier),
-            _buildSortableHeader('Status', 'status', state, notifier),
-            DataColumn(label: _buildHeaderText('Action', center: true)),
-          ],
-          rows: state.bookings.map((booking) {
-            return _buildDataRow(context, booking);
-          }).toList(),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minWidth: constraints.maxWidth),
+          child: DataTable(
+            dividerThickness: 0.0,
+            headingRowColor: MaterialStateProperty.all(const Color(0xFF00AEEF)),
+            columns: [
+          _buildSortableHeader('ID', 'id', state, notifier),
+          _buildSortableHeader(
+              'Customer', 'walk_in_customer_name', state, notifier),
+          _buildSortableHeader(
+              'Scheduled At', 'scheduled_start_time', state, notifier),
+          DataColumn(
+              label: _buildHeaderText(
+              'Services')), // Not easily sortable directly
+          _buildSortableHeader('Type', 'booking_type', state, notifier),
+          _buildSortableHeader('Status', 'status', state, notifier),
+          DataColumn(label: _buildHeaderText('Action', center: true)),
+            ],
+            rows: state.bookings.map((booking) {
+          return _buildDataRow(context, booking, state.bookings.indexOf(booking));
+            }).toList(),
+          ),
         ),
+          );
+        },
       ),
     );
   }
@@ -237,13 +243,12 @@ class BookingsPage extends ConsumerWidget {
       style: const TextStyle(
           fontFamily: 'NunitoSans',
           fontWeight: FontWeight.w600,
-          color: Colors.white,
-          fontSize: 13),
+          color: Colors.white,),
       textAlign: center ? TextAlign.center : TextAlign.start,
     );
   }
 
-  DataRow _buildDataRow(BuildContext context, Booking booking) {
+  DataRow _buildDataRow(BuildContext context, Booking booking, int index) {
     String customerDisplay = booking.walkInCustomerName ??
         booking.customerUserId?.substring(0, 8) ??
         'N/A';
@@ -256,21 +261,24 @@ class BookingsPage extends ConsumerWidget {
     // TODO: Replace bs.serviceId.toString() with actual service name lookup if available in BookingServiceItem or via a map
 
     return DataRow(
+      color: index.isEven
+        ? MaterialStateProperty.all<Color>(Colors.grey.withOpacity(0.1))
+        : MaterialStateProperty.all<Color>(Colors.transparent),
       cells: [
         DataCell(
-            Text(booking.id.toString(), style: const TextStyle(fontSize: 13))),
-        DataCell(Text(customerDisplay, style: const TextStyle(fontSize: 13))),
+            Text(booking.id.toString(), style: const TextStyle(fontSize: 13,fontFamily: 'NunitoSans'))),
+        DataCell(Text(customerDisplay, style: const TextStyle(fontSize: 13,fontFamily: 'NunitoSans'))),
         DataCell(Text(
             DateFormat.yMd().add_jm().format(booking.scheduledStartTime),
-            style: const TextStyle(fontSize: 13))),
+            style: const TextStyle(fontSize: 13,fontFamily: 'NunitoSans'))),
         DataCell(Text(
           serviceNames,
-          style: const TextStyle(fontSize: 13),
+          style: const TextStyle(fontSize: 13,fontFamily: 'NunitoSans'),
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
         )),
         DataCell(Text(booking.bookingType.name,
-            style: const TextStyle(fontSize: 13))),
+            style: const TextStyle(fontSize: 13,fontFamily: 'NunitoSans'))),
         DataCell(Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(

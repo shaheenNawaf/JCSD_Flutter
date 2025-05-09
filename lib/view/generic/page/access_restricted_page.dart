@@ -1,13 +1,16 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 
 class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final String activePage;
 
   const Navbar({super.key, this.activePage = ''});
+  
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +30,14 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
           const Spacer(),
           if (activePage == 'accessRestricted')
             TextButton(
-              onPressed: () {
-                Navigator.pushNamed(context, '/home');
+              onPressed: () async {
+                final container = ProviderContainer();
+                final userRole = await container.read(userRoleProvider.future);
+                if (userRole == 'client') {
+                  context.go('/home');
+                } else {
+                  context.go('/dashboard');
+                }
               },
               child: const Text(
                 'Back to Home',
@@ -227,9 +236,15 @@ class AccessRestrictedPage extends StatelessWidget {
                       borderRadius: BorderRadius.circular(5),
                     ),
                   ),
-                  onPressed: () {
-                    context.go('/home');
-                  },
+                    onPressed: () async {
+                      final container = ProviderContainer();
+                      final userRole = await container.read(userRoleProvider.future);
+                      if (userRole == 'client') {
+                        context.go('/home');
+                      } else {
+                        context.go('/dashboard');
+                      }
+                    },
                   child: const Text(
                     'Back to Home',
                     style: TextStyle(
