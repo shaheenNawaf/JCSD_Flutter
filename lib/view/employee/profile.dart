@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_attendance.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
@@ -11,22 +13,17 @@ class ProfilePage extends StatefulWidget {
   final AccountsData? acc;
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+ State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage>
     with SingleTickerProviderStateMixin {
+  String _checkInMessage = '';
+  String _checkOutMessage = '';
+  DateTime _startDate = DateTime.now().subtract(const Duration(days: 7));
+  DateTime _endDate = DateTime.now();
+  List<Map<String, dynamic>> _attendanceHistory = [];
   AccountsData? user;
-
-  @override
-  void initState() {
-    super.initState();
-    user = widget.acc;
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 300),
-    );
-  }
 
   String displayValue(dynamic value) {
     if (value == null) return 'N/A';
@@ -39,10 +36,75 @@ class _ProfilePageState extends State<ProfilePage>
     return '${date.month}/${date.day}/${date.year}';
   }
 
+    Future<void> _handleCheckIn() async {
+    await checkIn(context);
+    setState(() {
+      _checkInMessage = 'Check-in initiated.';
+      _checkOutMessage = '';
+    });
+    _fetchAttendanceHistory();
+  }
+
+  Future<void> _handleCheckOut() async {
+    await checkOut(context);
+    setState(() {
+      _checkOutMessage = 'Check-out initiated.';
+      _checkInMessage = '';
+    });
+     _fetchAttendanceHistory();
+  }
+
+  Future<void> _fetchAttendanceHistory() async {
+    final history = await fetchUserAttendance(_startDate, _endDate, user!.userID);
+    setState(() {
+      _attendanceHistory = history;
+    });
+  }
+
+    Future<void> _selectStartDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _startDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _startDate) {
+      setState(() {
+        _startDate = picked;
+      });
+      _fetchAttendanceHistory();
+    }
+  }
+
+  Future<void> _selectEndDate() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _endDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _endDate) {
+      setState(() {
+        _endDate = picked;
+      });
+      _fetchAttendanceHistory();
+    }
+  }
+
+    @override
+  void initState() {
+    super.initState();
+    user = widget.acc;
+    _fetchAttendanceHistory();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+  }
+
   final String _activeSubItem = '/employeeList';
   late AnimationController _animationController;
   DateTime selectedDate = DateTime.now();
-
 
   @override
   void dispose() {
@@ -64,8 +126,8 @@ class _ProfilePageState extends State<ProfilePage>
                   title: 'Profile',
                   leading: IconButton(
                     icon:
-                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
-                    onPressed: () => Navigator.pop(context),
+                      const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                    onPressed: () => context.pop(),
                   ),
                 ),
                 Expanded(
@@ -134,6 +196,9 @@ class _ProfilePageState extends State<ProfilePage>
           VerticalDivider(width: 1, color: Colors.grey[300]),
           Expanded(
             child: Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Row(
                   children: [
@@ -145,35 +210,47 @@ class _ProfilePageState extends State<ProfilePage>
                     ),
                     const Spacer(),
                     Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 20, 20, 0),
+                      child: ElevatedButton.icon(
+                        onPressed: _selectStartDate, 
+                        icon: const FaIcon(FontAwesomeIcons.calendar,
+                              color: Colors.black),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            side: const BorderSide(color: Colors.black),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        label: 
+                          Text(
+                            DateFormat('yyyy-MM-dd').format(_startDate),
+                            style: const TextStyle(color: Colors.black),
+                          )
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.fromLTRB(0, 20, 20, 0),
+                      child: Icon(Icons.keyboard_arrow_right, size: 40),
+                    ),
+                    Padding(
                       padding: const EdgeInsets.fromLTRB(0, 20, 40, 0),
                       child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.black),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onPressed: () async {
-                          DateTime? pickedDate = await showMonthPicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2101),
-                          );
-
-                          if (pickedDate != null) {
-                            setState(() {
-                              selectedDate = pickedDate;
-                            });
-                          }
-                        },
+                        onPressed: _selectEndDate, 
                         icon: const FaIcon(FontAwesomeIcons.calendar,
-                            color: Colors.black),
-                        label: Text(
-                          '${selectedDate.month}/${selectedDate.year}',
-                          style: const TextStyle(color: Colors.black),
-                        ),
+                              color: Colors.black),
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            side: const BorderSide(color: Colors.black),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        label: 
+                          Text(
+                            DateFormat('yyyy-MM-dd').format(_endDate),
+                            style: const TextStyle(color: Colors.black),
+                          )
                       ),
                     ),
                   ],
@@ -205,12 +282,12 @@ class _ProfilePageState extends State<ProfilePage>
                         'Difference',
                         'Tardies',
                         'Absences',
-                        'Leaves',
-                        'Button'
+                        'CheckinButton',
+                        'CheckoutButton'
                       ];
 
-                      if (statuses[index] == 'Button') {
-                        return ElevatedButton(
+                      if (statuses[index] == 'CheckinButton') {
+                        return ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF00AEEF),
                             foregroundColor: Colors.white,
@@ -222,14 +299,43 @@ class _ProfilePageState extends State<ProfilePage>
                             padding: const EdgeInsets.all(0),
                           ),
                           onPressed: () {
-                            // Button action here
+                            _handleCheckIn();
                           },
-                          child: const Center(
-                            child: Text(
-                              'Clock In',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 18),
-                            ),
+                          icon: const FaIcon(
+                            FontAwesomeIcons.clock,
+                          color: Colors.white,
+                          size: 16,
+                          ),
+                          label: const Text(
+                          'Clock in',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18),
+                          ),
+                        );
+                      } else if (statuses[index] == 'CheckoutButton') {
+                        return ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          side:
+                            const BorderSide(color: Colors.grey, width: 1),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.all(0),
+                          ),
+                          onPressed: () {
+                            _handleCheckOut();
+                          },
+                          icon: const FaIcon(
+                            FontAwesomeIcons.clock,
+                          color: Colors.white,
+                          size: 16,
+                          ),
+                          label: const Text(
+                          'Clock Out',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18),
                           ),
                         );
                       } else {
@@ -270,111 +376,57 @@ class _ProfilePageState extends State<ProfilePage>
                         borderRadius: BorderRadius.circular(5),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withValues(alpha: 0.3),
+                            color: Colors.grey.withOpacity(0.3),
                             spreadRadius: 2,
                             blurRadius: 5,
                             offset: const Offset(0, 3),
                           ),
                         ],
                       ),
-                      child: ListView(
-                        children: [
-                          DataTable(
-                            headingRowColor: WidgetStateProperty.all(
-                              const Color(0xFF00AEEF),
+                      child: DataTable(
+                        headingRowColor: MaterialStateProperty.all(const Color(0xFF00AEEF)),
+                        columns: const <DataColumn>[
+                          DataColumn(
+                            label: Text(
+                              'Date',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'NunitoSans',color: Colors.white,),
                             ),
-                            columns: const [
-                              DataColumn(
-                                label: Center(
-                                  child: Text(
-                                    'Date',
-                                    style: TextStyle(
-                                      fontFamily: 'NunitoSans',
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                              DataColumn(
-                                label: Center(
-                                  child: Text(
-                                    'Status',
-                                    style: TextStyle(
-                                      fontFamily: 'NunitoSans',
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                              DataColumn(
-                                label: Center(
-                                  child: Text(
-                                    'Clock In',
-                                    style: TextStyle(
-                                      fontFamily: 'NunitoSans',
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                              DataColumn(
-                                label: Center(
-                                  child: Text(
-                                    'Clock Out',
-                                    style: TextStyle(
-                                      fontFamily: 'NunitoSans',
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                              DataColumn(
-                                label: Center(
-                                  child: Text(
-                                    'Worked',
-                                    style: TextStyle(
-                                      fontFamily: 'NunitoSans',
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            ],
-                            rows: const [
-                              DataRow(cells: [
-                                DataCell(Text('01/01/2023')),
-                                DataCell(Text('Present')),
-                                DataCell(Text('09:00 AM')),
-                                DataCell(Text('05:00 PM')),
-                                DataCell(Text('8 hrs')),
-                              ]),
-                              DataRow(cells: [
-                                DataCell(Text('01/02/2023')),
-                                DataCell(Text('Absent')),
-                                DataCell(Text('-')),
-                                DataCell(Text('-')),
-                                DataCell(Text('-')),
-                              ]),
-                              DataRow(cells: [
-                                DataCell(Text('01/03/2023')),
-                                DataCell(Text('Present')),
-                                DataCell(Text('09:15 AM')),
-                                DataCell(Text('05:15 PM')),
-                                DataCell(Text('8 hrs')),
-                              ]),
-                            ],
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'Status',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'NunitoSans',color: Colors.white,),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'Check In',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'NunitoSans',color: Colors.white,),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'Check Out',
+                              style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'NunitoSans',color: Colors.white,),
+                            ),
                           ),
                         ],
+                        rows: _attendanceHistory.map((attendance) {
+                          return DataRow(
+                            cells: <DataCell>[
+                              DataCell(Text(attendance['attendance_date'] ?? 'N/A')),
+                              DataCell(Text(attendance['status'] ?? 'N/A')),
+                              DataCell(Text(attendance['check_in_time'] != null
+                                  ? DateFormat('HH:mm:ss')
+                                      .format(DateTime.parse(attendance['check_in_time']))
+                                  : 'N/A')),
+                              DataCell(Text(attendance['check_out_time'] != null
+                                  ? DateFormat('HH:mm:ss')
+                                      .format(DateTime.parse(attendance['check_out_time']))
+                                  : 'N/A')),
+                            ],
+                          );
+                        }).toList(),
                       ),
                     ),
                   ),

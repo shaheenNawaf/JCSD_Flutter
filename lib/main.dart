@@ -287,7 +287,7 @@ final router = GoRouter(
         final accountData = await Supabase.instance.client
             .from('accounts')
             .select(
-                'firstName, middleName, lastName, birthDate, address, city, province, country, zipCode, contactNumber')
+                'firstName, middleName, lastName, birthDate, address, city, province, region, zipCode, contactNumber')
             .eq('userID', userId)
             .maybeSingle();
 
@@ -301,7 +301,7 @@ final router = GoRouter(
           'address',
           'city',
           'province',
-          'country',
+          'region',
           'zipCode',
           'contactNumber',
         ];
