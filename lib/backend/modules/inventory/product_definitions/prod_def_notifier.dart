@@ -185,18 +185,16 @@ class ProductDefinitionNotifier
           const AsyncLoading<ProductDefinitionState>().copyWithPrevious(state);
 
       try {
-        // Fetches the total count for the *new* search query first
         final totalItems = await _fetchTotalCount(searchText: newSearchText);
         final totalPages = (totalItems / currentState.itemsPerPage).ceil();
         final calculatedTotalPages = totalPages > 0 ? totalPages : 1;
 
-        // Fetches the first page of data based on the new search query
         final items = await _fetchPageData(
           page: newPage,
           itemsPerPage: currentState.itemsPerPage,
-          sortBy: currentState.sortBy, // Keeps the current sort order
+          sortBy: currentState.sortBy,
           ascending: currentState.ascending,
-          searchText: newSearchText, // Uses the new search text
+          searchText: newSearchText,
         );
 
         // Updates the state with the new items, page, search text, and total pages
