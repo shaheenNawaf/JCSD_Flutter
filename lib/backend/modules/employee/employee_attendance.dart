@@ -81,6 +81,8 @@ Future<List<Map<String, dynamic>>> fetchUserAttendance(DateTime startDate, DateT
         .eq('userID', userId)
         .gte('attendance_date', startDate.toLocal().toString().split(' ')[0])
         .lte('attendance_date', endDate.toLocal().toString().split(' ')[0]);
+    print('Found ${data.length} records');
+    print(userId);
     return data;
   } catch (error) {
     print('Error fetching attendance: $error');
@@ -88,25 +90,74 @@ Future<List<Map<String, dynamic>>> fetchUserAttendance(DateTime startDate, DateT
   }
 }
 
-// Future<List<Map<String, dynamic>>> fetchAttendanceByDate({
-//   required DateTime date,
-//   String? userId, // Optional userId for admin to fetch specific user's attendance
-// }) async {
-//   try {
-//     final PostgrestFilterBuilder<List<Map<String, dynamic>>> query =
-//         supabase.from('attendance').select('*, profiles(full_name)').eq(
-//               'attendance_date',
-//               date.toLocal().toString().split(' ')[0],
-//             );
+Future<bool> updateAttendanceRecord({
+  required String attendanceId,
+  String? newCheckInTime,
+  String? newCheckOutTime,
 
-//     if (userId != null) {
-//       query.eq('userID', userId);
-//     }
+  required BuildContext context,
+}) async {
+  try {
+    final Map<String, dynamic> updates = {};
 
-//     final List<Map<String, dynamic>> data = await query;
-//     return data;
-//   } catch (error) {
-//     print('Error fetching attendance by date: $error');
-//     return [];
-//   }
-// }
+    final existingRecord = await supabase
+        .from('attendance')
+        .select()
+        .eq('id', attendanceId)
+        .single();
+    
+    if (newCheckInTime != null && newCheckInTime.isNotEmpty) {
+      final String checkInTimeStr = newCheckInTime.toString();
+      final existingDate = existingRecord['attendance_date'].toString().split(' ')[0];
+      updates['check_in_time'] = '$existingDate $checkInTimeStr';
+    }
+    
+    if (newCheckOutTime != null) {
+      final String checkOutTimeStr = newCheckOutTime.toString();
+      final existingDate = existingRecord['attendance_date'].toString().split(' ')[0];
+      updates['check_out_time'] = '$existingDate $checkOutTimeStr';
+    }
+
+    if (updates.isNotEmpty) {
+      final response = await supabase.from('attendance').update(updates).eq('id', attendanceId).select();
+      if (response.isNotEmpty) {
+        ToastManager().showToast(context, 'Attendance record updated successfully', Colors.green);
+        return true;
+      } else {
+        print('Error updating attendance: No data returned');
+        ToastManager().showToast(context, 'Failed to update attendance record', Colors.red);
+      }
+    } else {
+      ToastManager().showToast(context, 'No changes to update', Colors.orange);
+    }
+    return false;
+  } catch (error) {
+    print('Unexpected error updating attendance: $error');
+    ToastManager().showToast(context, 'An unexpected error occurred', Colors.red);
+    return false;
+  }
+}
+
+Future<String> calculateTotalHoursWorked(String userId, DateTime startDate, DateTime endDate) async {
+  try {
+    final attendanceRecords = await fetchUserAttendance(startDate, endDate, userId);
+    
+    Duration totalDuration = Duration.zero;
+    
+    for (var record in attendanceRecords) {
+      if (record['check_in_time'] != null && record['check_out_time'] != null) {
+        final checkIn = DateTime.parse(record['check_in_time']);
+        final checkOut = DateTime.parse(record['check_out_time']);
+        totalDuration += checkOut.difference(checkIn);
+      }
+    }
+    
+    final hours = totalDuration.inHours;
+    final minutes = totalDuration.inMinutes.remainder(60);
+    
+    return '$hours hours ${minutes}mins';
+  } catch (e) {
+    debugPrint('Error calculating total hours: $e');
+    return 'N/A';
+  }
+}

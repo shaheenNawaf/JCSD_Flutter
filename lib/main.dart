@@ -125,7 +125,11 @@ final router = GoRouter(
               path: 'profile',
               builder: (context, state) {
                 final AccountsData? acc = state.extra as AccountsData?;
-                return ProfilePage(acc: acc);
+                final currentUser = Supabase.instance.client.auth.currentUser;
+                return ProfilePage(
+                  targetUser: acc,
+                  currentUserId: currentUser?.id,
+                );
               },
               routes: <GoRoute>[
                 GoRoute(
@@ -147,7 +151,11 @@ final router = GoRouter(
       name: 'accountDetails',
       builder: (context, state) {
         final account = state.extra as AccountsData;
-        return ProfilePage(acc: account);
+        final currentUser = Supabase.instance.client.auth.currentUser;
+        return ProfilePage(
+          targetUser: account,
+          currentUserId: currentUser?.id,
+        );
       },
     ),
     GoRoute(
@@ -364,6 +372,7 @@ final router = GoRouter(
           '/inventory',
           '/suppliers',
           '/bookings',
+          '/accountDetails',
           '/services',
           '/itemTypes',
           '/employeeList/profile',
