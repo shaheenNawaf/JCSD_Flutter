@@ -201,7 +201,7 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
                       '106-6 CM Recto Ave.'),
                   _buildInfoRow(FontAwesomeIcons.city, 'City: ', 'Manila'),
                   _buildInfoRow(
-                      FontAwesomeIcons.globe, 'Country: ', 'Philippines'),
+                      FontAwesomeIcons.globe, 'Region: ', 'Philippines'),
                   _buildDivider(),
                   _buildSectionTitle('Employee Details'),
                   _buildInfoRow(FontAwesomeIcons.user, 'Title: ', 'Employee.'),

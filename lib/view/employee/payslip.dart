@@ -86,7 +86,7 @@ class _PayslipState extends State<Payslip> {
                       '106-6 CM Recto Ave.'),
                   _buildInfoRow(FontAwesomeIcons.city, 'City: ', 'Manila'),
                   _buildInfoRow(
-                      FontAwesomeIcons.globe, 'Country: ', 'Philippines'),
+                      FontAwesomeIcons.globe, 'Region: ', 'Philippines'),
                   _buildDivider(),
                   _buildSectionTitle('Employee Details'),
                   _buildInfoRow(FontAwesomeIcons.user, 'Title: ', 'Employee'),
@@ -146,8 +146,7 @@ class _PayslipState extends State<Payslip> {
                 Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
                 const PayslipRow(
                     label: 'Total Income: ', value: 'P20,000', isBold: true),
-                const PayslipRow(
-                    label: 'Salary: ', value: 'P20,000'),
+                const PayslipRow(label: 'Salary: ', value: 'P20,000'),
                 const PayslipRow(
                     label: 'Medical Allowance: ', value: 'P20,000'),
                 const PayslipRow(label: 'OT Regular Day: ', value: 'P20,000'),

@@ -7,6 +7,7 @@ import 'package:jcsd_flutter/view/generic/dialogs/error_dialog.dart';
 // import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:jcsd_flutter/others/dropdown_data.dart';
 
 //Page Imports
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
@@ -25,14 +26,16 @@ class SignupPage2 extends StatefulWidget {
 class _SignupPage2State extends State<SignupPage2> {
   // Controllers for the input fields
   final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _middleInitialController = TextEditingController();
+  final TextEditingController _middleInitialController =
+      TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _provinceController = TextEditingController();
-  final TextEditingController _countryController = TextEditingController();
+  final TextEditingController _regionController = TextEditingController();
   final TextEditingController _zipCodeController = TextEditingController();
-  final TextEditingController _contactNumberController = TextEditingController();
+  final TextEditingController _contactNumberController =
+      TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
 
@@ -65,7 +68,7 @@ class _SignupPage2State extends State<SignupPage2> {
       _addressController.text = data['address'] ?? '';
       _cityController.text = data['city'] ?? '';
       _provinceController.text = data['province'] ?? '';
-      _countryController.text = data['country'] ?? '';
+      _regionController.text = data['region'] ?? '';
       _zipCodeController.text = data['zipCode'] ?? '';
       _contactNumberController.text = data['contactNumber'] ?? '';
       _emailController.text = data['email'] ?? '';
@@ -87,7 +90,7 @@ class _SignupPage2State extends State<SignupPage2> {
     final address = _addressController.text.trim();
     final city = _cityController.text.trim();
     final province = _provinceController.text.trim();
-    final country = _countryController.text.trim();
+    final region = _regionController.text.trim();
     final zipCode = _zipCodeController.text.trim();
     final contactNumber = _contactNumberController.text.trim();
     final dob = _dobController.text.trim();
@@ -98,7 +101,7 @@ class _SignupPage2State extends State<SignupPage2> {
       address,
       city,
       province,
-      country,
+      region,
       zipCode,
       contactNumber,
       dob
@@ -120,7 +123,7 @@ class _SignupPage2State extends State<SignupPage2> {
         address: address,
         city: city,
         province: province,
-        country: country,
+        region: region,
         zipCode: zipCode,
         contactNumber: contactNumber,
         email: _emailController.text,
@@ -240,74 +243,6 @@ class _SignupPage2State extends State<SignupPage2> {
     return null;
   }
 
-  // Future<void> _signUp() async {
-  //   setState(() {
-  //     isLoading = true;
-  //   });
-
-  //   final firstName = _firstNameController.text;
-  //   final middleInitial = _middleInitialController.text;
-  //   final lastName = _lastNameController.text;
-  //   final address = _addressController.text;
-  //   final city = _cityController.text;
-  //   final province = _provinceController.text;
-  //   final country = _countryController.text;
-  //   final zipCode = _zipCodeController.text;
-  //   final contactNumber = _contactNumberController.text;
-  //   final email = _emailController.text;
-  //   final dob = _dobController.text;
-
-  //   final User? user = supabaseDB.auth.currentUser;
-
-  //   if (firstName.isEmpty ||
-  //       lastName.isEmpty ||
-  //       address.isEmpty ||
-  //       city.isEmpty ||
-  //       province.isEmpty ||
-  //       country.isEmpty ||
-  //       zipCode.isEmpty ||
-  //       contactNumber.isEmpty ||
-  //       email.isEmpty ||
-  //       dob.isEmpty) {
-  //     setState(() {
-  //       errorText = 'Please fill in all fields.';
-  //       isLoading = false;
-  //     });
-  //     return;
-  //   }
-
-  //   try {
-  //     AccountsData accountsData = AccountsData(
-  //         userID: user!.id,
-  //         firstName: firstName,
-  //         middleName: middleInitial,
-  //         lastname: lastName,
-  //         birthDate: DateTime.parse(dob),
-  //         address: address,
-  //         city: city,
-  //         province: province,
-  //         country: country,
-  //         zipCode: zipCode,
-  //         contactNumber: contactNumber,
-  //         email: email);
-
-  //     // Check if the data was inserted successfully
-  //     await supabaseDB
-  //         .from('accounts')
-  //         .update(accountsData.toJson())
-  //         .eq('userID', user.id);
-
-  //     // Navigate to the next page
-  //     Navigator.pushNamed(context, '/home');
-  //   } on AuthException catch (error) {
-  //     print(error);
-  //     setState(() {
-  //       errorText = error.message;
-  //       isLoading = false;
-  //     });
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -392,9 +327,9 @@ class _SignupPage2State extends State<SignupPage2> {
                                           validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                          controller: _cityController,
-                                          label: 'City',
-                                          hintText: 'Enter your city',
+                                          controller: _regionController,
+                                          label: 'Region',
+                                          hintText: 'Enter your region',
                                           validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
@@ -410,9 +345,9 @@ class _SignupPage2State extends State<SignupPage2> {
                                           validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
-                                          controller: _countryController,
-                                          label: 'Country',
-                                          hintText: 'Enter your country',
+                                          controller: _cityController,
+                                          label: 'City',
+                                          hintText: 'Enter your city',
                                           validator: textValidator),
                                       const SizedBox(height: 10),
                                       buildTextField(
@@ -481,9 +416,11 @@ class _SignupPage2State extends State<SignupPage2> {
                                                 Expanded(
                                                   flex: 1,
                                                   child: buildTextField(
-                                                    controller: _cityController,
-                                                    label: 'City',
-                                                    hintText: 'Enter your city',
+                                                    controller:
+                                                        _regionController,
+                                                    label: 'Region',
+                                                    hintText:
+                                                        'Enter your region',
                                                   ),
                                                 ),
                                                 const SizedBox(width: 10),
@@ -521,11 +458,9 @@ class _SignupPage2State extends State<SignupPage2> {
                                                 Expanded(
                                                   flex: 1,
                                                   child: buildTextField(
-                                                    controller:
-                                                        _countryController,
-                                                    label: 'Country',
-                                                    hintText:
-                                                        'Enter your country',
+                                                    controller: _cityController,
+                                                    label: 'City',
+                                                    hintText: 'Enter your city',
                                                   ),
                                                 ),
                                                 const SizedBox(width: 10),

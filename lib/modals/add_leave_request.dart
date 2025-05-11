@@ -2,24 +2,38 @@
 
 import 'package:datepicker_dropdown/datepicker_dropdown.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jcsd_flutter/backend/modules/employee/profile_leave_request_provider.dart';
 
-class LeaveRequestForm extends StatefulWidget {
+class LeaveRequestForm extends ConsumerStatefulWidget {
   const LeaveRequestForm({super.key});
 
   @override
   _LeaveRequestFormState createState() => _LeaveRequestFormState();
 }
 
-class _LeaveRequestFormState extends State<LeaveRequestForm> {
+class _LeaveRequestFormState extends ConsumerState<LeaveRequestForm> {
+  int? _fromDay, _fromMonth, _fromYear;
+  int? _toDay, _toMonth, _toYear;
+
   String? _selectedItem;
   final TextEditingController _notesController = TextEditingController();
 
-  // Dummy data for dropdowns, replace with actual data from backend
   final List<String> _leaveType = [
     'Sick Leave',
     'Corporate Leave',
     'Maternal Leave',
-    'Paternal Leave'
+    'Paternal Leave',
+    'Half-Day Leave',
+    'Others'
+  ];
+
+  String? _selectedTime;
+  final List<String> _duration = [
+    'Full Day',
+    'Half Day (Morning)',
+    'Half Day (Afternoon)',
   ];
 
   @override
@@ -32,7 +46,7 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 300 ? 400 : screenWidth * 0.9;
-    const double containerHeight = 560;
+    const double containerHeight = 640;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -87,6 +101,18 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
                     },
                   ),
                   const SizedBox(height: 16),
+                  _buildDropdownField(
+                    label: 'Duration',
+                    hintText: 'Select Duration',
+                    value: _selectedTime,
+                    items: _duration,
+                    onChanged: (String? value) {
+                      setState(() {
+                        _selectedTime = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
                   _buildDateField(label: 'From'),
                   const SizedBox(height: 16),
                   _buildDateField(label: 'To'),
@@ -107,6 +133,8 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
                   Expanded(
                     child: TextButton(
                       onPressed: () {
+                        ref.invalidate(
+                            userLeaveRequestStreamProvider("userId"));
                         Navigator.pop(context);
                       },
                       style: TextButton.styleFrom(
@@ -131,7 +159,77 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        final userId =
+                            Supabase.instance.client.auth.currentUser?.id;
+
+                        if (userId == null ||
+                            _selectedItem == null ||
+                            _fromDay == null ||
+                            _fromMonth == null ||
+                            _fromYear == null ||
+                            _toDay == null ||
+                            _toMonth == null ||
+                            _toYear == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    "Please complete all required fields.")),
+                          );
+                          return;
+                        }
+
+                        final now = DateTime.now();
+                        final startDate =
+                            DateTime(_fromYear!, _fromMonth!, _fromDay!);
+                        final endDate = DateTime(_toYear!, _toMonth!, _toDay!);
+
+                        if (startDate
+                            .isBefore(DateTime(now.year, now.month, now.day))) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    "Start date must not be in the past.")),
+                          );
+                          return;
+                        }
+
+                        if (endDate.isBefore(startDate)) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    "End date cannot be before start date.")),
+                          );
+                          return;
+                        }
+
+                        try {
+                          await Supabase.instance.client
+                              .from('leave_requests')
+                              .insert({
+                            'userID': userId,
+                            'leaveType': _selectedItem,
+                            'duration': _selectedTime,
+                            'startDate': startDate.toIso8601String(),
+                            'endDate': endDate.toIso8601String(),
+                            'notes': _notesController.text.trim(),
+                          }).select();
+
+                          if (context.mounted) {
+                            ref.invalidate(
+                                userLeaveRequestStreamProvider(userId));
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Leave request submitted.")),
+                            );
+                          }
+                        } catch (error) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Error: $error")),
+                          );
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
                         padding: const EdgeInsets.symmetric(vertical: 16.0),
@@ -272,6 +370,8 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
   Widget _buildDateField({
     required String label,
   }) {
+    final now = DateTime.now();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -295,6 +395,35 @@ class _LeaveRequestFormState extends State<LeaveRequestForm> {
         ),
         const SizedBox(height: 5),
         DropdownDatePicker(
+          startYear: now.year,
+          endYear: now.year + 5, // allow 5 years ahead, can change as needed
+          onChangedDay: (val) {
+            setState(() {
+              if (label == 'From') {
+                _fromDay = int.tryParse(val ?? '');
+              } else {
+                _toDay = int.tryParse(val ?? '');
+              }
+            });
+          },
+          onChangedMonth: (val) {
+            setState(() {
+              if (label == 'From') {
+                _fromMonth = int.tryParse(val ?? '');
+              } else {
+                _toMonth = int.tryParse(val ?? '');
+              }
+            });
+          },
+          onChangedYear: (val) {
+            setState(() {
+              if (label == 'From') {
+                _fromYear = int.tryParse(val ?? '');
+              } else {
+                _toYear = int.tryParse(val ?? '');
+              }
+            });
+          },
           dayFlex: 2,
           monthFlex: 3,
           yearFlex: 3,

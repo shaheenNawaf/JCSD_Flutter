@@ -31,7 +31,7 @@ class Header extends StatelessWidget {
         context.pushNamed('accountDetails', extra: account);
       }
     } catch (e) {
-      debugPrint('Error navigating to account details: $e');
+      debugPrint('Error navigating to account details: \$e');
     }
   }
 

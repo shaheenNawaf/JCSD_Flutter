@@ -23,7 +23,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
   late TextEditingController _birthdayController;
   late TextEditingController _addressController;
   late TextEditingController _cityController;
-  late TextEditingController _countryController;
+  late TextEditingController _regionController;
   late TextEditingController _passwordController;
 
   @override
@@ -39,7 +39,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
         text: a.birthDate?.toIso8601String().split('T')[0] ?? '');
     _addressController = TextEditingController(text: a.address);
     _cityController = TextEditingController(text: a.city);
-    _countryController = TextEditingController(text: a.country);
+    _regionController = TextEditingController(text: a.region);
     _passwordController = TextEditingController(); // not prefilled
   }
 
@@ -53,7 +53,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
     _birthdayController.dispose();
     _addressController.dispose();
     _cityController.dispose();
-    _countryController.dispose();
+    _regionController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -73,7 +73,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
         address: _addressController.text.trim(),
         city: _cityController.text.trim(),
         province: widget.account.province,
-        country: _countryController.text.trim(),
+        region: _regionController.text.trim(),
         zipCode: widget.account.zipCode,
       );
 
@@ -205,7 +205,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                         const SizedBox(width: 10),
                         Expanded(
                             child:
-                                _buildTextField('Country', _countryController)),
+                                _buildTextField('Region', _regionController)),
                       ],
                     ),
                     const SizedBox(height: 10),
