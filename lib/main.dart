@@ -132,7 +132,7 @@ final router = GoRouter(
                 return ProfilePage(
                   targetUser: acc,
                   currentUserId: currentUser?.id,
-                   emp: emp);
+                  emp: emp);
               },
               routes: <GoRoute>[
                 GoRoute(

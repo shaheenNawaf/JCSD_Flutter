@@ -82,15 +82,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   }
 
   Future<void> _fetchAttendanceHistory() async {
-    print('Fetching attendance for user: ${user?.userID}');
     try {
       final history = await fetchUserAttendance(_startDate, _endDate, user!.userID);
-      print('Fetched ${history.length} records');
       setState(() {
         _attendanceHistory = history;
       });
     } catch (e) {
-      print('Error fetching attendance: $e');
       ToastManager().showToast(context, 'Failed to refresh data', Colors.red);
     }
   }
@@ -156,22 +153,22 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     });
   }
 
-  Future<void> _fetchEmployeeData() async {
-    final userID = Supabase.instance.client.auth.currentUser?.id;
-    if (userID == null) return;
+  // Future<void> _fetchEmployeeData() async {
+  //   final userID = Supabase.instance.client.auth.currentUser?.id;
+  //   if (userID == null) return;
 
-    final response = await Supabase.instance.client
-        .from('employee')
-        .select()
-        .eq('userID', userID)
-        .maybeSingle();
+  //   final response = await Supabase.instance.client
+  //       .from('employee')
+  //       .select()
+  //       .eq('userID', userID)
+  //       .maybeSingle();
 
-    if (response != null) {
-      setState(() {
-        emp = EmployeeData.fromJson(response);
-      });
-    }
-  }
+  //   if (response != null) {
+  //     setState(() {
+  //       emp = EmployeeData.fromJson(response);
+  //     });
+  //   }
+  // }
 
 
   @override
@@ -181,7 +178,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     emp = widget.emp;
 
     if (emp == null) {
-      _fetchEmployeeData();
+      // _fetchEmployeeData();
     }
 
     _fetchAttendanceHistory();
@@ -347,10 +344,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                     padding: const EdgeInsets.fromLTRB(40, 20, 40, 0),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 7,
+                      crossAxisCount: 4,
                       crossAxisSpacing: 20,
-                      mainAxisSpacing: 20,
-                      childAspectRatio: 2,
+                      mainAxisSpacing: 50,
+                      childAspectRatio: 4,
                     ),
                     itemCount:4 ,
                     itemBuilder: (context, index) {
