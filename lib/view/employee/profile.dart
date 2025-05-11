@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 import 'package:intl/intl.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_attendance.dart';
@@ -10,17 +11,21 @@ import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key,this.targetUser, this.currentUserId});
+
+class ProfilePage extends ConsumerStatefulWidget {
+  const ProfilePage({super.key,this.targetUser, this.currentUserId, this.emp});
   final AccountsData? targetUser;
   final String? currentUserId;
+  final EmployeeData? emp;
 
   @override
- State<ProfilePage> createState() => _ProfilePageState();
+  _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage>
+class _ProfilePageState extends ConsumerState<ProfilePage>
     with SingleTickerProviderStateMixin {
   String _checkInMessage = '';
   String _checkOutMessage = '';
@@ -32,6 +37,7 @@ class _ProfilePageState extends State<ProfilePage>
   String _totalHoursWorked = 'Loading...';
   bool _loadingHours = false;
   
+  EmployeeData? emp;
 
   String displayValue(dynamic value) {
     if (value == null) return 'N/A';
@@ -72,7 +78,7 @@ class _ProfilePageState extends State<ProfilePage>
       _checkOutMessage = 'Check-out initiated.';
       _checkInMessage = '';
     });
-     _fetchAttendanceHistory();
+    _fetchAttendanceHistory();
   }
 
   Future<void> _fetchAttendanceHistory() async {
@@ -150,10 +156,34 @@ class _ProfilePageState extends State<ProfilePage>
     });
   }
 
-    @override
+  Future<void> _fetchEmployeeData() async {
+    final userID = Supabase.instance.client.auth.currentUser?.id;
+    if (userID == null) return;
+
+    final response = await Supabase.instance.client
+        .from('employee')
+        .select()
+        .eq('userID', userID)
+        .maybeSingle();
+
+    if (response != null) {
+      setState(() {
+        emp = EmployeeData.fromJson(response);
+      });
+    }
+  }
+
+
+  @override
   void initState() {
     super.initState();
     user = widget.targetUser;
+    emp = widget.emp;
+
+    if (emp == null) {
+      _fetchEmployeeData();
+    }
+
     _fetchAttendanceHistory();
     _fetchTotalHoursWorked();
     _animationController = AnimationController(
@@ -186,7 +216,7 @@ class _ProfilePageState extends State<ProfilePage>
                   title: 'Profile',
                   leading: IconButton(
                     icon:
-                      const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
                     onPressed: () => context.pop(),
                   ),
                 ),
@@ -242,8 +272,8 @@ class _ProfilePageState extends State<ProfilePage>
                       displayValue(user?.address)),
                   _buildInfoRow(FontAwesomeIcons.city, 'City: ',
                       displayValue(user?.city)),
-                  _buildInfoRow(FontAwesomeIcons.globe, 'Country: ',
-                      displayValue(user?.country)),
+                  _buildInfoRow(FontAwesomeIcons.globe, 'Region: ',
+                      displayValue(user?.region)),
                   _buildDivider(),
                   _buildSectionTitle('Employee Details'),
                   _buildInfoRow(FontAwesomeIcons.user, 'Title: ', 'Employee.'),
@@ -256,9 +286,9 @@ class _ProfilePageState extends State<ProfilePage>
           VerticalDivider(width: 1, color: Colors.grey[300]),
           Expanded(
             child: Column(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Row(
                   children: [
@@ -272,22 +302,20 @@ class _ProfilePageState extends State<ProfilePage>
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 20, 20, 0),
                       child: ElevatedButton.icon(
-                        onPressed: _selectStartDate, 
-                        icon: const FaIcon(FontAwesomeIcons.calendar,
+                          onPressed: _selectStartDate,
+                          icon: const FaIcon(FontAwesomeIcons.calendar,
                               color: Colors.black),
-                        style: ElevatedButton.styleFrom(
+                          style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             side: const BorderSide(color: Colors.black),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                        label: 
-                          Text(
+                          label: Text(
                             DateFormat('yyyy-MM-dd').format(_startDate),
                             style: const TextStyle(color: Colors.black),
-                          )
-                      ),
+                          )),
                     ),
                     const Padding(
                       padding: EdgeInsets.fromLTRB(0, 20, 20, 0),
@@ -296,22 +324,20 @@ class _ProfilePageState extends State<ProfilePage>
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 20, 40, 0),
                       child: ElevatedButton.icon(
-                        onPressed: _selectEndDate, 
-                        icon: const FaIcon(FontAwesomeIcons.calendar,
+                          onPressed: _selectEndDate,
+                          icon: const FaIcon(FontAwesomeIcons.calendar,
                               color: Colors.black),
-                        style: ElevatedButton.styleFrom(
+                          style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.white,
                             side: const BorderSide(color: Colors.black),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                        label: 
-                          Text(
+                          label: Text(
                             DateFormat('yyyy-MM-dd').format(_endDate),
                             style: const TextStyle(color: Colors.black),
-                          )
-                      ),
+                          )),
                     ),
                   ],
                 ),
@@ -360,13 +386,13 @@ class _ProfilePageState extends State<ProfilePage>
                             : null,
                           icon: const FaIcon(
                             FontAwesomeIcons.clock,
-                          color: Colors.white,
-                          size: 16,
+                            color: Colors.white,
+                            size: 16,
                           ),
                           label: const Text(
-                          'Clock in',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
+                            'Clock in',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 18),
                           ),
                         );
                       } else if (statuses[index] == 'CheckoutButton') {
@@ -388,13 +414,13 @@ class _ProfilePageState extends State<ProfilePage>
                             : null,
                           icon: const FaIcon(
                             FontAwesomeIcons.clock,
-                          color: Colors.white,
-                          size: 16,
+                            color: Colors.white,
+                            size: 16,
                           ),
                           label: const Text(
-                          'Clock Out',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
+                            'Clock Out',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 18),
                           ),
                         );
                       } else {
@@ -541,24 +567,34 @@ class _ProfilePageState extends State<ProfilePage>
                         ),
                         label: const Text('Payslips'),
                       ),
-                      const SizedBox(width: 20),
-                      ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00AEEF),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
+                      if (Supabase.instance.client.auth.currentUser?.id ==
+                          user?.userID)
+                        const SizedBox(width: 20),
+                      if (Supabase.instance.client.auth.currentUser?.id ==
+                          user?.userID)
+                        ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF00AEEF),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5),
+                            ),
                           ),
+                          onPressed: () {
+                            context.push('/employeeList/profile/leaveRequest',
+                                extra: {
+                                  'account': user,
+                                  'employee': emp,
+                                });
+                          },
+                          icon: const FaIcon(
+                            FontAwesomeIcons.suitcaseRolling,
+                            color: Colors.white,
+                          ),
+                          label: const Text('Leave Requests'),
                         ),
-                        onPressed: () {
-                          context.push('/employeeList/profile/leaveRequest');
-                        },
-                        icon: const FaIcon(FontAwesomeIcons.suitcaseRolling,
-                            color: Colors.white),
-                        label: const Text('Leave Requests'),
-                      ),
                     ],
                   ),
                 )
@@ -596,9 +632,9 @@ class _ProfilePageState extends State<ProfilePage>
                   fontSize: 16,
                 ),
               ),
-              const Text(
-                'Employee',
-                style: TextStyle(fontFamily: 'NunitoSans', fontSize: 14),
+              Text(
+                (emp?.isAdmin ?? false) ? 'Admin' : 'Employee',
+                style: const TextStyle(fontFamily: 'NunitoSans', fontSize: 14),
               ),
             ],
           ),

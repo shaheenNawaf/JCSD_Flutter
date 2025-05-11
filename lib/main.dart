@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/api/supa_details.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 import 'package:jcsd_flutter/others/transition.dart';
 import 'package:jcsd_flutter/view/bookings/booking_detail.dart';
 import 'package:jcsd_flutter/view/bookings/booking_receipt.dart';
@@ -124,12 +125,14 @@ final router = GoRouter(
           GoRoute(
               path: 'profile',
               builder: (context, state) {
-                final AccountsData? acc = state.extra as AccountsData?;
+                final args = state.extra as Map<String, dynamic>;
+                final acc = args['account'] as AccountsData?;
                 final currentUser = Supabase.instance.client.auth.currentUser;
+                final emp = args['employee'] as EmployeeData?;
                 return ProfilePage(
                   targetUser: acc,
                   currentUserId: currentUser?.id,
-                );
+                   emp: emp);
               },
               routes: <GoRoute>[
                 GoRoute(
@@ -138,8 +141,13 @@ final router = GoRouter(
                 ),
                 GoRoute(
                   path: 'leaveRequest',
-                  builder: (context, state) => const LeaveRequest(),
-                )
+                  builder: (context, state) {
+                    final args = state.extra as Map<String, dynamic>?;
+                    final acc = args?['account'] as AccountsData?;
+                    final emp = args?['employee'] as EmployeeData?;
+                    return LeaveRequest(acc: acc, emp: emp);
+                  },
+                ),
               ])
         ]),
     GoRoute(
@@ -374,6 +382,7 @@ final router = GoRouter(
           '/bookings',
           '/accountDetails',
           '/services',
+          '/accountDetails',
           '/itemTypes',
           '/employeeList/profile',
           '/employeeList/profile/payslip',

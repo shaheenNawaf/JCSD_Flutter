@@ -1,17 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ConfirmLeaveRequestModal extends StatefulWidget {
-  const ConfirmLeaveRequestModal({super.key});
+  final String leaveID;
+  final VoidCallback onSuccess;
+
+  const ConfirmLeaveRequestModal({
+    super.key,
+    required this.leaveID,
+    required this.onSuccess,
+  });
 
   @override
-  _ConfirmLeaveRequestModalState createState() => _ConfirmLeaveRequestModalState();
+  _ConfirmLeaveRequestModalState createState() =>
+      _ConfirmLeaveRequestModalState();
 }
 
 class _ConfirmLeaveRequestModalState extends State<ConfirmLeaveRequestModal> {
+  bool _loading = false;
 
-  @override
-  void initState(){
-    super.initState();
+  Future<void> _approveLeave() async {
+    setState(() => _loading = true);
+    await Supabase.instance.client
+        .from('leave_requests')
+        .update({'status': 'Approved'})
+        .eq('leaveID', widget.leaveID)
+        .select();
+    widget.onSuccess();
+    if (mounted) Navigator.pop(context);
   }
 
   @override
@@ -21,9 +37,7 @@ class _ConfirmLeaveRequestModalState extends State<ConfirmLeaveRequestModal> {
     const double containerHeight = 180;
 
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       insetPadding:
           EdgeInsets.symmetric(horizontal: screenWidth > 600 ? 50.0 : 16.0),
       child: Container(
@@ -41,9 +55,7 @@ class _ConfirmLeaveRequestModalState extends State<ConfirmLeaveRequestModal> {
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               decoration: const BoxDecoration(
                 color: Color(0xFF00AEEF),
-                borderRadius: BorderRadius.vertical(
-                  top: Radius.circular(10),
-                ),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
               ),
               child: const Center(
                 child: Text(
@@ -62,10 +74,7 @@ class _ConfirmLeaveRequestModalState extends State<ConfirmLeaveRequestModal> {
               child: Center(
                 child: Text(
                   'Are you sure you want to approve this request?',
-                  style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(fontFamily: 'NunitoSans', fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -78,16 +87,12 @@ class _ConfirmLeaveRequestModalState extends State<ConfirmLeaveRequestModal> {
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: () async {
-                        Navigator.pop(context);
-                      },
+                      onPressed: () => Navigator.pop(context),
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14.0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5),
-                          side: const BorderSide(
-                            color: Color(0xFF00AEEF),
-                          ),
+                          side: const BorderSide(color: Color(0xFF00AEEF)),
                         ),
                       ),
                       child: const Text(
@@ -103,9 +108,7 @@ class _ConfirmLeaveRequestModalState extends State<ConfirmLeaveRequestModal> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () async {
-
-                      },
+                      onPressed: _loading ? null : _approveLeave,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
                         padding: const EdgeInsets.symmetric(vertical: 14.0),

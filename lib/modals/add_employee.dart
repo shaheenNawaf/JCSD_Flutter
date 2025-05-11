@@ -24,7 +24,7 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
   final TextEditingController _birthday = TextEditingController();
   final TextEditingController _address = TextEditingController();
   final TextEditingController _city = TextEditingController();
-  final TextEditingController _country = TextEditingController();
+  final TextEditingController _region = TextEditingController();
 
   String _selectedRole = 'Employee';
   bool _isSubmitting = false;
@@ -53,7 +53,7 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
           birthday: _birthday.text.trim(),
           address: _address.text.trim(),
           city: _city.text.trim(),
-          country: _country.text.trim(),
+          region: _region.text.trim(),
         );
 
         await supabaseDB.auth.resend(
@@ -93,7 +93,7 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
     _birthday.dispose();
     _address.dispose();
     _city.dispose();
-    _country.dispose();
+    _region.dispose();
     super.dispose();
   }
 
@@ -176,7 +176,7 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
                                 label: 'Address', controller: _address),
                             _buildTextField(label: 'City', controller: _city),
                             _buildTextField(
-                                label: 'Country', controller: _country),
+                                label: 'Region', controller: _region),
                           ],
                         ),
                       ),

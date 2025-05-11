@@ -106,7 +106,7 @@ class EmployeeService {
     required String birthday,
     required String address,
     required String city,
-    required String country,
+    required String region,
   }) async {
     final user = supabaseDB.auth.currentUser;
     if (user == null) {
@@ -125,7 +125,7 @@ class EmployeeService {
       'birthDate': birthday,
       'address': address,
       'city': city,
-      'country': country,
+      'region': region,
     });
 
     await supabaseDB.from('employee').insert({
