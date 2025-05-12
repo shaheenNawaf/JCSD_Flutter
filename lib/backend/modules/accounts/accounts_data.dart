@@ -7,7 +7,7 @@ class AccountsData {
   final String address;
   final String city;
   final String province;
-  final String country;
+  final String region;
   final String zipCode;
   final String contactNumber;
   final String email;
@@ -21,7 +21,7 @@ class AccountsData {
     required this.address,
     required this.city,
     required this.province,
-    required this.country,
+    required this.region,
     required this.zipCode,
     required this.contactNumber,
     required this.email,
@@ -46,7 +46,7 @@ class AccountsData {
       address: _stringOrNA(json['address']),
       city: _stringOrNA(json['city']),
       province: _stringOrNA(json['province']),
-      country: _stringOrNA(json['country']),
+      region: _stringOrNA(json['region']),
       zipCode: _stringOrNA(json['zipCode']),
       contactNumber: _stringOrNA(json['contactNumber']),
       email: _stringOrNA(json['email']),
@@ -63,7 +63,7 @@ class AccountsData {
       address: '',
       city: '',
       province: '',
-      country: '',
+      region: '',
       zipCode: '',
       contactNumber: '',
       email: '',
@@ -80,7 +80,7 @@ class AccountsData {
       'address': address,
       'city': city,
       'province': province,
-      'country': country,
+      'region': region,
       'zipCode': zipCode,
       'contactNumber': contactNumber,
       'email': email,

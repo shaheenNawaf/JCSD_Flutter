@@ -15,7 +15,6 @@ class EmployeeData {
     required this.createDate,
   });
 
-  //JSON to Inventory classitem
   factory EmployeeData.fromJson(Map<String, dynamic> json) {
     return EmployeeData(
       employeeID: json['employeeID'] as String,
@@ -23,11 +22,10 @@ class EmployeeData {
       isAdmin: json['isAdmin'] as bool,
       companyRole: json['companyRole'] as String,
       isActive: json['isActive'] as bool,
-      createDate: json['createDate'] as DateTime,
+      createDate: DateTime.parse(json['createDate']),
     );
   }
 
-  //Returning the data to a JSON format
   Map<String, dynamic> toJson() {
     return {
       'employeeID': employeeID,
@@ -35,7 +33,7 @@ class EmployeeData {
       'isAdmin': isAdmin,
       'companyRole': companyRole,
       'isActive': isActive,
-      'createDate': createDate,
+      'createDate': createDate.toIso8601String(),
     };
   }
 }

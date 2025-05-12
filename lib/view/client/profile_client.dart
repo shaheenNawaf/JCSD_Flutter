@@ -390,8 +390,8 @@ class _ProfilePageClientState extends ConsumerState<ProfilePageClient> {
               FontAwesomeIcons.city, 'City: ', display(userProfile.city)),
           _buildInfoRow(FontAwesomeIcons.mapMarkedAlt, 'Province: ',
               display(userProfile.province)),
-          _buildInfoRow(FontAwesomeIcons.globe, 'Country: ',
-              display(userProfile.country)),
+          _buildInfoRow(
+              FontAwesomeIcons.globe, 'Region: ', display(userProfile.region)),
           _buildInfoRow(FontAwesomeIcons.mapPin, 'Zip Code: ',
               display(userProfile.zipCode)),
           // Add more profile details if needed

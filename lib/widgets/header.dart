@@ -32,6 +32,9 @@ class Header extends StatelessWidget {
       }
     } catch (e) {
       debugPrint('Error navigating to account details: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to load account details: $e')),
+    );
     }
   }
 
