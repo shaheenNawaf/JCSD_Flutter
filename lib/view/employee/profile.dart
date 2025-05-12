@@ -14,9 +14,8 @@ import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-
 class ProfilePage extends ConsumerStatefulWidget {
-  const ProfilePage({super.key,this.targetUser, this.currentUserId, this.emp});
+  const ProfilePage({super.key, this.targetUser, this.currentUserId, this.emp});
   final AccountsData? targetUser;
   final String? currentUserId;
   final EmployeeData? emp;
@@ -33,10 +32,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   DateTime _endDate = DateTime.now();
   List<Map<String, dynamic>> _attendanceHistory = [];
   AccountsData? user;
-  bool get isViewingOwnProfile => widget.targetUser?.userID == widget.currentUserId;
+  bool get isViewingOwnProfile =>
+      widget.targetUser?.userID == widget.currentUserId;
   String _totalHoursWorked = 'Loading...';
   bool _loadingHours = false;
-  
+
   EmployeeData? emp;
 
   String displayValue(dynamic value) {
@@ -83,7 +83,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
 
   Future<void> _fetchAttendanceHistory() async {
     try {
-      final history = await fetchUserAttendance(_startDate, _endDate, user!.userID);
+      final history =
+          await fetchUserAttendance(_startDate, _endDate, user!.userID);
       setState(() {
         _attendanceHistory = history;
       });
@@ -93,20 +94,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   }
 
   Future<void> _fetchTotalHoursWorked() async {
-  setState(() => _loadingHours = true);
-  try {
-    final hours = await calculateTotalHoursWorked(
-      user!.userID,
-      _startDate,
-      _endDate,
-    );
-    setState(() => _totalHoursWorked = hours);
-  } catch (e) {
-    setState(() => _totalHoursWorked = 'Error');
-  } finally {
-    setState(() => _loadingHours = false);
+    setState(() => _loadingHours = true);
+    try {
+      final hours = await calculateTotalHoursWorked(
+        user!.userID,
+        _startDate,
+        _endDate,
+      );
+      setState(() => _totalHoursWorked = hours);
+    } catch (e) {
+      setState(() => _totalHoursWorked = 'Error');
+    } finally {
+      setState(() => _loadingHours = false);
+    }
   }
-}
 
   Future<void> _selectStartDate() async {
     final DateTime? picked = await showDatePicker(
@@ -169,7 +170,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   //     });
   //   }
   // }
-
 
   @override
   void initState() {
@@ -256,7 +256,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 children: [
                   _buildProfileHeader(),
                   const SizedBox(height: 20),
-                  _buildSectionTitle('About'),
+                  _buildSectionTitle('Basic Information'),
                   _buildInfoRow(FontAwesomeIcons.envelope, 'Email: ',
                       displayValue(user?.email)),
                   _buildInfoRow(FontAwesomeIcons.phone, 'Phone: ',
@@ -267,15 +267,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                   _buildSectionTitle('Address'),
                   _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ',
                       displayValue(user?.address)),
+                  _buildInfoRow(FontAwesomeIcons.flag, 'Region: ',
+                      displayValue(user?.region)),
+                  _buildInfoRow(FontAwesomeIcons.globe, 'Province: ',
+                      displayValue(user?.province)),
                   _buildInfoRow(FontAwesomeIcons.city, 'City: ',
                       displayValue(user?.city)),
-                  _buildInfoRow(FontAwesomeIcons.globe, 'Region: ',
-                      displayValue(user?.region)),
-                  _buildDivider(),
-                  _buildSectionTitle('Employee Details'),
-                  _buildInfoRow(FontAwesomeIcons.user, 'Title: ', 'Employee.'),
-                  _buildInfoRow(
-                      FontAwesomeIcons.calendar, 'Hire Date: ', '05/05/05'),
+                  _buildInfoRow(FontAwesomeIcons.mapPin, 'Zip Code: ',
+                      displayValue(user?.zipCode)),
                 ],
               ),
             ),
@@ -349,7 +348,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       mainAxisSpacing: 50,
                       childAspectRatio: 4,
                     ),
-                    itemCount:4 ,
+                    itemCount: 4,
                     itemBuilder: (context, index) {
                       final days = [
                         _totalHoursWorked,
@@ -367,9 +366,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       if (statuses[index] == 'CheckinButton') {
                         return ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isViewingOwnProfile 
-                              ? const Color(0xFF00AEEF) 
-                              : Colors.grey[400]!,
+                            backgroundColor: isViewingOwnProfile
+                                ? const Color(0xFF00AEEF)
+                                : Colors.grey[400]!,
                             foregroundColor: Colors.white,
                             side:
                                 const BorderSide(color: Colors.grey, width: 1),
@@ -378,9 +377,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                             ),
                             padding: const EdgeInsets.all(0),
                           ),
-                          onPressed: isViewingOwnProfile 
-                            ? () => _handleCheckIn() 
-                            : null,
+                          onPressed: isViewingOwnProfile
+                              ? () => _handleCheckIn()
+                              : null,
                           icon: const FaIcon(
                             FontAwesomeIcons.clock,
                             color: Colors.white,
@@ -395,20 +394,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       } else if (statuses[index] == 'CheckoutButton') {
                         return ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
-                          backgroundColor: isViewingOwnProfile 
-                            ? Colors.red 
-                            : Colors.grey[400]!,
-                          foregroundColor: Colors.white,
-                          side:
-                            const BorderSide(color: Colors.grey, width: 1),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            backgroundColor: isViewingOwnProfile
+                                ? Colors.red
+                                : Colors.grey[400]!,
+                            foregroundColor: Colors.white,
+                            side:
+                                const BorderSide(color: Colors.grey, width: 1),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.all(0),
                           ),
-                          padding: const EdgeInsets.all(0),
-                          ),
-                          onPressed: isViewingOwnProfile 
-                            ? () => _handleCheckOut() 
-                            : null,
+                          onPressed: isViewingOwnProfile
+                              ? () => _handleCheckOut()
+                              : null,
                           icon: const FaIcon(
                             FontAwesomeIcons.clock,
                             color: Colors.white,
@@ -466,77 +465,110 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                         ],
                       ),
                       child: FutureBuilder(
-                        future: isCurrentUserAdmin(),
-                        builder: (context,snapshot) {
-                          final isAdmin = snapshot.data ?? false;
-                          return DataTable(
-                            headingRowColor: MaterialStateProperty.all(const Color(0xFF00AEEF)),
-                            columns: <DataColumn>[
-                              const DataColumn(
-                                label: Text(
-                                  'Date',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'NunitoSans',color: Colors.white,),
+                          future: isCurrentUserAdmin(),
+                          builder: (context, snapshot) {
+                            final isAdmin = snapshot.data ?? false;
+                            return DataTable(
+                              headingRowColor: MaterialStateProperty.all(
+                                  const Color(0xFF00AEEF)),
+                              columns: <DataColumn>[
+                                const DataColumn(
+                                  label: Text(
+                                    'Date',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'NunitoSans',
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              const DataColumn(
-                                label: Text(
-                                  'Status',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'NunitoSans',color: Colors.white,),
+                                const DataColumn(
+                                  label: Text(
+                                    'Status',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'NunitoSans',
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              const DataColumn(
-                                label: Text(
-                                  'Check In',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'NunitoSans',color: Colors.white,),
+                                const DataColumn(
+                                  label: Text(
+                                    'Check In',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'NunitoSans',
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              const DataColumn(
-                                label: Text(
-                                  'Check Out',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'NunitoSans',color: Colors.white,),
+                                const DataColumn(
+                                  label: Text(
+                                    'Check Out',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'NunitoSans',
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              if (isAdmin) const DataColumn(
-                                label: Text(
-                                  'Action',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontFamily: 'NunitoSans',color: Colors.white,),
-                                ),
-                              ),
-                            ],
-                            rows: _attendanceHistory.map((attendance) {
-                              return DataRow(
-                                cells: <DataCell>[
-                                  DataCell(Text(attendance['attendance_date'] ?? 'N/A')),
-                                  DataCell(Text(attendance['status'] ?? 'N/A')),
-                                  DataCell(Text(attendance['check_in_time'] != null
-                                      ? DateFormat('HH:mm:ss')
-                                          .format(DateTime.parse(attendance['check_in_time']))
-                                      : 'N/A')),
-                                  DataCell(Text(attendance['check_out_time'] != null
-                                      ? DateFormat('HH:mm:ss')
-                                          .format(DateTime.parse(attendance['check_out_time']))
-                                      : 'N/A')),
-                                  if (isAdmin) DataCell( // Only show if admin
-                                    SizedBox(
-                                      width: 80,
-                                      child: ElevatedButton(
-                                        onPressed: () => _showEditAttendanceModal(attendance),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.green,
-                                        ),
-                                        child: const Icon(
-                                          Icons.edit,
-                                          color: Colors.white,
-                                        ),
+                                if (isAdmin)
+                                  const DataColumn(
+                                    label: Text(
+                                      'Action',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'NunitoSans',
+                                        color: Colors.white,
                                       ),
                                     ),
-                                  ),            
-                                ],
-                              );
-                            }).toList(),
-                          );
-                        }
-                      ),
+                                  ),
+                              ],
+                              rows: _attendanceHistory.map((attendance) {
+                                return DataRow(
+                                  cells: <DataCell>[
+                                    DataCell(Text(
+                                        attendance['attendance_date'] ??
+                                            'N/A')),
+                                    DataCell(
+                                        Text(attendance['status'] ?? 'N/A')),
+                                    DataCell(Text(attendance['check_in_time'] !=
+                                            null
+                                        ? DateFormat('HH:mm:ss').format(
+                                            DateTime.parse(
+                                                attendance['check_in_time']))
+                                        : 'N/A')),
+                                    DataCell(Text(attendance[
+                                                'check_out_time'] !=
+                                            null
+                                        ? DateFormat('HH:mm:ss').format(
+                                            DateTime.parse(
+                                                attendance['check_out_time']))
+                                        : 'N/A')),
+                                    if (isAdmin)
+                                      DataCell(
+                                        // Only show if admin
+                                        SizedBox(
+                                          width: 80,
+                                          child: ElevatedButton(
+                                            onPressed: () =>
+                                                _showEditAttendanceModal(
+                                                    attendance),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.green,
+                                            ),
+                                            child: const Icon(
+                                              Icons.edit,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              }).toList(),
+                            );
+                          }),
                     ),
                   ),
                 ),

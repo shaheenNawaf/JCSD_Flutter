@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_service.dart';
+import 'package:jcsd_flutter/others/dropdown_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../api/global_variables.dart';
@@ -14,6 +15,97 @@ class AddEmployeeModal extends StatefulWidget {
 }
 
 class _AddEmployeeModalState extends State<AddEmployeeModal> {
+  String? selectedRegion;
+  String? selectedProvince;
+  String? selectedCity;
+
+  List<String> get regionList =>
+      dropdownData.map((r) => r['name'].toString()).toList();
+
+  List<String> get provinceList {
+    if (selectedRegion == null) return [];
+
+    final Map<String, dynamic>? region =
+        dropdownData.cast<Map<String, dynamic>>().firstWhere(
+              (r) => r['name'] == selectedRegion,
+              orElse: () => {},
+            );
+
+    final List provinces = region?['province'] as List? ?? [];
+    return provinces
+        .cast<Map<String, dynamic>>()
+        .map((p) => p['province'].toString())
+        .toList();
+  }
+
+  List<String> get cityList {
+    if (selectedRegion == null || selectedProvince == null) return [];
+
+    final Map<String, dynamic>? region =
+        dropdownData.cast<Map<String, dynamic>>().firstWhere(
+              (r) => r['name'] == selectedRegion,
+              orElse: () => {},
+            );
+
+    final List provinces = region?['province'] as List? ?? [];
+    final Map<String, dynamic> province =
+        provinces.cast<Map<String, dynamic>>().firstWhere(
+              (p) => p['province'] == selectedProvince,
+              orElse: () => {},
+            );
+
+    final List cities = province['cities'] as List? ?? [];
+    return cities
+        .cast<Map<String, dynamic>>()
+        .map((c) => c['city'].toString())
+        .toList();
+  }
+
+  Widget _buildDropdown(String label, String? value, List<String> items,
+      ValueChanged<String?> onChanged) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const Text('*', style: TextStyle(color: Colors.red))
+          ],
+        ),
+        const SizedBox(height: 5),
+        DropdownButtonFormField<String>(
+          value: value,
+          isExpanded: true,
+          items: items.map((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(
+                item,
+                overflow: TextOverflow.ellipsis,
+              ),
+            );
+          }).toList(),
+          onChanged: onChanged,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Select',
+            hintStyle: TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w300,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _firstName = TextEditingController();
   final TextEditingController _lastName = TextEditingController();
@@ -23,8 +115,13 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
   final TextEditingController _phone = TextEditingController();
   final TextEditingController _birthday = TextEditingController();
   final TextEditingController _address = TextEditingController();
-  final TextEditingController _city = TextEditingController();
   final TextEditingController _region = TextEditingController();
+  final TextEditingController _province = TextEditingController();
+  final TextEditingController _city = TextEditingController();
+  final TextEditingController _zipCode = TextEditingController();
+
+  String? errorText;
+  bool isLoading = false;
 
   String _selectedRole = 'Employee';
   bool _isSubmitting = false;
@@ -52,8 +149,10 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
           phone: _phone.text.trim(),
           birthday: _birthday.text.trim(),
           address: _address.text.trim(),
-          city: _city.text.trim(),
           region: _region.text.trim(),
+          province: _province.text.trim(),
+          city: _city.text.trim(),
+          zipCode: _zipCode.text.trim(),
         );
 
         await supabaseDB.auth.resend(
@@ -92,8 +191,11 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
     _phone.dispose();
     _birthday.dispose();
     _address.dispose();
-    _city.dispose();
     _region.dispose();
+    _province.dispose();
+    _city.dispose();
+    _zipCode.dispose();
+
     super.dispose();
   }
 
@@ -101,7 +203,7 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 700 : screenWidth * 0.9;
-    const double containerHeight = 570;
+    const double containerHeight = 650;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -156,6 +258,7 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
                             _buildTextField(
                                 label: 'Middle Initial',
                                 controller: _middleInitial),
+                            _buildTextField(label: 'Email', controller: _email),
                             _buildTextField(
                                 label: 'Password',
                                 controller: _password,
@@ -168,15 +271,35 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
                       Expanded(
                         child: Column(
                           children: [
-                            _buildTextField(label: 'Email', controller: _email),
                             _buildTextField(label: 'Phone', controller: _phone),
                             _buildDatePickerField(
                                 label: 'Birthday', controller: _birthday),
                             _buildTextField(
                                 label: 'Address', controller: _address),
-                            _buildTextField(label: 'City', controller: _city),
+                            _buildDropdown('Region', selectedRegion, regionList,
+                                (value) {
+                              setState(() {
+                                selectedRegion = value;
+                                selectedProvince = null;
+                                selectedCity = null;
+                              });
+                            }),
+                            _buildDropdown(
+                                'Province', selectedProvince, provinceList,
+                                (value) {
+                              setState(() {
+                                selectedProvince = value;
+                                selectedCity = null;
+                              });
+                            }),
+                            _buildDropdown('City', selectedCity, cityList,
+                                (value) {
+                              setState(() {
+                                selectedCity = value;
+                              });
+                            }),
                             _buildTextField(
-                                label: 'Region', controller: _region),
+                                label: 'Zip Code', controller: _zipCode),
                           ],
                         ),
                       ),

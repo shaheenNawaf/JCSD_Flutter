@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
+import 'package:jcsd_flutter/others/dropdown_data.dart';
 import '../../../api/global_variables.dart';
 
 class EditProfileModal extends ConsumerStatefulWidget {
@@ -15,6 +16,98 @@ class EditProfileModal extends ConsumerStatefulWidget {
 }
 
 class _EditProfileModalState extends ConsumerState<EditProfileModal> {
+  String? selectedRegion;
+  String? selectedProvince;
+  String? selectedCity;
+
+  List<String> get regionList =>
+      dropdownData.map((r) => r['name'].toString()).toList();
+
+  List<String> get provinceList {
+    if (selectedRegion == null) return [];
+
+    final Map<String, dynamic>? region =
+        dropdownData.cast<Map<String, dynamic>>().firstWhere(
+              (r) => r['name'] == selectedRegion,
+              orElse: () => {},
+            );
+
+    final List provinces = region?['province'] as List? ?? [];
+    return provinces
+        .cast<Map<String, dynamic>>()
+        .map((p) => p['province'].toString())
+        .toList();
+  }
+
+  List<String> get cityList {
+    if (selectedRegion == null || selectedProvince == null) return [];
+
+    final Map<String, dynamic>? region =
+        dropdownData.cast<Map<String, dynamic>>().firstWhere(
+              (r) => r['name'] == selectedRegion,
+              orElse: () => {},
+            );
+
+    final List provinces = region?['province'] as List? ?? [];
+    final Map<String, dynamic> province =
+        provinces.cast<Map<String, dynamic>>().firstWhere(
+              (p) => p['province'] == selectedProvince,
+              orElse: () => {},
+            );
+
+    final List cities = province['cities'] as List? ?? [];
+    return cities
+        .cast<Map<String, dynamic>>()
+        .map((c) => c['city'].toString())
+        .toList();
+  }
+
+  Widget _buildDropdown(String label, String? value, List<String> items,
+      ValueChanged<String?> onChanged) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const Text('*', style: TextStyle(color: Colors.red))
+          ],
+        ),
+        const SizedBox(height: 5),
+        DropdownButtonFormField<String>(
+          value: value,
+          isExpanded: true,
+          items: items.map((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(
+                item,
+                overflow: TextOverflow.ellipsis,
+              ),
+            );
+          }).toList(),
+          onChanged: onChanged,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Select',
+            hintStyle: TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w300,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // final _formKey = GlobalKey<FormState>();
   late TextEditingController _firstNameController;
   late TextEditingController _lastNameController;
   late TextEditingController _middleNameController;
@@ -22,9 +115,13 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
   late TextEditingController _phoneController;
   late TextEditingController _birthdayController;
   late TextEditingController _addressController;
-  late TextEditingController _cityController;
   late TextEditingController _regionController;
-  late TextEditingController _passwordController;
+  late TextEditingController _provinceController;
+  late TextEditingController _cityController;
+  late TextEditingController _zipCodeController;
+
+  String? errorText;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -38,9 +135,11 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
     _birthdayController = TextEditingController(
         text: a.birthDate?.toIso8601String().split('T')[0] ?? '');
     _addressController = TextEditingController(text: a.address);
-    _cityController = TextEditingController(text: a.city);
-    _regionController = TextEditingController(text: a.region);
-    _passwordController = TextEditingController(); // not prefilled
+    selectedRegion = a.region.isNotEmpty ? a.region : null;
+    selectedProvince = a.province.isNotEmpty ? a.province : null;
+    selectedCity = a.city.isNotEmpty ? a.city : null;
+
+    _zipCodeController = TextEditingController(text: a.zipCode);
   }
 
   @override
@@ -52,9 +151,11 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
     _phoneController.dispose();
     _birthdayController.dispose();
     _addressController.dispose();
-    _cityController.dispose();
     _regionController.dispose();
-    _passwordController.dispose();
+    _provinceController.dispose();
+    _cityController.dispose();
+    _zipCodeController.dispose();
+
     super.dispose();
   }
 
@@ -71,9 +172,9 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
             ? DateTime.tryParse(_birthdayController.text)
             : null,
         address: _addressController.text.trim(),
-        city: _cityController.text.trim(),
-        province: widget.account.province,
-        region: _regionController.text.trim(),
+        city: selectedCity?.trim() ?? '',
+        province: selectedProvince?.trim() ?? '',
+        region: selectedRegion?.trim() ?? '',
         zipCode: widget.account.zipCode,
       );
 
@@ -141,18 +242,6 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                                 'First Name', _firstNameController)),
                         const SizedBox(width: 10),
                         Expanded(
-                            child: _buildTextField('Email', _emailController,
-                                readOnly: true)),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Expanded(
-                            child: _buildTextField(
-                                'Last Name', _lastNameController)),
-                        const SizedBox(width: 10),
-                        Expanded(
                             child: _buildTextField('Phone', _phoneController)),
                       ],
                     ),
@@ -161,7 +250,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                       children: [
                         Expanded(
                             child: _buildTextField(
-                                'Middle Initial', _middleNameController)),
+                                'Last Name', _lastNameController)),
                         const SizedBox(width: 10),
                         Expanded(
                           child: _buildTextField(
@@ -189,8 +278,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                       children: [
                         Expanded(
                             child: _buildTextField(
-                                'Password', _passwordController,
-                                isPassword: true)),
+                                'Middle Initial', _middleNameController)),
                         const SizedBox(width: 10),
                         Expanded(
                             child:
@@ -201,18 +289,53 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                     Row(
                       children: [
                         Expanded(
-                            child: _buildTextField('City', _cityController)),
+                            child: _buildTextField('Email', _emailController)),
                         const SizedBox(width: 10),
                         Expanded(
-                            child:
-                                _buildTextField('Region', _regionController)),
+                          child: _buildDropdown(
+                              'Region', selectedRegion, regionList, (value) {
+                            setState(() {
+                              selectedRegion = value;
+                              selectedProvince = null;
+                              selectedCity = null;
+                            });
+                          }),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 10),
                     Row(
                       children: [
+                        Expanded(
+                          child: _buildDropdown(
+                              'Province', selectedProvince, provinceList,
+                              (value) {
+                            setState(() {
+                              selectedProvince = value;
+                              selectedCity = null;
+                            });
+                          }),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _buildDropdown('City', selectedCity, cityList,
+                              (value) {
+                            setState(() {
+                              selectedCity = value;
+                            });
+                          }),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Expanded(
+                            child: _buildTextField(
+                                'Zip Code', _zipCodeController)),
+                        const SizedBox(width: 10),
                         Expanded(child: _buildDropdownField()),
-                        const SizedBox(width: 340),
+                        // const SizedBox(width: 340),
                       ],
                     ),
                     const SizedBox(height: 20),

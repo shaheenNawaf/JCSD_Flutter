@@ -86,7 +86,7 @@ class _LeaveRequestState extends ConsumerState<LeaveRequest> {
           children: [
             _buildProfileHeader(),
             const SizedBox(height: 20),
-            _buildSectionTitle('About'),
+            _buildSectionTitle('Basic Information'),
             _buildInfoRow(
                 FontAwesomeIcons.envelope, 'Email: ', _display(user?.email)),
             _buildInfoRow(FontAwesomeIcons.phone, 'Phone: ',
@@ -98,13 +98,13 @@ class _LeaveRequestState extends ConsumerState<LeaveRequest> {
             _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ',
                 _display(user?.address)),
             _buildInfoRow(
+                FontAwesomeIcons.flag, 'Region: ', _display(user?.region)),
+            _buildInfoRow(
+                FontAwesomeIcons.globe, 'Province: ', _display(user?.province)),
+            _buildInfoRow(
                 FontAwesomeIcons.city, 'City: ', _display(user?.city)),
             _buildInfoRow(
-                FontAwesomeIcons.globe, 'Region: ', _display(user?.region)),
-            _buildDivider(),
-            _buildSectionTitle('Employee Details'),
-            _buildInfoRow(FontAwesomeIcons.user, 'Title: ', 'Employee.'),
-            _buildInfoRow(FontAwesomeIcons.calendar, 'Hire Date: ', '05/05/05'),
+                FontAwesomeIcons.mapPin, 'Zip Code: ', _display(user?.zipCode)),
           ],
         ),
       ),

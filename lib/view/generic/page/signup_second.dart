@@ -24,6 +24,97 @@ class SignupPage2 extends StatefulWidget {
 }
 
 class _SignupPage2State extends State<SignupPage2> {
+  String? selectedRegion;
+  String? selectedProvince;
+  String? selectedCity;
+
+  List<String> get regionList =>
+      dropdownData.map((r) => r['name'].toString()).toList();
+
+  List<String> get provinceList {
+    if (selectedRegion == null) return [];
+
+    final Map<String, dynamic>? region =
+        dropdownData.cast<Map<String, dynamic>>().firstWhere(
+              (r) => r['name'] == selectedRegion,
+              orElse: () => {},
+            );
+
+    final List provinces = region?['province'] as List? ?? [];
+    return provinces
+        .cast<Map<String, dynamic>>()
+        .map((p) => p['province'].toString())
+        .toList();
+  }
+
+  List<String> get cityList {
+    if (selectedRegion == null || selectedProvince == null) return [];
+
+    final Map<String, dynamic>? region =
+        dropdownData.cast<Map<String, dynamic>>().firstWhere(
+              (r) => r['name'] == selectedRegion,
+              orElse: () => {},
+            );
+
+    final List provinces = region?['province'] as List? ?? [];
+    final Map<String, dynamic> province =
+        provinces.cast<Map<String, dynamic>>().firstWhere(
+              (p) => p['province'] == selectedProvince,
+              orElse: () => {},
+            );
+
+    final List cities = province['cities'] as List? ?? [];
+    return cities
+        .cast<Map<String, dynamic>>()
+        .map((c) => c['city'].toString())
+        .toList();
+  }
+
+  Widget _buildDropdown(String label, String? value, List<String> items,
+      ValueChanged<String?> onChanged) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const Text('*', style: TextStyle(color: Colors.red))
+          ],
+        ),
+        const SizedBox(height: 5),
+        DropdownButtonFormField<String>(
+          value: value,
+          isExpanded: true,
+          items: items.map((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(
+                item,
+                overflow: TextOverflow.ellipsis,
+              ),
+            );
+          }).toList(),
+          onChanged: onChanged,
+          decoration: const InputDecoration(
+            border: OutlineInputBorder(),
+            hintText: 'Select',
+            hintStyle: TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w300,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   // Controllers for the input fields
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _middleInitialController =
@@ -88,9 +179,10 @@ class _SignupPage2State extends State<SignupPage2> {
     final middleInitial = _middleInitialController.text.trim();
     final lastName = _lastNameController.text.trim();
     final address = _addressController.text.trim();
-    final city = _cityController.text.trim();
-    final province = _provinceController.text.trim();
-    final region = _regionController.text.trim();
+    final city = selectedCity?.trim() ?? '';
+    final province = selectedProvince?.trim() ?? '';
+    final region = selectedRegion?.trim() ?? '';
+
     final zipCode = _zipCodeController.text.trim();
     final contactNumber = _contactNumberController.text.trim();
     final dob = _dobController.text.trim();
@@ -298,7 +390,7 @@ class _SignupPage2State extends State<SignupPage2> {
                                 ),
                                 const SizedBox(height: 2),
                                 const Text(
-                                  'sign-up to fully access the site features',
+                                  'fill up to fully access the site features',
                                   style: TextStyle(
                                     fontFamily: 'NunitoSans',
                                     fontWeight: FontWeight.normal,
@@ -326,17 +418,25 @@ class _SignupPage2State extends State<SignupPage2> {
                                           hintText: 'Enter your middle initial',
                                           validator: textValidator),
                                       const SizedBox(height: 10),
-                                      buildTextField(
-                                          controller: _regionController,
-                                          label: 'Region',
-                                          hintText: 'Enter your region',
-                                          validator: textValidator),
+                                      _buildDropdown(
+                                          'Region', selectedRegion, regionList,
+                                          (value) {
+                                        setState(() {
+                                          selectedRegion = value;
+                                          selectedProvince = null;
+                                          selectedCity = null;
+                                        });
+                                      }),
                                       const SizedBox(height: 10),
-                                      buildTextField(
-                                          controller: _provinceController,
-                                          label: 'Province',
-                                          hintText: 'Enter your province',
-                                          validator: textValidator),
+                                      _buildDropdown(
+                                          'Province',
+                                          selectedProvince,
+                                          provinceList, (value) {
+                                        setState(() {
+                                          selectedProvince = value;
+                                          selectedCity = null;
+                                        });
+                                      }),
                                       const SizedBox(height: 10),
                                       buildTextField(
                                           controller: _lastNameController,
@@ -344,11 +444,13 @@ class _SignupPage2State extends State<SignupPage2> {
                                           hintText: 'Enter your last name',
                                           validator: textValidator),
                                       const SizedBox(height: 10),
-                                      buildTextField(
-                                          controller: _cityController,
-                                          label: 'City',
-                                          hintText: 'Enter your city',
-                                          validator: textValidator),
+                                      _buildDropdown(
+                                          'City', selectedCity, cityList,
+                                          (value) {
+                                        setState(() {
+                                          selectedCity = value;
+                                        });
+                                      }),
                                       const SizedBox(height: 10),
                                       buildTextField(
                                         controller: _zipCodeController,
@@ -398,7 +500,7 @@ class _SignupPage2State extends State<SignupPage2> {
                                       Row(
                                         children: [
                                           Expanded(
-                                            flex: 1,
+                                            flex: 2,
                                             child: buildTextField(
                                               controller:
                                                   _middleInitialController,
@@ -411,31 +513,29 @@ class _SignupPage2State extends State<SignupPage2> {
                                           const SizedBox(width: 10),
                                           Expanded(
                                             flex: 1,
-                                            child: Row(
-                                              children: [
-                                                Expanded(
-                                                  flex: 1,
-                                                  child: buildTextField(
-                                                    controller:
-                                                        _regionController,
-                                                    label: 'Region',
-                                                    hintText:
-                                                        'Enter your region',
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 10),
-                                                Expanded(
-                                                  flex: 1,
-                                                  child: buildTextField(
-                                                    controller:
-                                                        _provinceController,
-                                                    label: 'Province',
-                                                    hintText:
-                                                        'Enter your province',
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                            child: _buildDropdown(
+                                                'Region',
+                                                selectedRegion,
+                                                regionList, (value) {
+                                              setState(() {
+                                                selectedRegion = value;
+                                                selectedProvince = null;
+                                                selectedCity = null;
+                                              });
+                                            }),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            flex: 1,
+                                            child: _buildDropdown(
+                                                'Province',
+                                                selectedProvince,
+                                                provinceList, (value) {
+                                              setState(() {
+                                                selectedProvince = value;
+                                                selectedCity = null;
+                                              });
+                                            }),
                                           ),
                                         ],
                                       ),
@@ -457,11 +557,14 @@ class _SignupPage2State extends State<SignupPage2> {
                                               children: [
                                                 Expanded(
                                                   flex: 1,
-                                                  child: buildTextField(
-                                                    controller: _cityController,
-                                                    label: 'City',
-                                                    hintText: 'Enter your city',
-                                                  ),
+                                                  child: _buildDropdown(
+                                                      'City',
+                                                      selectedCity,
+                                                      cityList, (value) {
+                                                    setState(() {
+                                                      selectedCity = value;
+                                                    });
+                                                  }),
                                                 ),
                                                 const SizedBox(width: 10),
                                                 Expanded(
@@ -669,4 +772,75 @@ class _SignupPage2State extends State<SignupPage2> {
       ],
     );
   }
+}
+
+Widget _buildDropdown(String label, String? value, List<String> items,
+    ValueChanged<String?> onChanged) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontFamily: 'NunitoSans',
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+          const Text('*', style: TextStyle(color: Colors.red))
+        ],
+      ),
+      const SizedBox(height: 5),
+      DropdownButtonFormField<String>(
+        value: value,
+        isExpanded: true,
+        items: items.take(7).map((String item) {
+          return DropdownMenuItem<String>(
+            value: item,
+            child: Text(
+              item,
+              overflow: TextOverflow.ellipsis,
+            ),
+          );
+        }).toList()
+          ..addAll(
+            items.length > 7
+                ? [
+                    DropdownMenuItem<String>(
+                      enabled: false,
+                      child: SizedBox(
+                        height: 150,
+                        child: Scrollbar(
+                          thumbVisibility: true,
+                          child: ListView(
+                            children: items.skip(7).map((item) {
+                              return DropdownMenuItem<String>(
+                                value: item,
+                                child: Text(
+                                  item,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ),
+                    )
+                  ]
+                : [],
+          ),
+        onChanged: onChanged,
+        decoration: const InputDecoration(
+          border: OutlineInputBorder(),
+          hintText: 'Select',
+          hintStyle: TextStyle(
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w300,
+            fontSize: 12,
+          ),
+        ),
+      ),
+    ],
+  );
 }
