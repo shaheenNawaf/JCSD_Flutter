@@ -46,25 +46,54 @@ class EmployeeListPage extends ConsumerWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          context.go('/employeeList/leaveRequestList');
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00AEEF),
-                          minimumSize: const Size(120, 48),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                      Row(
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              context.go('/employeeList/leaveRequestList');
+                            },
+                            icon: const Icon(Icons.calendar_month,
+                                color: Colors.white),
+                            label: const Text(
+                              'Leave Requests',
+                              style: TextStyle(
+                                fontFamily: 'NunitoSans',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF00AEEF),
+                              minimumSize: const Size(120, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
                           ),
-                        ),
-                        child: const Text(
-                          'Leave Requests',
-                          style: TextStyle(
-                            fontFamily: 'NunitoSans',
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                          const SizedBox(width: 12),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              context.go('/employeeList/payrollList');
+                            },
+                            icon: const Icon(Icons.request_quote,
+                                color: Colors.white),
+                            label: const Text(
+                              'Payroll List',
+                              style: TextStyle(
+                                fontFamily: 'NunitoSans',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF00AEEF),
+                              minimumSize: const Size(120, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                       Row(
                         mainAxisSize: MainAxisSize.min,

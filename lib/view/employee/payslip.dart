@@ -1,20 +1,40 @@
+// UPDATED payslip.dart with dynamic user and employee data like in leave_requests.dart
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class Payslip extends StatefulWidget {
-  const Payslip({super.key});
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
+
+class Payslip extends ConsumerStatefulWidget {
+  final AccountsData? acc;
+  final EmployeeData? emp;
+
+  const Payslip({super.key, this.acc, this.emp});
 
   @override
-  _PayslipState createState() => _PayslipState();
+  ConsumerState<Payslip> createState() => _PayslipState();
 }
 
-class _PayslipState extends State<Payslip> {
+class _PayslipState extends ConsumerState<Payslip> {
   final String _activeSubItem = '/employeeList';
   DateTime selectedDate = DateTime.now();
+
+  late final AccountsData? user = widget.acc;
+  late final EmployeeData? emp = widget.emp;
+
+  String _display(dynamic v) =>
+      (v == null || (v is String && v.trim().isEmpty)) ? 'N/A' : v.toString();
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'N/A';
+    return '${date.month}/${date.day}/${date.year}';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +75,7 @@ class _PayslipState extends State<Payslip> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.3),
+            color: Colors.grey.withOpacity(0.3),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -73,25 +93,25 @@ class _PayslipState extends State<Payslip> {
                 children: [
                   _buildProfileHeader(),
                   const SizedBox(height: 20),
-                  _buildSectionTitle('About'),
+                  _buildSectionTitle('Basic Information'),
                   _buildInfoRow(FontAwesomeIcons.envelope, 'Email: ',
-                      'mebguevara@gmail.com'),
-                  _buildInfoRow(
-                      FontAwesomeIcons.phone, 'Phone: ', '09278645368'),
+                      _display(user?.email)),
+                  _buildInfoRow(FontAwesomeIcons.phone, 'Phone: ',
+                      _display(user?.contactNumber)),
                   _buildInfoRow(FontAwesomeIcons.cakeCandles, 'Birthday: ',
-                      'May 5, 2001'),
+                      _formatDate(user?.birthDate)),
                   _buildDivider(),
                   _buildSectionTitle('Address'),
                   _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ',
-                      '106-6 CM Recto Ave.'),
-                  _buildInfoRow(FontAwesomeIcons.city, 'City: ', 'Manila'),
+                      _display(user?.address)),
+                  _buildInfoRow(FontAwesomeIcons.flag, 'Region: ',
+                      _display(user?.region)),
+                  _buildInfoRow(FontAwesomeIcons.globe, 'Province: ',
+                      _display(user?.province)),
                   _buildInfoRow(
-                      FontAwesomeIcons.globe, 'Region: ', 'Philippines'),
-                  _buildDivider(),
-                  _buildSectionTitle('Employee Details'),
-                  _buildInfoRow(FontAwesomeIcons.user, 'Title: ', 'Employee'),
-                  _buildInfoRow(
-                      FontAwesomeIcons.calendar, 'Hire Date: ', '05/05/05'),
+                      FontAwesomeIcons.city, 'City: ', _display(user?.city)),
+                  _buildInfoRow(FontAwesomeIcons.mapPin, 'Zip Code: ',
+                      _display(user?.zipCode)),
                 ],
               ),
             ),
@@ -180,24 +200,27 @@ class _PayslipState extends State<Payslip> {
           Container(
             padding: const EdgeInsets.all(30.0),
             decoration: const BoxDecoration(
-                shape: BoxShape.circle, color: Colors.black38),
+              shape: BoxShape.circle,
+              color: Colors.black38,
+            ),
             child: const FaIcon(FontAwesomeIcons.user,
                 color: Colors.white, size: 35),
           ),
           const SizedBox(width: 20),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Amy D. Polie',
-                style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16),
+                "${user?.firstName ?? 'N/A'} ${user?.lastname ?? ''}",
+                style: const TextStyle(
+                  fontFamily: 'NunitoSans',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
               Text(
-                'Employee',
-                style: TextStyle(fontFamily: 'NunitoSans', fontSize: 14),
+                (emp?.isAdmin ?? false) ? 'Admin' : 'Employee',
+                style: const TextStyle(fontFamily: 'NunitoSans', fontSize: 14),
               ),
             ],
           ),
@@ -206,35 +229,28 @@ class _PayslipState extends State<Payslip> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 10, 0, 20),
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
+  Widget _buildSectionTitle(String title) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 10, 0, 20),
+        child: Text(title,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      );
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
-          child: SizedBox(
-              width: 25, child: FaIcon(icon, color: Colors.grey, size: 20)),
-        ),
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        Text(value),
-      ],
-    );
-  }
+  Widget _buildInfoRow(IconData icon, String label, String value) => Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
+            child: SizedBox(
+                width: 25, child: FaIcon(icon, color: Colors.grey, size: 20)),
+          ),
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(value),
+        ],
+      );
 
-  Widget _buildDivider() {
-    return Divider(color: Colors.grey[300], indent: 40, endIndent: 40);
-  }
+  Widget _buildDivider() =>
+      Divider(color: Colors.grey[300], indent: 40, endIndent: 40);
 }
 
 class PayslipRow extends StatelessWidget {

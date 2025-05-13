@@ -137,71 +137,79 @@ class InventoryPage extends ConsumerWidget {
       children: [
         // Navigation buttons
         ElevatedButton.icon(
-            onPressed: () => _navigateToItemTypesPage(context),
-            icon: const Icon(
-              Icons.category,
-              color: Colors.white,
-              size: 16,
-            ),
-            label: const Text('Item Types',
-                style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00AEEF),
-                minimumSize: const Size(0, 48),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
+          onPressed: () => _navigateToItemTypesPage(context),
+          icon: const Icon(
+            Icons.category,
+            color: Colors.white,
+            size: 16,
           ),
+          label: const Text(
+            'Item Types',
+            style: TextStyle(
+              fontFamily: 'NunitoSans',
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF00AEEF),
+            minimumSize: const Size(0, 48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
         const SizedBox(width: 10),
         ElevatedButton.icon(
-            onPressed: () {
-              /* TODO: Navigate to Manufacturers Page */ print(
-                  "Navigate to Manufacturers");
-            },
-            icon: const Icon(
-              Icons.precision_manufacturing,
+          onPressed: () {
+            /* TODO: Navigate to Manufacturers Page */ print(
+                "Navigate to Manufacturers");
+          },
+          icon: const Icon(
+            Icons.precision_manufacturing,
+            color: Colors.white,
+            size: 16,
+          ),
+          label: const Text(
+            'Manufacturers',
+            style: TextStyle(
+              fontFamily: 'NunitoSans',
+              fontWeight: FontWeight.bold,
               color: Colors.white,
-              size: 16,
             ),
-            label: const Text('Manufacturers',
-                style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00AEEF),
-                minimumSize: const Size(0, 48),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF00AEEF),
+            minimumSize: const Size(0, 48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
         const SizedBox(width: 10),
         ElevatedButton.icon(
-            onPressed: () => context.go('/suppliers'),
-            icon: const Icon(
-              Icons.local_shipping,
+          onPressed: () => context.go('/suppliers'),
+          icon: const Icon(
+            Icons.local_shipping,
+            color: Colors.white,
+            size: 16,
+          ),
+          label: const Text(
+            'Suppliers',
+            style: TextStyle(
+              fontFamily: 'NunitoSans',
+              fontWeight: FontWeight.bold,
               color: Colors.white,
-              size: 16,
             ),
-            label: const Text('Suppliers',
-                style: TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00AEEF),
-                minimumSize: const Size(0, 48),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF00AEEF),
+            minimumSize: const Size(0, 48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
         const Spacer(),
         // Search Field
         SizedBox(
@@ -209,16 +217,17 @@ class InventoryPage extends ConsumerWidget {
           height: 40,
           child: TextField(
             decoration: InputDecoration(
-                hintText: 'Search Name/Desc/Type/Mfg...',
-                prefixIcon: const Icon(Icons.search, size: 20),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                hintStyle: const TextStyle(
-                    color: Color(0xFFABABAB),
-                    fontFamily: 'NunitoSans',
-                  ),),
+              hintText: 'Search Name/Desc/Type/Mfg...',
+              prefixIcon: const Icon(Icons.search, size: 20),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+              hintStyle: const TextStyle(
+                color: Color(0xFFABABAB),
+                fontFamily: 'NunitoSans',
+              ),
+            ),
             onChanged: (searchText) => ref
                 .read(
                     productDefinitionNotifierProvider(isVisibleFilter).notifier)
@@ -227,18 +236,18 @@ class InventoryPage extends ConsumerWidget {
         ),
         const SizedBox(width: 16),
         ElevatedButton.icon(
-            onPressed: () => _showAddProductDefinitionModal(context, ref),
-            icon: const Icon(Icons.add, color: Colors.white, size: 18),
-            label: const Text('Add Product',
-                style: TextStyle(color: Colors.white)),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF00AEEF),
-                minimumSize: const Size(0, 48),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
+          onPressed: () => _showAddProductDefinitionModal(context, ref),
+          icon: const Icon(Icons.add, color: Colors.white, size: 18),
+          label:
+              const Text('Add Product', style: TextStyle(color: Colors.white)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF00AEEF),
+            minimumSize: const Size(0, 48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
+          ),
+        ),
       ],
     );
   }
@@ -419,75 +428,70 @@ class InventoryPage extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Tooltip(
-                      message: 'View Serials',
-                      child: 
-                      ElevatedButton(
-                        onPressed: () {
-                            // Ensure ID is not null before navigating
-                            if (item.prodDefID != null) {
-                              final String? productDefinitionId =
-                                  item.prodDefID;
-                              final String productDefinitionName =
-                                  item.prodDefName;
-                              context.go(
-                                '/inventory/serials',
-                                extra: {
-                                  'prodDefId': productDefinitionId,
-                                  'prodDefName': productDefinitionName
-                                },
-                              );
-                            } else {
-                              print(
-                                  "Error: Cannot view serials for null prodDefID");
-                              // Optionally show feedback to user
-                            }
-                          },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.indigo,
-                          padding: EdgeInsets.zero,
-                        ),
-                        child: const Icon(
-                          Icons.list_alt,
-                          color: Colors.white,
-                          size: 18,
-                        ),
+                    message: 'View Serials',
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Ensure ID is not null before navigating
+                        if (item.prodDefID != null) {
+                          final String? productDefinitionId = item.prodDefID;
+                          final String productDefinitionName = item.prodDefName;
+                          context.go(
+                            '/inventory/serials',
+                            extra: {
+                              'prodDefId': productDefinitionId,
+                              'prodDefName': productDefinitionName
+                            },
+                          );
+                        } else {
+                          print(
+                              "Error: Cannot view serials for null prodDefID");
+                          // Optionally show feedback to user
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.indigo,
+                        padding: EdgeInsets.zero,
                       ),
+                      child: const Icon(
+                        Icons.list_alt,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 4),
                   Tooltip(
-                      message: 'Edit Product',
-                      child: 
-                      ElevatedButton(
-                        onPressed: () => _showEditProductDefinitionModal(
-                              context, ref, item),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          padding: EdgeInsets.zero,
-                        ),
-                        child: const Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                          size: 18,
-                        ),
+                    message: 'Edit Product',
+                    child: ElevatedButton(
+                      onPressed: () =>
+                          _showEditProductDefinitionModal(context, ref, item),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        padding: EdgeInsets.zero,
                       ),
+                      child: const Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
                   ),
                   const SizedBox(width: 4),
                   Tooltip(
-                      message: 'Archive Product',
-                      child: 
-                      ElevatedButton(
-                        onPressed: () => _showArchiveProductDefinitionModal(
-                              context, ref, item),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.redAccent,
-                          padding: EdgeInsets.zero,
-                        ),
-                        child: const Icon(
-                          Icons.archive,
-                          color: Colors.white,
-                          size: 18,
-                        ),
+                    message: 'Archive Product',
+                    child: ElevatedButton(
+                      onPressed: () => _showArchiveProductDefinitionModal(
+                          context, ref, item),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        padding: EdgeInsets.zero,
                       ),
+                      child: const Icon(
+                        Icons.archive,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
                   ),
                 ],
               )),

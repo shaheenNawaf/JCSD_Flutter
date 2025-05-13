@@ -588,7 +588,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                           ),
                         ),
                         onPressed: () {
-                          context.push('/employeeList/profile/payslip');
+                          context.push('/employeeList/profile/payslip', extra: {
+                            'account': user,
+                            'employee': emp,
+                          });
                         },
                         icon: const FaIcon(
                           FontAwesomeIcons.fileInvoiceDollar,
