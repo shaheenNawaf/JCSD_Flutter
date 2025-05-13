@@ -211,7 +211,6 @@ class ProductDefinitionNotifier
     });
   }
 
-  /// Helper Function: for force refreshing of the page and then the state
   Future<void> _refreshCurrentPage() async {
     final currentState = state.valueOrNull;
     if (currentState == null) {
@@ -219,9 +218,8 @@ class ProductDefinitionNotifier
       return;
     }
 
-    final previousState = currentState; // Holds state for copyWith later
+    final previousState = currentState;
 
-    // Shows loading, keeping previous data visible
     state =
         const AsyncLoading<ProductDefinitionState>().copyWithPrevious(state);
 
@@ -231,14 +229,12 @@ class ProductDefinitionNotifier
       final totalPages = (totalItems / currentState.itemsPerPage).ceil();
       final calculatedTotalPages = totalPages > 0 ? totalPages : 1;
 
-      // Auto-adjust page number based on the actions done; if naay mag-delete ensuring it doesn't go over the index
       int pageToFetch = currentState.currentPage;
       if (pageToFetch > calculatedTotalPages) {
         pageToFetch = calculatedTotalPages;
       }
-      if (pageToFetch < 1) pageToFetch = 1; // Ensures page doesn't go below 1
+      if (pageToFetch < 1) pageToFetch = 1;
 
-      // Fetches potentially updated data for the (possibly adjusted) current page
       final items = await _fetchPageData(
         page: pageToFetch,
         itemsPerPage: currentState.itemsPerPage,
@@ -247,7 +243,6 @@ class ProductDefinitionNotifier
         searchText: currentState.searchText,
       );
 
-      //For updating the state
       state = AsyncValue.data(previousState.copyWith(
         productDefinitions: items,
         totalPages: calculatedTotalPages,
@@ -268,13 +263,10 @@ class ProductDefinitionNotifier
 
     // Uses guard for async operation and error handling
     state = await AsyncValue.guard(() async {
-      await _service
-          .addProductDefinition(newProductDefinition); // Calls service
-      ref.invalidateSelf(); // Invalidates self to trigger rebuild and fetch fresh data
-      return state.value!; // Return previous state conceptually for guard
+      await _service.addProductDefinition(newProductDefinition);
+      await _refreshCurrentPage();
+      return state.value!;
     });
-
-    // replace with `await _refreshCurrentPage();` for smoother UI
   }
 
   Future<void> updateProductDefinition(
@@ -282,10 +274,9 @@ class ProductDefinitionNotifier
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
       await _service.updateProductDefinition(updatedProduct); // Calls service
-      ref.invalidateSelf();
+      await _refreshCurrentPage();
       return state.value!;
     });
-    // NOTE: Could use `await _refreshCurrentPage();` instead
   }
 
   Future<void> updateProductDefinitionVisibility(

@@ -1,12 +1,13 @@
-// Package Import
+//Base Imports
+
+//Backend Imports
+
 import 'package:jcsd_flutter/backend/modules/bookings/booking_enums.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/data/booking.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/data/booking_assignment.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/data/booking_item.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/data/booking_service_item.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/infrastructure/booking_repository.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_service.dart';
-import 'package:jcsd_flutter/backend/modules/services/jcsd_services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 // API
@@ -484,9 +485,7 @@ class BookingModuleServices implements BookingRepository {
     }
   }
 
-  //============================================================================
-  // SECTION: Booking Assignment Operations
-  //============================================================================
+  //Booking Assignments
 
   @override
   Future<List<BookingAssignment>> getBookingAssignments(int bookingId) async {
@@ -506,6 +505,7 @@ class BookingModuleServices implements BookingRepository {
     }
   }
 
+  //Assigning an employee
   @override
   Future<BookingAssignment> assignEmployeeToBooking(
       int bookingId, int employeeId) async {
@@ -514,13 +514,14 @@ class BookingModuleServices implements BookingRepository {
         'booking_id': bookingId,
         'employee_id': employeeId,
       };
+
       final insertedAssignment = await supabaseDB
           .from('booking_assignments')
           .insert(newAssignment)
-          .select() // Select the newly inserted assignment
+          .select()
           .single();
 
-      // Note: Updating booking status (e.g., to 'Confirmed') is handled in BookingService layer
+      // Booking Status under booking_services.dart
       return BookingAssignment.fromJson(insertedAssignment);
     } catch (e, st) {
       print(
@@ -529,6 +530,7 @@ class BookingModuleServices implements BookingRepository {
     }
   }
 
+  //Removes an employee
   @override
   Future<void> removeEmployeeFromBooking(int bookingAssignmentId) async {
     try {
@@ -542,4 +544,4 @@ class BookingModuleServices implements BookingRepository {
       rethrow;
     }
   }
-} // End of BookingModuleServices class
+}

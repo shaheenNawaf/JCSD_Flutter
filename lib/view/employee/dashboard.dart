@@ -1,11 +1,130 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
+//Default Imports
+import 'dart:math';
+
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_attendance.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
+
+//Supabase / Generic Backend
+import 'package:jcsd_flutter/api/global_variables.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart'; // For AccountsData
+import 'package:jcsd_flutter/backend/modules/bookings/booking_enums.dart';
+import 'package:jcsd_flutter/backend/modules/bookings/data/booking.dart';
+
+//Backend Imports (Bookings and Accounts)
+import 'package:jcsd_flutter/backend/modules/bookings/providers/booking_providers.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_data.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_notifier.dart';
+import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart'; // For service names
+import 'package:jcsd_flutter/view/bookings/booking_detail.dart';
+
+//Providers/Services to fetch information -- only specific for this page
+
+//Fetching Current Employee
+final currentEmployeeIDProvider = FutureProvider.autoDispose<int?>((ref) async {
+  final loggedInEmployee = supabaseDB.auth.currentUser;
+  if (loggedInEmployee == null) {
+    print(
+        'At Current Employee ID Provider: No authneticated user is logged in');
+    return null;
+  }
+
+  try {
+    final employeeID = await supabaseDB
+        .from('employee')
+        .select('employeeID')
+        .eq('userID', loggedInEmployee.id)
+        .maybeSingle();
+
+    if (employeeID != null && employeeID['employeeID'] != null) {
+      print(
+          "[currentEmployeeIdProvider] Fetched employeeID: ${employeeID['employeeID']}");
+      return employeeID['employeeID'] as int;
+    }
+    print(
+        'No employee record found for userID: ${supabaseDB.auth.currentUser?.id}');
+    return null;
+  } catch (err, sty) {
+    print('Error fetching the Employee ID \n Error: $err \n $sty');
+    return null;
+  }
+});
+
+//Fetching the bookings assigned for the employee today
+final todaysBookingsForEmployeeProvider =
+    FutureProvider.autoDispose<List<Booking>>((ref) async {
+  final employeeIdAsyncValue = ref.watch(currentEmployeeIDProvider);
+
+  return employeeIdAsyncValue.when(
+    data: (employeeId) {
+      if (employeeId == null) {
+        print(
+            "[todaysBookingsForEmployeeProvider] Employee ID is null, returning empty list.");
+        return Future.value([]);
+      }
+
+      final bookingService = ref.watch(bookingServiceProvider);
+      final now = DateTime.now();
+      final todayStart =
+          DateTime(now.year, now.month, now.day); // Start of today
+      final todayEnd =
+          DateTime(now.year, now.month, now.day, 23, 59, 59); // End of today
+
+      print(
+          "[todaysBookingsForEmployeeProvider] Fetching for employeeID: $employeeId, Date: $todayStart to $todayEnd");
+      return bookingService.getBookings(
+        assignedEmployeeId: employeeId,
+        dateFrom: todayStart,
+        dateTo: todayEnd,
+        statuses: [
+          BookingStatus.confirmed,
+          BookingStatus.inProgress,
+          BookingStatus.pendingCustomerResponse,
+          BookingStatus.pendingParts,
+        ],
+        sortBy: 'scheduled_start_time',
+        ascending: true,
+        itemsPerPage: 50, // Fetch a reasonable number for "today"
+      );
+    },
+    loading: () {
+      print("[todaysBookingsForEmployeeProvider] Waiting for employee ID...");
+      return Future.value([]); // Return empty list while employeeId is loading
+    },
+    error: (err, stack) {
+      print(
+          "[todaysBookingsForEmployeeProvider] Error fetching employee ID: $err. Returning empty list.");
+      return Future.value([]);
+    },
+  );
+});
+
+//For the Low-Stock Notifications -- to be updated
+final lowStockProductsProvider =
+    FutureProvider.autoDispose<List<ProductDefinitionData>>((ref) async {
+  try {
+    final pdState = await ref.watch(
+        productDefinitionNotifierProvider(true).future); // true for active
+    // Placeholder: Actual low stock logic needed. This just takes a few.
+    // You would filter based on actual stock levels if that data is available.
+    print(
+        "[lowStockProductsProvider] Product definitions fetched: ${pdState.productDefinitions.length}");
+    return pdState.productDefinitions
+        .take(3)
+        .toList(); // Example: show first 3 as "low stock"
+  } catch (e) {
+    print("[lowStockProductsProvider] Error fetching product definitions: $e");
+    return [];
+  }
+});
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});

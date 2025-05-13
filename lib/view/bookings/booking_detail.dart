@@ -1,26 +1,40 @@
-// lib/view/bookings/booking_detail.dart
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
+//Default Imports
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
-import 'package:jcsd_flutter/backend/modules/bookings/booking_enums.dart';
+
+//Backend Imports
+//Bookings
+import 'package:jcsd_flutter/view/bookings/modals/receipt.dart';
+import 'package:jcsd_flutter/backend/modules/bookings/booking_enums.dart'; //Enums for the Status and Static types
 import 'package:jcsd_flutter/backend/modules/bookings/data/booking.dart';
+import 'package:jcsd_flutter/view/bookings/modals/edit_booking_detail.dart';
+
+//Accounts & Employees
+import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart'; // Account Data (Where we're going to get the Employee Name, and Customer deets)
+import 'package:jcsd_flutter/backend/modules/employee/employee_providers.dart'; // Employee List
+
+//Booking
 import 'package:jcsd_flutter/backend/modules/bookings/data/booking_item.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/data/booking_service_item.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/providers/booking_providers.dart';
+
+//Inventory
+import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_notifier.dart'; // Product Def Names
+
+//Services
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart'; // For service names
-import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_notifier.dart'; // For product names
-import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart'; // For account data (employee/customer names)
-import 'package:jcsd_flutter/backend/modules/employee/employee_providers.dart'; // For employee list for assignment
+
+//Modals
 import 'package:jcsd_flutter/modals/remove_item_list.dart';
-import 'package:jcsd_flutter/view/bookings/modals/edit_booking_detail.dart';
-import 'package:jcsd_flutter/view/bookings/modals/receipt.dart';
 import 'package:jcsd_flutter/modals/add_item_list.dart'; // Serialized version
+
+//Generic UI Imports
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/api/global_variables.dart'; // For current user ID
@@ -276,8 +290,9 @@ class BookingDetailsPage extends ConsumerWidget {
     );
   }
 
-  // --- Specific Detail Sections ---
+  // Details Sections
 
+  //booking card here
   Widget _buildBookingInfoCard(
       BuildContext context, Booking booking, String? userRole, WidgetRef ref) {
     String customerName = booking.walkInCustomerName ?? "N/A";
@@ -329,6 +344,7 @@ class BookingDetailsPage extends ConsumerWidget {
     );
   }
 
+  //Services for the Bookings
   Widget _buildServicesCard(BuildContext context, Booking booking,
       Map<int, String> serviceNameMap, String? userRole, WidgetRef ref) {
     // Determine if price update is allowed (e.g., admin or employee before final approval)

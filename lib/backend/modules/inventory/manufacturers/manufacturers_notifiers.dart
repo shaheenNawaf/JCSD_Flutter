@@ -1,22 +1,19 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Import state, data, service and providers
+//Default Imports
 import 'package:jcsd_flutter/backend/modules/inventory/manufacturers/manufacturers_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/manufacturers/manufacturers_state.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/manufacturers/manufacturers_service.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/manufacturers/manufacturers_providers.dart'; // Import providers
+import 'package:jcsd_flutter/backend/modules/inventory/manufacturers/manufacturers_providers.dart';
 
-// Default items per page (should match service default)
-const int _mfgItemsPerPage = 10;
+const int _mfgItemsPerPage = 10; //Default Limit
 
-/// Manages state for the manufacturers list view (active or archived).
 class ManufacturersNotifier
     extends AutoDisposeFamilyAsyncNotifier<ManufacturersState, bool> {
-  late bool _isActive; // Stores visibility context (true=active, false=archived)
-  Timer? _debounce; // Timer for debouncing search input
+  late bool _isActive;
+  Timer? _debounce;
 
-  // Helper to access the service provider
   ManufacturersService get _service => ref.read(manufacturersServiceProvider);
 
   @override
@@ -27,7 +24,8 @@ class ManufacturersNotifier
     // Cleanup debounce timer when the notifier is disposed
     ref.onDispose(() {
       _debounce?.cancel();
-      print("ManufacturersNotifier (isActive: $_isActive) disposed."); // Debug log
+      print(
+          "ManufacturersNotifier (isActive: $_isActive) disposed."); // Debug log
     });
 
     // Initial state parameters when the notifier is first built
@@ -37,14 +35,10 @@ class ManufacturersNotifier
     const ascending = true;
     const searchText = '';
 
-    // Fetches the initial total count based on visibility and search
     final totalItems = await _fetchTotalCount(searchText: searchText);
-    // Calculates the total number of pages
     final totalPages = (totalItems / itemsPerPage).ceil();
-    // Ensures totalPages is at least 1, even if totalItems is 0
     final calculatedTotalPages = totalPages > 0 ? totalPages : 1;
 
-    // Fetches the data for the first page
     final items = await _fetchPageData(
       page: currentPage,
       itemsPerPage: itemsPerPage,
@@ -53,7 +47,6 @@ class ManufacturersNotifier
       searchText: searchText,
     );
 
-    // Returns the initial state object
     return ManufacturersState(
       manufacturers: items,
       currentPage: currentPage,
@@ -65,18 +58,15 @@ class ManufacturersNotifier
     );
   }
 
-  // --- Helper Methods ---
+  // Helper Methods
 
-  /// Helper: Fetches total item count from the service.
   Future<int> _fetchTotalCount({required String searchText}) async {
-    // Calls service, passing visibility and search query
     return _service.getTotalManufacturerCount(
       isActive: _isActive,
       searchQuery: searchText,
     );
   }
 
-  /// Helper: Fetches a specific page of data from the service.
   Future<List<ManufacturersData>> _fetchPageData({
     required int page,
     required int itemsPerPage,
@@ -97,15 +87,15 @@ class ManufacturersNotifier
 
   // UI Action Methods
 
-  /// Action: Page Navigation
   Future<void> goToPage(int page) async {
-    final currentState = state.valueOrNull; // Get current state data safely
+    final currentState = state.valueOrNull;
 
-    // Prevents navigation if state is invalid or page is out of bounds
-    if (currentState == null || page < 1 || page > currentState.totalPages) return;
+    if (currentState == null || page < 1 || page > currentState.totalPages) {
+      return;
+    }
 
     state = const AsyncValue.loading(); // Set loading state
-    // Fetches data for the new page and updates state; handles errors
+
     state = await AsyncValue.guard(() async {
       final items = await _fetchPageData(
         page: page, // Target page
@@ -122,23 +112,23 @@ class ManufacturersNotifier
     });
   }
 
-  /// Action: Sorting, toggling direction/ascending or not
   Future<void> sort(String newSortBy) async {
     final currentState = state.valueOrNull;
     if (currentState == null) return;
 
-    // Toggles ascending state if sorting by the same column, else defaults to true
+    // Ascending state conditional
     final newAscending =
         currentState.sortBy == newSortBy ? !currentState.ascending : true;
-    const newPage = 1; // force reset on every sort change
+    const newPage = 1; // resets on page one, every time it changes
 
-    state = const AsyncValue.loading(); // Set loading state
-    // Fetches sorted data and updates state; handles errors
+    state = const AsyncValue.loading();
+
+    //Used guard for proper data handling
     state = await AsyncValue.guard(() async {
       final items = await _fetchPageData(
         page: newPage,
         itemsPerPage: currentState.itemsPerPage,
-        sortBy: newSortBy, // Use the new sort column
+        sortBy: newSortBy, // update for the new sort column
         ascending: newAscending, // Use the new sort direction
         searchText: currentState.searchText,
       );
@@ -154,33 +144,30 @@ class ManufacturersNotifier
 
   /// Action: Search functionality, always active
   void search(String newSearchText) {
-    _debounce?.cancel(); // Cancels any existing debounce timer
-    // Sets a new timer to delay the search execution
+    _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () async {
       final currentState = state.valueOrNull;
       // Avoids search if state is invalid or search text hasn't changed
-      if (currentState == null || currentState.searchText == newSearchText) return;
+      if (currentState == null || currentState.searchText == newSearchText) {
+        return;
+      }
 
-      const newPage = 1; // Resets to page 1 on search
-      // Shows loading but keeps previous data visible for better UX
+      const newPage = 1;
       state = const AsyncLoading<ManufacturersState>().copyWithPrevious(state);
 
       try {
-        // Fetches the total count for the *new* search query first
         final totalItems = await _fetchTotalCount(searchText: newSearchText);
         final totalPages = (totalItems / currentState.itemsPerPage).ceil();
         final calculatedTotalPages = totalPages > 0 ? totalPages : 1;
 
-        // Fetches the first page of data based on the new search query
         final items = await _fetchPageData(
           page: newPage,
           itemsPerPage: currentState.itemsPerPage,
-          sortBy: currentState.sortBy, // Keeps the current sort order
+          sortBy: currentState.sortBy,
           ascending: currentState.ascending,
-          searchText: newSearchText, // Uses the new search text
+          searchText: newSearchText,
         );
 
-        // Updates the state with the new items, page, search text, and total pages
         state = AsyncValue.data(currentState.copyWith(
           manufacturers: items,
           currentPage: newPage,
@@ -188,7 +175,8 @@ class ManufacturersNotifier
           totalPages: calculatedTotalPages,
         ));
       } catch (e, s) {
-        print("Error during manufacturer search($newSearchText): $e"); // Log search error
+        print(
+            "Error during manufacturer search($newSearchText): $e"); // Log search error
         state = AsyncValue.error(e, s); // Sets error state
       }
     });
@@ -208,16 +196,18 @@ class ManufacturersNotifier
 
     try {
       // Recalculates total items based on current search/filters
-      final totalItems = await _fetchTotalCount(searchText: currentState.searchText);
+      final totalItems =
+          await _fetchTotalCount(searchText: currentState.searchText);
       final totalPages = (totalItems / currentState.itemsPerPage).ceil();
       final calculatedTotalPages = totalPages > 0 ? totalPages : 1;
 
       // Adjusts page number if it becomes invalid (e.g., deleting last item)
       int pageToFetch = currentState.currentPage;
-      if (pageToFetch > calculatedTotalPages) pageToFetch = calculatedTotalPages;
+      if (pageToFetch > calculatedTotalPages) {
+        pageToFetch = calculatedTotalPages;
+      }
       if (pageToFetch < 1) pageToFetch = 1; // Ensures page doesn't go below 1
 
-      // Fetches potentially updated data for the (possibly adjusted) current page
       final items = await _fetchPageData(
         page: pageToFetch,
         itemsPerPage: currentState.itemsPerPage,
@@ -226,7 +216,6 @@ class ManufacturersNotifier
         searchText: currentState.searchText,
       );
 
-      // Updates state with potentially new items, total pages, and adjusted current page
       state = AsyncValue.data(previousState.copyWith(
         manufacturers: items,
         totalPages: calculatedTotalPages,
@@ -235,13 +224,12 @@ class ManufacturersNotifier
       ));
     } catch (e, s) {
       print("Error refreshing manufacturers page: $e"); // Log refresh error
-      state = AsyncValue.error(e, s); // Set error state
+      state = AsyncValue.error(e, s);
     }
   }
 
-  // --- Mutation Methods ---
+  // Action Methods
 
-  /// Action: Adds a new manufacturer and refreshes the list.
   Future<void> addManufacturer({
     required String manufacturerName,
     required String manufacturerEmail,
@@ -273,7 +261,8 @@ class ManufacturersNotifier
   }) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await _service.updateManufacturer( // Call service
+      await _service.updateManufacturer(
+          // Call service
           manufacturerID: manufacturerID,
           manufacturerName: manufacturerName,
           manufacturerEmail: manufacturerEmail,
@@ -301,12 +290,14 @@ class ManufacturersNotifier
           manufacturerID: manufacturerID, isActive: newIsActive);
 
       // Crucially, invalidate the *other* family instance
-      ref.invalidate(manufacturersNotifierProvider(!_isActive)); // Use !_isActive for the opposite context
+      ref.invalidate(manufacturersNotifierProvider(
+          !_isActive)); // Use !_isActive for the opposite context
 
       // Refresh the *current* state's view
       await _refreshCurrentPage();
     } catch (e, s) {
-      print("Error setting manufacturer visibility for ID $manufacturerID: $e"); // Log error
+      print(
+          "Error setting manufacturer visibility for ID $manufacturerID: $e"); // Log error
       state = AsyncValue.error(e, s); // Set error state
     }
   }

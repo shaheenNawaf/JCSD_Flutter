@@ -113,7 +113,6 @@ class _EditProductDefinitionModalState
 
   @override
   Widget build(BuildContext context) {
-    // Similar layout as Add modal
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 700 ? 650 : screenWidth * 0.9;
 
@@ -126,10 +125,9 @@ class _EditProductDefinitionModalState
         child: Form(
           key: formKey,
           child: Column(
-            mainAxisSize: MainAxisSize.min, // Fit content
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // --- Dialog Header ---
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -139,7 +137,7 @@ class _EditProductDefinitionModalState
                 ),
                 child: Center(
                   child: Text(
-                      'Edit Product Definition (ID: ${widget.productDefinition.prodDefID}...)',
+                      'Edit Product Definition (ID: ${widget.productDefinition.prodDefName}...)',
                       style: const TextStyle(
                           fontFamily: 'NunitoSans',
                           fontWeight: FontWeight.bold,
@@ -147,15 +145,12 @@ class _EditProductDefinitionModalState
                           color: Colors.white)),
                 ),
               ),
-
-              // --- Form Fields (Similar structure to Add Modal) ---
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: SingleChildScrollView(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Left Column
                       Expanded(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -178,18 +173,15 @@ class _EditProductDefinitionModalState
                         ),
                       ),
                       const SizedBox(width: 20),
-                      // Right Column
                       Expanded(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            _buildItemTypeDropdown(ref), // Item Type dropdown
+                            _buildItemTypeDropdown(ref),
                             const SizedBox(height: 15),
-                            _buildManufacturerDropdown(
-                                ref), // Manufacturer dropdown
+                            _buildManufacturerDropdown(ref),
                             const SizedBox(height: 15),
                             _buildTextField(
-                                // MSRP field
                                 label: 'MSRP (PHP)',
                                 hintText: 'Enter suggested retail price',
                                 controller: _msrpController,
@@ -389,7 +381,6 @@ class _EditProductDefinitionModalState
         const SizedBox(height: 5),
         manufacturersAsync.when(
           data: (manufacturers) => DropdownButtonFormField<String>(
-            // Use String for value now
             value: selectedManufacturerName, // Set initial name value
             hint: const Text('Select manufacturer...',
                 style: TextStyle(fontSize: 12, color: Colors.grey)),
