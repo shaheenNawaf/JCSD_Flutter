@@ -50,7 +50,7 @@ class _ArchiveManufacturerModalState
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 450 : screenWidth * 0.9;
-    const double dialogHeight = 190;
+    const double dialogHeight = 210;
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -66,25 +66,31 @@ class _ArchiveManufacturerModalState
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 12.0),
               decoration: const BoxDecoration(
-                  color: Colors.orange,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(10))),
+                color: Colors.orange,
+                borderRadius: BorderRadius.vertical(
+                  top: Radius.circular(10),
+                ),
+              ),
               child: const Center(
-                  child: Text('Confirm Archive',
-                      style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.white))),
+                child: Text(
+                  'Confirm Archive',
+                  style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.white),
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Center(
-                  child: Text(
-                      'Are you sure you want to archive\n"${widget.manufacturerName}"?',
-                      style: const TextStyle(
-                          fontFamily: 'NunitoSans', fontSize: 16, height: 1.4),
-                      textAlign: TextAlign.center)),
+                child: Text(
+                    'Are you sure you want to archive\n"${widget.manufacturerName}"?',
+                    style: const TextStyle(
+                        fontFamily: 'NunitoSans', fontSize: 16, height: 1.4),
+                    textAlign: TextAlign.center),
+              ),
             ),
             const Spacer(),
             Padding(
@@ -93,45 +99,53 @@ class _ArchiveManufacturerModalState
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                      child: TextButton(
-                          onPressed: _isArchiving
-                              ? null
-                              : () => Navigator.pop(context),
-                          style: TextButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 14.0),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                  side: const BorderSide(color: Colors.grey))),
-                          child: const Text('Cancel',
-                              style: TextStyle(
-                                  fontFamily: 'NunitoSans',
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black54)))),
+                    child: TextButton(
+                      onPressed:
+                          _isArchiving ? null : () => Navigator.pop(context),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                          side: const BorderSide(color: Colors.grey),
+                        ),
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black54),
+                      ),
+                    ),
+                  ),
                   const SizedBox(width: 10),
                   Expanded(
-                      child: ElevatedButton.icon(
-                          icon: _isArchiving
-                              ? Container()
-                              : const Icon(Icons.archive, size: 18),
-                          label: _isArchiving
-                              ? const SizedBox(
-                                  height: 18,
-                                  width: 18,
-                                  child: CircularProgressIndicator(
-                                      color: Colors.white, strokeWidth: 2))
-                              : const Text('Archive'),
-                          onPressed: _isArchiving ? null : _archiveItem,
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.orange,
-                              foregroundColor: Colors.white,
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 14.0),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5)),
-                              textStyle: const TextStyle(
-                                  fontFamily: 'NunitoSans',
-                                  fontWeight: FontWeight.bold)))),
+                    child: ElevatedButton.icon(
+                      icon: _isArchiving
+                          ? Container()
+                          : const Icon(Icons.archive, size: 18),
+                      label: _isArchiving
+                          ? const SizedBox(
+                              height: 18,
+                              width: 18,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2),
+                            )
+                          : const Text('Archive'),
+                      onPressed: _isArchiving ? null : _archiveItem,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        textStyle: const TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

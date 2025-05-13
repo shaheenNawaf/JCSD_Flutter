@@ -1,9 +1,13 @@
+//Default Imports
 import 'dart:async';
 
+//UI Imports
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/api/supa_details.dart';
+
+//Page Routings
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
@@ -27,6 +31,8 @@ import 'package:jcsd_flutter/view/admin/payroll.dart';
 import 'package:jcsd_flutter/view/client/profile_client.dart';
 import 'package:jcsd_flutter/view/employee/dashboard.dart';
 import 'package:jcsd_flutter/view/inventory/item_serials/item_serials_list.dart';
+import 'package:jcsd_flutter/view/manufacturers/manufacturers.dart';
+import 'package:jcsd_flutter/view/manufacturers/manufacturers_archive.dart';
 import 'package:jcsd_flutter/view/order_item/order_list.dart';
 import 'package:jcsd_flutter/view/services/services.dart';
 import 'package:jcsd_flutter/view/services/services_archive.dart';
@@ -193,6 +199,14 @@ final router = GoRouter(
     GoRoute(
       path: '/dashboard',
       builder: (context, state) => const DashboardPage(),
+    ),
+    GoRoute(
+      path: '/manufacturers',
+      builder: (context, state) => const ManufacturersPage(),
+    ),
+    GoRoute(
+      path: '/archivedmanufacturers',
+      builder: (context, state) => const ManufacturersArchivePage(),
     ),
     GoRoute(
         path: '/inventory',

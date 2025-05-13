@@ -24,3 +24,9 @@ final activeManufacturersForDropdownProvider =
   final service = ref.watch(manufacturersServiceProvider);
   return service.getAllManufacturersForSelect(activeOnly: true);
 });
+
+final allManufacturersForEditDropdownProvider =
+    FutureProvider.autoDispose<List<ManufacturersData>>((ref) async {
+  final service = ref.watch(manufacturersServiceProvider);
+  return service.fetchAllManufacturers();
+});

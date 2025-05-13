@@ -174,18 +174,23 @@ class ManufacturersPage extends ConsumerWidget {
             ),
           ),
         ),
+        const Spacer(),
         SizedBox(
           width: 250,
           height: 40,
           child: TextField(
             decoration: InputDecoration(
-                hintText: 'Search Name/Email/Contact...',
-                prefixIcon: const Icon(Icons.search, size: 20),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                hintStyle: const TextStyle(fontSize: 12)),
+              hintText: 'Search Name/Email/Contact...',
+              prefixIcon: const Icon(Icons.search, size: 20),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+              hintStyle: const TextStyle(
+                color: Color(0xFFABABAB),
+                fontFamily: 'NunitoSans',
+              ),
+            ),
             onChanged: (searchText) => ref
                 .read(manufacturersNotifierProvider(isVisibleFilter).notifier)
                 .search(searchText),
@@ -193,14 +198,23 @@ class ManufacturersPage extends ConsumerWidget {
         ),
         const SizedBox(width: 16),
         ElevatedButton.icon(
-            onPressed: () => _showAddManufacturerModal(context, ref),
-            icon: const Icon(Icons.add, color: Colors.white, size: 18),
-            label: const Text('Add Manufacturer',
-                style: TextStyle(color: Colors.white)),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10))),
+          onPressed: () => _showAddManufacturerModal(context, ref),
+          icon: const Icon(Icons.add, color: Colors.white, size: 18),
+          label: const Text(
+            'Add Manufacturer',
+            style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.bold),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF00AEEF),
+            minimumSize: const Size(0, 48),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -344,33 +358,46 @@ class ManufacturersPage extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1))),
           Expanded(
-              flex: 2,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Tooltip(
-                      message: 'Edit Manufacturer',
-                      child: IconButton(
-                          icon: const Icon(Icons.edit,
-                              color: Colors.blueAccent, size: 18),
-                          onPressed: () =>
-                              _showEditManufacturerModal(context, ref, item),
-                          splashRadius: 18,
-                          constraints: const BoxConstraints(),
-                          padding: const EdgeInsets.symmetric(horizontal: 5))),
-                  const SizedBox(width: 4),
-                  Tooltip(
-                      message: 'Archive Manufacturer',
-                      child: IconButton(
-                          icon: const Icon(Icons.archive,
-                              color: Colors.redAccent, size: 18),
-                          onPressed: () =>
-                              _showArchiveManufacturerModal(context, ref, item),
-                          splashRadius: 18,
-                          constraints: const BoxConstraints(),
-                          padding: const EdgeInsets.symmetric(horizontal: 5))),
-                ],
-              )),
+            flex: 2,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Tooltip(
+                  message: 'Edit Manufacturer',
+                  child: ElevatedButton(
+                    onPressed: () =>
+                        _showEditManufacturerModal(context, ref, item),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      padding: EdgeInsets.zero,
+                    ),
+                    child: const Icon(
+                      Icons.edit,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                Tooltip(
+                  message: 'Archive Manufacturer',
+                  child: ElevatedButton(
+                    onPressed: () =>
+                        _showArchiveManufacturerModal(context, ref, item),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                      padding: EdgeInsets.zero,
+                    ),
+                    child: const Icon(
+                      Icons.archive,
+                      color: Colors.white,
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

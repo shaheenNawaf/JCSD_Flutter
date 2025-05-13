@@ -135,10 +135,9 @@ class _EditProductDefinitionModalState
                   color: Color(0xFF00AEEF),
                   borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
                 ),
-                child: Center(
-                  child: Text(
-                      'Edit Product Definition (ID: ${widget.productDefinition.prodDefName}...)',
-                      style: const TextStyle(
+                child: const Center(
+                  child: Text('Edit Product Definition',
+                      style: TextStyle(
                           fontFamily: 'NunitoSans',
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
@@ -210,8 +209,6 @@ class _EditProductDefinitionModalState
                   ),
                 ),
               ),
-
-              // --- Action Buttons ---
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
                 child: Row(
@@ -219,7 +216,6 @@ class _EditProductDefinitionModalState
                   children: [
                     Expanded(
                       child: TextButton(
-                        // Cancel button
                         onPressed:
                             isSaving ? null : () => Navigator.pop(context),
                         style: TextButton.styleFrom(
@@ -238,7 +234,6 @@ class _EditProductDefinitionModalState
                     const SizedBox(width: 10),
                     Expanded(
                       child: ElevatedButton.icon(
-                        // Save Changes button
                         icon: isSaving
                             ? Container()
                             : const Icon(Icons.save, size: 18),
@@ -369,7 +364,7 @@ class _EditProductDefinitionModalState
   //Manufacturers Dropdown
   Widget _buildManufacturerDropdown(WidgetRef ref) {
     final manufacturersAsync = ref.watch(
-        activeManufacturersForDropdownProvider); // Fetch active manufacturers
+        allManufacturersForEditDropdownProvider); // Fetch active manufacturers
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

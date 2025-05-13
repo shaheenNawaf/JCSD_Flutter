@@ -29,19 +29,22 @@ import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/view/inventory/item_types/item_types.dart';
 
+/// Displays the list of active Product Definitions.
 class InventoryPage extends ConsumerWidget {
   const InventoryPage({super.key});
 
-  final String _activeSubItem = '/inventory';
-  final bool isVisibleFilter = true;
+  final String _activeSubItem = '/inventory'; // Sidebar active state identifier
+  final bool isVisibleFilter = true; // Filter for active items
 
+  // Shows the modal to add a new product definition
   void _showAddProductDefinitionModal(BuildContext context, WidgetRef ref) {
     showDialog(
         context: context,
-        barrierDismissible: false,
+        barrierDismissible: false, // Prevent closing by tapping outside
         builder: (_) => AddProdDefModal(isVisible: isVisibleFilter));
   }
 
+  // Shows the modal to edit an existing product definition
   void _showEditProductDefinitionModal(BuildContext context, WidgetRef ref,
       ProductDefinitionData productDefinition) {
     showDialog(
@@ -52,30 +55,34 @@ class InventoryPage extends ConsumerWidget {
             isVisibleContext: isVisibleFilter));
   }
 
+  // Shows the confirmation modal to archive a product definition
   void _showArchiveProductDefinitionModal(BuildContext context, WidgetRef ref,
       ProductDefinitionData productDefinition) {
     // Ensure ID is not null before showing archive modal
     if (productDefinition.prodDefID == null) {
       print("Error: Cannot archive product definition with null ID.");
+      // Optionally show an error message to the user
       return;
     }
     showDialog(
         context: context,
-        barrierDismissible: true,
+        barrierDismissible: true, // Allow closing by tapping outside
         builder: (_) => ArchiveProductDefinitionModal(
-            prodDefID: productDefinition.prodDefID!,
+            prodDefID:
+                productDefinition.prodDefID!, // Use non-null assertion here
             prodDefName: productDefinition.prodDefName,
             isVisibleContext: isVisibleFilter));
   }
 
+  //Navigation Buttons
   void _navigateToItemTypesPage(BuildContext context) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const ItemTypesPage()));
+    context.push('/itemTypes');
   }
 
   void _navigateToManufacturersPage(BuildContext context) {
     Navigator.push(context,
         MaterialPageRoute(builder: (context) => const ManufacturersPage()));
+    // context.push('/manufacturers'); -- fix the 404 error here mikey
   }
 
   @override
@@ -129,33 +136,10 @@ class InventoryPage extends ConsumerWidget {
     );
   }
 
-  // Builds the top row with navigation buttons, search, and add button
   Widget _buildTopControls(BuildContext context, WidgetRef ref) {
     return Row(
       children: [
         ElevatedButton.icon(
-          onPressed: () => _navigateToItemTypesPage(context),
-          icon: const Icon(
-            Icons.category,
-            color: Colors.white,
-            size: 16,
-          ),
-          label: const Text(
-            'Item Types',
-            style: TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF00AEEF),
-            minimumSize: const Size(0, 48),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
           onPressed: () => _navigateToItemTypesPage(context),
           icon: const Icon(
             Icons.category,
@@ -226,45 +210,12 @@ class InventoryPage extends ConsumerWidget {
             ),
           ),
         ),
-          onPressed: () => context.go('/suppliers'),
-          icon: const Icon(
-            Icons.local_shipping,
-            color: Colors.white,
-            size: 16,
-          ),
-          label: const Text(
-            'Suppliers',
-            style: TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF00AEEF),
-            minimumSize: const Size(0, 48),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-        ),
         const Spacer(),
         SizedBox(
           width: 250,
           height: 40,
           child: TextField(
             decoration: InputDecoration(
-              hintText: 'Search Name/Desc/Type/Mfg...',
-              prefixIcon: const Icon(Icons.search, size: 20),
-              border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-              hintStyle: const TextStyle(
-                color: Color(0xFFABABAB),
-                fontFamily: 'NunitoSans',
-              ),
-            ),
               hintText: 'Search Name/Desc/Type/Mfg...',
               prefixIcon: const Icon(Icons.search, size: 20),
               border:
@@ -286,20 +237,13 @@ class InventoryPage extends ConsumerWidget {
         ElevatedButton.icon(
           onPressed: () => _showAddProductDefinitionModal(context, ref),
           icon: const Icon(Icons.add, color: Colors.white, size: 18),
-          label:
-              const Text('Add Product', style: TextStyle(color: Colors.white)),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF00AEEF),
-            minimumSize: const Size(0, 48),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+          label: const Text(
+            'Add Product',
+            style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'NunitoSans',
+                fontWeight: FontWeight.bold),
           ),
-        ),
-          onPressed: () => _showAddProductDefinitionModal(context, ref),
-          icon: const Icon(Icons.add, color: Colors.white, size: 18),
-          label:
-              const Text('Add Product', style: TextStyle(color: Colors.white)),
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFF00AEEF),
             minimumSize: const Size(0, 48),
@@ -345,7 +289,6 @@ class InventoryPage extends ConsumerWidget {
     );
   }
 
-  // Builds the header row with sortable columns
   Widget _buildHeaderRow(BuildContext context, WidgetRef ref,
       ProductDefinitionState productDefState) {
     const headerTextStyle = TextStyle(
@@ -385,7 +328,6 @@ class InventoryPage extends ConsumerWidget {
     );
   }
 
-  // Builds a single sortable header cell
   Widget _buildHeaderCell(
       BuildContext context,
       WidgetRef ref,
@@ -450,11 +392,9 @@ class InventoryPage extends ConsumerWidget {
               flex: 4,
               child: Text(item.prodDefName,
                   style: rowTextStyle, overflow: TextOverflow.ellipsis)),
-          // Fetch Item Type Name (Suboptimal - consider optimizing later)
           Expanded(
               flex: 3,
               child: FutureBuilder<String>(
-                  // Note: Consider a provider for efficiency: ref.watch(itemTypeNameProvider(item.itemTypeID))
                   future: ItemtypesService().getTypeNameByID(item.itemTypeID),
                   builder: (context, snapshot) => Text(snapshot.data ?? '...',
                       style: rowTextStyle,
@@ -481,7 +421,6 @@ class InventoryPage extends ConsumerWidget {
                       style: rowTextStyle,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1))),
-          // Action Buttons
           Expanded(
               flex: 3,
               child: Row(
@@ -518,36 +457,6 @@ class InventoryPage extends ConsumerWidget {
                         size: 18,
                       ),
                     ),
-                    message: 'View Serials',
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Ensure ID is not null before navigating
-                        if (item.prodDefID != null) {
-                          final String? productDefinitionId = item.prodDefID;
-                          final String productDefinitionName = item.prodDefName;
-                          context.go(
-                            '/inventory/serials',
-                            extra: {
-                              'prodDefId': productDefinitionId,
-                              'prodDefName': productDefinitionName
-                            },
-                          );
-                        } else {
-                          print(
-                              "Error: Cannot view serials for null prodDefID");
-                          // Optionally show feedback to user
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.indigo,
-                        padding: EdgeInsets.zero,
-                      ),
-                      child: const Icon(
-                        Icons.list_alt,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
                   ),
                   const SizedBox(width: 4),
                   Tooltip(
@@ -565,37 +474,9 @@ class InventoryPage extends ConsumerWidget {
                         size: 18,
                       ),
                     ),
-                    message: 'Edit Product',
-                    child: ElevatedButton(
-                      onPressed: () =>
-                          _showEditProductDefinitionModal(context, ref, item),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        padding: EdgeInsets.zero,
-                      ),
-                      child: const Icon(
-                        Icons.edit,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
                   ),
                   const SizedBox(width: 4),
                   Tooltip(
-                    message: 'Archive Product',
-                    child: ElevatedButton(
-                      onPressed: () => _showArchiveProductDefinitionModal(
-                          context, ref, item),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                        padding: EdgeInsets.zero,
-                      ),
-                      child: const Icon(
-                        Icons.archive,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                    ),
                     message: 'Archive Product',
                     child: ElevatedButton(
                       onPressed: () => _showArchiveProductDefinitionModal(
@@ -618,7 +499,6 @@ class InventoryPage extends ConsumerWidget {
     );
   }
 
-  // Builds the pagination controls
   Widget _buildPaginationControls(BuildContext context, WidgetRef ref,
       ProductDefinitionState productDefState) {
     final notifier =
@@ -664,7 +544,6 @@ class InventoryPage extends ConsumerWidget {
     );
   }
 
-  // Builds the shimmer header placeholder
   Widget _buildShimmerHeader() {
     const headerPlaceholderColor = Color.fromRGBO(0, 174, 239, 0.5);
     return Container(
@@ -674,7 +553,6 @@ class InventoryPage extends ConsumerWidget {
         baseColor: Colors.white.withOpacity(0.3),
         highlightColor: Colors.white.withOpacity(0.6),
         child: Row(children: [
-          // Match header flex values
           Expanded(flex: 2, child: Container(height: 16, color: Colors.white)),
           const SizedBox(width: 8),
           Expanded(flex: 4, child: Container(height: 16, color: Colors.white)),
@@ -693,7 +571,6 @@ class InventoryPage extends ConsumerWidget {
     );
   }
 
-  // Builds a single shimmer row placeholder
   Widget _buildShimmerRow() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
@@ -736,7 +613,6 @@ class InventoryPage extends ConsumerWidget {
     );
   }
 
-  // Builds the overall loading indicator structure
   Widget _buildLoadingIndicator() {
     return Column(children: [
       _buildTopControlsPlaceholder(),
@@ -762,7 +638,6 @@ class InventoryPage extends ConsumerWidget {
     ]);
   }
 
-  // Builds the shimmer placeholder for top controls
   Widget _buildTopControlsPlaceholder() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10),
@@ -804,7 +679,6 @@ class InventoryPage extends ConsumerWidget {
     );
   }
 
-  // Builds the shimmer placeholder for pagination controls
   Widget _buildPaginationPlaceholder() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -846,7 +720,6 @@ class InventoryPage extends ConsumerWidget {
     );
   }
 
-  // Builds the error display widget
   Widget _buildErrorWidget(
       Object error, StackTrace? stackTrace, WidgetRef ref) {
     print('Inventory Page Error: $error \n $stackTrace');
@@ -870,7 +743,6 @@ class InventoryPage extends ConsumerWidget {
     ]));
   }
 
-  // Builds the empty state display widget
   Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
     return Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
