@@ -8,6 +8,7 @@ import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 import 'package:jcsd_flutter/others/transition.dart';
+import 'package:jcsd_flutter/view/admin/payrolllist.dart';
 import 'package:jcsd_flutter/view/bookings/booking_detail.dart';
 import 'package:jcsd_flutter/view/bookings/booking_receipt.dart';
 import 'package:jcsd_flutter/view/employee/leave_requests.dart';
@@ -123,6 +124,10 @@ final router = GoRouter(
             builder: (context, state) => const LeaveRequestList(),
           ),
           GoRoute(
+            path: 'payrollList',
+            builder: (context, state) => const PayrollList(),
+          ),
+          GoRoute(
               path: 'profile',
               builder: (context, state) {
                 final args = state.extra as Map<String, dynamic>;
@@ -130,14 +135,17 @@ final router = GoRouter(
                 final currentUser = Supabase.instance.client.auth.currentUser;
                 final emp = args['employee'] as EmployeeData?;
                 return ProfilePage(
-                  targetUser: acc,
-                  currentUserId: currentUser?.id,
-                  emp: emp);
+                    targetUser: acc, currentUserId: currentUser?.id, emp: emp);
               },
               routes: <GoRoute>[
                 GoRoute(
                   path: 'payslip',
-                  builder: (context, state) => const Payslip(),
+                  builder: (context, state) {
+                    final args = state.extra as Map<String, dynamic>?;
+                    final acc = args?['account'] as AccountsData?;
+                    final emp = args?['employee'] as EmployeeData?;
+                    return Payslip(acc: acc, emp: emp);
+                  },
                 ),
                 GoRoute(
                   path: 'leaveRequest',
@@ -354,6 +362,7 @@ final router = GoRouter(
           '/employeeList/profile/payslip',
           '/employeeList/profile/leaveRequest',
           '/employeeList/leaveRequestList',
+          '/employeeList/payrollList',
           '/payroll',
           '/accountDetails',
           '/dashboard',

@@ -70,13 +70,13 @@ class AccountsData {
     );
   }
 
-  Map<String, dynamic> toJson() {
+  Map<String, Object> toJson() {
     return {
       'userID': userID,
       'firstName': firstName,
       'middleName': middleName,
       'lastName': lastname,
-      'birthDate': birthDate?.toIso8601String(),
+      'birthDate': birthDate?.toIso8601String() ?? '',
       'address': address,
       'city': city,
       'province': province,
