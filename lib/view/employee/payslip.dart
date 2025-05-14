@@ -3,11 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/modals/request_cash_advance.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 
@@ -27,6 +27,14 @@ class _PayslipState extends ConsumerState<Payslip> {
 
   late final AccountsData? user = widget.acc;
   late final EmployeeData? emp = widget.emp;
+
+  void _showRequestCashAdvanceModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const CashAdvanceForm(),
+    );
+  }
 
   String _display(dynamic v) =>
       (v == null || (v is String && v.trim().isEmpty)) ? 'N/A' : v.toString();
@@ -184,6 +192,65 @@ class _PayslipState extends ConsumerState<Payslip> {
                 Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
                 const PayslipRow(
                     label: 'Net Salary: ', value: 'P200,000', isBold: true),
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 20, 40, 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          context.push(
+                              '/employeeList/profile/payslip/cashAdvanceHistory',
+                              extra: {
+                                'account': user,
+                                'employee': emp,
+                              });
+                        },
+                        icon: const FaIcon(FontAwesomeIcons.clockRotateLeft,
+                            color: Colors.white, size: 16),
+                        label: const Text(
+                          'Cash Advance History',
+                          style: TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00AEEF),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton.icon(
+                        onPressed: _showRequestCashAdvanceModal,
+                        icon: const FaIcon(FontAwesomeIcons.moneyBillTransfer,
+                            color: Colors.white, size: 16),
+                        label: const Text(
+                          'Request Cash Advance',
+                          style: TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00AEEF),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

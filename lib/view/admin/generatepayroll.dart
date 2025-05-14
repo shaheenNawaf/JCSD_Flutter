@@ -1,0 +1,317 @@
+// ignore_for_file: library_private_types_in_public_api
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/modals/confirm_cash_advance_request.dart';
+import 'package:jcsd_flutter/widgets/header.dart';
+import 'package:jcsd_flutter/widgets/sidebar.dart';
+
+class GeneratePayrollPage extends ConsumerStatefulWidget {
+  const GeneratePayrollPage({super.key});
+
+  @override
+  ConsumerState<GeneratePayrollPage> createState() =>
+      _GeneratePayrollPageState();
+}
+
+class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
+  final int _rowsPerPage = 10;
+  int _currentPage = 0;
+  String _searchText = '';
+  String _sortBy = 'name';
+  bool _ascending = true;
+
+  final List<Map<String, dynamic>> _dummyData = List.generate(
+    5,
+    (index) => {
+      'name': 'Employee $index',
+      'position': 'Position $index',
+      'salary': '₱12,000.00',
+      'calculated': '₱10,660.00',
+      'bonus': TextEditingController(),
+      'deduction': TextEditingController(),
+      'remarks': TextEditingController(),
+    },
+  );
+
+  List<Map<String, dynamic>> _applyFilters(List<Map<String, dynamic>> data) {
+    final query = _searchText.toLowerCase();
+    final filtered = data.where((item) {
+      return item['name'].toLowerCase().contains(query) ||
+          item['position'].toLowerCase().contains(query);
+    }).toList();
+
+    filtered.sort((a, b) {
+      final aVal = a[_sortBy] ?? '';
+      final bVal = b[_sortBy] ?? '';
+      return _ascending ? aVal.compareTo(bVal) : bVal.compareTo(aVal);
+    });
+
+    return filtered;
+  }
+
+  void _sort(String column) {
+    setState(() {
+      if (_sortBy == column) {
+        _ascending = !_ascending;
+      } else {
+        _sortBy = column;
+        _ascending = true;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final filteredData = _applyFilters(_dummyData);
+    final paginatedData = filteredData
+        .skip(_currentPage * _rowsPerPage)
+        .take(_rowsPerPage)
+        .toList();
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8F8F8),
+      body: Row(
+        children: [
+          const Sidebar(activePage: '/employeeList'),
+          Expanded(
+            child: Column(
+              children: [
+                Header(
+                  title: 'Generate Payroll',
+                  leading: IconButton(
+                    icon:
+                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                    onPressed: () => context.pop(),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      SizedBox(
+                        width: 250,
+                        height: 40,
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Search',
+                            hintStyle: const TextStyle(
+                              color: Color(0xFFABABAB),
+                              fontFamily: 'NunitoSans',
+                            ),
+                            prefixIcon: const Icon(Icons.search),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 0,
+                              horizontal: 16,
+                            ),
+                          ),
+                          onChanged: (value) => setState(() {
+                            _searchText = value;
+                          }),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) =>
+                                ConfirmCashAdvanceRequest(onSuccess: () {}),
+                          );
+                        },
+                        icon: const Icon(Icons.payment_rounded,
+                            color: Colors.white),
+                        label: const Text(
+                          'Generate Payroll',
+                          style: TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00AEEF),
+                          minimumSize: const Size(0, 48),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: _buildDataTable(paginatedData),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _buildPagination(filteredData),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDataTable(List<Map<String, dynamic>> data) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.vertical,
+        child: DataTable(
+          headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
+          columnSpacing: 24,
+          columns: [
+            DataColumn(label: _buildSortableHeader('Employee Name', 'name')),
+            DataColumn(label: _buildSortableHeader('Position', 'position')),
+            DataColumn(label: _buildHeaderText('Monthly Salary')),
+            DataColumn(label: _buildHeaderText('Calculated Monthly Salary')),
+            DataColumn(label: _buildHeaderText('Bonus')),
+            DataColumn(label: _buildHeaderText('Deductions')),
+            DataColumn(label: _buildHeaderText('Remarks')),
+          ],
+          rows: data.map((item) {
+            return DataRow(cells: [
+              DataCell(Text(item['name'])),
+              DataCell(Text(item['position'])),
+              DataCell(Text(item['salary'])),
+              DataCell(Text(item['calculated'])),
+              DataCell(SizedBox(
+                width: 150,
+                child: TextField(
+                  controller: item['bonus'],
+                  decoration: const InputDecoration(
+                    prefixText: '+ ₱',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              )),
+              DataCell(SizedBox(
+                width: 150,
+                child: TextField(
+                  controller: item['deduction'],
+                  decoration: const InputDecoration(
+                    prefixText: '- ₱',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+              )),
+              DataCell(SizedBox(
+                width: 250,
+                child: TextField(
+                  controller: item['remarks'],
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                  ),
+                ),
+              )),
+            ]);
+          }).toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSortableHeader(String title, String column) {
+    return InkWell(
+      onTap: () => _sort(column),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              fontFamily: 'NunitoSans',
+            ),
+          ),
+          if (_sortBy == column)
+            Icon(
+              _ascending ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+              size: 18,
+              color: Colors.white,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeaderText(String text, {bool center = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontFamily: 'NunitoSans',
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+        ),
+        textAlign: center ? TextAlign.center : TextAlign.start,
+      ),
+    );
+  }
+
+  Widget _buildPagination(List<Map<String, dynamic>> filteredData) {
+    final totalPages = (filteredData.length / _rowsPerPage).ceil();
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.first_page),
+          onPressed:
+              _currentPage > 0 ? () => setState(() => _currentPage = 0) : null,
+        ),
+        IconButton(
+          icon: const Icon(Icons.navigate_before),
+          onPressed:
+              _currentPage > 0 ? () => setState(() => _currentPage--) : null,
+        ),
+        Text('Page ${_currentPage + 1} of $totalPages'),
+        IconButton(
+          icon: const Icon(Icons.navigate_next),
+          onPressed: _currentPage < totalPages - 1
+              ? () => setState(() => _currentPage++)
+              : null,
+        ),
+        IconButton(
+          icon: const Icon(Icons.last_page),
+          onPressed: _currentPage < totalPages - 1
+              ? () => setState(() => _currentPage = totalPages - 1)
+              : null,
+        ),
+      ],
+    );
+  }
+}

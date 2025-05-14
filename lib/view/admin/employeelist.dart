@@ -93,6 +93,29 @@ class EmployeeListPage extends ConsumerWidget {
                               ),
                             ),
                           ),
+                          const SizedBox(width: 12),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              context.go('/employeeList/cashAdvanceList');
+                            },
+                            icon: const Icon(Icons.credit_score_rounded,
+                                color: Colors.white),
+                            label: const Text(
+                              'Cash Advance List',
+                              style: TextStyle(
+                                fontFamily: 'NunitoSans',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF00AEEF),
+                              minimumSize: const Size(120, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                       Row(

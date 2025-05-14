@@ -5,14 +5,14 @@ import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
-class PayrollList extends ConsumerStatefulWidget {
-  const PayrollList({super.key});
+class CashAdvanceList extends ConsumerStatefulWidget {
+  const CashAdvanceList({super.key});
 
   @override
-  ConsumerState<PayrollList> createState() => _PayrollListState();
+  ConsumerState<CashAdvanceList> createState() => _CashAdvanceListState();
 }
 
-class _PayrollListState extends ConsumerState<PayrollList> {
+class _CashAdvanceListState extends ConsumerState<CashAdvanceList> {
   final int _rowsPerPage = 10;
   int _currentPage = 0;
   String _searchText = '';
@@ -27,6 +27,7 @@ class _PayrollListState extends ConsumerState<PayrollList> {
             'paymentReceived': 'P${20000 + index * 100}',
             'monthlySalary': 'P${30000 + index * 100}',
             'calculatedSalary': 'P${25000 + index * 100}',
+            'reason': 'Emergency fund',
           });
 
   List<Map<String, dynamic>> _applyFilters(List<Map<String, dynamic>> data) {
@@ -73,7 +74,7 @@ class _PayrollListState extends ConsumerState<PayrollList> {
             child: Column(
               children: [
                 Header(
-                  title: 'Payroll List',
+                  title: 'Cash Advance List',
                   leading: IconButton(
                     icon:
                         const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
@@ -114,57 +115,6 @@ class _PayrollListState extends ConsumerState<PayrollList> {
                             ),
                           ),
                           const SizedBox(width: 16),
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              context.go(
-                                  '/employeeList/payrollList/generatePayroll');
-                            },
-                            icon: const Icon(Icons.payment_rounded,
-                                color: Colors.white),
-                            label: const Text(
-                              'Generate Payroll',
-                              style: TextStyle(
-                                fontFamily: 'NunitoSans',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF00AEEF),
-                              minimumSize: const Size(120, 48),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                          // ElevatedButton.icon(
-                          //   onPressed: () {
-                          //     showDialog(
-                          //       context: context,
-                          //       barrierDismissible: false,
-                          //       builder: (BuildContext context) {
-                          //         return const GeneratePayrollModal();
-                          //       },
-                          //     );
-                          //   },
-                          //   icon:
-                          //       const Icon(Icons.payments, color: Colors.white),
-                          //   label: const Text(
-                          //     'Generate Payroll',
-                          //     style: TextStyle(
-                          //       fontFamily: 'NunitoSans',
-                          //       fontWeight: FontWeight.bold,
-                          //       color: Colors.white,
-                          //     ),
-                          //   ),
-                          //   style: ElevatedButton.styleFrom(
-                          //     backgroundColor: const Color(0xFF00AEEF),
-                          //     minimumSize: const Size(0, 48),
-                          //     shape: RoundedRectangleBorder(
-                          //       borderRadius: BorderRadius.circular(8),
-                          //     ),
-                          //   ),
-                          // ),
                         ],
                       ),
                     ],
@@ -216,21 +166,23 @@ class _PayrollListState extends ConsumerState<PayrollList> {
             DataColumn(
                 label: _buildSortableHeader('Monthly Salary', 'monthlySalary')),
             DataColumn(
-                label: _buildSortableHeader(
-                    'Calculated Monthly Salary', 'calculatedSalary')),
+                label:
+                    _buildSortableHeader('Cash Advance', 'calculatedSalary')),
+            DataColumn(label: _buildHeaderText('Reason')),
             DataColumn(label: _buildHeaderText('Action')),
           ],
           rows: data.map((item) {
             return DataRow(cells: [
               DataCell(Text(item['name'])),
               DataCell(Text(item['position'])),
-              DataCell(Text(item['paymentReceived'])),
-              DataCell(Text(item['monthlySalary'])),
               DataCell(Text(item['calculatedSalary'])),
+              DataCell(Text(item['monthlySalary'])),
+              DataCell(Text(item['paymentReceived'])),
+              DataCell(Text(item['reason'])),
               DataCell(
                 ElevatedButton(
                   onPressed: () {
-                    // Should redirect user to payroll profile page
+                    // Navigate or open modal
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF00AEEF),
