@@ -1,6 +1,7 @@
 import 'package:jcsd_flutter/api/global_variables.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 const int defaultItemsPerPage = 10;
 
@@ -72,7 +73,7 @@ class EmployeeService {
           result.add({
             'employee': emp,
             'account': AccountsData.fromJson(acc),
-            'fullName': '${acc['firstName']} ${acc['lastname']}',
+            'fullName': '${acc['firstName']} ${acc['lastName']}',
           });
         }
       }
@@ -95,6 +96,7 @@ class EmployeeService {
   }
 
   Future<void> registerNewEmployeeWithProfile({
+    required AuthResponse authResponse,
     required String email,
     required String password,
     required String role,
@@ -110,7 +112,8 @@ class EmployeeService {
     required String city,
     required String zipCode,
   }) async {
-    final user = supabaseDB.auth.currentUser;
+    final user = authResponse.user;
+
     if (user == null) {
       throw Exception("No authenticated user to link employee record.");
     }
@@ -121,7 +124,7 @@ class EmployeeService {
       'userID': userID,
       'email': email,
       'firstName': firstName,
-      'lastname': lastName,
+      'lastName': lastName,
       'middleName': middleInitial,
       'contactNumber': phone,
       'birthDate': birthday,

@@ -134,11 +134,13 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
           email: _email.text.trim(),
           password: _password.text.trim(),
         );
+        print(authResponse);
 
         final user = authResponse.user;
         if (user == null) throw Exception("Sign-up failed.");
 
         await EmployeeService().registerNewEmployeeWithProfile(
+          authResponse: authResponse,
           email: _email.text.trim(),
           password: _password.text.trim(),
           role: _selectedRole,

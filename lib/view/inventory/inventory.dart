@@ -80,9 +80,7 @@ class InventoryPage extends ConsumerWidget {
   }
 
   void _navigateToManufacturersPage(BuildContext context) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => const ManufacturersPage()));
-    // context.push('/manufacturers'); -- fix the 404 error here mikey
+    context.push('/manufacturers');
   }
 
   @override
@@ -164,7 +162,7 @@ class InventoryPage extends ConsumerWidget {
         ),
         const SizedBox(width: 10),
         ElevatedButton.icon(
-          onPressed: () => _navigateToManufacturersPage(context),
+          onPressed: () => context.push('/manufacturers'),
           icon: const Icon(
             Icons.precision_manufacturing,
             color: Colors.white,
