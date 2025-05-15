@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/others/dropdown_data.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import '../../../api/global_variables.dart';
 
 class EditProfileModal extends ConsumerStatefulWidget {
@@ -186,9 +187,7 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
       Navigator.pop(context, updatedAccount);
     } catch (e) {
       debugPrint("Update error: \$e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Update failed. Try again.")),
-      );
+      ToastManager().showToast(context, "Update failed. Try again.", Colors.red);
     }
   }
 

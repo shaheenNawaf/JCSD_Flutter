@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 
@@ -32,9 +33,7 @@ class Header extends StatelessWidget {
       }
     } catch (e) {
       debugPrint('Error navigating to account details: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to load account details: $e')),
-    );
+      ToastManager().showToast(context, 'Failed to load account details: $e', Colors.red);
     }
   }
 

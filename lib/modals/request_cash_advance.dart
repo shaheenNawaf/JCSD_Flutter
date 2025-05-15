@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CashAdvanceForm extends StatefulWidget {
@@ -124,22 +125,13 @@ class _CashAdvanceFormState extends State<CashAdvanceForm> {
                         if (userId == null ||
                             amountText.isEmpty ||
                             reason.isEmpty) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content:
-                                  Text("Please fill in all required fields."),
-                            ),
-                          );
+                          ToastManager().showToast(context, "Please fill in all required fields.", Colors.red);
                           return;
                         }
 
                         final amount = double.tryParse(amountText);
                         if (amount == null || amount < 2000) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Amount must be at least 2000."),
-                            ),
-                          );
+                          ToastManager().showToast(context, "Amount must be at least 2000.", Colors.red);
                           return;
                         }
 
@@ -155,16 +147,10 @@ class _CashAdvanceFormState extends State<CashAdvanceForm> {
 
                           if (context.mounted) {
                             Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content:
-                                      Text("Cash advance request submitted.")),
-                            );
+                            ToastManager().showToast(context, "Cash advance request submitted.", Colors.green);
                           }
                         } catch (error) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Error: \$error")),
-                          );
+                          ToastManager().showToast(context, "Error: \$error", Colors.red);
                         }
                       },
                       style: ElevatedButton.styleFrom(
