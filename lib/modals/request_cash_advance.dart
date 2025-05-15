@@ -117,40 +117,59 @@ class _CashAdvanceFormState extends State<CashAdvanceForm> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        final userId =
-                            Supabase.instance.client.auth.currentUser?.id;
+                        final supabase = Supabase.instance.client;
+                        final user = supabase.auth.currentUser;
                         final amountText = _amountController.text.trim();
                         final reason = _reasonController.text.trim();
 
-                        if (userId == null ||
+                        if (user == null ||
                             amountText.isEmpty ||
                             reason.isEmpty) {
-                          ToastManager().showToast(context, "Please fill in all required fields.", Colors.red);
+                          ToastManager().showToast(
+                              context,
+                              "Please fill in all required fields.",
+                              Colors.red);
                           return;
                         }
 
                         final amount = double.tryParse(amountText);
                         if (amount == null || amount < 2000) {
-                          ToastManager().showToast(context, "Amount must be at least 2000.", Colors.red);
+                          ToastManager().showToast(context,
+                              "Amount must be at least 2000.", Colors.red);
                           return;
                         }
 
                         try {
-                          await Supabase.instance.client
-                              .from('cash_advances')
-                              .insert({
-                            'userID': userId,
-                            'amount': amount,
+                          final employeeData = await supabase
+                              .from('employee')
+                              .select('employeeID, monthlySalary')
+                              .eq('"userID"', user.id)
+                              .maybeSingle();
+
+                          if (employeeData == null) {
+                            ToastManager().showToast(context,
+                                "Employee record not found.", Colors.red);
+                            return;
+                          }
+
+                          await supabase.from('cash_advance').insert({
+                            'employeeID': employeeData['employeeID'],
+                            'monthlySalary': employeeData['monthlySalary'],
+                            'cashAdvance': amount,
                             'reason': reason,
                             'status': 'Pending',
                           });
 
                           if (context.mounted) {
                             Navigator.pop(context);
-                            ToastManager().showToast(context, "Cash advance request submitted.", Colors.green);
+                            ToastManager().showToast(
+                                context,
+                                "Cash advance request submitted.",
+                                Colors.green);
                           }
                         } catch (error) {
-                          ToastManager().showToast(context, "Error: \$error", Colors.red);
+                          ToastManager()
+                              .showToast(context, "Error: $error", Colors.red);
                         }
                       },
                       style: ElevatedButton.styleFrom(

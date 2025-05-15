@@ -436,7 +436,7 @@ final router = GoRouter(
           '/bookingDetail',
           '/inventory',
           '/manufacturers'
-          '/suppliers',
+              '/suppliers',
           '/bookings',
           '/accountDetails',
           '/services',
@@ -445,6 +445,7 @@ final router = GoRouter(
           '/employeeList/profile',
           '/employeeList/profile/payslip',
           '/employeeList/profile/leaveRequest',
+          '/employeeList/profile/payslip/cashAdvanceHistory',
           '/dashboard',
           '/itemTypes',
         ],

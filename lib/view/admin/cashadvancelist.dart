@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:jcsd_flutter/modals/generate_employee_payroll.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
+import 'package:jcsd_flutter/modals/reject_cash_advance.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
+import 'package:jcsd_flutter/modals/confirm_cash_advance.dart';
+import 'package:jcsd_flutter/backend/modules/employee/cash_advance_provider.dart';
 
 class CashAdvanceList extends ConsumerStatefulWidget {
   const CashAdvanceList({super.key});
@@ -17,30 +20,20 @@ class _CashAdvanceListState extends ConsumerState<CashAdvanceList> {
   int _currentPage = 0;
   String _searchText = '';
   String _sortBy = 'name';
-  bool _ascending = false;
-
-  final List<Map<String, dynamic>> _dummyPayrollData = List.generate(
-      5,
-      (index) => {
-            'name': 'Employee $index',
-            'position': 'Position $index',
-            'paymentReceived': 'P${20000 + index * 100}',
-            'monthlySalary': 'P${30000 + index * 100}',
-            'calculatedSalary': 'P${25000 + index * 100}',
-            'reason': 'Emergency fund',
-          });
+  bool _ascending = true;
 
   List<Map<String, dynamic>> _applyFilters(List<Map<String, dynamic>> data) {
     final query = _searchText.toLowerCase();
     final filtered = data.where((item) {
-      return item['name'].toLowerCase().contains(query) ||
-          item['position'].toLowerCase().contains(query);
+      return item['name'].toLowerCase().contains(query);
     }).toList();
 
     filtered.sort((a, b) {
       final aVal = a[_sortBy] ?? '';
       final bVal = b[_sortBy] ?? '';
-      return _ascending ? aVal.compareTo(bVal) : bVal.compareTo(aVal);
+      return _ascending
+          ? aVal.toString().compareTo(bVal.toString())
+          : bVal.toString().compareTo(aVal.toString());
     });
 
     return filtered;
@@ -59,11 +52,7 @@ class _CashAdvanceListState extends ConsumerState<CashAdvanceList> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = _applyFilters(_dummyPayrollData);
-    final paginatedData = filteredData
-        .skip(_currentPage * _rowsPerPage)
-        .take(_rowsPerPage)
-        .toList();
+    final dataAsync = ref.watch(cashAdvanceStreamProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
@@ -86,7 +75,7 @@ class _CashAdvanceListState extends ConsumerState<CashAdvanceList> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const SizedBox(), // Placeholder to balance layout if needed
+                      const SizedBox(),
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -120,14 +109,30 @@ class _CashAdvanceListState extends ConsumerState<CashAdvanceList> {
                     ],
                   ),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: _buildDataTable(paginatedData),
-                  ),
+                dataAsync.when(
+                  loading: () => const CircularProgressIndicator(),
+                  error: (err, _) => Text('Error: $err'),
+                  data: (rows) {
+                    final filteredData = _applyFilters(rows);
+                    final paginatedData = filteredData
+                        .skip(_currentPage * _rowsPerPage)
+                        .take(_rowsPerPage)
+                        .toList();
+
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: _buildDataTable(paginatedData),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 10),
-                _buildPagination(_applyFilters(_dummyPayrollData)),
+                Consumer(builder: (context, ref, _) {
+                  final allData =
+                      ref.watch(cashAdvanceStreamProvider).value ?? [];
+                  return _buildPagination(_applyFilters(allData));
+                }),
                 const SizedBox(height: 20),
               ],
             ),
@@ -159,37 +164,72 @@ class _CashAdvanceListState extends ConsumerState<CashAdvanceList> {
           columnSpacing: 24,
           columns: [
             DataColumn(label: _buildSortableHeader('Employee Name', 'name')),
-            DataColumn(label: _buildSortableHeader('Position', 'position')),
             DataColumn(
                 label: _buildSortableHeader(
                     'Payment Received', 'paymentReceived')),
             DataColumn(
                 label: _buildSortableHeader('Monthly Salary', 'monthlySalary')),
             DataColumn(
-                label:
-                    _buildSortableHeader('Cash Advance', 'calculatedSalary')),
+                label: _buildSortableHeader('Cash Advance', 'cashAdvance')),
             DataColumn(label: _buildHeaderText('Reason')),
-            DataColumn(label: _buildHeaderText('Action')),
+            DataColumn(label: _buildHeaderText('Status')),
+            DataColumn(label: _buildHeaderText('Actions')),
           ],
           rows: data.map((item) {
+            final status = item['status'] ?? 'Pending';
+            final statusColor = status == 'Approved'
+                ? Colors.green
+                : status == 'Rejected'
+                    ? Colors.red
+                    : Colors.grey;
             return DataRow(cells: [
-              DataCell(Text(item['name'])),
-              DataCell(Text(item['position'])),
-              DataCell(Text(item['calculatedSalary'])),
-              DataCell(Text(item['monthlySalary'])),
-              DataCell(Text(item['paymentReceived'])),
-              DataCell(Text(item['reason'])),
+              DataCell(Text(item['name'] ?? '')),
+              DataCell(Text(item['cashAdvance'].toString())),
+              DataCell(Text(item['monthlySalary'] ?? '')),
+              DataCell(Text(item['created_at'] != null
+                  ? DateFormat.yMMMMd()
+                      .format(DateTime.parse(item['created_at']))
+                  : 'N/A')),
+              DataCell(Text(item['reason'] ?? '')),
+              DataCell(Text(status, style: TextStyle(color: statusColor))),
               DataCell(
-                ElevatedButton(
-                  onPressed: () {
-                    // Navigate or open modal
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF00AEEF),
-                  ),
-                  child: const Text('View Details',
-                      style: TextStyle(color: Colors.white)),
-                ),
+                item['status'] == 'Pending'
+                    ? Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) => ConfirmCashAdvanceModal(
+                                  id: item['id'],
+                                  onSuccess: () => setState(() {}),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green),
+                            child: const Text('Approve',
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                          const SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) => RejectCashAdvanceModal(
+                                  id: item['id'],
+                                  onSuccess: () => setState(() {}),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red),
+                            child: const Text('Reject',
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                        ],
+                      )
+                    : const SizedBox(height: 48),
               ),
             ]);
           }).toList(),
