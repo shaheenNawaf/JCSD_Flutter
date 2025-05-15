@@ -131,10 +131,12 @@ class _PayslipState extends ConsumerState<Payslip> {
                 Row(
                   children: [
                     const Padding(
-                      padding: EdgeInsets.fromLTRB(40, 20, 0, 0),
-                      child: Text("Payslip",
+                      padding: EdgeInsets.fromLTRB(20, 20, 0, 0),
+                      child: Text("Payslip Breakdown Summary",
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18)),
+                              fontFamily: 'NunitoSans',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20)),
                     ),
                     const Spacer(),
                     Padding(
@@ -171,27 +173,70 @@ class _PayslipState extends ConsumerState<Payslip> {
                     ),
                   ],
                 ),
-                Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
-                const PayslipRow(
-                    label: 'Total Income: ', value: 'P20,000', isBold: true),
-                const PayslipRow(label: 'Salary: ', value: 'P20,000'),
-                const PayslipRow(
-                    label: 'Medical Allowance: ', value: 'P20,000'),
-                const PayslipRow(label: 'OT Regular Day: ', value: 'P20,000'),
-                const PayslipRow(label: 'Bonus: ', value: 'P20,000'),
-                const PayslipRow(label: 'Others: ', value: 'P20,000'),
-                Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
-                const PayslipRow(
-                    label: 'Total Deduction: ', value: 'P5,000', isBold: true),
-                const PayslipRow(label: 'Tardiness: ', value: 'P2,000'),
-                const PayslipRow(label: 'Absences: ', value: 'P2,000'),
-                Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
-                const PayslipRow(
-                    label: 'Sub Total: ', value: 'P123,000', isBold: true),
-                const PayslipRow(label: 'Tax: ', value: 'P20,000'),
-                Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
-                const PayslipRow(
-                    label: 'Net Salary: ', value: 'P200,000', isBold: true),
+                const SizedBox(height: 30),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const PayslipRow(
+                              label: 'Attendance: ', value: '', isBold: true),
+                          const PayslipRow(
+                              label: 'Number of Days Present: ', value: '17'),
+                          const PayslipRow(
+                              label: 'Number of Leaves: ', value: '3'),
+                          const PayslipRow(
+                              label: 'OT Regular Day: ', value: '3'),
+                          const PayslipRow(label: 'Tardiness: ', value: '3'),
+                          const PayslipRow(label: 'Absences: ', value: '0'),
+                          Divider(
+                              color: Colors.grey[300],
+                              indent: 40,
+                              endIndent: 40),
+                          const PayslipRow(
+                              label: 'Deductions: ', value: '', isBold: true),
+                          const PayslipRow(
+                              label: 'Pagibig: ', value: '₱200.00'),
+                          const PayslipRow(
+                              label: 'PhilHealth: ', value: '₱600.00'),
+                          const PayslipRow(label: 'SSS: ', value: '₱550.00'),
+                          const PayslipRow(label: 'Others: ', value: '₱50.00'),
+                          const PayslipRow(
+                              label: 'Withholding Tax: ', value: '₱0.00'),
+                          const PayslipRow(
+                              label: 'Cash Advance: ', value: '₱2,000.00'),
+                          const PayslipRow(
+                              label: 'Total Deductions: ',
+                              value: '',
+                              isBold: true),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 32),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 100),
+                          PayslipRow(
+                              label: 'Payroll: ',
+                              value: '₱123,000',
+                              isBold: true),
+                          PayslipRow(label: 'Total Salary: ', value: '₱20,000'),
+                          PayslipRow(
+                              label: 'Total Deductions: ', value: '₱2,000'),
+                          PayslipRow(label: 'Bonus: ', value: '₱20,000'),
+                          PayslipRow(
+                              label: 'Take Home Pay: ',
+                              value: '₱200,000',
+                              isBold: true),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
                 const Spacer(),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(0, 20, 40, 20),
@@ -233,6 +278,29 @@ class _PayslipState extends ConsumerState<Payslip> {
                             color: Colors.white, size: 16),
                         label: const Text(
                           'Request Cash Advance',
+                          style: TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00AEEF),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // To be changed to print payslip functionality
+                      ElevatedButton.icon(
+                        onPressed: _showRequestCashAdvanceModal,
+                        icon: const FaIcon(FontAwesomeIcons.print,
+                            color: Colors.white, size: 16),
+                        label: const Text(
+                          'Print Payslip',
                           style: TextStyle(
                             fontFamily: 'NunitoSans',
                             fontWeight: FontWeight.bold,
@@ -325,11 +393,12 @@ class PayslipRow extends StatelessWidget {
   final String value;
   final bool isBold;
 
-  const PayslipRow(
-      {super.key,
-      required this.label,
-      required this.value,
-      this.isBold = false});
+  const PayslipRow({
+    super.key,
+    required this.label,
+    required this.value,
+    this.isBold = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -337,15 +406,23 @@ class PayslipRow extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 10, 40, 0),
       child: Row(
         children: [
-          Text(label,
-              style: TextStyle(
-                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-                  fontSize: 20)),
+          Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'NunitoSans',
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+              fontSize: 20,
+            ),
+          ),
           const Spacer(),
-          Text(value,
-              style: TextStyle(
-                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-                  fontSize: 20)),
+          Text(
+            value,
+            style: TextStyle(
+              fontFamily: 'NunitoSans',
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+              fontSize: 20,
+            ),
+          ),
         ],
       ),
     );

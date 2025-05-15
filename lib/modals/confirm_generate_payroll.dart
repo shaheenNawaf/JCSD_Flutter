@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 
-class ConfirmCashAdvanceRequest extends StatefulWidget {
+class ConfirmGeneratePayroll extends StatefulWidget {
   final VoidCallback onSuccess;
 
-  const ConfirmCashAdvanceRequest({
+  const ConfirmGeneratePayroll({
     super.key,
     required this.onSuccess,
   });
 
   @override
-  _ConfirmCashAdvanceRequestState createState() =>
-      _ConfirmCashAdvanceRequestState();
+  _ConfirmGeneratePayrollState createState() => _ConfirmGeneratePayrollState();
 }
 
-class _ConfirmCashAdvanceRequestState extends State<ConfirmCashAdvanceRequest> {
+class _ConfirmGeneratePayrollState extends State<ConfirmGeneratePayroll> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;

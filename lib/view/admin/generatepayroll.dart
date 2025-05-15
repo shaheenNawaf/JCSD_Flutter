@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:jcsd_flutter/modals/confirm_cash_advance_request.dart';
+import 'package:jcsd_flutter/modals/confirm_generate_payroll.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
@@ -117,11 +117,12 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
                       ),
                       const SizedBox(width: 16),
                       ElevatedButton.icon(
+                        // Should redirect user to another page to display each employee's payroll summary with an option to print OR for them
                         onPressed: () {
                           showDialog(
                             context: context,
                             builder: (context) =>
-                                ConfirmCashAdvanceRequest(onSuccess: () {}),
+                                ConfirmGeneratePayroll(onSuccess: () {}),
                           );
                         },
                         icon: const Icon(Icons.payment_rounded,
