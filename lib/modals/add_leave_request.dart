@@ -172,7 +172,10 @@ class _LeaveRequestFormState extends ConsumerState<LeaveRequestForm> {
                             _toDay == null ||
                             _toMonth == null ||
                             _toYear == null) {
-                          ToastManager().showToast(context, "Please complete all required fields.", Colors.red);
+                          ToastManager().showToast(
+                              context,
+                              "Please complete all required fields.",
+                              Colors.red);
                           return;
                         }
 
@@ -183,12 +186,18 @@ class _LeaveRequestFormState extends ConsumerState<LeaveRequestForm> {
 
                         if (startDate
                             .isBefore(DateTime(now.year, now.month, now.day))) {
-                          ToastManager().showToast(context, "Start date must not be in the past.", Colors.red);
+                          ToastManager().showToast(
+                              context,
+                              "Start date must not be in the past.",
+                              Colors.red);
                           return;
                         }
 
                         if (endDate.isBefore(startDate)) {
-                          ToastManager().showToast(context, "End date cannot be before start date.", Colors.red);
+                          ToastManager().showToast(
+                              context,
+                              "End date cannot be before start date.",
+                              Colors.red);
                           return;
                         }
 
@@ -208,10 +217,12 @@ class _LeaveRequestFormState extends ConsumerState<LeaveRequestForm> {
                             ref.invalidate(
                                 userLeaveRequestStreamProvider(userId));
                             Navigator.pop(context);
-                            ToastManager().showToast(context, "Leave request submitted.", Colors.red);
+                            ToastManager().showToast(context,
+                                "Leave request submitted.", Colors.red);
                           }
                         } catch (error) {
-                          ToastManager().showToast(context, "Error: $error", Colors.red);
+                          ToastManager()
+                              .showToast(context, "Error: $error", Colors.red);
                         }
                       },
                       style: ElevatedButton.styleFrom(

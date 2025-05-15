@@ -227,6 +227,9 @@ class _PayslipState extends ConsumerState<Payslip> {
                           PayslipRow(label: 'Total Salary: ', value: '₱20,000'),
                           PayslipRow(
                               label: 'Total Deductions: ', value: '₱2,000'),
+                          PayslipRow(
+                              label: 'Commission from Bookings: ',
+                              value: '₱20,000'),
                           PayslipRow(label: 'Bonus: ', value: '₱20,000'),
                           PayslipRow(
                               label: 'Take Home Pay: ',

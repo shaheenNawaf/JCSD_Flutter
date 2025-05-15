@@ -6,8 +6,10 @@ import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
+import 'package:jcsd_flutter/backend/modules/employee/cash_advance_provider.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
-import 'package:jcsd_flutter/backend/modules/employee/leave_request_provider.dart';
+import 'package:jcsd_flutter/backend/modules/employee/profile_cash_advance_provider.dart';
+
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
@@ -25,18 +27,17 @@ class _CashAdvancePageState extends ConsumerState<CashAdvancePage> {
   int _rowsPerPage = 10;
   int _currentPage = 0;
   String _searchText = '';
-  String _sortBy = 'startDate';
+  String _sortBy = 'created_at';
   bool _ascending = false;
   late final AccountsData? user = widget.acc;
   late final EmployeeData? emp = widget.emp;
 
   List<Map<String, dynamic>> _applyFilters(List<Map<String, dynamic>> data) {
-    final filtered =
-        data.where((r) => r['userID'] == user?.userID).where((item) {
-      final type = item['leaveType']?.toLowerCase() ?? '';
-      final note = item['notes']?.toLowerCase() ?? '';
+    final filtered = data.where((item) {
+      final cashAdvance = item['cashAdvance'].toString().toLowerCase();
+      final reason = item['reason']?.toLowerCase() ?? '';
       final query = _searchText.toLowerCase();
-      return type.contains(query) || note.contains(query);
+      return cashAdvance.contains(query) || reason.contains(query);
     }).toList();
 
     filtered.sort((a, b) {
@@ -146,35 +147,48 @@ class _CashAdvancePageState extends ConsumerState<CashAdvancePage> {
                   columnSpacing: 20,
                   headingRowColor:
                       WidgetStateProperty.all(const Color(0xFF00AEEF)),
-                  // Fetched Data to be Updated from Backend once DB is Created
                   columns: [
                     DataColumn(
                         label: _buildSortableHeader(
-                            'Payment Received', 'leaveType')),
-                    DataColumn(
-                        label:
-                            _buildSortableHeader('Monthly Salary', 'duration')),
+                            'Payment Received', 'created_at')),
                     DataColumn(
                         label: _buildSortableHeader(
-                            'Cash Advance Amount', 'startDate')),
+                            'Monthly Salary', 'monthlySalary')),
+                    DataColumn(
+                        label: _buildSortableHeader(
+                            'Cash Advance Amount', 'cashAdvance')),
                     DataColumn(label: _buildSortableHeader('Status', 'status')),
                     DataColumn(label: _buildHeaderText('Reason')),
                   ],
-                  rows: data.map((req) {
-                    final status = req['status'] ?? 'Pending';
-                    final statusColor = status == 'Approved'
-                        ? Colors.green
-                        : status == 'Rejected'
-                            ? Colors.red
-                            : Colors.grey;
+                  rows: data.map((item) {
+                    final amount = item['cashAdvance'] ?? 0;
+                    final salary = item['monthlySalary'] ?? 0;
+                    final createdAt =
+                        DateTime.tryParse(item['created_at'] ?? '');
+                    final reason = item['reason'] ?? '';
+                    final status = item['status'] ?? 'Pending';
+
+                    Color statusColor;
+                    switch (status.toLowerCase()) {
+                      case 'approved':
+                        statusColor = Colors.green;
+                        break;
+                      case 'rejected':
+                        statusColor = Colors.red;
+                        break;
+                      default:
+                        statusColor = Colors.grey;
+                    }
+
                     return DataRow(cells: [
-                      DataCell(Text(req['leaveType'] ?? 'N/A')),
-                      DataCell(Text(req['duration'] ?? 'N/A')),
-                      DataCell(Text(
-                          '${req['startDate'] ?? ''} - ${req['endDate'] ?? ''}')),
+                      DataCell(Text(createdAt != null
+                          ? '${createdAt.month}/${createdAt.day}/${createdAt.year}'
+                          : 'Invalid date')),
+                      DataCell(Text('$salary')),
+                      DataCell(Text('$amount')),
+                      DataCell(Text(reason)),
                       DataCell(
                           Text(status, style: TextStyle(color: statusColor))),
-                      DataCell(Text(req['notes'] ?? 'None')),
                     ]);
                   }).toList(),
                 ),
@@ -183,7 +197,7 @@ class _CashAdvancePageState extends ConsumerState<CashAdvancePage> {
           ),
           const SizedBox(height: 10),
           _buildPagination(
-              _applyFilters(ref.watch(leaveRequestStreamProvider).value ?? [])),
+              _applyFilters(ref.watch(cashAdvanceStreamProvider).value ?? [])),
           const Padding(
             padding: EdgeInsets.fromLTRB(0, 20, 40, 20),
             child: Row(
@@ -305,7 +319,9 @@ class _CashAdvancePageState extends ConsumerState<CashAdvancePage> {
 
   @override
   Widget build(BuildContext context) {
-    final CashAdvancePagesAsync = ref.watch(leaveRequestStreamProvider);
+    final CashAdvancePagesAsync = ref.watch(
+        profileCashAdvanceProvider(int.tryParse(emp?.employeeID ?? '') ?? -1));
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       body: Row(

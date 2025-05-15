@@ -209,7 +209,6 @@ class _PayrollListState extends ConsumerState<PayrollList> {
           columnSpacing: 24,
           columns: [
             DataColumn(label: _buildSortableHeader('Employee Name', 'name')),
-            DataColumn(label: _buildSortableHeader('Position', 'position')),
             DataColumn(
                 label: _buildSortableHeader(
                     'Payment Received', 'paymentReceived')),
@@ -223,7 +222,6 @@ class _PayrollListState extends ConsumerState<PayrollList> {
           rows: data.map((item) {
             return DataRow(cells: [
               DataCell(Text(item['name'])),
-              DataCell(Text(item['position'])),
               DataCell(Text(item['paymentReceived'])),
               DataCell(Text(item['monthlySalary'])),
               DataCell(Text(item['calculatedSalary'])),
