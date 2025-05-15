@@ -319,8 +319,7 @@ class _CashAdvancePageState extends ConsumerState<CashAdvancePage> {
 
   @override
   Widget build(BuildContext context) {
-    final CashAdvancePagesAsync = ref.watch(
-        profileCashAdvanceProvider(int.tryParse(emp?.employeeID ?? '') ?? -1));
+    final cashAdvancePagesAsync = ref.watch(profileCashAdvanceStreamProvider);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
@@ -359,7 +358,7 @@ class _CashAdvancePageState extends ConsumerState<CashAdvancePage> {
                           _buildProfile(),
                           VerticalDivider(width: 1, color: Colors.grey[300]),
                           Expanded(
-                            child: CashAdvancePagesAsync.when(
+                            child: cashAdvancePagesAsync.when(
                               loading: () => const Center(
                                   child: CircularProgressIndicator()),
                               error: (e, _) => Center(child: Text('Error: $e')),
