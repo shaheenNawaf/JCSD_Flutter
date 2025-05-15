@@ -393,6 +393,7 @@ final router = GoRouter(
       const Map<String, List<String>> roleBasedRoutes = {
         'admin': [
           '/home',
+          '/dashboard',
           '/accountList',
           '/accountList/accountDetail',
           '/bookingsCalendar',
@@ -412,7 +413,7 @@ final router = GoRouter(
           '/employeeList/cashAdvanceList/generateCashAdvance',
           '/payroll',
           '/accountDetails',
-          '/dashboard',
+          '/manufacturers',
           '/inventory',
           '/inventory/serials',
           '/suppliers',
@@ -434,6 +435,7 @@ final router = GoRouter(
           '/bookingsCalendar',
           '/bookingDetail',
           '/inventory',
+          '/manufacturers'
           '/suppliers',
           '/bookings',
           '/accountDetails',
