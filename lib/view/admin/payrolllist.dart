@@ -1,68 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:jcsd_flutter/modals/generate_employee_payroll.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
+import 'package:jcsd_flutter/backend/modules/payroll/payroll_data.dart';
+import 'package:jcsd_flutter/backend/modules/payroll/payroll_notifier.dart';
+import 'package:jcsd_flutter/backend/modules/payroll/payroll_provider.dart';
+import 'package:jcsd_flutter/backend/modules/payroll/payroll_state.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 
-class PayrollList extends ConsumerStatefulWidget {
+class PayrollList extends ConsumerWidget {
   const PayrollList({super.key});
 
   @override
-  ConsumerState<PayrollList> createState() => _PayrollListState();
-}
-
-class _PayrollListState extends ConsumerState<PayrollList> {
-  final int _rowsPerPage = 10;
-  int _currentPage = 0;
-  String _searchText = '';
-  String _sortBy = 'name';
-  bool _ascending = false;
-
-  final List<Map<String, dynamic>> _dummyPayrollData = List.generate(
-      5,
-      (index) => {
-            'name': 'Employee $index',
-            'position': 'Position $index',
-            'paymentReceived': 'P${20000 + index * 100}',
-            'monthlySalary': 'P${30000 + index * 100}',
-            'calculatedSalary': 'P${25000 + index * 100}',
-          });
-
-  List<Map<String, dynamic>> _applyFilters(List<Map<String, dynamic>> data) {
-    final query = _searchText.toLowerCase();
-    final filtered = data.where((item) {
-      return item['name'].toLowerCase().contains(query) ||
-          item['position'].toLowerCase().contains(query);
-    }).toList();
-
-    filtered.sort((a, b) {
-      final aVal = a[_sortBy] ?? '';
-      final bVal = b[_sortBy] ?? '';
-      return _ascending ? aVal.compareTo(bVal) : bVal.compareTo(aVal);
-    });
-
-    return filtered;
-  }
-
-  void _sort(String column) {
-    setState(() {
-      if (_sortBy == column) {
-        _ascending = !_ascending;
-      } else {
-        _sortBy = column;
-        _ascending = true;
-      }
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final filteredData = _applyFilters(_dummyPayrollData);
-    final paginatedData = filteredData
-        .skip(_currentPage * _rowsPerPage)
-        .take(_rowsPerPage)
-        .toList();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(payrollNotifierProvider);
+    final notifier = ref.read(payrollNotifierProvider.notifier);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
@@ -75,8 +29,7 @@ class _PayrollListState extends ConsumerState<PayrollList> {
                 Header(
                   title: 'Payroll List',
                   leading: IconButton(
-                    icon:
-                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                    icon: const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
                     onPressed: () => context.pop(),
                   ),
                 ),
@@ -85,7 +38,7 @@ class _PayrollListState extends ConsumerState<PayrollList> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const SizedBox(), // Placeholder to balance layout if needed
+                      const SizedBox(),
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -108,19 +61,17 @@ class _PayrollListState extends ConsumerState<PayrollList> {
                                   horizontal: 16,
                                 ),
                               ),
-                              onChanged: (value) => setState(() {
-                                _searchText = value;
-                              }),
+                              onChanged: (value) {
+                                // Implement search functionality if needed
+                              },
                             ),
                           ),
                           const SizedBox(width: 16),
                           ElevatedButton.icon(
                             onPressed: () {
-                              context.go(
-                                  '/employeeList/payrollList/generatePayroll');
+                              context.go('/employeeList/payrollList/generatePayroll');
                             },
-                            icon: const Icon(Icons.payment_rounded,
-                                color: Colors.white),
+                            icon: const Icon(Icons.payment_rounded, color: Colors.white),
                             label: const Text(
                               'Generate Payroll',
                               style: TextStyle(
@@ -134,50 +85,30 @@ class _PayrollListState extends ConsumerState<PayrollList> {
                               minimumSize: const Size(120, 48),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
-                              ),
                             ),
                           ),
-                          // ElevatedButton.icon(
-                          //   onPressed: () {
-                          //     showDialog(
-                          //       context: context,
-                          //       barrierDismissible: false,
-                          //       builder: (BuildContext context) {
-                          //         return const GeneratePayrollModal();
-                          //       },
-                          //     );
-                          //   },
-                          //   icon:
-                          //       const Icon(Icons.payments, color: Colors.white),
-                          //   label: const Text(
-                          //     'Generate Payroll',
-                          //     style: TextStyle(
-                          //       fontFamily: 'NunitoSans',
-                          //       fontWeight: FontWeight.bold,
-                          //       color: Colors.white,
-                          //     ),
-                          //   ),
-                          //   style: ElevatedButton.styleFrom(
-                          //     backgroundColor: const Color(0xFF00AEEF),
-                          //     minimumSize: const Size(0, 48),
-                          //     shape: RoundedRectangleBorder(
-                          //       borderRadius: BorderRadius.circular(8),
-                          //     ),
-                          //   ),
-                          // ),
-                        ],
+                        )],
                       ),
                     ],
                   ),
                 ),
+                if (state.loading) const LinearProgressIndicator(),
+                if (state.error != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      'Error: ${state.error}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: _buildDataTable(paginatedData),
+                    child: _buildDataTable(context, state, notifier),
                   ),
                 ),
                 const SizedBox(height: 10),
-                _buildPagination(_applyFilters(_dummyPayrollData)),
+                _buildPagination(state, notifier),
                 const SizedBox(height: 20),
               ],
             ),
@@ -187,7 +118,7 @@ class _PayrollListState extends ConsumerState<PayrollList> {
     );
   }
 
-  Widget _buildDataTable(List<Map<String, dynamic>> data) {
+  Widget _buildDataTable(BuildContext context, PayrollState state, PayrollNotifier notifier) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -208,35 +139,48 @@ class _PayrollListState extends ConsumerState<PayrollList> {
           headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
           columnSpacing: 24,
           columns: [
-            DataColumn(label: _buildSortableHeader('Employee Name', 'name')),
-            DataColumn(label: _buildSortableHeader('Position', 'position')),
             DataColumn(
-                label: _buildSortableHeader(
-                    'Payment Received', 'paymentReceived')),
+              label: _buildSortableHeader('Employee Name', 'employeeName', state, notifier),
+            ),
             DataColumn(
-                label: _buildSortableHeader('Monthly Salary', 'monthlySalary')),
+              label: _buildSortableHeader('Payment Date', 'created_at', state, notifier),
+            ),
             DataColumn(
-                label: _buildSortableHeader(
-                    'Calculated Monthly Salary', 'calculatedSalary')),
+              label: _buildSortableHeader('Monthly Salary', 'monthlySalary', state, notifier),
+            ),
+            DataColumn(
+              label: _buildSortableHeader('Net Salary', 'taxableIncome', state, notifier),
+            ),
             DataColumn(label: _buildHeaderText('Action')),
           ],
-          rows: data.map((item) {
+          rows: state.payrolls.map((record) {
+            print(record);
+            final payroll = record['payroll'] as PayrollData;
+            final account = record['account'] as AccountsData?;
+
             return DataRow(cells: [
-              DataCell(Text(item['name'])),
-              DataCell(Text(item['position'])),
-              DataCell(Text(item['paymentReceived'])),
-              DataCell(Text(item['monthlySalary'])),
-              DataCell(Text(item['calculatedSalary'])),
+              DataCell(Text(account?.firstName ?? '')),
+              DataCell(Text(_formatDate(payroll.createdAt))),
+              DataCell(Text('\$${payroll.monthlySalary.toStringAsFixed(2)}')),
+              DataCell(Text('\$${payroll.taxableIncome.toStringAsFixed(2)}')),
               DataCell(
                 ElevatedButton(
                   onPressed: () {
-                    // Should redirect user to payroll profile page
+                    final employee = record['employee'] as EmployeeData?;
+                    final account = record['account'] as AccountsData?;
+                    print(account);
+                    context.push('/employeeList/profile', extra: {
+                      'account': account,
+                      'employee': employee,
+                    });
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF00AEEF),
                   ),
-                  child: const Text('View Details',
-                      style: TextStyle(color: Colors.white)),
+                  child: const Text(
+                    'View Details',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ]);
@@ -246,9 +190,14 @@ class _PayrollListState extends ConsumerState<PayrollList> {
     );
   }
 
-  Widget _buildSortableHeader(String title, String column) {
+  Widget _buildSortableHeader(
+    String title,
+    String column,
+    PayrollState state,
+    PayrollNotifier notifier,
+  ) {
     return InkWell(
-      onTap: () => _sort(column),
+      onTap: () => notifier.sort(column),
       child: Row(
         children: [
           Text(
@@ -259,15 +208,52 @@ class _PayrollListState extends ConsumerState<PayrollList> {
               fontFamily: 'NunitoSans',
             ),
           ),
-          if (_sortBy == column)
+          if (state.sortBy == column)
             Icon(
-              _ascending ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+              state.ascending ? Icons.arrow_drop_up : Icons.arrow_drop_down,
               size: 18,
               color: Colors.white,
             ),
         ],
       ),
     );
+  }
+
+  Widget _buildPagination(PayrollState state, PayrollNotifier notifier) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.first_page),
+          onPressed: state.currentPage > 1
+              ? () => notifier.goToPage(1)
+              : null,
+        ),
+        IconButton(
+          icon: const Icon(Icons.navigate_before),
+          onPressed: state.currentPage > 1
+              ? () => notifier.goToPage(state.currentPage - 1)
+              : null,
+        ),
+        Text('Page ${state.currentPage} of ${state.totalPages}'),
+        IconButton(
+          icon: const Icon(Icons.navigate_next),
+          onPressed: state.currentPage < state.totalPages
+              ? () => notifier.goToPage(state.currentPage + 1)
+              : null,
+        ),
+        IconButton(
+          icon: const Icon(Icons.last_page),
+          onPressed: state.currentPage < state.totalPages
+              ? () => notifier.goToPage(state.totalPages)
+              : null,
+        ),
+      ],
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.month}/${date.day}/${date.year}';
   }
 
   static Widget _buildHeaderText(String text, {bool center = false}) {
@@ -282,38 +268,6 @@ class _PayrollListState extends ConsumerState<PayrollList> {
         ),
         textAlign: center ? TextAlign.center : TextAlign.start,
       ),
-    );
-  }
-
-  Widget _buildPagination(List<Map<String, dynamic>> filteredData) {
-    final totalPages = (filteredData.length / _rowsPerPage).ceil();
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.first_page),
-          onPressed:
-              _currentPage > 0 ? () => setState(() => _currentPage = 0) : null,
-        ),
-        IconButton(
-          icon: const Icon(Icons.navigate_before),
-          onPressed:
-              _currentPage > 0 ? () => setState(() => _currentPage--) : null,
-        ),
-        Text('Page ${_currentPage + 1} of $totalPages'),
-        IconButton(
-          icon: const Icon(Icons.navigate_next),
-          onPressed: _currentPage < totalPages - 1
-              ? () => setState(() => _currentPage++)
-              : null,
-        ),
-        IconButton(
-          icon: const Icon(Icons.last_page),
-          onPressed: _currentPage < totalPages - 1
-              ? () => setState(() => _currentPage = totalPages - 1)
-              : null,
-        ),
-      ],
     );
   }
 }
