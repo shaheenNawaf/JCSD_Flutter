@@ -100,9 +100,7 @@ class _SignupPage1State extends State<SignupPage1> {
       setState(() => _isLoading = false);
     } catch (e) {
       debugPrint("Unexpected error: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Something went wrong.')),
-      );
+      ToastManager().showToast(context, 'Something went wrong.', Colors.red);
       setState(() => _isLoading = false);
     }
   }

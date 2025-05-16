@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_service.dart';
 import 'package:jcsd_flutter/others/dropdown_data.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../api/global_variables.dart';
@@ -18,6 +19,7 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
   String? selectedRegion;
   String? selectedProvince;
   String? selectedCity;
+  bool _hasValidationErrors = false;
 
   List<String> get regionList =>
       dropdownData.map((r) => r['name'].toString()).toList();
@@ -128,17 +130,21 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
 
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
+      setState(() => _hasValidationErrors = false);
       setState(() => _isSubmitting = true);
       try {
         final authResponse = await supabaseDB.auth.signUp(
           email: _email.text.trim(),
           password: _password.text.trim(),
         );
+        print(authResponse);
 
         final user = authResponse.user;
         if (user == null) throw Exception("Sign-up failed.");
+        debugPrint('Submit called at ${DateTime.now()}');
 
         await EmployeeService().registerNewEmployeeWithProfile(
+          authResponse: authResponse,
           email: _email.text.trim(),
           password: _password.text.trim(),
           role: _selectedRole,
@@ -155,29 +161,24 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
           zipCode: _zipCode.text.trim(),
         );
 
-        await supabaseDB.auth.resend(
-          type: OtpType.signup,
-          email: _email.text.trim(),
-        );
+        ToastManager().showToast(context, 'Employee added. Please inform them to verify their email.', Colors.green);
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text(
-                  'Employee added. Please inform them to verify their email.')),
-        );
         if (mounted) Navigator.pop(context);
       } on AuthException catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Signup Error: ${e.message}')),
-        );
+        ToastManager().showToast(context, 'Signup Error: ${e.message}', Colors.red);
       } catch (e) {
         print('Error during employee registration: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('An unexpected error occurred.')),
-        );
+        if (e.toString().contains('429')) {
+          ToastManager().showToast(context, 'Too many requests. Please wait for a few minutes and try again.', Colors.red);
+        } else {
+          ToastManager().showToast(context, 'An unexpected error occurred.', Colors.red);
+        }
       } finally {
         setState(() => _isSubmitting = false);
       }
+    }
+      else {
+      setState(() => _hasValidationErrors = true);
     }
   }
 
@@ -203,7 +204,11 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 600 ? 700 : screenWidth * 0.9;
-    const double containerHeight = 650;
+    double containerHeight = 650;
+
+    if (_hasValidationErrors) {
+    containerHeight += 80;
+  }
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -383,8 +388,15 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
         TextFormField(
           controller: controller,
           obscureText: isPassword,
-          validator: (value) =>
-              value == null || value.isEmpty ? 'Required field' : null,
+          validator: (value) {
+            final isEmpty = value == null || value.isEmpty;
+          if (isEmpty && !_hasValidationErrors) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              setState(() => _hasValidationErrors = true);
+            });
+          }
+          return isEmpty ? 'Required field' : null;
+          },
           decoration: InputDecoration(
             hintText: 'Enter $label'.toString(),
             border: const OutlineInputBorder(),
@@ -403,9 +415,50 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
     required String label,
     required TextEditingController controller,
   }) {
-    return _buildTextField(
-      label: label,
-      controller: controller,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(label, style: const TextStyle(fontFamily: 'NunitoSans')),
+            const Text('*', style: TextStyle(color: Colors.red, fontSize: 14)),
+          ],
+        ),
+        const SizedBox(height: 5),
+        TextFormField(
+          controller: controller,
+          readOnly: true,
+          onTap: () async {
+            DateTime? pickedDate = await showDatePicker(
+              context: context,
+              initialDate: DateTime.now(),
+              firstDate: DateTime(1900),
+              lastDate: DateTime.now(),
+            );
+            if (pickedDate != null) {
+              controller.text = "${pickedDate.toLocal()}".split(' ')[0];
+            }
+          },
+          validator: (value) {
+            final isEmpty = value == null || value.isEmpty;
+            if (isEmpty && !_hasValidationErrors) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                setState(() => _hasValidationErrors = true);
+              });
+            }
+            return isEmpty ? 'Required field' : null;
+          },
+          decoration: InputDecoration(
+            hintText: 'Select $label',
+            border: const OutlineInputBorder(),
+            hintStyle: const TextStyle(
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w300,
+              fontSize: 12,
+            ),
+          ),
+        ),
+      ],
     );
   }
 

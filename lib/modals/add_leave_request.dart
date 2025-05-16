@@ -2,6 +2,7 @@
 
 import 'package:datepicker_dropdown/datepicker_dropdown.dart';
 import 'package:flutter/material.dart';
+import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/employee/profile_leave_request_provider.dart';
@@ -171,11 +172,10 @@ class _LeaveRequestFormState extends ConsumerState<LeaveRequestForm> {
                             _toDay == null ||
                             _toMonth == null ||
                             _toYear == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    "Please complete all required fields.")),
-                          );
+                          ToastManager().showToast(
+                              context,
+                              "Please complete all required fields.",
+                              Colors.red);
                           return;
                         }
 
@@ -186,20 +186,18 @@ class _LeaveRequestFormState extends ConsumerState<LeaveRequestForm> {
 
                         if (startDate
                             .isBefore(DateTime(now.year, now.month, now.day))) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    "Start date must not be in the past.")),
-                          );
+                          ToastManager().showToast(
+                              context,
+                              "Start date must not be in the past.",
+                              Colors.red);
                           return;
                         }
 
                         if (endDate.isBefore(startDate)) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    "End date cannot be before start date.")),
-                          );
+                          ToastManager().showToast(
+                              context,
+                              "End date cannot be before start date.",
+                              Colors.red);
                           return;
                         }
 
@@ -219,15 +217,12 @@ class _LeaveRequestFormState extends ConsumerState<LeaveRequestForm> {
                             ref.invalidate(
                                 userLeaveRequestStreamProvider(userId));
                             Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("Leave request submitted.")),
-                            );
+                            ToastManager().showToast(context,
+                                "Leave request submitted.", Colors.red);
                           }
                         } catch (error) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Error: $error")),
-                          );
+                          ToastManager()
+                              .showToast(context, "Error: $error", Colors.red);
                         }
                       },
                       style: ElevatedButton.styleFrom(

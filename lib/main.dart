@@ -11,10 +11,14 @@ import 'package:jcsd_flutter/api/supa_details.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
+import 'package:jcsd_flutter/backend/modules/payroll/payroll_data.dart';
 import 'package:jcsd_flutter/others/transition.dart';
+import 'package:jcsd_flutter/view/admin/cashadvancelist.dart';
+import 'package:jcsd_flutter/view/admin/generatepayroll.dart';
 import 'package:jcsd_flutter/view/admin/payrolllist.dart';
 import 'package:jcsd_flutter/view/bookings/booking_detail.dart';
 import 'package:jcsd_flutter/view/bookings/booking_receipt.dart';
+import 'package:jcsd_flutter/view/employee/employee_cash_advance.dart';
 import 'package:jcsd_flutter/view/employee/leave_requests.dart';
 import 'package:jcsd_flutter/view/employee/login_employee.dart';
 import 'package:jcsd_flutter/view/generic/forgot_password.dart';
@@ -122,48 +126,75 @@ final router = GoRouter(
       builder: (context, state) => const BookingCalendarPage(),
     ),
     GoRoute(
-        path: '/employeeList',
-        builder: (context, state) => const EmployeeListPage(),
-        routes: <GoRoute>[
-          GoRoute(
-            path: 'leaveRequestList',
-            builder: (context, state) => const LeaveRequestList(),
-          ),
-          GoRoute(
-            path: 'payrollList',
-            builder: (context, state) => const PayrollList(),
-          ),
-          GoRoute(
-              path: 'profile',
+      path: '/employeeList',
+      builder: (context, state) => const EmployeeListPage(),
+      routes: <GoRoute>[
+        GoRoute(
+          path: 'leaveRequestList',
+          builder: (context, state) => const LeaveRequestList(),
+        ),
+        GoRoute(
+          path: 'payrollList',
+          builder: (context, state) => const PayrollList(),
+          routes: <GoRoute>[
+            GoRoute(
+              path: 'generatePayroll',
+              builder: (context, state) => const GeneratePayrollPage(),
+            ),
+          ],
+        ),
+        GoRoute(
+          path: 'cashAdvanceList',
+          builder: (context, state) => const CashAdvanceList(),
+        ),
+        GoRoute(
+          path: 'profile',
+          builder: (context, state) {
+            final args = state.extra as Map<String, dynamic>;
+            final acc = args['account'] as AccountsData?;
+            final currentUser = Supabase.instance.client.auth.currentUser;
+            final emp = args['employee'] as EmployeeData?;
+            return ProfilePage(
+              targetUser: acc,
+              currentUserId: currentUser?.id,
+              emp: emp,
+            );
+          },
+          routes: <GoRoute>[
+            GoRoute(
+              path: 'payslip',
               builder: (context, state) {
-                final args = state.extra as Map<String, dynamic>;
-                final acc = args['account'] as AccountsData?;
-                final currentUser = Supabase.instance.client.auth.currentUser;
-                final emp = args['employee'] as EmployeeData?;
-                return ProfilePage(
-                    targetUser: acc, currentUserId: currentUser?.id, emp: emp);
+                final args = state.extra as Map<String, dynamic>?;
+                final acc = args?['account'] as AccountsData?;
+                final emp = args?['employee'] as EmployeeData?;
+                final payroll = args?['payroll'] as PayrollData?;
+                return Payslip(acc: acc, emp: emp, payroll: payroll);
               },
-              routes: <GoRoute>[
+              routes: [
                 GoRoute(
-                  path: 'payslip',
+                  path: 'cashAdvanceHistory',
                   builder: (context, state) {
                     final args = state.extra as Map<String, dynamic>?;
                     final acc = args?['account'] as AccountsData?;
                     final emp = args?['employee'] as EmployeeData?;
-                    return Payslip(acc: acc, emp: emp);
+                    return CashAdvancePage(acc: acc, emp: emp);
                   },
                 ),
-                GoRoute(
-                  path: 'leaveRequest',
-                  builder: (context, state) {
-                    final args = state.extra as Map<String, dynamic>?;
-                    final acc = args?['account'] as AccountsData?;
-                    final emp = args?['employee'] as EmployeeData?;
-                    return LeaveRequest(acc: acc, emp: emp);
-                  },
-                ),
-              ])
-        ]),
+              ],
+            ),
+            GoRoute(
+              path: 'leaveRequest',
+              builder: (context, state) {
+                final args = state.extra as Map<String, dynamic>?;
+                final acc = args?['account'] as AccountsData?;
+                final emp = args?['employee'] as EmployeeData?;
+                return LeaveRequest(acc: acc, emp: emp);
+              },
+            ),
+          ],
+        ),
+      ],
+    ),
     GoRoute(
       path: '/payroll',
       builder: (context, state) => const Payroll(),
@@ -364,6 +395,7 @@ final router = GoRouter(
       const Map<String, List<String>> roleBasedRoutes = {
         'admin': [
           '/home',
+          '/dashboard',
           '/accountList',
           '/accountList/accountDetail',
           '/bookingsCalendar',
@@ -375,11 +407,15 @@ final router = GoRouter(
           '/employeeList/profile',
           '/employeeList/profile/payslip',
           '/employeeList/profile/leaveRequest',
+          '/employeeList/profile/payslip/cashAdvanceHistory',
           '/employeeList/leaveRequestList',
           '/employeeList/payrollList',
+          '/employeeList/payrollList/generatePayroll',
+          '/employeeList/cashAdvanceList',
+          '/employeeList/cashAdvanceList/generateCashAdvance',
           '/payroll',
           '/accountDetails',
-          '/dashboard',
+          '/manufacturers',
           '/inventory',
           '/inventory/serials',
           '/suppliers',
@@ -401,7 +437,8 @@ final router = GoRouter(
           '/bookingsCalendar',
           '/bookingDetail',
           '/inventory',
-          '/suppliers',
+          '/manufacturers'
+              '/suppliers',
           '/bookings',
           '/accountDetails',
           '/services',
@@ -410,6 +447,7 @@ final router = GoRouter(
           '/employeeList/profile',
           '/employeeList/profile/payslip',
           '/employeeList/profile/leaveRequest',
+          '/employeeList/profile/payslip/cashAdvanceHistory',
           '/dashboard',
           '/itemTypes',
         ],
