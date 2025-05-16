@@ -219,7 +219,7 @@ class PurchaseOrderService {
           .from('purchase_order_items')
           .update({
             'quantityReceived': newQuantityReceived,
-            'updated_at': DateTime.now().toIso8601String()
+            'updatedAt': DateTime.now().toIso8601String()
           })
           .eq('purchaseItemID', poItemId)
           .select()
@@ -286,10 +286,9 @@ class PurchaseOrderService {
       'purchaseOrderID': poId,
       'prodDefID': prodDefID,
       'quantityOrdered': quantityOrdered,
-      'quantityReceived': 0, // New items haven't been received
+      'quantityReceived': 0,
       'unitCostPrice': unitCostPrice,
       'lineTotalCost': lineTotalCost,
-      // created_at, updated_at will use DB defaults
     };
 
     try {

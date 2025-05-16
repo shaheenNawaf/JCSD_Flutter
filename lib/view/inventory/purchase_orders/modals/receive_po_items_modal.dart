@@ -81,44 +81,56 @@ class _ReceivePurchaseOrderItemsModalState
   bool _isProcessing = false;
   List<ReceivingLineItemEntry> _lineItemEntries = [];
   DateTime _dateReceived = DateTime.now();
+
+  // This will hold the fetched product names.
   Map<String?, String> _productNameMap = {};
-  bool _dataFullyLoadedAndInitialized = false;
+  // This flag indicates if both PO details and product names are loaded and entries initialized.
+  bool _dataDependenciesMetAndInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchProductNames();
+    // Asynchronously fetch product names when the modal is first created.
+    _fetchProductNamesAndInitializeEntries();
   }
 
-  Future<void> _fetchProductNames() async {
+  Future<void> _fetchProductNamesAndInitializeEntries() async {
+    // Fetch product names.
     final productDefinitionsStateValue =
         await ref.read(productDefinitionNotifierProvider(true).future);
-    if (mounted) {
-      _productNameMap = productDefinitionsStateValue.productDefinitions
-          .fold<Map<String?, String>>({}, (map, pd) {
-        if (pd.prodDefID != null) {
-          map[pd.prodDefID!] = pd.prodDefName;
-        }
-        return map;
-      });
-      if (_dataFullyLoadedAndInitialized) {
-        final currentPOData = ref
-            .read(
-                poDetailsProviderFamily(widget.initialPurchaseOrderHeader.poId))
-            .asData
-            ?.value;
-        if (currentPOData != null) {
-          _initializeLineItemEntriesFromFetchedPO(currentPOData);
-          if (mounted) setState(() {});
-        }
+    if (!mounted) return;
+
+    _productNameMap = productDefinitionsStateValue.productDefinitions
+        .fold<Map<String?, String>>({}, (map, pd) {
+      if (pd.prodDefID != null) {
+        map[pd.prodDefID!] = pd.prodDefName;
+      }
+      return map;
+    });
+    print(
+        "ReceivePOModal: Product names map loaded. Count: ${_productNameMap.length}");
+
+    // Now that product names are potentially ready, check if PO details are also ready.
+    // The `poDetailsProviderFamily` is watched in the build method.
+    // Initialization of `_lineItemEntries` will happen in the build method when both are ready.
+    // We can trigger a rebuild if product names load after PO details.
+    final poDetails = ref
+        .read(poDetailsProviderFamily(widget.initialPurchaseOrderHeader.poId));
+    if (poDetails.hasValue && poDetails.value != null) {
+      _initializeLineItemEntriesFromFetchedPO(poDetails.value!);
+      if (mounted) {
+        setState(() {}); // Ensure UI rebuilds with initialized entries
       }
     }
   }
 
   void _initializeLineItemEntriesFromFetchedPO(PurchaseOrderData fullPO) {
-    if (!_productNameMap.isNotEmpty && (fullPO.items?.isNotEmpty ?? false)) {
-      return;
+    if (_productNameMap.isEmpty && (fullPO.items?.isNotEmpty ?? false)) {
+      print(
+          "ReceivePOModal: Product names not ready yet for PO ID ${fullPO.poId}, deferring entry initialization.");
+      return; // Wait for product names if items exist
     }
+
     for (var entry in _lineItemEntries) {
       entry.dispose();
     }
@@ -131,7 +143,9 @@ class _ReceivePurchaseOrderItemsModalState
               poItem: poItem, productName: productName);
         }).toList() ??
         [];
-    _dataFullyLoadedAndInitialized = true;
+    _dataDependenciesMetAndInitialized = true;
+    print(
+        "ReceivePOModal: Line item entries initialized/updated. Count: ${_lineItemEntries.length}");
   }
 
   @override
@@ -214,9 +228,10 @@ class _ReceivePurchaseOrderItemsModalState
       if (entry.serialNumberControllers
           .any((controller) => controller.text.trim().isEmpty)) {
         ToastManager().showToast(
-            context,
-            'All serial numbers must be entered for ${entry.productName} if quantity is > 0.',
-            Colors.orange);
+          context,
+          'All serial numbers must be entered for ${entry.productName} if quantity is > 0.',
+          Colors.orange,
+        );
         overallSuccess = false;
         break;
       }
@@ -301,21 +316,24 @@ class _ReceivePurchaseOrderItemsModalState
           key: _formKey,
           child: poDetailsAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) =>
-                  Center(child: Text("Error loading PO details: $err")),
+              error: (err, stack) => Center(
+                  child: Text(
+                      "Error loading PO details: $err. Please close and retry.")),
               data: (fullPO) {
                 if (fullPO == null) {
                   return const Center(
                       child: Text(
-                          "Could not load purchase order details. Please try again."));
+                          "Could not load purchase order details. Please close and retry."));
                 }
 
-                if (!_dataFullyLoadedAndInitialized &&
-                    _productNameMap.isNotEmpty) {
+                // Initialize line item entries if PO data is loaded and product names are ready
+                if (_productNameMap.isNotEmpty &&
+                    !_dataDependenciesMetAndInitialized) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (mounted) {
                       _initializeLineItemEntriesFromFetchedPO(fullPO);
-                      setState(() {});
+                      setState(
+                          () {}); // Trigger rebuild to show entries or "all received" message
                     }
                   });
                 }
@@ -381,7 +399,7 @@ class _ReceivePurchaseOrderItemsModalState
                     ),
                     const Divider(height: 1),
                     Expanded(
-                      child: !_dataFullyLoadedAndInitialized
+                      child: !_dataDependenciesMetAndInitialized
                           ? const Center(child: CircularProgressIndicator())
                           : _lineItemEntries.isEmpty
                               ? const Center(
@@ -430,8 +448,8 @@ class _ReceivePurchaseOrderItemsModalState
                                         strokeWidth: 2, color: Colors.white))
                                 : const Text('Confirm Receipt & Add Serials'),
                             onPressed: _isProcessing ||
-                                    (!_dataFullyLoadedAndInitialized ||
-                                        _lineItemEntries.isEmpty)
+                                    !_dataDependenciesMetAndInitialized ||
+                                    _lineItemEntries.isEmpty
                                 ? null
                                 : () => _submitReceipt(fullPO),
                             style: ElevatedButton.styleFrom(

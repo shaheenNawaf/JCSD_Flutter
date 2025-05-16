@@ -78,7 +78,9 @@ class PurchaseOrderListNotifier
     if (currentState == null ||
         page < 1 ||
         page > currentState.totalPages ||
-        page == currentState.currentPage) return;
+        page == currentState.currentPage) {
+      return;
+    }
 
     state =
         const AsyncLoading<PurchaseOrderListState>().copyWithPrevious(state);
@@ -105,8 +107,9 @@ class PurchaseOrderListNotifier
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () async {
       final currentState = state.valueOrNull;
-      if (currentState == null || currentState.searchText == newSearchText)
+      if (currentState == null || currentState.searchText == newSearchText) {
         return;
+      }
 
       state =
           const AsyncLoading<PurchaseOrderListState>().copyWithPrevious(state);
@@ -133,7 +136,9 @@ class PurchaseOrderListNotifier
 
     // Avoid refetch if filters haven't actually changed
     if (newStatusFilter == currentState.statusFilter &&
-        newSupplierFilter == currentState.supplierFilter) return;
+        newSupplierFilter == currentState.supplierFilter) {
+      return;
+    }
 
     state =
         const AsyncLoading<PurchaseOrderListState>().copyWithPrevious(state);
@@ -236,8 +241,9 @@ class PurchaseOrderListNotifier
 
       final purchaseOrder =
           await _poService.getPurchaseOrderById(poItem.purchaseOrderID);
-      if (purchaseOrder == null)
+      if (purchaseOrder == null) {
         throw Exception("Parent PO ${poItem.purchaseOrderID} not found.");
+      }
       if (purchaseOrder.status != PurchaseOrderStatus.Approved &&
           purchaseOrder.status != PurchaseOrderStatus.PartiallyReceived) {
         throw Exception(

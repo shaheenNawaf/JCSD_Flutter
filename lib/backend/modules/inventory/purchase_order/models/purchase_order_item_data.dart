@@ -45,8 +45,8 @@ class PurchaseOrderItemData {
       quantityReceived: json['quantityReceived'] as int? ?? 0,
       unitCostPrice: parseOptionalDouble(json['unitCostPrice']) ?? 0.0,
       lineTotalCost: parseOptionalDouble(json['lineTotalCost']) ?? 0.0,
-      createdAt: parseOptionalDateTime(json['created_at'] as String?),
-      updatedAt: parseOptionalDateTime(json['updated_at'] as String?),
+      createdAt: parseOptionalDateTime(json['createdAt'] as String?),
+      updatedAt: parseOptionalDateTime(json['updatedAt'] as String?),
     );
   }
 
