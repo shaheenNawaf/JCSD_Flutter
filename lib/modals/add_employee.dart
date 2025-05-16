@@ -155,29 +155,36 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
           phone: _phone.text.trim(),
           birthday: _birthday.text.trim(),
           address: _address.text.trim(),
-          region: _region.text.trim(),
-          province: _province.text.trim(),
-          city: _city.text.trim(),
+          region: selectedRegion?.trim() ?? '',
+          province: selectedProvince?.trim() ?? '',
+          city: selectedCity?.trim() ?? '',
           zipCode: _zipCode.text.trim(),
         );
 
-        ToastManager().showToast(context, 'Employee added. Please inform them to verify their email.', Colors.green);
+        ToastManager().showToast(
+            context,
+            'Employee added. Please inform them to verify their email.',
+            Colors.green);
 
         if (mounted) Navigator.pop(context);
       } on AuthException catch (e) {
-        ToastManager().showToast(context, 'Signup Error: ${e.message}', Colors.red);
+        ToastManager()
+            .showToast(context, 'Signup Error: ${e.message}', Colors.red);
       } catch (e) {
         print('Error during employee registration: $e');
         if (e.toString().contains('429')) {
-          ToastManager().showToast(context, 'Too many requests. Please wait for a few minutes and try again.', Colors.red);
+          ToastManager().showToast(
+              context,
+              'Too many requests. Please wait for a few minutes and try again.',
+              Colors.red);
         } else {
-          ToastManager().showToast(context, 'An unexpected error occurred.', Colors.red);
+          ToastManager()
+              .showToast(context, 'An unexpected error occurred.', Colors.red);
         }
       } finally {
         setState(() => _isSubmitting = false);
       }
-    }
-      else {
+    } else {
       setState(() => _hasValidationErrors = true);
     }
   }
@@ -207,8 +214,8 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
     double containerHeight = 650;
 
     if (_hasValidationErrors) {
-    containerHeight += 80;
-  }
+      containerHeight += 80;
+    }
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -390,12 +397,12 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
           obscureText: isPassword,
           validator: (value) {
             final isEmpty = value == null || value.isEmpty;
-          if (isEmpty && !_hasValidationErrors) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              setState(() => _hasValidationErrors = true);
-            });
-          }
-          return isEmpty ? 'Required field' : null;
+            if (isEmpty && !_hasValidationErrors) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                setState(() => _hasValidationErrors = true);
+              });
+            }
+            return isEmpty ? 'Required field' : null;
           },
           decoration: InputDecoration(
             hintText: 'Enter $label'.toString(),

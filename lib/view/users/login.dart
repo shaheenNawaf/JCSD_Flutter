@@ -172,6 +172,7 @@ class _LoginState extends State<Login> {
                                 ),
                                 const SizedBox(height: 10),
                                 buildPasswordField(
+                                  onFieldSubmitted: (_) => _signInWithEmail(),
                                   label: 'Password',
                                   hintText: 'Password goes here',
                                   controller: _passwordController,
@@ -362,51 +363,50 @@ Widget buildTextField({
 }
 
 Widget buildPasswordField({
+  void Function(String)? onFieldSubmitted,
   required String label,
   required String hintText,
   required TextEditingController controller,
   required bool isHidden,
   required VoidCallback onVisibilityToggle,
 }) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.normal,
-            ),
-          ),
-          const Text(
-            '*',
-            style: TextStyle(
-              color: Colors.red,
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
-      const SizedBox(height: 5),
-      TextField(
-        controller: controller,
-        obscureText: isHidden,
-        decoration: InputDecoration(
-          hintText: hintText,
-          border: const OutlineInputBorder(),
-          hintStyle: const TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w300,
-            fontSize: 12,
-          ),
-          suffixIcon: IconButton(
-            icon: Icon(isHidden ? Icons.visibility_off : Icons.visibility),
-            onPressed: onVisibilityToggle,
+  return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    Row(
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontFamily: 'NunitoSans',
+            fontWeight: FontWeight.normal,
           ),
         ),
+        const Text(
+          '*',
+          style: TextStyle(
+            color: Colors.red,
+            fontSize: 14,
+          ),
+        ),
+      ],
+    ),
+    const SizedBox(height: 5),
+    TextField(
+      controller: controller,
+      obscureText: isHidden,
+      onSubmitted: onFieldSubmitted,
+      decoration: InputDecoration(
+        hintText: hintText,
+        border: const OutlineInputBorder(),
+        hintStyle: const TextStyle(
+          fontFamily: 'Poppins',
+          fontWeight: FontWeight.w300,
+          fontSize: 12,
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(isHidden ? Icons.visibility_off : Icons.visibility),
+          onPressed: onVisibilityToggle,
+        ),
       ),
-    ],
-  );
+    ),
+  ]);
 }

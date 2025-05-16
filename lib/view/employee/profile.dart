@@ -263,6 +263,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       displayValue(user?.contactNumber)),
                   _buildInfoRow(FontAwesomeIcons.cakeCandles, 'Birthday: ',
                       formatDate(user?.birthDate)),
+                  _buildInfoRow(
+                      FontAwesomeIcons.pesoSign,
+                      'Monthly Salary: ',
+                      emp?.monthlySalary != null
+                          ? '₱${NumberFormat("#,##0.00", "en_US").format(emp!.monthlySalary)}'
+                          : 'N/A'),
                   _buildDivider(),
                   _buildSectionTitle('Address'),
                   _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ',

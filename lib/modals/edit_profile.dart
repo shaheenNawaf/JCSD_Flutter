@@ -187,7 +187,8 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
       Navigator.pop(context, updatedAccount);
     } catch (e) {
       debugPrint("Update error: \$e");
-      ToastManager().showToast(context, "Update failed. Try again.", Colors.red);
+      ToastManager()
+          .showToast(context, "Update failed. Try again.", Colors.red);
     }
   }
 
@@ -332,8 +333,8 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
                         Expanded(
                             child: _buildTextField(
                                 'Zip Code', _zipCodeController)),
-                        const SizedBox(width: 10),
-                        Expanded(child: _buildDropdownField()),
+                        const Spacer()
+                        // Expanded(child: _buildDropdownField()),
                         // const SizedBox(width: 340),
                       ],
                     ),
@@ -427,48 +428,48 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
     );
   }
 
-  Widget _buildDropdownField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Row(
-          children: [
-            Text("Status", style: TextStyle(fontFamily: 'NunitoSans')),
-            Text('*', style: TextStyle(color: Colors.red, fontSize: 14)),
-          ],
-        ),
-        const SizedBox(height: 5),
-        DropdownButtonFormField<String>(
-          hint: const Text(
-            'Select status',
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w300,
-              fontSize: 12,
-              color: Colors.grey,
-            ),
-          ),
-          decoration: const InputDecoration(
-            border: OutlineInputBorder(),
-          ),
-          icon: const Icon(Icons.arrow_drop_down),
-          dropdownColor: Colors.white,
-          items: ['Active', 'Inactive'].map((String item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(
-                item,
-                style: const TextStyle(
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w300,
-                  fontSize: 12,
-                ),
-              ),
-            );
-          }).toList(),
-          onChanged: (value) {},
-        ),
-      ],
-    );
-  }
+  // Widget _buildDropdownField() {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       const Row(
+  //         children: [
+  //           Text("Status", style: TextStyle(fontFamily: 'NunitoSans')),
+  //           Text('*', style: TextStyle(color: Colors.red, fontSize: 14)),
+  //         ],
+  //       ),
+  //       const SizedBox(height: 5),
+  //       DropdownButtonFormField<String>(
+  //         hint: const Text(
+  //           'Select status',
+  //           style: TextStyle(
+  //             fontFamily: 'Poppins',
+  //             fontWeight: FontWeight.w300,
+  //             fontSize: 12,
+  //             color: Colors.grey,
+  //           ),
+  //         ),
+  //         decoration: const InputDecoration(
+  //           border: OutlineInputBorder(),
+  //         ),
+  //         icon: const Icon(Icons.arrow_drop_down),
+  //         dropdownColor: Colors.white,
+  //         items: ['Active', 'Inactive'].map((String item) {
+  //           return DropdownMenuItem<String>(
+  //             value: item,
+  //             child: Text(
+  //               item,
+  //               style: const TextStyle(
+  //                 fontFamily: 'Poppins',
+  //                 fontWeight: FontWeight.w300,
+  //                 fontSize: 12,
+  //               ),
+  //             ),
+  //           );
+  //         }).toList(),
+  //         onChanged: (value) {},
+  //       ),
+  //     ],
+  //   );
+  // }
 }
