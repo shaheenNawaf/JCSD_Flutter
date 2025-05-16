@@ -23,7 +23,7 @@ class LeaveRequest extends ConsumerStatefulWidget {
 }
 
 class _LeaveRequestState extends ConsumerState<LeaveRequest> {
-  int _rowsPerPage = 10;
+  final int _rowsPerPage = 10;
   int _currentPage = 0;
   String _searchText = '';
   String _sortBy = 'startDate';

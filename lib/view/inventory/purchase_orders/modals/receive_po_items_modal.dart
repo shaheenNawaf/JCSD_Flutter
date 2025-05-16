@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api, avoid_print, use_build_context_synchronously
+// ignore_for_file: library_private_types_in_public_api, avoid_print, use_build_context_synchronously, unused_import
 
 //Default Imports
 import 'package:intl/intl.dart';
@@ -169,8 +169,9 @@ class _ReceivePurchaseOrderItemsModalState
 
     for (var entry in _lineItemEntries) {
       final qtyReceivedNowStr = entry.quantityReceivedNowController.text.trim();
-      if (qtyReceivedNowStr.isEmpty)
+      if (qtyReceivedNowStr.isEmpty) {
         continue; // Skip if no quantity entered for this item
+      }
 
       final qtyReceivedNow = int.tryParse(qtyReceivedNowStr) ?? 0;
       if (qtyReceivedNow <= 0) continue; // Skip if quantity is not positive
@@ -433,8 +434,9 @@ class _ReceivePurchaseOrderItemsModalState
                   });
                 },
                 validator: (value) {
-                  if (value == null || value.isEmpty)
+                  if (value == null || value.isEmpty) {
                     return null; // Allow empty if not receiving this item now
+                  }
                   final qty = int.tryParse(value);
                   if (qty == null) return 'Invalid number';
                   if (qty < 0) return 'Cannot be negative';
