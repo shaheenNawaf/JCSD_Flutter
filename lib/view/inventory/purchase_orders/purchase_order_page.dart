@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_providers.dart';
 
 //UI Imports
 import 'package:shimmer/shimmer.dart';
@@ -27,9 +28,7 @@ import 'package:jcsd_flutter/view/inventory/purchase_orders/modals/receive_po_it
 class PurchaseOrderPage extends ConsumerWidget {
   const PurchaseOrderPage({super.key});
 
-  final String _activeSubItem =
-      '/orderList'; // Or a new route like '/purchaseOrders'
-  // Update in sidebar.dart as well
+  final String _activeSubItem = '/orderList';
 
   void _showCreatePurchaseOrderModal(BuildContext context, WidgetRef ref) {
     showDialog(
@@ -50,7 +49,6 @@ class PurchaseOrderPage extends ConsumerWidget {
       barrierDismissible: false, // Admin should explicitly close or act
       builder: (_) => ViewApprovePurchaseOrderModal(purchaseOrder: po),
     ).then((updated) {
-      // Modal might return true if PO was updated
       if (updated == true) {
         ref.read(purchaseOrderListNotifierProvider.notifier).refresh();
       }
@@ -61,13 +59,14 @@ class PurchaseOrderPage extends ConsumerWidget {
       BuildContext context, WidgetRef ref, PurchaseOrderData po) {
     showDialog(
       context: context,
-      barrierDismissible: false, // Usually, you complete or cancel receiving
-      builder: (_) => ReceivePurchaseOrderItemsModal(purchaseOrder: po),
+      barrierDismissible: false,
+      builder: (_) =>
+          ReceivePurchaseOrderItemsModal(initialPurchaseOrderHeader: po),
     ).then((updated) {
       if (updated == true) {
         ref.read(purchaseOrderListNotifierProvider.notifier).refresh();
-        // Potentially refresh stock counts for involved product definitions
-        // po.items?.forEach((item) => ref.invalidate(serializedItemNotifierProvider(item.prodDefID)));
+        po.items?.forEach((item) =>
+            ref.invalidate(serializedItemNotifierProvider(item.prodDefID)));
       }
     });
   }
@@ -85,7 +84,7 @@ class PurchaseOrderPage extends ConsumerWidget {
           Expanded(
             child: Column(
               children: [
-                const Header(title: 'Purchase Orders'), // Update title
+                const Header(title: 'Purchase Orders - List View'),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -136,7 +135,6 @@ class PurchaseOrderPage extends ConsumerWidget {
 
     return Row(
       children: [
-        // Status Filter Dropdown
         SizedBox(
           width: 200,
           height: 40,

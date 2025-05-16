@@ -16,6 +16,7 @@ import 'package:jcsd_flutter/backend/modules/employee/employee_providers.dart';
 // Purchase Order
 import 'package:jcsd_flutter/backend/modules/inventory/purchase_order/models/purchase_order_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/purchase_order/notifiers/purchase_order_notifier.dart';
+import 'package:jcsd_flutter/view/inventory/purchase_orders/modals/view_approve_po_modal.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/purchase_order/models/purchase_order_item_data.dart';
 
 // Suppliers and Inventory
@@ -64,10 +65,10 @@ class ReceivingLineItemEntry {
 }
 
 class ReceivePurchaseOrderItemsModal extends ConsumerStatefulWidget {
-  final PurchaseOrderData purchaseOrder;
+  final PurchaseOrderData initialPurchaseOrderHeader;
 
   const ReceivePurchaseOrderItemsModal(
-      {super.key, required this.purchaseOrder});
+      {super.key, required this.initialPurchaseOrderHeader});
 
   @override
   ConsumerState<ReceivePurchaseOrderItemsModal> createState() =>
@@ -80,31 +81,57 @@ class _ReceivePurchaseOrderItemsModalState
   bool _isProcessing = false;
   List<ReceivingLineItemEntry> _lineItemEntries = [];
   DateTime _dateReceived = DateTime.now();
+  Map<String?, String> _productNameMap = {};
+  bool _dataFullyLoadedAndInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _initializeLineItemEntries();
+    _fetchProductNames();
   }
 
-  void _initializeLineItemEntries() {
-    // Fetch product names once
-    final productDefinitionsState =
-        ref.read(productDefinitionNotifierProvider(true)).asData?.value;
-    final productNameMap = productDefinitionsState?.productDefinitions
-            .fold<Map<String?, String>>(
-                {}, (map, pd) => map..[pd.prodDefID] = pd.prodDefName) ??
-        {};
+  Future<void> _fetchProductNames() async {
+    final productDefinitionsStateValue =
+        await ref.read(productDefinitionNotifierProvider(true).future);
+    if (mounted) {
+      _productNameMap = productDefinitionsStateValue.productDefinitions
+          .fold<Map<String?, String>>({}, (map, pd) {
+        if (pd.prodDefID != null) {
+          map[pd.prodDefID!] = pd.prodDefName;
+        }
+        return map;
+      });
+      if (_dataFullyLoadedAndInitialized) {
+        final currentPOData = ref
+            .read(
+                poDetailsProviderFamily(widget.initialPurchaseOrderHeader.poId))
+            .asData
+            ?.value;
+        if (currentPOData != null) {
+          _initializeLineItemEntriesFromFetchedPO(currentPOData);
+          if (mounted) setState(() {});
+        }
+      }
+    }
+  }
 
-    _lineItemEntries = widget.purchaseOrder.items
+  void _initializeLineItemEntriesFromFetchedPO(PurchaseOrderData fullPO) {
+    if (!_productNameMap.isNotEmpty && (fullPO.items?.isNotEmpty ?? false)) {
+      return;
+    }
+    for (var entry in _lineItemEntries) {
+      entry.dispose();
+    }
+    _lineItemEntries = fullPO.items
             ?.where((item) => item.quantityReceived < item.quantityOrdered)
             .map((poItem) {
-          final productName = productNameMap[poItem.prodDefID] ??
-              'Product ID: ${poItem.prodDefID.substring(0, 6)}...';
+          final productName = _productNameMap[poItem.prodDefID] ??
+              'Prod. ID: ${poItem.prodDefID.substring(0, 6)}...';
           return ReceivingLineItemEntry(
               poItem: poItem, productName: productName);
         }).toList() ??
         [];
+    _dataFullyLoadedAndInitialized = true;
   }
 
   @override
@@ -115,14 +142,13 @@ class _ReceivePurchaseOrderItemsModalState
     super.dispose();
   }
 
-  Future<void> _selectDateReceived(BuildContext context) async {
+  Future<void> _selectDateReceived(
+      BuildContext context, DateTime orderDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _dateReceived,
-      firstDate:
-          widget.purchaseOrder.orderDate, // Cannot receive before order date
-      lastDate: DateTime.now().add(
-          const Duration(days: 7)), // Allow a bit of future dating if needed
+      firstDate: orderDate,
+      lastDate: DateTime.now().add(const Duration(days: 7)),
     );
     if (picked != null && picked != _dateReceived) {
       setState(() {
@@ -131,7 +157,7 @@ class _ReceivePurchaseOrderItemsModalState
     }
   }
 
-  Future<void> _submitReceipt() async {
+  Future<void> _submitReceipt(PurchaseOrderData currentFullPO) async {
     if (!_formKey.currentState!.validate()) {
       ToastManager().showToast(
           context, 'Please correct errors before submitting.', Colors.orange);
@@ -155,31 +181,32 @@ class _ReceivePurchaseOrderItemsModalState
       if (employeeRecord != null && employeeRecord['employeeID'] != null) {
         receivingEmployeeId = employeeRecord['employeeID'] as int;
       } else {
-        throw Exception('Receiving employee record not found.');
+        throw Exception(
+            'Receiving employee record not found for current user.');
       }
     } catch (e) {
-      ToastManager()
-          .showToast(context, 'Error fetching employee ID: $e', Colors.red);
+      ToastManager().showToast(
+          context, 'Error fetching your employee ID: $e', Colors.red);
       return;
     }
 
     setState(() => _isProcessing = true);
     bool overallSuccess = true;
     String overallErrorMessage = "";
+    int itemsAttemptedToProcessCount = 0;
 
     for (var entry in _lineItemEntries) {
       final qtyReceivedNowStr = entry.quantityReceivedNowController.text.trim();
-      if (qtyReceivedNowStr.isEmpty) {
-        continue; // Skip if no quantity entered for this item
-      }
+      if (qtyReceivedNowStr.isEmpty) continue;
 
       final qtyReceivedNow = int.tryParse(qtyReceivedNowStr) ?? 0;
-      if (qtyReceivedNow <= 0) continue; // Skip if quantity is not positive
+      if (qtyReceivedNow <= 0) continue;
+      itemsAttemptedToProcessCount++;
 
       if (entry.serialNumberControllers.length != qtyReceivedNow) {
         ToastManager().showToast(
             context,
-            'Serial number count must match quantity for ${entry.productName}.',
+            'Serial count must match "Qty Receiving Now" for ${entry.productName}. Expected $qtyReceivedNow, got ${entry.serialNumberControllers.length}.',
             Colors.orange);
         overallSuccess = false;
         break;
@@ -188,22 +215,31 @@ class _ReceivePurchaseOrderItemsModalState
           .any((controller) => controller.text.trim().isEmpty)) {
         ToastManager().showToast(
             context,
-            'All serial numbers must be entered for ${entry.productName}.',
+            'All serial numbers must be entered for ${entry.productName} if quantity is > 0.',
             Colors.orange);
         overallSuccess = false;
         break;
       }
     }
 
-    if (!overallSuccess) {
-      setState(() => _isProcessing = false);
+    if (!overallSuccess && itemsAttemptedToProcessCount > 0) {
+      if (mounted) setState(() => _isProcessing = false);
+      return;
+    }
+    if (itemsAttemptedToProcessCount == 0 &&
+        _lineItemEntries.any(
+            (e) => e.quantityReceivedNowController.text.trim().isNotEmpty)) {
+      // This means some quantities were entered but were invalid (e.g., 0)
+    } else if (itemsAttemptedToProcessCount == 0) {
+      ToastManager().showToast(context,
+          'No quantities entered to receive for any item.', Colors.blue);
+      if (mounted) setState(() => _isProcessing = false);
       return;
     }
 
     for (var entry in _lineItemEntries) {
       final qtyReceivedNowStr = entry.quantityReceivedNowController.text.trim();
       if (qtyReceivedNowStr.isEmpty) continue;
-
       final qtyReceivedNow = int.parse(qtyReceivedNowStr);
       if (qtyReceivedNow <= 0) continue;
 
@@ -214,30 +250,30 @@ class _ReceivePurchaseOrderItemsModalState
         await ref
             .read(purchaseOrderListNotifierProvider.notifier)
             .receiveItemsForPOItem(
-              poId: widget.purchaseOrder.poId,
+              poId: currentFullPO.poId,
               poItemId: entry.poItem.purchaseItemID!,
               quantityReceivedNow: qtyReceivedNow,
               serialNumbers: serials,
-              employeeId:
-                  receivingEmployeeId, // Assert non-null as checked above
+              employeeId: receivingEmployeeId!,
               dateReceived: _dateReceived,
             );
       } catch (e) {
         overallSuccess = false;
         overallErrorMessage +=
             'Error receiving ${entry.productName}: ${e.toString()}\n';
-        print(
-            'Error during PO Item ${entry.poItem.purchaseItemID} receipt: $e');
       }
     }
 
     if (overallSuccess) {
       ToastManager()
           .showToast(context, 'Items received successfully!', Colors.green);
-      Navigator.of(context).pop(true); // Indicate success
+      ref.invalidate(poDetailsProviderFamily(currentFullPO.poId));
+      Navigator.of(context).pop(true);
     } else {
-      ToastManager().showToast(context,
-          'Some items failed to receive. $overallErrorMessage', Colors.red);
+      ToastManager().showToast(
+          context,
+          'Some items failed to receive. Details: $overallErrorMessage',
+          Colors.red);
     }
 
     if (mounted) {
@@ -247,9 +283,11 @@ class _ReceivePurchaseOrderItemsModalState
 
   @override
   Widget build(BuildContext context) {
+    final poDetailsAsync = ref
+        .watch(poDetailsProviderFamily(widget.initialPurchaseOrderHeader.poId));
+
     final screenWidth = MediaQuery.of(context).size.width;
-    double modalWidth =
-        screenWidth > 800 ? 850 : screenWidth * 0.95; // Wider for more content
+    double modalWidth = screenWidth > 800 ? 850 : screenWidth * 0.95;
     final supplierNamesMapAsync = ref.watch(supplierNameMapProvider);
 
     return Dialog(
@@ -258,121 +296,154 @@ class _ReceivePurchaseOrderItemsModalState
           EdgeInsets.symmetric(horizontal: screenWidth > 600 ? 30.0 : 10.0),
       child: SizedBox(
         width: modalWidth,
-        height: MediaQuery.of(context).size.height * 0.9, // Allow more height
+        height: MediaQuery.of(context).size.height * 0.9,
         child: Form(
           key: _formKey,
-          child: Column(
-            children: [
-              Container(
-                // Header
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                    vertical: 12.0, horizontal: 20.0),
-                decoration: const BoxDecoration(
-                    color: Colors.blueAccent, // Color for receiving
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(10))),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: poDetailsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (err, stack) =>
+                  Center(child: Text("Error loading PO details: $err")),
+              data: (fullPO) {
+                if (fullPO == null) {
+                  return const Center(
+                      child: Text(
+                          "Could not load purchase order details. Please try again."));
+                }
+
+                if (!_dataFullyLoadedAndInitialized &&
+                    _productNameMap.isNotEmpty) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) {
+                      _initializeLineItemEntriesFromFetchedPO(fullPO);
+                      setState(() {});
+                    }
+                  });
+                }
+
+                return Column(
                   children: [
-                    Text('Receive Items for PO #${widget.purchaseOrder.poId}',
-                        style: const TextStyle(
-                            fontFamily: 'NunitoSans',
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Colors.white)),
-                    IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
-                        onPressed: () => Navigator.of(context).pop(),
-                        tooltip: "Close")
-                  ],
-                ),
-              ),
-              Padding(
-                // PO Info and Date Received
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0, vertical: 12.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    supplierNamesMapAsync.when(
-                      data: (map) => Text(
-                          'Supplier: ${map[widget.purchaseOrder.supplierID] ?? 'ID: ${widget.purchaseOrder.supplierID}'}',
-                          style: const TextStyle(
-                              fontFamily: 'NunitoSans', fontSize: 13)),
-                      loading: () => const Text('Supplier: Loading...',
-                          style: TextStyle(
-                              fontFamily: 'NunitoSans', fontSize: 13)),
-                      error: (e, s) => const Text('Supplier: Error',
-                          style: TextStyle(
-                              fontFamily: 'NunitoSans',
-                              fontSize: 13,
-                              color: Colors.red)),
-                    ),
-                    TextButton.icon(
-                      icon: const Icon(Icons.calendar_today, size: 16),
-                      label: Text(
-                          'Date Received: ${DateFormat('MM/dd/yyyy').format(_dateReceived)}',
-                          style: const TextStyle(
-                              fontFamily: 'NunitoSans', fontSize: 13)),
-                      onPressed: () => _selectDateReceived(context),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              Expanded(
-                // Line Items List
-                child: _lineItemEntries.isEmpty
-                    ? const Center(
-                        child: Text(
-                            "All items for this PO have been fully received or no items were on the PO.",
-                            style: TextStyle(
-                                fontFamily: 'NunitoSans', color: Colors.grey)))
-                    : ListView.builder(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: _lineItemEntries.length,
-                        itemBuilder: (context, index) {
-                          final entry = _lineItemEntries[index];
-                          return _buildLineItemEntryWidget(entry, index);
-                        },
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 12.0, horizontal: 20.0),
+                      decoration: const BoxDecoration(
+                          color: Colors.blueAccent,
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(10))),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Receive Items for PO #${fullPO.poId}',
+                              style: const TextStyle(
+                                  fontFamily: 'NunitoSans',
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: Colors.white)),
+                          IconButton(
+                              icon:
+                                  const Icon(Icons.close, color: Colors.white),
+                              onPressed: () => Navigator.of(context).pop(),
+                              tooltip: "Close")
+                        ],
                       ),
-              ),
-              // Action Buttons
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    TextButton(
-                        onPressed: _isProcessing
-                            ? null
-                            : () => Navigator.of(context).pop(),
-                        child: const Text('Cancel')),
-                    const SizedBox(width: 10),
-                    ElevatedButton.icon(
-                      icon: _isProcessing
-                          ? Container()
-                          : const Icon(Icons.check_circle_outline, size: 18),
-                      label: _isProcessing
-                          ? const SizedBox(
-                              height: 18,
-                              width: 18,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white))
-                          : const Text('Confirm Receipt & Add Serials'),
-                      onPressed: _isProcessing || _lineItemEntries.isEmpty
-                          ? null
-                          : _submitReceipt,
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20.0, vertical: 12.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          supplierNamesMapAsync.when(
+                            data: (map) => Text(
+                                'Supplier: ${map[fullPO.supplierID] ?? 'ID: ${fullPO.supplierID}'}',
+                                style: const TextStyle(
+                                    fontFamily: 'NunitoSans', fontSize: 13)),
+                            loading: () => const Text('Supplier: Loading...',
+                                style: TextStyle(
+                                    fontFamily: 'NunitoSans', fontSize: 13)),
+                            error: (e, s) => const Text('Supplier: Error',
+                                style: TextStyle(
+                                    fontFamily: 'NunitoSans',
+                                    fontSize: 13,
+                                    color: Colors.red)),
+                          ),
+                          TextButton.icon(
+                            icon: const Icon(Icons.calendar_today, size: 16),
+                            label: Text(
+                                'Date Received: ${DateFormat('MM/dd/yyyy').format(_dateReceived)}',
+                                style: const TextStyle(
+                                    fontFamily: 'NunitoSans', fontSize: 13)),
+                            onPressed: () =>
+                                _selectDateReceived(context, fullPO.orderDate),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    Expanded(
+                      child: !_dataFullyLoadedAndInitialized
+                          ? const Center(child: CircularProgressIndicator())
+                          : _lineItemEntries.isEmpty
+                              ? const Center(
+                                  child: Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Text(
+                                    "All items for this PO have been fully received, no items were on the PO, or product names are still loading.",
+                                    style: TextStyle(
+                                        fontFamily: 'NunitoSans',
+                                        color: Colors.grey,
+                                        fontSize: 14),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ))
+                              : ListView.builder(
+                                  padding: const EdgeInsets.all(16),
+                                  itemCount: _lineItemEntries.length,
+                                  itemBuilder: (context, index) {
+                                    final entry = _lineItemEntries[index];
+                                    return _buildLineItemEntryWidget(
+                                        entry, index);
+                                  },
+                                ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                              onPressed: _isProcessing
+                                  ? null
+                                  : () => Navigator.of(context).pop(),
+                              child: const Text('Cancel')),
+                          const SizedBox(width: 10),
+                          ElevatedButton.icon(
+                            icon: _isProcessing
+                                ? Container()
+                                : const Icon(Icons.check_circle_outline,
+                                    size: 18),
+                            label: _isProcessing
+                                ? const SizedBox(
+                                    height: 18,
+                                    width: 18,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2, color: Colors.white))
+                                : const Text('Confirm Receipt & Add Serials'),
+                            onPressed: _isProcessing ||
+                                    (!_dataFullyLoadedAndInitialized ||
+                                        _lineItemEntries.isEmpty)
+                                ? null
+                                : () => _submitReceipt(fullPO),
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
-                ),
-              ),
-            ],
-          ),
+                );
+              }),
         ),
       ),
     );
@@ -423,24 +494,41 @@ class _ReceivePurchaseOrderItemsModalState
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                   labelStyle:
                       const TextStyle(fontSize: 12, fontFamily: 'NunitoSans'),
-                  hintStyle:
-                      const TextStyle(fontSize: 11, fontFamily: 'NunitoSans'),
                 ),
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: (value) {
-                  setState(() {
-                    entry.updateSerialControllers(value);
-                  });
+                  final formFieldState =
+                      entry.quantityFormFieldKey.currentState;
+                  if ((formFieldState != null && formFieldState.validate()) ||
+                      value.isEmpty) {
+                    setState(() {
+                      entry.updateSerialControllers(value);
+                    });
+                  }
                 },
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return null; // Allow empty if not receiving this item now
-                  }
+                  if (value == null || value.isEmpty) return null;
                   final qty = int.tryParse(value);
-                  if (qty == null) return 'Invalid number';
-                  if (qty < 0) return 'Cannot be negative';
+                  if (qty == null) return 'Invalid num';
+                  if (qty < 0) return 'Cannot be <0';
                   if (qty > entry.quantityRemainingToReceive) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted &&
+                          entry.quantityReceivedNowController.text !=
+                              entry.quantityRemainingToReceive.toString()) {
+                        entry.quantityReceivedNowController.text =
+                            entry.quantityRemainingToReceive.toString();
+                        entry.quantityReceivedNowController.selection =
+                            TextSelection.fromPosition(TextPosition(
+                                offset: entry.quantityReceivedNowController.text
+                                    .length));
+                        setState(() {
+                          entry.updateSerialControllers(
+                              entry.quantityRemainingToReceive.toString());
+                        });
+                      }
+                    });
                     return 'Max ${entry.quantityRemainingToReceive}';
                   }
                   return null;
@@ -448,48 +536,50 @@ class _ReceivePurchaseOrderItemsModalState
                 autovalidateMode: AutovalidateMode.onUserInteraction,
               ),
             if (entry.quantityRemainingToReceive == 0)
-              const Text("All units received for this item.",
-                  style: TextStyle(
-                      color: Colors.green,
-                      fontSize: 12,
-                      fontFamily: 'NunitoSans')),
-            const SizedBox(height: 8),
-            if (entry.serialNumberControllers.isNotEmpty)
+              const Padding(
+                padding: EdgeInsets.only(top: 8.0),
+                child: Text("All units received for this item.",
+                    style: TextStyle(
+                        color: Colors.green,
+                        fontSize: 12,
+                        fontFamily: 'NunitoSans')),
+              ),
+            if (entry.serialNumberControllers.isNotEmpty) ...[
+              const SizedBox(height: 10),
               Text(
                   'Enter Serial Numbers (${entry.serialNumberControllers.length}):',
                   style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
                       fontFamily: 'NunitoSans')),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: entry.serialNumberControllers.length,
-              itemBuilder: (context, serialIndex) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 6.0, left: 16.0),
-                  child: TextFormField(
-                    controller: entry.serialNumberControllers[serialIndex],
-                    decoration: InputDecoration(
-                      labelText: 'Serial #${serialIndex + 1}',
-                      border: const OutlineInputBorder(),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 8),
-                      labelStyle: const TextStyle(
-                          fontSize: 11, fontFamily: 'NunitoSans'),
-                      hintStyle: const TextStyle(
-                          fontSize: 10, fontFamily: 'NunitoSans'),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: entry.serialNumberControllers.length,
+                itemBuilder: (context, serialIndex) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 6.0, left: 16.0),
+                    child: TextFormField(
+                      controller: entry.serialNumberControllers[serialIndex],
+                      decoration: InputDecoration(
+                        labelText: 'Serial #${serialIndex + 1}',
+                        border: const OutlineInputBorder(),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 8),
+                        labelStyle: const TextStyle(
+                            fontSize: 11, fontFamily: 'NunitoSans'),
+                      ),
+                      style: const TextStyle(
+                          fontSize: 12, fontFamily: 'NunitoSans'),
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'Serial #${serialIndex + 1} is required'
+                          : null,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
                     ),
-                    style:
-                        const TextStyle(fontSize: 12, fontFamily: 'NunitoSans'),
-                    validator: (v) => (v == null || v.trim().isEmpty)
-                        ? 'Serial required'
-                        : null,
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
-                  ),
-                );
-              },
-            ),
+                  );
+                },
+              ),
+            ]
           ],
         ),
       ),
