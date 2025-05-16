@@ -31,9 +31,9 @@ import 'package:jcsd_flutter/view/admin/payroll.dart';
 import 'package:jcsd_flutter/view/client/profile_client.dart';
 import 'package:jcsd_flutter/view/employee/dashboard.dart';
 import 'package:jcsd_flutter/view/inventory/item_serials/item_serials_list.dart';
+import 'package:jcsd_flutter/view/inventory/purchase_orders/purchase_order_page.dart';
 import 'package:jcsd_flutter/view/manufacturers/manufacturers.dart';
 import 'package:jcsd_flutter/view/manufacturers/manufacturers_archive.dart';
-import 'package:jcsd_flutter/view/order_item/order_list.dart';
 import 'package:jcsd_flutter/view/services/services.dart';
 import 'package:jcsd_flutter/view/services/services_archive.dart';
 import 'package:jcsd_flutter/view/inventory/item_types/item_types.dart';
@@ -246,7 +246,7 @@ final router = GoRouter(
     ),
     GoRoute(
       path: '/orderList',
-      builder: (context, state) => const OrderListPage(),
+      builder: (context, state) => const PurchaseOrderPage(),
     ),
     GoRoute(
       path: '/auditLog',

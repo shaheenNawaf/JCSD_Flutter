@@ -172,7 +172,7 @@ class _SidebarState extends ConsumerState<Sidebar> {
                         ),
                         SubSidebarItem(
                           icon: FontAwesomeIcons.fileImport,
-                          title: 'Order List',
+                          title: 'Purchase Order',
                           route: '/orderList',
                           isActive: _activeSubItem == '/orderList',
                           onTap: () => _navigateTo('/orderList'),

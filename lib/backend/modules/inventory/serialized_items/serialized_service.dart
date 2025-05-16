@@ -195,6 +195,18 @@ class SerialitemService {
     }
   }
 
+  Future<void> bulkAddSerializedItems(
+      List<Map<String, dynamic>> itemsData) async {
+    try {
+      if (itemsData.isEmpty) return;
+      await supabaseDB.from('item_serials').insert(itemsData);
+      print('Sucessfully added ${itemsData.length} serialized items');
+    } catch (err, st) {
+      print('Error adding multiple serialized items. \n $err \n $st');
+      rethrow;
+    }
+  }
+
   Future<SerializedItem> updateSerializedItem(
       SerializedItem updatedItem) async {
     try {
