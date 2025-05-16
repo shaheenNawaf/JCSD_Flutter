@@ -11,6 +11,7 @@ import 'package:jcsd_flutter/api/supa_details.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
+import 'package:jcsd_flutter/backend/modules/payroll/payroll_data.dart';
 import 'package:jcsd_flutter/others/transition.dart';
 import 'package:jcsd_flutter/view/admin/cashadvancelist.dart';
 import 'package:jcsd_flutter/view/admin/generatepayroll.dart';
@@ -166,7 +167,8 @@ final router = GoRouter(
                 final args = state.extra as Map<String, dynamic>?;
                 final acc = args?['account'] as AccountsData?;
                 final emp = args?['employee'] as EmployeeData?;
-                return Payslip(acc: acc, emp: emp);
+                final payroll = args?['payroll'] as PayrollData?;
+                return Payslip(acc: acc, emp: emp, payroll: payroll);
               },
               routes: [
                 GoRoute(

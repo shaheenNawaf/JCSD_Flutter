@@ -154,7 +154,6 @@ class PayrollList extends ConsumerWidget {
             DataColumn(label: _buildHeaderText('Action')),
           ],
           rows: state.payrolls.map((record) {
-            print(record);
             final payroll = record['payroll'] as PayrollData;
             final account = record['account'] as AccountsData?;
 
@@ -166,12 +165,13 @@ class PayrollList extends ConsumerWidget {
               DataCell(
                 ElevatedButton(
                   onPressed: () {
+                    final payroll = record['payroll'] as PayrollData;
                     final employee = record['employee'] as EmployeeData?;
                     final account = record['account'] as AccountsData?;
-                    print(account);
                     context.push('/employeeList/profile/payslip', extra: {
                       'account': account,
                       'employee': employee,
+                      'payroll': payroll,
                     });
                   },
                   style: ElevatedButton.styleFrom(

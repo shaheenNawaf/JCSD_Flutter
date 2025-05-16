@@ -72,8 +72,6 @@ class PayrollService {
       if (employeeData != null && employeeData['employeeID'] is int) {
           employeeData['employeeID'] = employeeData['employeeID'].toString();
         }
-
-      print(payroll['payroll']);
       return {
         'payroll': PayrollData.fromJson(payroll),
         'employee': employeeData != null 

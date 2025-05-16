@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/backend/modules/payroll/payroll_data.dart';
 import 'package:jcsd_flutter/modals/request_cash_advance.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
@@ -14,8 +15,9 @@ import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 class Payslip extends ConsumerStatefulWidget {
   final AccountsData? acc;
   final EmployeeData? emp;
+  final PayrollData? payroll;
 
-  const Payslip({super.key, this.acc, this.emp});
+  const Payslip({super.key, this.acc, this.emp, this.payroll});
 
   @override
   ConsumerState<Payslip> createState() => _PayslipState();
@@ -27,6 +29,7 @@ class _PayslipState extends ConsumerState<Payslip> {
 
   late final AccountsData? user = widget.acc;
   late final EmployeeData? emp = widget.emp;
+  late final PayrollData? payroll = widget.payroll;
 
   void _showRequestCashAdvanceModal() {
     showDialog(
@@ -196,14 +199,14 @@ class _PayslipState extends ConsumerState<Payslip> {
                               endIndent: 40),
                           const PayslipRow(
                               label: 'Deductions: ', value: '', isBold: true),
-                          const PayslipRow(
-                              label: 'Pagibig: ', value: '₱200.00'),
-                          const PayslipRow(
-                              label: 'PhilHealth: ', value: '₱600.00'),
-                          const PayslipRow(label: 'SSS: ', value: '₱550.00'),
+                          PayslipRow(
+                              label: 'Pagibig: ', value: payroll!.pagibig.toString()),
+                          PayslipRow(
+                              label: 'PhilHealth: ', value: payroll!.philhealth.toString()),
+                          PayslipRow(label: 'SSS: ', value: payroll!.sss.toString()),
                           const PayslipRow(label: 'Others: ', value: '₱50.00'),
-                          const PayslipRow(
-                              label: 'Withholding Tax: ', value: '₱0.00'),
+                          PayslipRow(
+                              label: 'Withholding Tax: ', value: payroll!.withholdingTax.toString()),
                           const PayslipRow(
                               label: 'Cash Advance: ', value: '₱2,000.00'),
                           const PayslipRow(
@@ -214,22 +217,23 @@ class _PayslipState extends ConsumerState<Payslip> {
                       ),
                     ),
                     const SizedBox(width: 32),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(height: 100),
                           PayslipRow(
                               label: 'Payroll: ',
-                              value: '₱123,000',
+                              value: payroll!.calculatedMonthlySalary
+                                  .toStringAsFixed(2),
                               isBold: true),
-                          PayslipRow(label: 'Total Salary: ', value: '₱20,000'),
+                          PayslipRow(label: 'Total Salary: ', value: payroll!.monthlySalary.toStringAsFixed(2)),
                           PayslipRow(
-                              label: 'Total Deductions: ', value: '₱2,000'),
+                              label: 'Total Deductions: ', value: payroll!.deductions.toString()),
                           PayslipRow(
                               label: 'Commission from Bookings: ',
                               value: '₱20,000'),
-                          PayslipRow(label: 'Bonus: ', value: '₱20,000'),
+                          PayslipRow(label: 'Bonus: ', value: payroll!.bonus.toString()),
                           PayslipRow(
                               label: 'Take Home Pay: ',
                               value: '₱200,000',
