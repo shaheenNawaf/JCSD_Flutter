@@ -19,7 +19,7 @@ class EmployeeService {
       final results = await supabaseDB
           .from('employee')
           .select(
-              'employeeID, userID, isAdmin, companyRole, isActive, createDate')
+              'employeeID, userID, isAdmin, companyRole, isActive, createDate, monthlySalary')
           .order(sortBy, ascending: ascending)
           .range(from, to);
 
@@ -31,6 +31,7 @@ class EmployeeService {
           companyRole: e['companyRole'] as String,
           isActive: e['isActive'] as bool,
           createDate: DateTime.parse(e['createDate']),
+          monthlySalary: double.parse(e['monthlySalary'].toString()),
         );
       }).toList();
     } catch (err) {

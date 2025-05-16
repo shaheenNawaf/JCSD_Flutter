@@ -3,6 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_notifier.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_providers.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_state.dart';
 import 'package:jcsd_flutter/modals/confirm_generate_payroll.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
@@ -16,62 +21,12 @@ class GeneratePayrollPage extends ConsumerStatefulWidget {
 }
 
 class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
-  final int _rowsPerPage = 10;
-  int _currentPage = 0;
-  String _searchText = '';
-  String _sortBy = 'name';
-  bool _ascending = true;
-
-  final List<Map<String, dynamic>> _dummyData = List.generate(
-    5,
-    (index) => {
-      'name': 'Employee $index',
-      'position': 'Position $index',
-      'salary': '₱12,000.00',
-      'calculated': '₱10,660.00',
-      'bonus': TextEditingController(),
-      'deduction': TextEditingController(),
-      'remarks': TextEditingController(),
-    },
-  );
-
-  List<Map<String, dynamic>> _applyFilters(List<Map<String, dynamic>> data) {
-    final query = _searchText.toLowerCase();
-    final filtered = data.where((item) {
-      return item['name'].toLowerCase().contains(query) ||
-          item['position'].toLowerCase().contains(query);
-    }).toList();
-
-    filtered.sort((a, b) {
-      final aVal = a[_sortBy] ?? '';
-      final bVal = b[_sortBy] ?? '';
-      return _ascending ? aVal.compareTo(bVal) : bVal.compareTo(aVal);
-    });
-
-    return filtered;
-  }
-
-  void _sort(String column) {
-    setState(() {
-      if (_sortBy == column) {
-        _ascending = !_ascending;
-      } else {
-        _sortBy = column;
-        _ascending = true;
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    final filteredData = _applyFilters(_dummyData);
-    final paginatedData = filteredData
-        .skip(_currentPage * _rowsPerPage)
-        .take(_rowsPerPage)
-        .toList();
-
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F8F8),
+    final state = ref.watch(employeeNotifierProvider);
+    final notifier = ref.read(employeeNotifierProvider.notifier);
+     return Scaffold(
       body: Row(
         children: [
           const Sidebar(activePage: '/employeeList'),
@@ -110,20 +65,18 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
                               horizontal: 16,
                             ),
                           ),
-                          onChanged: (value) => setState(() {
-                            _searchText = value;
-                          }),
                         ),
                       ),
                       const SizedBox(width: 16),
                       ElevatedButton.icon(
                         // Should redirect user to another page to display each employee's payroll summary with an option to print OR for them
                         onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) =>
-                                ConfirmGeneratePayroll(onSuccess: () {}),
-                          );
+                          print('sad');
+                          // showDialog(
+                          //   context: context,
+                          //   builder: (context) =>
+                          //       ConfirmGeneratePayroll(onSuccess: () {}),
+                          // );
                         },
                         icon: const Icon(Icons.payment_rounded,
                             color: Colors.white),
@@ -149,11 +102,11 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: _buildDataTable(paginatedData),
+                    child: _buildDataTable(context, state.employeeAccounts, notifier, state),
                   ),
                 ),
                 const SizedBox(height: 10),
-                _buildPagination(filteredData),
+                _buildPagination(state, notifier),
                 const SizedBox(height: 20),
               ],
             ),
@@ -163,7 +116,38 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
     );
   }
 
-  Widget _buildDataTable(List<Map<String, dynamic>> data) {
+  Widget _buildDataTable(
+    BuildContext context,
+    List<Map<String, dynamic>> data,
+    EmployeeNotifier notifier,
+    EmployeeState state,
+  ) {
+    final sortedData = List<Map<String, dynamic>>.from(data);
+    if (state.sortBy == 'firstName') {
+      sortedData.sort((a, b) {
+        final aAcc = a['account'] as AccountsData?;
+        final bAcc = b['account'] as AccountsData?;
+        return state.ascending
+            ? (aAcc?.firstName ?? '')
+                .toLowerCase()
+                .compareTo((bAcc?.firstName ?? '').toLowerCase())
+            : (bAcc?.firstName ?? '')
+                .toLowerCase()
+                .compareTo((aAcc?.firstName ?? '').toLowerCase());
+      });
+    } else if (state.sortBy == 'email') {
+      sortedData.sort((a, b) {
+        final aAcc = a['account'] as AccountsData?;
+        final bAcc = b['account'] as AccountsData?;
+        return state.ascending
+            ? (aAcc?.email ?? '')
+                .toLowerCase()
+                .compareTo((bAcc?.email ?? '').toLowerCase())
+            : (bAcc?.email ?? '')
+                .toLowerCase()
+                .compareTo((aAcc?.email ?? '').toLowerCase());
+      });
+    }
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -184,34 +168,45 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
           headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
           columnSpacing: 24,
           columns: [
-            DataColumn(label: _buildSortableHeader('Employee Name', 'name')),
-            DataColumn(label: _buildSortableHeader('Position', 'position')),
-            DataColumn(label: _buildHeaderText('Monthly Salary')),
-            DataColumn(label: _buildHeaderText('Calculated Monthly Salary')),
+            DataColumn(label: _buildSortableHeader('Employee Name', 'firstName', state, notifier)),
+            DataColumn(label: _buildSortableHeader('Position', 'lastname', state, notifier)),
+            DataColumn(label: _buildSortableHeader('Salary', 'address', state, notifier)),
+            DataColumn(label: _buildSortableHeader('calculated', 'firstName', state, notifier)),
             DataColumn(label: _buildHeaderText('Bonus')),
             DataColumn(label: _buildHeaderText('Deductions')),
             DataColumn(label: _buildHeaderText('Remarks')),
           ],
           rows: data.map((item) {
+            final emp = item['employee'] as EmployeeData;
+            final acc = item['account'] as AccountsData;
             return DataRow(cells: [
-              DataCell(Text(item['name'])),
-              DataCell(Text(item['position'])),
-              DataCell(Text(item['salary'])),
-              DataCell(Text(item['calculated'])),
-              DataCell(SizedBox(
-                width: 150,
-                child: TextField(
-                  controller: item['bonus'],
-                  decoration: const InputDecoration(
-                    prefixText: '+ ₱',
-                    border: OutlineInputBorder(),
-                    isDense: true,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  ),
-                  keyboardType: TextInputType.number,
+              DataCell(Text(acc.lastname)),
+              DataCell(Text(emp.companyRole)),
+                DataCell(
+                Builder(
+                  builder: (context) {
+                    print('Monthly Salary for ${emp.toJson()}');
+                  return Text(emp.monthlySalary.toString());
+                  },
                 ),
-              )),
+                ),
+              DataCell(Text(item['firstName'] ?? '')),
+              DataCell(
+                SizedBox(
+                  width: 150,
+                  child: TextField(
+                    controller: item['bonus'],
+                    decoration: const InputDecoration(
+                      prefixText: '+ ₱',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                ),
+              ),
               DataCell(SizedBox(
                 width: 150,
                 child: TextField(
@@ -245,9 +240,15 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
     );
   }
 
-  Widget _buildSortableHeader(String title, String column) {
+  Widget _buildSortableHeader(
+    String title,
+    String column,
+    EmployeeState state,
+    EmployeeNotifier notifier,
+  ) {
+    print('Employee Data: $title, $column, ${state.sortBy}, ${state.ascending}');
     return InkWell(
-      onTap: () => _sort(column),
+      onTap: () => notifier.sort(column),
       child: Row(
         children: [
           Text(
@@ -258,9 +259,9 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
               fontFamily: 'NunitoSans',
             ),
           ),
-          if (_sortBy == column)
+          if (state.sortBy == column)
             Icon(
-              _ascending ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+              state.ascending ? Icons.arrow_drop_up : Icons.arrow_drop_down,
               size: 18,
               color: Colors.white,
             ),
@@ -284,32 +285,32 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
     );
   }
 
-  Widget _buildPagination(List<Map<String, dynamic>> filteredData) {
-    final totalPages = (filteredData.length / _rowsPerPage).ceil();
+
+  Widget _buildPagination(EmployeeState state, EmployeeNotifier notifier) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
           icon: const Icon(Icons.first_page),
-          onPressed:
-              _currentPage > 0 ? () => setState(() => _currentPage = 0) : null,
+          onPressed: state.currentPage > 1 ? () => notifier.goToPage(1) : null,
         ),
         IconButton(
           icon: const Icon(Icons.navigate_before),
-          onPressed:
-              _currentPage > 0 ? () => setState(() => _currentPage--) : null,
+          onPressed: state.currentPage > 1
+              ? () => notifier.goToPage(state.currentPage - 1)
+              : null,
         ),
-        Text('Page ${_currentPage + 1} of $totalPages'),
+        Text('Page ${state.currentPage} of ${state.totalPages}'),
         IconButton(
           icon: const Icon(Icons.navigate_next),
-          onPressed: _currentPage < totalPages - 1
-              ? () => setState(() => _currentPage++)
+          onPressed: state.currentPage < state.totalPages
+              ? () => notifier.goToPage(state.currentPage + 1)
               : null,
         ),
         IconButton(
           icon: const Icon(Icons.last_page),
-          onPressed: _currentPage < totalPages - 1
-              ? () => setState(() => _currentPage = totalPages - 1)
+          onPressed: state.currentPage < state.totalPages
+              ? () => notifier.goToPage(state.totalPages)
               : null,
         ),
       ],

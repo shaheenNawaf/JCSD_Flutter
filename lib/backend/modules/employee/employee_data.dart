@@ -5,6 +5,7 @@ class EmployeeData {
   final String companyRole;
   final bool isActive;
   final DateTime createDate;
+  final double monthlySalary;
 
   EmployeeData({
     required this.employeeID,
@@ -13,6 +14,7 @@ class EmployeeData {
     required this.companyRole,
     required this.isActive,
     required this.createDate,
+    required this.monthlySalary
   });
 
   factory EmployeeData.fromJson(Map<String, dynamic> json) {
@@ -23,6 +25,7 @@ class EmployeeData {
       companyRole: json['companyRole'] as String,
       isActive: json['isActive'] as bool,
       createDate: DateTime.parse(json['createDate']),
+      monthlySalary: double.parse(json['monthlySalary'].toString()),
     );
   }
 
@@ -34,6 +37,7 @@ class EmployeeData {
       'companyRole': companyRole,
       'isActive': isActive,
       'createDate': createDate.toIso8601String(),
+      'monthlySalary': monthlySalary,
     };
   }
 }
