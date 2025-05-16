@@ -169,7 +169,7 @@ class PayrollList extends ConsumerWidget {
                     final employee = record['employee'] as EmployeeData?;
                     final account = record['account'] as AccountsData?;
                     print(account);
-                    context.push('/employeeList/profile', extra: {
+                    context.push('/employeeList/profile/payslip', extra: {
                       'account': account,
                       'employee': employee,
                     });

@@ -66,8 +66,12 @@ class PayrollService {
         .order(sortBy, ascending: ascending)
         .range((page - 1) * itemsPerPage, page * itemsPerPage - 1);
     return payrollResponse.map<Map<String, dynamic>>((payroll) {
-      final employeeData = payroll['employee'] as Map<String, dynamic>?;
+      final employeeData = payroll['payroll'] as Map<String, dynamic>?;
       final accountData = payroll['payroll']?['accounts'] as Map<String, dynamic>?;
+
+      if (employeeData != null && employeeData['employeeID'] is int) {
+          employeeData['employeeID'] = employeeData['employeeID'].toString();
+        }
 
       print(payroll['payroll']);
       return {
