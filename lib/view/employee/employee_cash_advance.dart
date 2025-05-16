@@ -319,7 +319,10 @@ class _CashAdvancePageState extends ConsumerState<CashAdvancePage> {
 
   @override
   Widget build(BuildContext context) {
-    final cashAdvancePagesAsync = ref.watch(profileCashAdvanceStreamProvider);
+    final cashAdvancePagesAsync = ref.watch(
+      profileCashAdvanceProvider(
+          emp?.employeeID == null ? null : int.parse(emp!.employeeID)),
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
