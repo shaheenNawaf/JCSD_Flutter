@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:math';
 
 class Payslip extends ConsumerStatefulWidget {
   final AccountsData? acc;
@@ -27,37 +28,244 @@ class Payslip extends ConsumerStatefulWidget {
 
 class _PayslipState extends ConsumerState<Payslip> {
   final String _activeSubItem = '/employeeList';
-  DateTime selectedDate = DateTime.now();
+  late DateTime selectedDate = payroll!.createdAt;
 
   int attendanceRecords = 0;
+  int lateMinutes = 0;
+  int overtimeMinutes = 0;
+  int leaveDays = 0;
+  double totalCashAdvance = 0;
 
+  static const Map<int, Map<String, double>> sssTable = {
+    15000: {'ee': 750.00, 'er': 1500.00},
+    15500: {'ee': 775.00, 'er': 1550.00},
+    16000: {'ee': 800.00, 'er': 1600.00},
+    16500: {'ee': 825.00, 'er': 1650.00},
+    17000: {'ee': 850.00, 'er': 1700.00},
+    17500: {'ee': 875.00, 'er': 1750.00},
+    18000: {'ee': 900.00, 'er': 1800.00},
+    18500: {'ee': 925.00, 'er': 1850.00},
+    19000: {'ee': 950.00, 'er': 1900.00},
+    19500: {'ee': 975.00, 'er': 1950.00},
+    20000: {'ee': 1000.00, 'er': 2000.00},
+    20500: {'ee': 1025.00, 'er': 2050.00},
+    21000: {'ee': 1050.00, 'er': 2100.00},  
+    21500: {'ee': 1075.00, 'er': 2150.00},
+    22000: {'ee': 1100.00, 'er': 2200.00},
+    22500: {'ee': 1125.00, 'er': 2250.00},
+    23000: {'ee': 1150.00, 'er': 2300.00},
+    23500: {'ee': 1175.00, 'er': 2350.00},
+    24000: {'ee': 1200.00, 'er': 2400.00},
+    24500: {'ee': 1225.00, 'er': 2450.00},
+    25000: {'ee': 1250.00, 'er': 2500.00},
+    25500: {'ee': 1275.00, 'er': 2550.00},
+    26000: {'ee': 1300.00, 'er': 2600.00},
+    26500: {'ee': 1325.00, 'er': 2650.00},
+    27000: {'ee': 1350.00, 'er': 2700.00},
+    27500: {'ee': 1375.00, 'er': 2750.00},
+    28000: {'ee': 1400.00, 'er': 2800.00},
+    28500: {'ee': 1425.00, 'er': 2850.00},
+    29000: {'ee': 1450.00, 'er': 2900.00},
+    29500: {'ee': 1475.00, 'er': 2950.00},
+    30000: {'ee': 1500.00, 'er': 3000.00},
+  };
+
+  double calculateSSS(double monthlySalary) {
+    double employeeShare = 0.0;
+    for (var msc in sssTable.keys) {
+      if (monthlySalary <= msc) {
+        employeeShare = sssTable[msc]!['ee']!;
+        break;
+      } else if (monthlySalary > sssTable.keys.last) {
+        employeeShare = sssTable[sssTable.keys.last]!['ee']!;
+        break;
+      }
+    }
+    return employeeShare;
+  }
+
+  double calculatePhilHealth(double monthlySalary) {
+    double premiumRate = 0.05;
+    double salaryFloor = 10000;
+    double salaryCeiling = 100000;
+    double premium;
+
+    if (monthlySalary < salaryFloor) {
+      premium = salaryFloor * premiumRate;
+    } else if (monthlySalary > salaryCeiling) {
+      premium = salaryCeiling * premiumRate;
+    } else {
+      premium = monthlySalary * premiumRate;
+    }
+
+    return premium / 2; // Employee's share is 50%
+  }
+
+  double calculatePagIBIG(double monthlySalary) {
+    double contributionRate = 0.02;
+    double maxContributionSalary = 10000;
+    double contributionBase = min(monthlySalary, maxContributionSalary);
+    return contributionBase * contributionRate; // Employee's share
+  }
+
+  double calculateWithholdingTax(double grossMonthlySalary, double sssEe, double philhealthEe, double pagibigEe) {
+    double taxableIncome = grossMonthlySalary - sssEe - philhealthEe - pagibigEe;
+
+    if (taxableIncome <= 20833) {
+      return 0.00;
+    } else if (taxableIncome <= 33333) {
+      return (taxableIncome - 20833) * 0.15;
+    } else if (taxableIncome <= 66667) {
+      return 1875.00 + (taxableIncome - 33333) * 0.20;
+    } else if (taxableIncome <= 166667) {
+      return 8541.67 + (taxableIncome - 66667) * 0.25;
+    } else if (taxableIncome <= 666667) {
+      return 33541.67 + (taxableIncome - 166667) * 0.30;
+    } else {
+      return 183541.67 + (taxableIncome - 666667) * 0.35;
+    }
+  }
+
+  late double monthlySalary;
+
+  late double sssEmployee = calculateSSS(monthlySalary);
+  late double philHealthEmployee = calculatePhilHealth(monthlySalary);
+  late double pagIbigEmployee = calculatePagIBIG(monthlySalary);
+  late double withholdingTax = calculateWithholdingTax(monthlySalary, sssEmployee, philHealthEmployee, pagIbigEmployee);
+  
+  totaldeducations() {
+    return (
+        pagIbigEmployee +
+        philHealthEmployee +
+        sssEmployee +
+        withholdingTax + 
+        ((payroll!.monthlySalary / 170) * ((lateMinutes / 60) + (leaveDays * 8))) +
+        totalCashAdvance +
+        payroll!.deductions);
+  }
+
+  totalSalary() {
+    return (payroll!.monthlySalary +
+        payroll!.bonus -
+        totaldeducations());
+  }
+
+  Future<void> uploadCalculatedMonthlySalary() async {
+    try {
+      final double calculatedMonthlySalary = totalSalary();
+      await Supabase.instance.client
+          .from('payroll')
+          .update({'calculatedMonthlySalary': calculatedMonthlySalary})
+          .eq('id', payroll!.id);
+      print('Calculated monthly salary uploaded: $calculatedMonthlySalary');
+    } catch (e) {
+      print('Error uploading calculated monthly salary: $e');
+    }
+  }
   late final AccountsData? user = widget.acc;
   late final EmployeeData? emp = widget.emp;
   late final PayrollData? payroll = widget.payroll;
 
   Future<void> _fetchAttendanceData() async{
-    try{
+    try {
       final response = await Supabase.instance.client
         .from('attendance')
         .select()
         .eq('userID', user!.userID)
         .filter('attendance_date', 'gte', DateTime(selectedDate.year, selectedDate.month, 1))
         .filter('attendance_date', 'lt', DateTime(selectedDate.year, selectedDate.month + 1, 1));
-      final count = response.length;
-      setState(() {
-        attendanceRecords = count;
-      });
-      print('Fetched attendance data: $count');
 
-    }catch (e) {
+      final count = response.length;
+      int totalLateMinutes = 0;
+      int totalOvertimeMinutes = 0;
+      for (var record in response) {
+      if (record['late_minutes'] != null) {
+        totalLateMinutes += int.tryParse(record['late_minutes'].toString()) ?? 0;
+      }
+      if (record['overtime_minutes'] != null) {
+        totalOvertimeMinutes += int.tryParse(record['overtime_minutes'].toString()) ?? 0;
+      }
+
+      }
+
+      setState(() {
+      attendanceRecords = count;
+      lateMinutes = totalLateMinutes;
+      overtimeMinutes = totalOvertimeMinutes;
+      });
+      print('Fetched attendance data: $count, total late minutes: $totalLateMinutes');
+    } catch (e) {
       print('Error fetching attendance data: $e');
     }
   }
 
+    Future<void> _fetchLeavesData() async {
+      try {
+        final response = await Supabase.instance.client
+            .from('leave_requests')
+            .select()
+            .eq('userID', user!.userID)
+            .eq('status', 'Approved');
+
+        for (var leave in response) {
+          DateTime start = DateTime.parse(leave['startDate']);
+          DateTime end = DateTime.parse(leave['endDate']);
+
+          DateTime monthStart = DateTime(selectedDate.year, selectedDate.month, 1);
+          DateTime monthEnd = DateTime(selectedDate.year, selectedDate.month + 1, 0);
+
+          DateTime effectiveStart = start.isBefore(monthStart) ? monthStart : start;
+          DateTime effectiveEnd = end.isAfter(monthEnd) ? monthEnd : end;
+
+          if (effectiveStart.isAfter(effectiveEnd)) continue;
+
+          leaveDays += effectiveEnd.difference(effectiveStart).inDays + 1;
+        }
+        print('Leave days in month: $leaveDays');
+        setState(() {
+          leaveDays = leaveDays;
+        });
+        print('Fetched approved leave days: $leaveDays');
+      } catch (e) {
+        print('Error fetching leave data: $e');
+      }
+    }
+
+
+    Future<void> _fetchCashAdvanceData() async {
+      try {
+        final response = await Supabase.instance.client
+            .from('cash_advance')
+            .select()
+            .eq('employeeID', emp?.employeeID ?? '')
+            .eq('status', 'Approved');
+
+        double sum = 0.0;
+        for (var ca in response) {
+          if (ca['created_at'] != null && ca['cashAdvance'] != null) {
+            DateTime caDate = DateTime.parse(ca['created_at']);
+            if (caDate.year == selectedDate.year && caDate.month == selectedDate.month) {
+              sum += double.tryParse(ca['cashAdvance'].toString()) ?? 0.0;
+            }
+          }
+        }
+
+        setState(() {
+          totalCashAdvance = sum;
+        });
+      } catch (e) {
+        print('Error fetching cash advance data: $e');
+      }
+    }
+
   @override
   void initState() {
     super.initState();
+    monthlySalary = payroll!.monthlySalary;
     _fetchAttendanceData();
+    _fetchLeavesData();
+    _fetchCashAdvanceData();
+    uploadCalculatedMonthlySalary();
   }
 
   void _showRequestCashAdvanceModal() {
@@ -159,50 +367,13 @@ class _PayslipState extends ConsumerState<Payslip> {
           Expanded(
             child: Column(
               children: [
-                Row(
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.fromLTRB(20, 20, 0, 0),
-                      child: Text("Payslip Breakdown Summary",
-                          style: TextStyle(
-                              fontFamily: 'NunitoSans',
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20)),
-                    ),
-                    const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 20, 40, 10),
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          side: const BorderSide(color: Colors.black),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        onPressed: () async {
-                          DateTime? pickedDate = await showMonthPicker(
-                            context: context,
-                            initialDate: DateTime.now(),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime(2101),
-                          );
-
-                          if (pickedDate != null) {
-                            setState(() {
-                              selectedDate = pickedDate;
-                            });
-                          }
-                        },
-                        icon: const FaIcon(FontAwesomeIcons.calendar,
-                            color: Colors.black),
-                        label: Text(
-                          '${selectedDate.month}/${selectedDate.year}',
-                          style: const TextStyle(color: Colors.black),
-                        ),
-                      ),
-                    ),
-                  ],
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(20, 20, 0, 0),
+                  child: Text("Payslip Breakdown Summary",
+                      style: TextStyle(
+                          fontFamily: 'NunitoSans',
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20)),
                 ),
                 const SizedBox(height: 30),
                 Row(
@@ -218,13 +389,18 @@ class _PayslipState extends ConsumerState<Payslip> {
                               label: 'Number of Days Present: ',
                               value: attendanceRecords.toString(),
                           ),
-                          const PayslipRow(
-                              label: 'Number of Leaves: ', value: '3'),
-                          const PayslipRow(
-                              label: 'OT Regular Day: ', value: '3'),
-                          const PayslipRow(label: 'Tardiness: ', value: '3'),
-                          const PayslipRow(label: 'Absences: ', value: '0'),
-                           PayslipRow(label: 'Date: ', value: payroll!.createdAt.toString()),
+                          PayslipRow(
+                              label: 'Number of Leaves: ', value: leaveDays.toString()),
+                          PayslipRow(
+                              label: 'OT Regular Day: ', value: (overtimeMinutes/60).toString()),
+                          PayslipRow(
+                            label: 'Tardiness (hours): ',
+                            value: (lateMinutes / 60) .toStringAsFixed(2),
+                            ),
+                          PayslipRow(
+                            label: 'Month: ',
+                            value: '${payroll!.createdAt.month}/${payroll!.createdAt.year}',
+                            ),
                           Divider(
                               color: Colors.grey[300],
                               indent: 40,
@@ -232,18 +408,22 @@ class _PayslipState extends ConsumerState<Payslip> {
                           const PayslipRow(
                               label: 'Deductions: ', value: '', isBold: true),
                           PayslipRow(
-                              label: 'Pagibig: ', value: payroll!.pagibig.toString()),
+                              label: 'Pagibig: ', value: pagIbigEmployee.toString()),
                           PayslipRow(
-                              label: 'PhilHealth: ', value: payroll!.philhealth.toString()),
-                          PayslipRow(label: 'SSS: ', value: payroll!.sss.toString()),
-                          const PayslipRow(label: 'Others: ', value: '₱50.00'),
+                              label: 'PhilHealth: ', value: philHealthEmployee.toString()),
+                          PayslipRow(label: 'SSS: ', value: sssEmployee.toString()),
+                            PayslipRow(
+                              label: 'Tardiness: ',
+                              value: ((payroll!.monthlySalary / 170) * ((lateMinutes / 60) + (leaveDays * 8))).toStringAsFixed(2),
+                            ),
+                          PayslipRow(label: 'Others: ', value: payroll!.deductions.toString()),
                           PayslipRow(
-                              label: 'Withholding Tax: ', value: payroll!.withholdingTax.toString()),
-                          const PayslipRow(
-                              label: 'Cash Advance: ', value: '₱2,000.00'),
-                          const PayslipRow(
+                              label: 'Withholding Tax: ', value:  withholdingTax.toStringAsFixed(2)),
+                          PayslipRow(
+                              label: 'Cash Advance: ', value: totalCashAdvance.toString()),
+                          PayslipRow(
                               label: 'Total Deductions: ',
-                              value: '',
+                              value: totaldeducations().toStringAsFixed(2),
                               isBold: true),
                         ],
                       ),
@@ -254,21 +434,18 @@ class _PayslipState extends ConsumerState<Payslip> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(height: 100),
-                          PayslipRow(
+                          const PayslipRow(
                               label: 'Payroll: ',
-                              value: payroll!.calculatedMonthlySalary
-                                  .toStringAsFixed(2),
+                              value: '',
                               isBold: true),
                           PayslipRow(label: 'Total Salary: ', value: payroll!.monthlySalary.toStringAsFixed(2)),
                           PayslipRow(
-                              label: 'Total Deductions: ', value: payroll!.deductions.toString()),
-                          PayslipRow(
-                              label: 'Commission from Bookings: ',
-                              value: '₱20,000'),
+                              label: 'Total Deductions: ', value: totaldeducations().toStringAsFixed(2)),
                           PayslipRow(label: 'Bonus: ', value: payroll!.bonus.toString()),
                           PayslipRow(
                               label: 'Take Home Pay: ',
-                              value: '₱200,000',
+                                value: 
+                                '₱${totalSalary().toStringAsFixed(2)}',
                               isBold: true),
                         ],
                       ),
@@ -332,7 +509,6 @@ class _PayslipState extends ConsumerState<Payslip> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      // To be changed to print payslip functionality
                       ElevatedButton.icon(
                         onPressed: _showRequestCashAdvanceModal,
                         icon: const FaIcon(FontAwesomeIcons.print,
