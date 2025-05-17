@@ -11,6 +11,7 @@ import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Payslip extends ConsumerStatefulWidget {
   final AccountsData? acc;
@@ -21,15 +22,43 @@ class Payslip extends ConsumerStatefulWidget {
 
   @override
   ConsumerState<Payslip> createState() => _PayslipState();
+  
 }
 
 class _PayslipState extends ConsumerState<Payslip> {
   final String _activeSubItem = '/employeeList';
   DateTime selectedDate = DateTime.now();
 
+  int attendanceRecords = 0;
+
   late final AccountsData? user = widget.acc;
   late final EmployeeData? emp = widget.emp;
   late final PayrollData? payroll = widget.payroll;
+
+  Future<void> _fetchAttendanceData() async{
+    try{
+      final response = await Supabase.instance.client
+        .from('attendance')
+        .select()
+        .eq('userID', user!.userID)
+        .filter('attendance_date', 'gte', DateTime(selectedDate.year, selectedDate.month, 1))
+        .filter('attendance_date', 'lt', DateTime(selectedDate.year, selectedDate.month + 1, 1));
+      final count = response.length;
+      setState(() {
+        attendanceRecords = count;
+      });
+      print('Fetched attendance data: $count');
+
+    }catch (e) {
+      print('Error fetching attendance data: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAttendanceData();
+  }
 
   void _showRequestCashAdvanceModal() {
     showDialog(
@@ -185,14 +214,17 @@ class _PayslipState extends ConsumerState<Payslip> {
                         children: [
                           const PayslipRow(
                               label: 'Attendance: ', value: '', isBold: true),
-                          const PayslipRow(
-                              label: 'Number of Days Present: ', value: '17'),
+                          PayslipRow(
+                              label: 'Number of Days Present: ',
+                              value: attendanceRecords.toString(),
+                          ),
                           const PayslipRow(
                               label: 'Number of Leaves: ', value: '3'),
                           const PayslipRow(
                               label: 'OT Regular Day: ', value: '3'),
                           const PayslipRow(label: 'Tardiness: ', value: '3'),
                           const PayslipRow(label: 'Absences: ', value: '0'),
+                           PayslipRow(label: 'Date: ', value: payroll!.createdAt.toString()),
                           Divider(
                               color: Colors.grey[300],
                               indent: 40,

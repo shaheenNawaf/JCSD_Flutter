@@ -123,17 +123,17 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
     EmployeeState state,
   ) {
     final sortedData = List<Map<String, dynamic>>.from(data);
-    if (state.sortBy == 'firstName') {
+    if (state.sortBy == 'lastname') {
       sortedData.sort((a, b) {
         final aAcc = a['account'] as AccountsData?;
         final bAcc = b['account'] as AccountsData?;
         return state.ascending
-            ? (aAcc?.firstName ?? '')
+            ? (aAcc?.lastname ?? '')
                 .toLowerCase()
-                .compareTo((bAcc?.firstName ?? '').toLowerCase())
-            : (bAcc?.firstName ?? '')
+                .compareTo((bAcc?.lastname ?? '').toLowerCase())
+            : (bAcc?.lastname ?? '')
                 .toLowerCase()
-                .compareTo((aAcc?.firstName ?? '').toLowerCase());
+                .compareTo((aAcc?.lastname ?? '').toLowerCase());
       });
     } else if (state.sortBy == 'email') {
       sortedData.sort((a, b) {
@@ -168,10 +168,10 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
           headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
           columnSpacing: 24,
           columns: [
-            DataColumn(label: _buildSortableHeader('Employee Name', 'firstName', state, notifier)),
-            DataColumn(label: _buildSortableHeader('Position', 'lastname', state, notifier)),
-            DataColumn(label: _buildSortableHeader('Salary', 'address', state, notifier)),
-            DataColumn(label: _buildSortableHeader('calculated', 'firstName', state, notifier)),
+            DataColumn(label: _buildSortableHeader('Employee Name', 'lastname', state, notifier)),
+            DataColumn(label: _buildHeaderText('Position')),
+            DataColumn(label: _buildHeaderText('Salary')),
+            DataColumn(label: _buildHeaderText('Calculated')),
             DataColumn(label: _buildHeaderText('Bonus')),
             DataColumn(label: _buildHeaderText('Deductions')),
             DataColumn(label: _buildHeaderText('Remarks')),
