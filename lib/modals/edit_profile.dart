@@ -414,10 +414,10 @@ class _EditProfileModalState extends ConsumerState<EditProfileModal> {
           readOnly: readOnly,
           onTap: onTap,
           obscureText: isPassword,
-          decoration: InputDecoration(
-            hintText: 'Enter \$label'.toLowerCase(),
-            border: const OutlineInputBorder(),
-            hintStyle: const TextStyle(
+          decoration: const InputDecoration(
+            // hintText: 'Enter \$label'.toLowerCase(),
+            border: OutlineInputBorder(),
+            hintStyle: TextStyle(
               fontFamily: 'Poppins',
               fontWeight: FontWeight.w300,
               fontSize: 12,
