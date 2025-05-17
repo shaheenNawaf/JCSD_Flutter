@@ -6,6 +6,7 @@ import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 import 'package:intl/intl.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_attendance.dart';
+import 'package:jcsd_flutter/modals/edit_employee_details.dart';
 import 'package:jcsd_flutter/view/employee/modals/edit_attendance.dart';
 import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
@@ -60,6 +61,40 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       return false;
     } finally {
       container.dispose();
+    }
+  }
+
+  Future<void> _fetchEmployeeData() async {
+    final userID = Supabase.instance.client.auth.currentUser?.id;
+    if (userID == null) return;
+
+    final response = await Supabase.instance.client
+        .from('employee')
+        .select()
+        .eq('userID', userID)
+        .maybeSingle();
+
+    if (response != null) {
+      setState(() {
+        emp = EmployeeData.fromJson(response);
+      });
+    }
+  }
+
+  Future<void> _refreshEmployeeData() async {
+    final userID = emp?.userID;
+    if (userID == null) return;
+
+    final response = await Supabase.instance.client
+        .from('employee')
+        .select()
+        .eq('userID', userID)
+        .maybeSingle();
+
+    if (response != null) {
+      setState(() {
+        emp = EmployeeData.fromJson(response);
+      });
     }
   }
 
@@ -177,8 +212,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     user = widget.targetUser;
     emp = widget.emp;
 
+    emp = widget.emp;
+
     if (emp == null) {
-      // _fetchEmployeeData();
+      _fetchEmployeeData();
+    } else {
+      _refreshEmployeeData();
     }
 
     _fetchAttendanceHistory();
@@ -263,12 +302,59 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       displayValue(user?.contactNumber)),
                   _buildInfoRow(FontAwesomeIcons.cakeCandles, 'Birthday: ',
                       formatDate(user?.birthDate)),
-                  _buildInfoRow(
-                      FontAwesomeIcons.pesoSign,
-                      'Monthly Salary: ',
-                      emp?.monthlySalary != null
-                          ? '₱${NumberFormat("#,##0.00", "en_US").format(emp!.monthlySalary)}'
-                          : 'N/A'),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.fromLTRB(20, 0, 10, 0),
+                          child: SizedBox(
+                            width: 25,
+                            child: FaIcon(FontAwesomeIcons.pesoSign,
+                                color: Colors.grey, size: 20),
+                          ),
+                        ),
+                        const Text('Monthly Salary: ',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                          emp?.monthlySalary != null
+                              ? '₱${NumberFormat("#,##0.00", "en_US").format(emp!.monthlySalary)}'
+                              : 'N/A',
+                          style: const TextStyle(fontWeight: FontWeight.normal),
+                        ),
+                        const SizedBox(width: 4),
+                        // This won't block the whole row if it's loading or null
+                        FutureBuilder<bool>(
+                          future: isCurrentUserAdmin(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                    ConnectionState.waiting ||
+                                snapshot.hasError ||
+                                snapshot.data != true) {
+                              return const SizedBox.shrink();
+                            }
+                            return GestureDetector(
+                              onTap: () async {
+                                final result = await showDialog<EmployeeData>(
+                                  context: context,
+                                  builder: (context) =>
+                                      EditEmployeeDetailsModal(emp: emp!),
+                                );
+
+                                if (result != null) {
+                                  await _refreshEmployeeData();
+                                }
+                              },
+                              child: const Icon(Icons.edit,
+                                  size: 16, color: Colors.black54),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                   _buildDivider(),
                   _buildSectionTitle('Address'),
                   _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ',
