@@ -5,6 +5,7 @@ import 'package:jcsd_flutter/backend/modules/employee/employee_service.dart';
 import 'package:jcsd_flutter/others/dropdown_data.dart';
 import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/services.dart';
 
 import '../../../api/global_variables.dart';
 
@@ -155,29 +156,36 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
           phone: _phone.text.trim(),
           birthday: _birthday.text.trim(),
           address: _address.text.trim(),
-          region: _region.text.trim(),
-          province: _province.text.trim(),
-          city: _city.text.trim(),
+          region: selectedRegion?.trim() ?? '',
+          province: selectedProvince?.trim() ?? '',
+          city: selectedCity?.trim() ?? '',
           zipCode: _zipCode.text.trim(),
         );
 
-        ToastManager().showToast(context, 'Employee added. Please inform them to verify their email.', Colors.green);
+        ToastManager().showToast(
+            context,
+            'Employee added. Please inform them to verify their email.',
+            Colors.green);
 
         if (mounted) Navigator.pop(context);
       } on AuthException catch (e) {
-        ToastManager().showToast(context, 'Signup Error: ${e.message}', Colors.red);
+        ToastManager()
+            .showToast(context, 'Signup Error: ${e.message}', Colors.red);
       } catch (e) {
         print('Error during employee registration: $e');
         if (e.toString().contains('429')) {
-          ToastManager().showToast(context, 'Too many requests. Please wait for a few minutes and try again.', Colors.red);
+          ToastManager().showToast(
+              context,
+              'Too many requests. Please wait for a few minutes and try again.',
+              Colors.red);
         } else {
-          ToastManager().showToast(context, 'An unexpected error occurred.', Colors.red);
+          ToastManager()
+              .showToast(context, 'An unexpected error occurred.', Colors.red);
         }
       } finally {
         setState(() => _isSubmitting = false);
       }
-    }
-      else {
+    } else {
       setState(() => _hasValidationErrors = true);
     }
   }
@@ -207,8 +215,8 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
     double containerHeight = 650;
 
     if (_hasValidationErrors) {
-    containerHeight += 80;
-  }
+      containerHeight += 80;
+    }
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -276,7 +284,22 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
                       Expanded(
                         child: Column(
                           children: [
-                            _buildTextField(label: 'Phone', controller: _phone),
+                            _buildTextField(
+                              label: 'Phone',
+                              controller: _phone,
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.isEmpty)
+                                  return 'Required field';
+                                if (!RegExp(r'^\d{11}$').hasMatch(value)) {
+                                  return 'Phone must be exactly 11 digits';
+                                }
+                                return null;
+                              },
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(11)
+                              ],
+                            ),
                             _buildDatePickerField(
                                 label: 'Birthday', controller: _birthday),
                             _buildTextField(
@@ -304,7 +327,22 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
                               });
                             }),
                             _buildTextField(
-                                label: 'Zip Code', controller: _zipCode),
+                              label: 'Zip Code',
+                              controller: _zipCode,
+                              keyboardType: TextInputType.number,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Required field';
+                                }
+                                if (!RegExp(r'^\d{4}$').hasMatch(value)) {
+                                  return 'Zip Code must be exactly 4 digits';
+                                }
+                                return null;
+                              },
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(4)
+                              ],
+                            ),
                           ],
                         ),
                       ),
@@ -374,6 +412,9 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
     required String label,
     required TextEditingController controller,
     bool isPassword = false,
+    TextInputType? keyboardType,
+    List<TextInputFormatter>? inputFormatters,
+    String? Function(String?)? validator,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,15 +429,18 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
         TextFormField(
           controller: controller,
           obscureText: isPassword,
-          validator: (value) {
-            final isEmpty = value == null || value.isEmpty;
-          if (isEmpty && !_hasValidationErrors) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              setState(() => _hasValidationErrors = true);
-            });
-          }
-          return isEmpty ? 'Required field' : null;
-          },
+          keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
+          validator: validator ??
+              (value) {
+                final isEmpty = value == null || value.isEmpty;
+                if (isEmpty && !_hasValidationErrors) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    setState(() => _hasValidationErrors = true);
+                  });
+                }
+                return isEmpty ? 'Required field' : null;
+              },
           decoration: InputDecoration(
             hintText: 'Enter $label'.toString(),
             border: const OutlineInputBorder(),

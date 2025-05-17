@@ -140,6 +140,8 @@ class EmployeeService {
       'userID': userID,
       'companyRole': role,
       'isAdmin': isAdmin,
+      'isActive': true,
+      'monthlySalary': 15000,
     });
   }
 }

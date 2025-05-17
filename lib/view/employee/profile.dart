@@ -6,6 +6,7 @@ import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 import 'package:intl/intl.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_attendance.dart';
+import 'package:jcsd_flutter/modals/edit_employee_details.dart';
 import 'package:jcsd_flutter/view/employee/modals/edit_attendance.dart';
 import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
@@ -60,6 +61,40 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
       return false;
     } finally {
       container.dispose();
+    }
+  }
+
+  Future<void> _fetchEmployeeData() async {
+    final userID = Supabase.instance.client.auth.currentUser?.id;
+    if (userID == null) return;
+
+    final response = await Supabase.instance.client
+        .from('employee')
+        .select()
+        .eq('userID', userID)
+        .maybeSingle();
+
+    if (response != null) {
+      setState(() {
+        emp = EmployeeData.fromJson(response);
+      });
+    }
+  }
+
+  Future<void> _refreshEmployeeData() async {
+    final userID = emp?.userID;
+    if (userID == null) return;
+
+    final response = await Supabase.instance.client
+        .from('employee')
+        .select()
+        .eq('userID', userID)
+        .maybeSingle();
+
+    if (response != null) {
+      setState(() {
+        emp = EmployeeData.fromJson(response);
+      });
     }
   }
 
@@ -176,9 +211,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     super.initState();
     user = widget.targetUser;
     emp = widget.emp;
+    _fetchEmployeeData();
 
     if (emp == null) {
-      // _fetchEmployeeData();
+      _fetchEmployeeData();
+    } else {
+      _refreshEmployeeData();
     }
 
     _fetchAttendanceHistory();
@@ -263,6 +301,61 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                       displayValue(user?.contactNumber)),
                   _buildInfoRow(FontAwesomeIcons.cakeCandles, 'Birthday: ',
                       formatDate(user?.birthDate)),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.fromLTRB(20, 0, 10, 0),
+                          child: SizedBox(
+                            width: 25,
+                            child: FaIcon(FontAwesomeIcons.pesoSign,
+                                color: Colors.grey, size: 20),
+                          ),
+                        ),
+                        const Text('Monthly Salary: ',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(
+                          emp?.monthlySalary != null
+                              ? '₱${NumberFormat("#,##0.00", "en_US").format(emp!.monthlySalary)}'
+                              : 'N/A',
+                          style: const TextStyle(fontWeight: FontWeight.normal),
+                        ),
+                        const SizedBox(width: 4),
+                        FutureBuilder<bool>(
+                          future: isCurrentUserAdmin(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                    ConnectionState.waiting ||
+                                snapshot.hasError ||
+                                snapshot.data != true) {
+                              return const SizedBox.shrink();
+                            }
+                            return GestureDetector(
+                              onTap: () async {
+                                final updatedEmp =
+                                    await showDialog<EmployeeData>(
+                                  context: context,
+                                  builder: (context) =>
+                                      EditEmployeeDetailsModal(emp: emp!),
+                                );
+
+                                if (updatedEmp != null) {
+                                  setState(() {
+                                    emp = updatedEmp;
+                                  });
+                                }
+                              },
+                              child: const Icon(Icons.edit,
+                                  size: 16, color: Colors.black54),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                   _buildDivider(),
                   _buildSectionTitle('Address'),
                   _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ',
@@ -587,11 +680,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                             borderRadius: BorderRadius.circular(5),
                           ),
                         ),
-                        onPressed: () {
-                          context.push('/employeeList/profile/payslip', extra: {
+                        onPressed: () async {
+                          final result = await context
+                              .push('/employeeList/profile/payslip', extra: {
                             'account': user,
                             'employee': emp,
                           });
+
+                          if (result != null && result is EmployeeData) {
+                            setState(() {
+                              emp = result;
+                            });
+                          }
                         },
                         icon: const FaIcon(
                           FontAwesomeIcons.fileInvoiceDollar,
@@ -614,12 +714,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                               borderRadius: BorderRadius.circular(5),
                             ),
                           ),
-                          onPressed: () {
-                            context.push('/employeeList/profile/leaveRequest',
+                          onPressed: () async {
+                            final updatedEmp = await context.push(
+                                '/employeeList/profile/leaveRequest',
                                 extra: {
                                   'account': user,
                                   'employee': emp,
                                 });
+
+                            if (updatedEmp != null &&
+                                updatedEmp is EmployeeData) {
+                              setState(() {
+                                emp = updatedEmp;
+                              });
+                            }
                           },
                           icon: const FaIcon(
                             FontAwesomeIcons.suitcaseRolling,

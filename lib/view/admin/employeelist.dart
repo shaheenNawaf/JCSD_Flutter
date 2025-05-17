@@ -279,23 +279,30 @@ class EmployeeListPage extends ConsumerWidget {
                       alignment: Alignment.centerLeft,
                       child: SizedBox(
                         width: 140,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            context.push('/employeeList/profile', extra: {
-                              'account': acc,
-                              'employee': emp,
-                            });
+                        child: Consumer(
+                          builder: (context, ref, _) {
+                            return ElevatedButton(
+                              onPressed: () async {
+                                await context
+                                    .push('/employeeList/profile', extra: {
+                                  'account': acc,
+                                  'employee': emp,
+                                });
+
+                                ref.invalidate(employeeNotifierProvider);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF00AEEF),
+                              ),
+                              child: const Text(
+                                'View Details',
+                                style: TextStyle(
+                                  fontFamily: 'NunitoSans',
+                                  color: Colors.white,
+                                ),
+                              ),
+                            );
                           },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00AEEF),
-                          ),
-                          child: const Text(
-                            'View Details',
-                            style: TextStyle(
-                              fontFamily: 'NunitoSans',
-                              color: Colors.white,
-                            ),
-                          ),
                         ),
                       ),
                     ),

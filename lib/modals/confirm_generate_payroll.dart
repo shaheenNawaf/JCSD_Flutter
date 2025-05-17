@@ -56,7 +56,7 @@ class _ConfirmGeneratePayrollState extends State<ConfirmGeneratePayroll> {
               padding: EdgeInsets.all(16.0),
               child: Center(
                 child: Text(
-                  'Are you sure you want to generate payroll for this cash advance request?',
+                  'Are you sure you want to generate payroll for this month?',
                   style: TextStyle(fontFamily: 'NunitoSans', fontSize: 16),
                   textAlign: TextAlign.center,
                 ),
