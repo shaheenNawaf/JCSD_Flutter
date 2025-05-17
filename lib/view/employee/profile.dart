@@ -211,8 +211,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
     super.initState();
     user = widget.targetUser;
     emp = widget.emp;
-
-    emp = widget.emp;
+    _fetchEmployeeData();
 
     if (emp == null) {
       _fetchEmployeeData();
@@ -325,7 +324,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                           style: const TextStyle(fontWeight: FontWeight.normal),
                         ),
                         const SizedBox(width: 4),
-                        // This won't block the whole row if it's loading or null
                         FutureBuilder<bool>(
                           future: isCurrentUserAdmin(),
                           builder: (context, snapshot) {
@@ -337,14 +335,17 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                             }
                             return GestureDetector(
                               onTap: () async {
-                                final result = await showDialog<EmployeeData>(
+                                final updatedEmp =
+                                    await showDialog<EmployeeData>(
                                   context: context,
                                   builder: (context) =>
                                       EditEmployeeDetailsModal(emp: emp!),
                                 );
 
-                                if (result != null) {
-                                  await _refreshEmployeeData();
+                                if (updatedEmp != null) {
+                                  setState(() {
+                                    emp = updatedEmp;
+                                  });
                                 }
                               },
                               child: const Icon(Icons.edit,
@@ -679,11 +680,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                             borderRadius: BorderRadius.circular(5),
                           ),
                         ),
-                        onPressed: () {
-                          context.push('/employeeList/profile/payslip', extra: {
+                        onPressed: () async {
+                          final result = await context
+                              .push('/employeeList/profile/payslip', extra: {
                             'account': user,
                             'employee': emp,
                           });
+
+                          if (result != null && result is EmployeeData) {
+                            setState(() {
+                              emp = result;
+                            });
+                          }
                         },
                         icon: const FaIcon(
                           FontAwesomeIcons.fileInvoiceDollar,
@@ -706,12 +714,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                               borderRadius: BorderRadius.circular(5),
                             ),
                           ),
-                          onPressed: () {
-                            context.push('/employeeList/profile/leaveRequest',
+                          onPressed: () async {
+                            final updatedEmp = await context.push(
+                                '/employeeList/profile/leaveRequest',
                                 extra: {
                                   'account': user,
                                   'employee': emp,
                                 });
+
+                            if (updatedEmp != null &&
+                                updatedEmp is EmployeeData) {
+                              setState(() {
+                                emp = updatedEmp;
+                              });
+                            }
                           },
                           icon: const FaIcon(
                             FontAwesomeIcons.suitcaseRolling,

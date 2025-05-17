@@ -4,13 +4,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import 'package:intl/intl.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 import 'package:jcsd_flutter/backend/modules/employee/leave_request_provider.dart';
 import 'package:jcsd_flutter/modals/add_leave_request.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
+import 'package:jcsd_flutter/modals/edit_employee_details.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LeaveRequest extends ConsumerStatefulWidget {
   final AccountsData? acc;
@@ -29,7 +32,7 @@ class _LeaveRequestState extends ConsumerState<LeaveRequest> {
   String _sortBy = 'startDate';
   bool _ascending = false;
   late final AccountsData? user = widget.acc;
-  late final EmployeeData? emp = widget.emp;
+  late EmployeeData? emp = widget.emp;
 
   void _showAddLeaveModal() {
     showDialog(
@@ -76,6 +79,65 @@ class _LeaveRequestState extends ConsumerState<LeaveRequest> {
     return '${date.month}/${date.day}/${date.year}';
   }
 
+  Future<bool> isCurrentUserAdmin() async {
+    final container = ProviderContainer();
+    try {
+      final userRole = await container.read(userRoleProvider.future);
+      return userRole == 'admin';
+    } catch (e) {
+      debugPrint("Error checking admin status: $e");
+      return false;
+    } finally {
+      container.dispose();
+    }
+  }
+
+  Future<void> _fetchEmployeeData() async {
+    final userID = Supabase.instance.client.auth.currentUser?.id;
+    if (userID == null) return;
+
+    final response = await Supabase.instance.client
+        .from('employee')
+        .select()
+        .eq('userID', userID)
+        .maybeSingle();
+
+    if (response != null) {
+      setState(() {
+        emp = EmployeeData.fromJson(response);
+      });
+    }
+  }
+
+  Future<void> _refreshEmployeeData() async {
+    final userID = emp?.userID;
+    if (userID == null) return;
+
+    final response = await Supabase.instance.client
+        .from('employee')
+        .select()
+        .eq('userID', userID)
+        .maybeSingle();
+
+    if (response != null) {
+      setState(() {
+        emp = EmployeeData.fromJson(response);
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    emp = widget.emp;
+
+    if (emp == null) {
+      _fetchEmployeeData();
+    } else {
+      _refreshEmployeeData();
+    }
+  }
+
   Widget _buildProfile() {
     return SizedBox(
       width: MediaQuery.of(context).size.width * 0.2,
@@ -93,6 +155,59 @@ class _LeaveRequestState extends ConsumerState<LeaveRequest> {
                 _display(user?.contactNumber)),
             _buildInfoRow(FontAwesomeIcons.cakeCandles, 'Birthday: ',
                 _formatDate(user?.birthDate)),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.fromLTRB(20, 0, 10, 0),
+                    child: SizedBox(
+                      width: 25,
+                      child: FaIcon(FontAwesomeIcons.pesoSign,
+                          color: Colors.grey, size: 20),
+                    ),
+                  ),
+                  const Text('Monthly Salary: ',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(
+                    emp?.monthlySalary != null
+                        ? '₱${NumberFormat("#,##0.00", "en_US").format(emp!.monthlySalary)}'
+                        : 'N/A',
+                    style: const TextStyle(fontWeight: FontWeight.normal),
+                  ),
+                  const SizedBox(width: 4),
+                  FutureBuilder<bool>(
+                    future: isCurrentUserAdmin(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting ||
+                          snapshot.hasError ||
+                          snapshot.data != true) {
+                        return const SizedBox.shrink();
+                      }
+                      return GestureDetector(
+                        onTap: () async {
+                          final result = await showDialog<EmployeeData>(
+                            context: context,
+                            builder: (context) =>
+                                EditEmployeeDetailsModal(emp: emp!),
+                          );
+
+                          if (result != null) {
+                            setState(() {
+                              emp = result;
+                            });
+                          }
+                        },
+                        child: const Icon(Icons.edit,
+                            size: 16, color: Colors.black54),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
             _buildDivider(),
             _buildSectionTitle('Address'),
             _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ',
@@ -340,10 +455,21 @@ class _LeaveRequestState extends ConsumerState<LeaveRequest> {
                 Header(
                   title: 'Leave Requests',
                   leading: IconButton(
-                    icon:
-                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
-                    onPressed: () => context.pop(),
-                  ),
+                      icon: const Icon(Icons.arrow_back,
+                          color: Color(0xFF00AEEF)),
+                      onPressed: () async {
+                        final latestData = await Supabase.instance.client
+                            .from('employee')
+                            .select()
+                            .eq('userID', emp!.userID)
+                            .maybeSingle();
+
+                        if (latestData != null) {
+                          context.pop(EmployeeData.fromJson(latestData));
+                        } else {
+                          context.pop();
+                        }
+                      }),
                 ),
                 Expanded(
                   child: Padding(
