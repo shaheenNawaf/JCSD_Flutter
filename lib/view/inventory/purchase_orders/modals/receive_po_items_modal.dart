@@ -22,6 +22,7 @@ import 'package:jcsd_flutter/backend/modules/inventory/purchase_order/models/pur
 // Suppliers and Inventory
 import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_notifier.dart';
 import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ReceivingLineItemEntry {
   final PurchaseOrderItemData poItem;
@@ -82,20 +83,18 @@ class _ReceivePurchaseOrderItemsModalState
   List<ReceivingLineItemEntry> _lineItemEntries = [];
   DateTime _dateReceived = DateTime.now();
 
-  // This will hold the fetched product names.
   Map<String?, String> _productNameMap = {};
+
   // This flag indicates if both PO details and product names are loaded and entries initialized.
   bool _dataDependenciesMetAndInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    // Asynchronously fetch product names when the modal is first created.
     _fetchProductNamesAndInitializeEntries();
   }
 
   Future<void> _fetchProductNamesAndInitializeEntries() async {
-    // Fetch product names.
     final productDefinitionsStateValue =
         await ref.read(productDefinitionNotifierProvider(true).future);
     if (!mounted) return;
@@ -119,8 +118,39 @@ class _ReceivePurchaseOrderItemsModalState
     if (poDetails.hasValue && poDetails.value != null) {
       _initializeLineItemEntriesFromFetchedPO(poDetails.value!);
       if (mounted) {
-        setState(() {}); // Ensure UI rebuilds with initialized entries
+        setState(() {});
       }
+    }
+  }
+
+  Future<int?> _fetchCurrentEmployeeId() async {
+    final currentAuthUserId = supabaseDB.auth.currentUser?.id;
+    if (currentAuthUserId == null) {
+      ToastManager().showToast(context,
+          'Error: User not authenticated. Please re-login.', Colors.red);
+      return null;
+    }
+    try {
+      final employeeRecord = await supabaseDB
+          .from('employee')
+          .select('employeeID')
+          .eq('userID', currentAuthUserId)
+          .maybeSingle(); // Use maybeSingle to handle null without throwing
+
+      if (employeeRecord != null && employeeRecord['employeeID'] != null) {
+        return employeeRecord['employeeID'] as int;
+      } else {
+        ToastManager().showToast(
+            context,
+            'Receiving employee record not found for your account.',
+            Colors.red);
+        return null;
+      }
+    } catch (err) {
+      print('Error fetching employee ID: $err');
+      ToastManager().showToast(context,
+          'Error fetching your employee ID. Please try again.', Colors.red);
+      return null;
     }
   }
 
@@ -174,87 +204,110 @@ class _ReceivePurchaseOrderItemsModalState
   Future<void> _submitReceipt(PurchaseOrderData currentFullPO) async {
     if (!_formKey.currentState!.validate()) {
       ToastManager().showToast(
-          context, 'Please correct errors before submitting.', Colors.orange);
-      return;
-    }
-
-    final currentAuthUserId = supabaseDB.auth.currentUser?.id;
-    if (currentAuthUserId == null) {
-      ToastManager()
-          .showToast(context, 'Error: User not authenticated.', Colors.red);
-      return;
-    }
-
-    int? receivingEmployeeId;
-    try {
-      final employeeRecord = await supabaseDB
-          .from('employee')
-          .select('employeeID')
-          .eq('userID', currentAuthUserId)
-          .maybeSingle();
-      if (employeeRecord != null && employeeRecord['employeeID'] != null) {
-        receivingEmployeeId = employeeRecord['employeeID'] as int;
-      } else {
-        throw Exception(
-            'Receiving employee record not found for current user.');
-      }
-    } catch (e) {
-      ToastManager().showToast(
-          context, 'Error fetching your employee ID: $e', Colors.red);
+          context, 'Please correct errors in the main form', Colors.orange);
       return;
     }
 
     setState(() => _isProcessing = true);
-    bool overallSuccess = true;
-    String overallErrorMessage = "";
-    int itemsAttemptedToProcessCount = 0;
 
+    final int? receivingEmployeeId = await _fetchCurrentEmployeeId();
+    if (receivingEmployeeId == null) {
+      if (mounted) setState(() => _isProcessing = false);
+      return;
+    }
+
+    // First, collect all serial numbers to check for duplicates across all items
+    Map<String, List<String>> serialToItemsMap =
+        {}; // serial -> list of product names
+    bool hasDuplicates = false;
+    String duplicateErrorMessage = "";
+
+    // Validate quantities and collect serial numbers
     for (var entry in _lineItemEntries) {
       final qtyReceivedNowStr = entry.quantityReceivedNowController.text.trim();
       if (qtyReceivedNowStr.isEmpty) continue;
 
       final qtyReceivedNow = int.tryParse(qtyReceivedNowStr) ?? 0;
       if (qtyReceivedNow <= 0) continue;
-      itemsAttemptedToProcessCount++;
 
+      // Check if serial count matches quantity
       if (entry.serialNumberControllers.length != qtyReceivedNow) {
         ToastManager().showToast(
             context,
             'Serial count must match "Qty Receiving Now" for ${entry.productName}. Expected $qtyReceivedNow, got ${entry.serialNumberControllers.length}.',
             Colors.orange);
-        overallSuccess = false;
-        break;
+        setState(() => _isProcessing = false);
+        return;
       }
-      if (entry.serialNumberControllers
-          .any((controller) => controller.text.trim().isEmpty)) {
-        ToastManager().showToast(
-          context,
-          'All serial numbers must be entered for ${entry.productName} if quantity is > 0.',
-          Colors.orange,
-        );
-        overallSuccess = false;
-        break;
+
+      // Check for empty serials and collect all serials
+      for (var controller in entry.serialNumberControllers) {
+        final serial = controller.text.trim();
+        if (serial.isEmpty) {
+          ToastManager().showToast(
+            context,
+            'All serial numbers must be entered for ${entry.productName} if quantity is > 0.',
+            Colors.orange,
+          );
+          setState(() => _isProcessing = false);
+          return;
+        }
+
+        // Track which product this serial is associated with
+        if (!serialToItemsMap.containsKey(serial)) {
+          serialToItemsMap[serial] = [];
+        }
+        serialToItemsMap[serial]!.add(entry.productName);
       }
     }
 
-    if (!overallSuccess && itemsAttemptedToProcessCount > 0) {
-      if (mounted) setState(() => _isProcessing = false);
+    // Check for duplicates across all items
+    serialToItemsMap.forEach((serial, productNames) {
+      if (productNames.length > 1) {
+        hasDuplicates = true;
+        duplicateErrorMessage +=
+            'Serial "$serial" appears in multiple items: ${productNames.join(', ')}\n';
+      }
+    });
+
+    if (hasDuplicates) {
+      ToastManager().showToast(
+        context,
+        'Duplicate serial numbers detected across items. Please correct them.',
+        Colors.orange,
+      );
+
+      // Show a more detailed dialog for the duplicates
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Duplicate Serial Numbers'),
+            content: SingleChildScrollView(
+              child: Text(duplicateErrorMessage),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      });
+
+      setState(() => _isProcessing = false);
       return;
     }
-    if (itemsAttemptedToProcessCount == 0 &&
-        _lineItemEntries.any(
-            (e) => e.quantityReceivedNowController.text.trim().isNotEmpty)) {
-      // This means some quantities were entered but were invalid (e.g., 0)
-    } else if (itemsAttemptedToProcessCount == 0) {
-      ToastManager().showToast(context,
-          'No quantities entered to receive for any item.', Colors.blue);
-      if (mounted) setState(() => _isProcessing = false);
-      return;
-    }
+
+    // If we get here, all validations passed - proceed with submission
+    bool overallSuccess = true;
+    String overallErrorMessage = "";
 
     for (var entry in _lineItemEntries) {
       final qtyReceivedNowStr = entry.quantityReceivedNowController.text.trim();
       if (qtyReceivedNowStr.isEmpty) continue;
+
       final qtyReceivedNow = int.parse(qtyReceivedNowStr);
       if (qtyReceivedNow <= 0) continue;
 
@@ -269,7 +322,7 @@ class _ReceivePurchaseOrderItemsModalState
               poItemId: entry.poItem.purchaseItemID!,
               quantityReceivedNow: qtyReceivedNow,
               serialNumbers: serials,
-              employeeId: receivingEmployeeId!,
+              employeeId: receivingEmployeeId,
               dateReceived: _dateReceived,
             );
       } catch (e) {
