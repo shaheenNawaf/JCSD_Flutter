@@ -393,41 +393,46 @@ class InventoryPage extends ConsumerWidget {
               child: Text(item.prodDefName,
                   style: rowTextStyle, overflow: TextOverflow.ellipsis)),
           Expanded(
-              flex: 2,
-              child: FutureBuilder<String>(
-                  future: ItemtypesService().getTypeNameByID(item.itemTypeID),
-                  builder: (context, snapshot) => Text(snapshot.data ?? '...',
-                      style: rowTextStyle,
-                      textAlign: TextAlign.start,
-                      overflow: TextOverflow.ellipsis))),
-          Expanded(
-              flex: 2,
-              child: Text(manufacturer,
+            flex: 2,
+            child: FutureBuilder<String>(
+              future: ItemtypesService().getTypeNameByID(item.itemTypeID),
+              builder: (context, snapshot) => Text(snapshot.data ?? '...',
                   style: rowTextStyle,
                   textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis)),
+                  overflow: TextOverflow.ellipsis),
+            ),
+          ),
           Expanded(
-              flex: 2,
-              child: Text(msrp,
+            flex: 2,
+            child: Text(manufacturer,
+                style: rowTextStyle,
+                textAlign: TextAlign.start,
+                overflow: TextOverflow.ellipsis),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(msrp,
+                style: rowTextStyle,
+                textAlign: TextAlign.start,
+                overflow: TextOverflow.ellipsis),
+          ),
+          Expanded(
+            flex: 1,
+            child: _stockStatusChip(
+              currentQuantity: int.tryParse(currentStock) ?? 0,
+              desiredStockLevel: int.tryParse(desiredStockLevel) ?? 0,
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Tooltip(
+              message: description,
+              child: Text(description,
                   style: rowTextStyle,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis)),
-          Expanded(
-              flex: 1,
-              child: Tooltip(
-                  message: "Desired quantity is $desiredStockLevel",
-                  child: Text(currentStock,
-                      style: rowTextStyle,
-                      textAlign: TextAlign.start,
-                      overflow: TextOverflow.ellipsis))),
-          Expanded(
-              flex: 4,
-              child: Tooltip(
-                  message: description,
-                  child: Text(description,
-                      style: rowTextStyle,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1))),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1),
+            ),
+          ),
           Expanded(
               flex: 2,
               child: Row(
@@ -506,14 +511,41 @@ class InventoryPage extends ConsumerWidget {
     );
   }
 
-  // Widget _stockStatusIndicator({
-  //   required int currentQuantity,
-  //   required int desiredStockLevel,
-  //   double lowStockThreshold = 0.3, //30% total serial items remaining
-  //   double mediumStockThreshold = 0.7, //70% total serial items remaining
-  // }) {
+  Widget _stockStatusChip({
+    required int currentQuantity,
+    required int desiredStockLevel,
+    double lowStockThreshold = 0.3, //30% total serial items remaining
+    double mediumStockThreshold = 0.7, //70% total serial items remaining
+  }) {
+    Color chipColor = Colors.grey; // Default
+    Color textColor = Colors.white;
 
-  // }
+    final double stockRatio = currentQuantity / desiredStockLevel;
+
+    if (stockRatio < lowStockThreshold) {
+      chipColor = Colors.red;
+    } else if (stockRatio < mediumStockThreshold) {
+      chipColor = Colors.orange;
+    } else {
+      chipColor = Colors.green;
+    }
+
+    return Tooltip(
+      message: "The desired stock level is $desiredStockLevel",
+      child: Center(
+        child: Chip(
+          label: Text(
+            currentQuantity.toString(),
+            style: TextStyle(color: textColor, fontSize: 11),
+          ),
+          backgroundColor: chipColor,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0.0),
+          labelPadding: const EdgeInsets.symmetric(horizontal: 2.0),
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+      ),
+    );
+  }
 
   Widget _buildPaginationControls(BuildContext context, WidgetRef ref,
       ProductDefinitionState productDefState) {

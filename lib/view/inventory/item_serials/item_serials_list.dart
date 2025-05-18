@@ -311,7 +311,7 @@ class SerializedItemListPage extends ConsumerWidget {
               flex: 2),
           _buildHeaderCell(context, ref, serialItemState, 'Supplier',
               'supplierID', headerTextStyle,
-              flex: 3), // Sort by ID
+              flex: 3),
           _buildHeaderCell(context, ref, serialItemState, 'Cost Price',
               'costPrice', headerTextStyle,
               flex: 2),
@@ -320,7 +320,7 @@ class SerializedItemListPage extends ConsumerWidget {
               flex: 2),
           _buildHeaderCell(
               context, ref, serialItemState, 'Notes', 'notes', headerTextStyle,
-              flex: 4),
+              flex: 3),
           const Expanded(
               flex: 2,
               child: Text('Actions',
@@ -383,41 +383,45 @@ class SerializedItemListPage extends ConsumerWidget {
       child: Row(
         children: [
           Expanded(
-              flex: 3,
-              child: Text(item.serialNumber,
-                  style: rowTextStyle, overflow: TextOverflow.ellipsis)),
+            flex: 3,
+            child: Text(item.serialNumber,
+                style: rowTextStyle, overflow: TextOverflow.ellipsis),
+          ),
           Expanded(
-              flex: 2,
-              child: Text(item.status,
+            flex: 2,
+            child: _getStatusChip(item.status),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(supplierName,
+                style: rowTextStyle,
+                textAlign: TextAlign.start,
+                overflow: TextOverflow.ellipsis),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(costPrice,
+                style: rowTextStyle,
+                textAlign: TextAlign.start,
+                overflow: TextOverflow.ellipsis),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(purchaseDate,
+                style: rowTextStyle,
+                textAlign: TextAlign.start,
+                overflow: TextOverflow.ellipsis),
+          ),
+          Expanded(
+            flex: 3,
+            child: Tooltip(
+              message: notes,
+              child: Text(notes,
                   style: rowTextStyle,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis)),
-          Expanded(
-              flex: 3,
-              child: Text(supplierName,
-                  style: rowTextStyle,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis)),
-          Expanded(
-              flex: 2,
-              child: Text(costPrice,
-                  style: rowTextStyle,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis)),
-          Expanded(
-              flex: 2,
-              child: Text(purchaseDate,
-                  style: rowTextStyle,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis)),
-          Expanded(
-              flex: 4,
-              child: Tooltip(
-                  message: notes,
-                  child: Text(notes,
-                      style: rowTextStyle,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1))),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1),
+            ),
+          ),
           Expanded(
               flex: 2,
               child: Row(
@@ -554,17 +558,35 @@ class SerializedItemListPage extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       child: Row(children: [
-        Expanded(flex: 3, child: Container(height: 14.0, color: Colors.white)),
+        Expanded(
+          flex: 3,
+          child: Container(height: 14.0, color: Colors.white),
+        ),
         const SizedBox(width: 8),
-        Expanded(flex: 2, child: Container(height: 14.0, color: Colors.white)),
+        Expanded(
+          flex: 2,
+          child: Container(height: 14.0, color: Colors.white),
+        ),
         const SizedBox(width: 8),
-        Expanded(flex: 3, child: Container(height: 14.0, color: Colors.white)),
+        Expanded(
+          flex: 3,
+          child: Container(height: 14.0, color: Colors.white),
+        ),
         const SizedBox(width: 8),
-        Expanded(flex: 2, child: Container(height: 14.0, color: Colors.white)),
+        Expanded(
+          flex: 2,
+          child: Container(height: 14.0, color: Colors.white),
+        ),
         const SizedBox(width: 8),
-        Expanded(flex: 2, child: Container(height: 14.0, color: Colors.white)),
+        Expanded(
+          flex: 2,
+          child: Container(height: 14.0, color: Colors.white),
+        ),
         const SizedBox(width: 8),
-        Expanded(flex: 4, child: Container(height: 14.0, color: Colors.white)),
+        Expanded(
+          flex: 4,
+          child: Container(height: 14.0, color: Colors.white),
+        ),
         const SizedBox(width: 8),
         Expanded(
             flex: 2,
@@ -790,9 +812,12 @@ class SerializedItemListPage extends ConsumerWidget {
         chipColor = Colors.black54;
     }
     return Chip(
-      label: Text(status, style: TextStyle(color: textColor, fontSize: 11)),
+      label: Text(
+        status,
+        style: TextStyle(color: textColor, fontSize: 11),
+      ),
       backgroundColor: chipColor,
-      padding: const EdgeInsets.symmetric(horizontal: 6.0, vertical: 0.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0.0),
       labelPadding: const EdgeInsets.symmetric(horizontal: 2.0),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
