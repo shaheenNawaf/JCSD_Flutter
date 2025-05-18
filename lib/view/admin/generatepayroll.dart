@@ -11,6 +11,37 @@ import 'package:jcsd_flutter/backend/modules/employee/employee_state.dart';
 import 'package:jcsd_flutter/modals/confirm_generate_payroll.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+
+// Create a dedicated class to hold both the data and controllers
+class EmployeePayrollEntry {
+  final AccountsData account;
+  final EmployeeData employee;
+  final TextEditingController bonusController = TextEditingController();
+  final TextEditingController deductionController = TextEditingController();
+  final TextEditingController remarksController = TextEditingController();
+
+  EmployeePayrollEntry({required this.account, required this.employee});
+  
+  void dispose() {
+    bonusController.dispose();
+    deductionController.dispose();
+    remarksController.dispose();
+  }
+}
+
+// Create a provider for our payroll entries
+final payrollEntriesProvider = StateProvider<List<EmployeePayrollEntry>>((ref) {
+  final employeeState = ref.watch(employeeNotifierProvider);
+  
+  // Convert the employee accounts to our new format
+  return employeeState.employeeAccounts.map((item) {
+    final account = item['account'] as AccountsData;
+    final employee = item['employee'] as EmployeeData;
+    return EmployeePayrollEntry(account: account, employee: employee);
+  }).toList();
+});
 
 class GeneratePayrollPage extends ConsumerStatefulWidget {
   const GeneratePayrollPage({super.key});
@@ -21,12 +52,44 @@ class GeneratePayrollPage extends ConsumerStatefulWidget {
 }
 
 class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
+  List<EmployeePayrollEntry> payrollEntries = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Initial creation of payroll entries will happen in didChangeDependencies
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    
+    // Create payroll entries based on the current state
+    final employeeAccounts = ref.read(employeeNotifierProvider).employeeAccounts;
+    if (payrollEntries.isEmpty) {
+      payrollEntries = employeeAccounts.map((item) {
+        final account = item['account'] as AccountsData;
+        final employee = item['employee'] as EmployeeData;
+        return EmployeePayrollEntry(account: account, employee: employee);
+      }).toList();
+    }
+  }
+
+  @override
+  void dispose() {
+    // Dispose all controllers
+    for (final entry in payrollEntries) {
+      entry.dispose();
+    }
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(employeeNotifierProvider);
     final notifier = ref.read(employeeNotifierProvider.notifier);
-     return Scaffold(
+    
+    return Scaffold(
       body: Row(
         children: [
           const Sidebar(activePage: '/employeeList'),
@@ -69,14 +132,35 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
                       ),
                       const SizedBox(width: 16),
                       ElevatedButton.icon(
-                        // Should redirect user to another page to display each employee's payroll summary with an option to print OR for them
                         onPressed: () {
-                          print('sad');
-                          // showDialog(
-                          //   context: context,
-                          //   builder: (context) =>
-                          //       ConfirmGeneratePayroll(onSuccess: () {}),
-                          // );
+                            showDialog(
+                              context: context,
+                              builder: (context) => ConfirmGeneratePayroll(
+                                onSuccess: () {
+                                  // Show success message
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Payroll generated successfully!')),
+                                  );
+                                },
+                                onConfirm: () async {
+                                  // Your payroll generation logic here
+                                  final payrollData = payrollEntries.map((entry) {
+                                    return {
+                                      'employeeID': entry.employee.employeeID,
+                                      'monthlySalary': entry.employee.monthlySalary,
+                                      'bonus': double.tryParse(entry.bonusController.text) ?? 0,
+                                      'deductions': double.tryParse(entry.deductionController.text) ?? 0,
+                                      'remarks': entry.remarksController.text,
+                                    };
+                                  }).toList();
+                                  
+                                  // Save to database
+                                  await Supabase.instance.client
+                                    .from('payroll')
+                                    .insert(payrollData);
+                                },
+                              ),
+                            );
                         },
                         icon: const Icon(Icons.payment_rounded,
                             color: Colors.white),
@@ -102,7 +186,7 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: _buildDataTable(context, state.employeeAccounts, notifier, state),
+                    child: _buildDataTable(context, state, notifier),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -118,36 +202,33 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
 
   Widget _buildDataTable(
     BuildContext context,
-    List<Map<String, dynamic>> data,
-    EmployeeNotifier notifier,
     EmployeeState state,
+    EmployeeNotifier notifier,
   ) {
-    final sortedData = List<Map<String, dynamic>>.from(data);
-    if (state.sortBy == 'lastname') {
-      sortedData.sort((a, b) {
-        final aAcc = a['account'] as AccountsData?;
-        final bAcc = b['account'] as AccountsData?;
+    // Apply sorting to our payrollEntries if needed
+    final sortedEntries = List<EmployeePayrollEntry>.from(payrollEntries);
+    if (state.sortBy == 'firstName') {
+      sortedEntries.sort((a, b) {
         return state.ascending
-            ? (aAcc?.lastname ?? '')
+            ? (a.account.firstName)
                 .toLowerCase()
-                .compareTo((bAcc?.lastname ?? '').toLowerCase())
-            : (bAcc?.lastname ?? '')
+                .compareTo((b.account.firstName).toLowerCase())
+            : (b.account.firstName)
                 .toLowerCase()
-                .compareTo((aAcc?.lastname ?? '').toLowerCase());
+                .compareTo((a.account.firstName).toLowerCase());
       });
     } else if (state.sortBy == 'email') {
-      sortedData.sort((a, b) {
-        final aAcc = a['account'] as AccountsData?;
-        final bAcc = b['account'] as AccountsData?;
+      sortedEntries.sort((a, b) {
         return state.ascending
-            ? (aAcc?.email ?? '')
+            ? (a.account.email)
                 .toLowerCase()
-                .compareTo((bAcc?.email ?? '').toLowerCase())
-            : (bAcc?.email ?? '')
+                .compareTo((b.account.email).toLowerCase())
+            : (b.account.email)
                 .toLowerCase()
-                .compareTo((aAcc?.email ?? '').toLowerCase());
+                .compareTo((a.account.email).toLowerCase());
       });
     }
+    
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -168,34 +249,25 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
           headingRowColor: WidgetStateProperty.all(const Color(0xFF00AEEF)),
           columnSpacing: 24,
           columns: [
-            DataColumn(label: _buildSortableHeader('Employee Name', 'lastname', state, notifier)),
-            DataColumn(label: _buildHeaderText('Position')),
-            DataColumn(label: _buildHeaderText('Salary')),
-            DataColumn(label: _buildHeaderText('Calculated')),
+            DataColumn(label: _buildSortableHeader('Employee Name', 'firstName', state, notifier)),
+            DataColumn(label: _buildSortableHeader('Position', 'lastname', state, notifier)),
+            DataColumn(label: _buildSortableHeader('Salary', 'address', state, notifier)),
+            DataColumn(label: _buildSortableHeader('Calculated', 'firstName', state, notifier)),
             DataColumn(label: _buildHeaderText('Bonus')),
             DataColumn(label: _buildHeaderText('Deductions')),
             DataColumn(label: _buildHeaderText('Remarks')),
           ],
-          rows: data.map((item) {
-            final emp = item['employee'] as EmployeeData;
-            final acc = item['account'] as AccountsData;
+          rows: sortedEntries.map((entry) {
             return DataRow(cells: [
-              DataCell(Text(acc.lastname)),
-              DataCell(Text(emp.companyRole)),
-                DataCell(
-                Builder(
-                  builder: (context) {
-                    print('Monthly Salary for ${emp.toJson()}');
-                  return Text(emp.monthlySalary.toString());
-                  },
-                ),
-                ),
-              DataCell(Text(item['firstName'] ?? '')),
+              DataCell(Text(entry.account.lastname)),
+              DataCell(Text(entry.employee.companyRole)),
+              DataCell(Text(entry.employee.monthlySalary.toString())),
+              DataCell(Text('')), // Not clear what should go here
               DataCell(
                 SizedBox(
                   width: 150,
                   child: TextField(
-                    controller: item['bonus'],
+                    controller: entry.bonusController,
                     decoration: const InputDecoration(
                       prefixText: '+ ₱',
                       border: OutlineInputBorder(),
@@ -210,7 +282,7 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
               DataCell(SizedBox(
                 width: 150,
                 child: TextField(
-                  controller: item['deduction'],
+                  controller: entry.deductionController,
                   decoration: const InputDecoration(
                     prefixText: '- ₱',
                     border: OutlineInputBorder(),
@@ -224,7 +296,7 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
               DataCell(SizedBox(
                 width: 250,
                 child: TextField(
-                  controller: item['remarks'],
+                  controller: entry.remarksController,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     isDense: true,
@@ -246,7 +318,6 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
     EmployeeState state,
     EmployeeNotifier notifier,
   ) {
-    print('Employee Data: $title, $column, ${state.sortBy}, ${state.ascending}');
     return InkWell(
       onTap: () => notifier.sort(column),
       child: Row(
@@ -284,7 +355,6 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
       ),
     );
   }
-
 
   Widget _buildPagination(EmployeeState state, EmployeeNotifier notifier) {
     return Row(

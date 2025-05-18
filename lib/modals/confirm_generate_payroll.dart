@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 class ConfirmGeneratePayroll extends StatefulWidget {
   final VoidCallback onSuccess;
+  final Future<void> Function()? onConfirm; // Add this for async operations
 
   const ConfirmGeneratePayroll({
     super.key,
     required this.onSuccess,
+    this.onConfirm,
   });
 
   @override
@@ -13,6 +15,8 @@ class ConfirmGeneratePayroll extends StatefulWidget {
 }
 
 class _ConfirmGeneratePayrollState extends State<ConfirmGeneratePayroll> {
+  bool _isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -70,9 +74,11 @@ class _ConfirmGeneratePayrollState extends State<ConfirmGeneratePayroll> {
                 children: [
                   Expanded(
                     child: TextButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      onPressed: _isLoading
+                          ? null
+                          : () {
+                              Navigator.pop(context);
+                            },
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14.0),
                         shape: RoundedRectangleBorder(
@@ -93,9 +99,32 @@ class _ConfirmGeneratePayrollState extends State<ConfirmGeneratePayroll> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      onPressed: _isLoading
+                          ? null
+                          : () async {
+                              setState(() => _isLoading = true);
+                              try {
+                                if (widget.onConfirm != null) {
+                                  await widget.onConfirm!();
+                                }
+                                widget.onSuccess();
+                                if (mounted) Navigator.pop(context);
+                              } catch (e) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Error: $e'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                  Navigator.pop(context);
+                                }
+                              } finally {
+                                if (mounted) {
+                                  setState(() => _isLoading = false);
+                                }
+                              }
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF00AEEF),
                         padding: const EdgeInsets.symmetric(vertical: 14.0),
@@ -103,14 +132,23 @@ class _ConfirmGeneratePayrollState extends State<ConfirmGeneratePayroll> {
                           borderRadius: BorderRadius.circular(5),
                         ),
                       ),
-                      child: const Text(
-                        'Submit',
-                        style: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text(
+                              'Submit',
+                              style: TextStyle(
+                                fontFamily: 'NunitoSans',
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
                   ),
                 ],

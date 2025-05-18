@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
+import 'package:jcsd_flutter/backend/modules/payroll/payroll_data.dart';
+import 'package:jcsd_flutter/backend/modules/payroll/payroll_provider.dart';
 import 'package:jcsd_flutter/modals/edit_payroll.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 
 class Payroll extends StatefulWidget {
-  const Payroll({super.key});
+  final EmployeeData? employee;
+  final AccountsData? account;
+    const Payroll({
+    super.key,
+    required this.employee,
+    required this.account,
+  });
 
   @override
   _PayrollState createState() => _PayrollState();
@@ -22,6 +33,7 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+    selectedDate = DateTime.now();
   }
 
   @override
@@ -163,75 +175,65 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
     );
   }
 
+  String _formatDate(DateTime date) {
+  return '${date.month}/${date.day}/${date.year}';
+}
+
   Widget _buildWebView() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.3),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.2,
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildProfileHeader(),
-                  const SizedBox(height: 20),
-                  _buildSectionTitle('About'),
-                  _buildInfoRow(FontAwesomeIcons.envelope, 'Email: ',
-                      'mebguevara@gmail.com'),
-                  _buildInfoRow(
-                      FontAwesomeIcons.phone, 'Phone: ', '09278645368'),
-                  _buildInfoRow(FontAwesomeIcons.cakeCandles, 'Birthday: ',
-                      'May 5, 2001'),
-                  _buildDivider(),
-                  _buildSectionTitle('Address'),
-                  _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ',
-                      '106-6 CM Recto Ave.'),
-                  _buildInfoRow(FontAwesomeIcons.city, 'City: ', 'Manila'),
-                  _buildInfoRow(
-                      FontAwesomeIcons.globe, 'Region: ', 'Philippines'),
-                  _buildDivider(),
-                  _buildSectionTitle('Employee Details'),
-                  _buildInfoRow(FontAwesomeIcons.user, 'Title: ', 'Employee.'),
-                  _buildInfoRow(
-                      FontAwesomeIcons.calendar, 'Hire Date: ', '05/05/05'),
-                ],
-              ),
+  return Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(8),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withValues(alpha: 0.3),
+          spreadRadius: 2,
+          blurRadius: 5,
+          offset: const Offset(0, 3),
+        ),
+      ],
+    ),
+    child: Row(
+      children: [
+        SizedBox(
+          width: MediaQuery.of(context).size.width * 0.2,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildProfileHeader(),
+                const SizedBox(height: 20),
+                _buildSectionTitle('Basic Information'),
+                _buildInfoRow(FontAwesomeIcons.envelope, 'Email: ', widget.account!.email),
+                _buildInfoRow(FontAwesomeIcons.phone, 'Phone: ', widget.account?.contactNumber ?? 'N/A'),
+                _buildInfoRow(FontAwesomeIcons.cakeCandles, 'Birthday: ', 
+                    widget.account?.birthDate != null 
+                        ? _formatDate(widget.account!.birthDate!)
+                        : 'N/A'),
+                _buildDivider(),
+                _buildSectionTitle('Address'),
+                _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ', widget.account!.address),
+                _buildInfoRow(FontAwesomeIcons.city, 'City: ', widget.account!.city),
+                _buildInfoRow(FontAwesomeIcons.globe, 'Region: ', widget.account!.region),
+                _buildDivider(),
+                _buildSectionTitle('Employee Details'),
+                _buildInfoRow(FontAwesomeIcons.user, 'Title: ', widget.employee!.companyRole),
+              ],
             ),
           ),
-          VerticalDivider(width: 1, color: Colors.grey[300]),
-          Expanded(
-              child: Column(
+        ),
+        VerticalDivider(width: 1, color: Colors.grey[300]),
+        Expanded(
+          child: Column(
             children: [
               Row(
                 children: [
                   const Padding(
                     padding: EdgeInsets.fromLTRB(40, 20, 0, 0),
-                    child: Text("Payroll",
+                    child: Text("Payroll History",
                         style: TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 18)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                    child: IconButton(
-                      icon: const FaIcon(FontAwesomeIcons.pen),
-                      iconSize: 10,
-                      onPressed: () {
-                        _editBookingModal();
-                      },
-                    ),
                   ),
                   const Spacer(),
                   Padding(
@@ -251,7 +253,6 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
                           firstDate: DateTime(2000),
                           lastDate: DateTime(2101),
                         );
-
                         if (pickedDate != null) {
                           setState(() {
                             selectedDate = pickedDate;
@@ -268,32 +269,19 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
                   ),
                 ],
               ),
-              Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
-              const PayrollRow(
-                  label: 'Total Income: ', value: 'P20,000', isBold: true),
-              const PayrollRow(label: 'Salary: ', value: 'P20,000'),
-              const PayrollRow(label: 'Medical Allowance: ', value: 'P20,000'),
-              const PayrollRow(label: 'OT Regular Day: ', value: 'P20,000'),
-              const PayrollRow(label: 'Bonus: ', value: 'P20,000'),
-              const PayrollRow(label: 'Others: ', value: 'P20,000'),
-              Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
-              const PayrollRow(
-                  label: 'Total Deduction: ', value: 'P5,000', isBold: true),
-              const PayrollRow(label: 'Tardiness: ', value: 'P2,000'),
-              const PayrollRow(label: 'Absences: ', value: 'P2,000'),
-              Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
-              const PayrollRow(
-                  label: 'Sub Total: ', value: 'P123,000', isBold: true),
-              const PayrollRow(label: 'Tax: ', value: 'P20,000'),
-              Divider(color: Colors.grey[300], indent: 40, endIndent: 40),
-              const PayrollRow(
-                  label: 'Net Salary: ', value: 'P200,000', isBold: true),
+              const SizedBox(height: 20),
+              Expanded(
+                child: EmployeePayrollTable(
+                  employeeId: int.parse(widget.employee!.employeeID),selectedDate: selectedDate,
+                  ),
+              ),
             ],
-          )),
-        ],
-      ),
-    );
-  }
+          ),
+        ),
+      ],
+    ),
+  );
+}
 
   Widget _buildProfileHeader() {
     return Padding(
@@ -308,19 +296,19 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
                 color: Colors.white, size: 35),
           ),
           const SizedBox(width: 20),
-          const Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Amy D. Polie',
-                style: TextStyle(
+                '${widget.account!.firstName} ${widget.account!.lastname}',
+                style: const TextStyle(
                     fontFamily: 'NunitoSans',
                     fontWeight: FontWeight.bold,
                     fontSize: 16),
               ),
               Text(
-                'Employee',
-                style: TextStyle(fontFamily: 'NunitoSans', fontSize: 14),
+                widget.employee!.companyRole,
+                style: const TextStyle(fontFamily: 'NunitoSans', fontSize: 14),
               ),
             ],
           ),
@@ -357,6 +345,83 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
 
   Widget _buildDivider() {
     return Divider(color: Colors.grey[300], indent: 40, endIndent: 40);
+  }
+}
+
+class EmployeePayrollTable extends ConsumerWidget {
+  final int employeeId;
+  final DateTime selectedDate;
+
+  const EmployeePayrollTable({super.key, required this.employeeId, required this.selectedDate,});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(payrollNotifierProvider);
+    final filteredPayrolls = state.payrolls.where((record) {
+      final payroll = record['payroll'] as PayrollData;
+      return payroll.employeeID == employeeId &&
+             payroll.createdAt.month == selectedDate.month &&
+             payroll.createdAt.year == selectedDate.year;
+    }).toList();
+
+    if (filteredPayrolls.isEmpty) {
+      return const Center(child: Text('No payroll records found'));
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(40, 0, 40, 10),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: DataTable(
+            headingRowColor: MaterialStateProperty.all(const Color(0xFF00AEEF)),
+            columnSpacing: 24,
+            columns: const [
+              DataColumn(label: Text('Payment Date',style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'NunitoSans',
+                                        color: Colors.white,
+                                      ),)),
+              DataColumn(label: Text('Monthly Salary',style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'NunitoSans',
+                                        color: Colors.white,
+                                      ),)),
+              DataColumn(label: Text('Net Salary',style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'NunitoSans',
+                                        color: Colors.white,
+                                      ),)),
+            ],
+            rows: filteredPayrolls.map((record) {
+              final payroll = record['payroll'] as PayrollData;
+              return DataRow(cells: [
+                DataCell(Text(_formatDate(payroll.createdAt))),
+                DataCell(Text('\$${payroll.monthlySalary.toStringAsFixed(2)}')),
+                DataCell(Text('\$${payroll.calculatedMonthlySalary.toStringAsFixed(2)}')),
+              ]);
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static String _formatDate(DateTime date) {
+    return '${date.month}/${date.day}/${date.year}';
   }
 }
 

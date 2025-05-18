@@ -131,7 +131,7 @@ class EmployeeService {
       'birthDate': birthday,
       'address': address,
       'region': region,
-      'province': region,
+      'province': province,
       'city': city,
       'zipCode': zipCode,
     });

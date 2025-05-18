@@ -183,6 +183,18 @@ final router = GoRouter(
               ],
             ),
             GoRoute(
+              path: '/payroll',
+              builder: (context, state) {
+                final args = state.extra as Map<String, dynamic>?;
+                final acc = args?['account'] as AccountsData?;
+                final emp = args?['employee'] as EmployeeData?;
+                if (acc == null || emp == null) {
+                  return const ErrorPage();
+                }
+                return Payroll(account: acc, employee: emp);
+              },
+            ),
+            GoRoute(
               path: 'leaveRequest',
               builder: (context, state) {
                 final args = state.extra as Map<String, dynamic>?;
@@ -197,7 +209,12 @@ final router = GoRouter(
     ),
     GoRoute(
       path: '/payroll',
-      builder: (context, state) => const Payroll(),
+      builder: (context, state) {
+        final args = state.extra as Map<String, dynamic>?;
+        final acc = args?['account'] as AccountsData;
+        final emp = args?['employee'] as EmployeeData;
+        return Payroll(account: acc, employee: emp);
+      },
     ),
     GoRoute(
       path: '/accountDetails',
@@ -413,6 +430,7 @@ final router = GoRouter(
           '/employeeList/payrollList/generatePayroll',
           '/employeeList/cashAdvanceList',
           '/employeeList/cashAdvanceList/generateCashAdvance',
+         ' /employeeList/profile/payroll',
           '/payroll',
           '/accountDetails',
           '/manufacturers',
@@ -438,8 +456,9 @@ final router = GoRouter(
           '/bookingDetail',
           '/inventory',
           '/manufacturers'
-              '/suppliers',
+          '/suppliers',
           '/bookings',
+          '/payroll',
           '/accountDetails',
           '/services',
           '/accountDetails',

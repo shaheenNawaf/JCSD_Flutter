@@ -12,7 +12,6 @@ import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
@@ -682,7 +681,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                         ),
                         onPressed: () async {
                           final result = await context
-                              .push('/employeeList/profile/payslip', extra: {
+                              .push('/payroll', extra: {
                             'account': user,
                             'employee': emp,
                           });

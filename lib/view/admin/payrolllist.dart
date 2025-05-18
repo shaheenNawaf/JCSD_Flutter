@@ -148,9 +148,6 @@ class PayrollList extends ConsumerWidget {
             DataColumn(
               label: _buildSortableHeader('Monthly Salary', 'monthlySalary', state, notifier),
             ),
-            DataColumn(
-              label: _buildSortableHeader('Net Salary', 'calculatedMonthlySalary', state, notifier),
-            ),
             DataColumn(label: _buildHeaderText('Action')),
           ],
           rows: state.payrolls.map((record) {
@@ -161,7 +158,6 @@ class PayrollList extends ConsumerWidget {
               DataCell(Text(account?.firstName ?? '')),
               DataCell(Text(_formatDate(payroll.createdAt))),
               DataCell(Text('\$${payroll.monthlySalary.toStringAsFixed(2)}')),
-              DataCell(Text('\$${payroll.calculatedMonthlySalary.toStringAsFixed(2)}')),
               DataCell(
                 ElevatedButton(
                   onPressed: () {
