@@ -419,8 +419,8 @@ class InventoryPage extends ConsumerWidget {
           Expanded(
             flex: 1,
             child: _stockStatusChip(
-              currentQuantity: int.tryParse(currentStock) ?? 0,
-              desiredStockLevel: int.tryParse(desiredStockLevel) ?? 0,
+              currentQuantity: int.tryParse(currentStock) ?? -1,
+              desiredStockLevel: int.tryParse(desiredStockLevel) ?? -1,
             ),
           ),
           Expanded(
@@ -519,6 +519,27 @@ class InventoryPage extends ConsumerWidget {
   }) {
     Color chipColor = Colors.grey; // Default
     Color textColor = Colors.white;
+
+    if (currentQuantity.isNaN ||
+        desiredStockLevel.isNaN ||
+        currentQuantity < 0 ||
+        desiredStockLevel < 0) {
+      return Tooltip(
+        message: "There is no set Desired Stock Level",
+        child: Center(
+          child: Chip(
+            label: Text(
+              'No Serials Found',
+              style: TextStyle(color: textColor, fontSize: 11),
+            ),
+            backgroundColor: chipColor,
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0.0),
+            labelPadding: const EdgeInsets.symmetric(horizontal: 2.0),
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+        ),
+      );
+    }
 
     final double stockRatio = currentQuantity / desiredStockLevel;
 
