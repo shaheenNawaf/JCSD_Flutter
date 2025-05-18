@@ -9,6 +9,7 @@ import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_
 //Populating the drop-downs
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_providers.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/manufacturers/manufacturers_providers.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_providers.dart';
 
 //Front-End/User Feedback
 import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
@@ -42,10 +43,13 @@ class _EditProductDefinitionModalState
   late TextEditingController _nameController = TextEditingController();
   late TextEditingController _descriptionController = TextEditingController();
   late TextEditingController _msrpController = TextEditingController();
+  late TextEditingController _desiredStockLevelContoller =
+      TextEditingController();
 
   // Dropdown selections
   int? selectedItemTypeID;
   String? selectedManufacturerName; // Store name based on new schema
+  int? selectedSupplierID;
 
   @override
   void initState() {
@@ -56,8 +60,11 @@ class _EditProductDefinitionModalState
         TextEditingController(text: pd.prodDefDescription ?? '');
     _msrpController =
         TextEditingController(text: pd.prodDefMSRP?.toStringAsFixed(2) ?? '');
+    _desiredStockLevelContoller =
+        TextEditingController(text: pd.desiredStockLevel?.toString() ?? '');
     selectedItemTypeID = pd.itemTypeID;
     selectedManufacturerName = pd.manufacturerName;
+    selectedSupplierID = pd.preferredSupplierID;
   }
 
   @override
@@ -65,6 +72,7 @@ class _EditProductDefinitionModalState
     _nameController.dispose();
     _descriptionController.dispose();
     _msrpController.dispose();
+    _desiredStockLevelContoller.dispose();
     super.dispose();
   }
 
@@ -77,21 +85,20 @@ class _EditProductDefinitionModalState
       return;
     }
 
-    //Indicates processing; loading indicator
     setState(() => isSaving = true);
 
-    // Create the updated ProductDefinitionData object using copyWith
     final updatedProdDef = widget.productDefinition.copyWith(
       prodDefName: _nameController.text.trim(),
       prodDefDescription: _descriptionController.text.trim(),
-      manufacturerName: selectedManufacturerName, // Use the selected name
-      itemTypeID: selectedItemTypeID, // Use the selected ID
+      manufacturerName: selectedManufacturerName,
+      itemTypeID: selectedItemTypeID,
       prodDefMSRP: double.tryParse(_msrpController.text.trim()) ??
           widget.productDefinition.prodDefMSRP, // Update price safely
+      desiredStockLevel: int.tryParse(_desiredStockLevelContoller.text.trim()),
+      preferredSupplierID: selectedSupplierID,
     );
 
     try {
-      // Call the notifier method to update the product definition
       await ref
           .read(productDefinitionNotifierProvider(widget.isVisibleContext)
               .notifier)
@@ -99,14 +106,14 @@ class _EditProductDefinitionModalState
 
       ToastManager().showToast(
           context, 'Product Definition updated successfully!', Colors.green);
-      Navigator.pop(context); // Close dialog on success
+      Navigator.pop(context);
     } catch (e, st) {
       print("Error updating Product Definition: $e\n$st");
       ToastManager().showToast(context,
           'Failed to update Product Definition: ${e.toString()}', Colors.red);
     } finally {
       if (mounted) {
-        setState(() => isSaving = false); // Hide loading indicator
+        setState(() => isSaving = false);
       }
     }
   }
@@ -168,6 +175,26 @@ class _EditProductDefinitionModalState
                               maxLines: 4,
                               isRequired: true,
                             ),
+                            const SizedBox(height: 15),
+                            _buildTextField(
+                                label: 'Desired Stock Level',
+                                hintText: 'Enter desired quantity..',
+                                controller: _desiredStockLevelContoller,
+                                isRequired: true,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Desired Stock Level is required';
+                                  }
+                                  final stock = int.tryParse(value.trim());
+                                  if (stock == null || stock < 1) {
+                                    return 'Must be a number greater than or equal to 1';
+                                  }
+                                  return null;
+                                }),
                           ],
                         ),
                       ),
@@ -179,6 +206,8 @@ class _EditProductDefinitionModalState
                             _buildItemTypeDropdown(ref),
                             const SizedBox(height: 15),
                             _buildManufacturerDropdown(ref),
+                            const SizedBox(height: 15),
+                            _buildSupplierDropdown(ref),
                             const SizedBox(height: 15),
                             _buildTextField(
                                 label: 'MSRP (PHP)',
@@ -283,7 +312,11 @@ class _EditProductDefinitionModalState
       children: [
         Row(children: [
           Text(label),
-          if (isRequired) const Text(' *', style: TextStyle(color: Colors.red))
+          if (isRequired)
+            const Text(
+              ' *',
+              style: TextStyle(color: Colors.red),
+            )
         ]),
         const SizedBox(height: 5),
         TextFormField(
@@ -404,6 +437,54 @@ class _EditProductDefinitionModalState
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2))),
           error: (err, stack) => Text('Error loading manufacturers: $err',
+              style: const TextStyle(color: Colors.red, fontSize: 12)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSupplierDropdown(WidgetRef ref) {
+    final suppliersAsync = ref.watch(activeSuppliersForDropdownProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(children: [
+          Text('Preferred Supplier'),
+          Text(' *', style: TextStyle(color: Colors.red))
+        ]),
+        const SizedBox(height: 5),
+        suppliersAsync.when(
+          data: (suppliers) => DropdownButtonFormField<int>(
+            value: selectedSupplierID,
+            hint: const Text('Select supplier (optional)...',
+                style: TextStyle(fontSize: 12, color: Colors.grey)),
+            decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0)),
+            isExpanded: true,
+            items: suppliers
+                .map((supplier) => DropdownMenuItem<int>(
+                      value: supplier.supplierID,
+                      child: Text(supplier.supplierName,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12)),
+                    ))
+                .toList(),
+            onChanged: (value) => setState(() => selectedSupplierID = value),
+            validator: (value) {
+              if (value == null) return 'Preferred Supplier is required';
+              return null;
+            },
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+          ),
+          loading: () => const Center(
+              child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2))),
+          error: (err, stack) => Text('Error loading suppliers: $err',
               style: const TextStyle(color: Colors.red, fontSize: 12)),
         ),
       ],

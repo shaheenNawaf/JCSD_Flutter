@@ -27,24 +27,20 @@ import 'package:jcsd_flutter/view/inventory/product_definitions/modals/archive_p
 // Generic Imports
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
-import 'package:jcsd_flutter/view/inventory/item_types/item_types.dart';
 
-/// Displays the list of active Product Definitions.
 class InventoryPage extends ConsumerWidget {
   const InventoryPage({super.key});
 
-  final String _activeSubItem = '/inventory'; // Sidebar active state identifier
-  final bool isVisibleFilter = true; // Filter for active items
+  final String _activeSubItem = '/inventory';
+  final bool isVisibleFilter = true;
 
-  // Shows the modal to add a new product definition
   void _showAddProductDefinitionModal(BuildContext context, WidgetRef ref) {
     showDialog(
         context: context,
-        barrierDismissible: false, // Prevent closing by tapping outside
+        barrierDismissible: false,
         builder: (_) => AddProdDefModal(isVisible: isVisibleFilter));
   }
 
-  // Shows the modal to edit an existing product definition
   void _showEditProductDefinitionModal(BuildContext context, WidgetRef ref,
       ProductDefinitionData productDefinition) {
     showDialog(
@@ -55,21 +51,17 @@ class InventoryPage extends ConsumerWidget {
             isVisibleContext: isVisibleFilter));
   }
 
-  // Shows the confirmation modal to archive a product definition
   void _showArchiveProductDefinitionModal(BuildContext context, WidgetRef ref,
       ProductDefinitionData productDefinition) {
-    // Ensure ID is not null before showing archive modal
     if (productDefinition.prodDefID == null) {
       print("Error: Cannot archive product definition with null ID.");
-      // Optionally show an error message to the user
       return;
     }
     showDialog(
         context: context,
-        barrierDismissible: true, // Allow closing by tapping outside
+        barrierDismissible: true,
         builder: (_) => ArchiveProductDefinitionModal(
-            prodDefID:
-                productDefinition.prodDefID!, // Use non-null assertion here
+            prodDefID: productDefinition.prodDefID!,
             prodDefName: productDefinition.prodDefName,
             isVisibleContext: isVisibleFilter));
   }
@@ -301,24 +293,27 @@ class InventoryPage extends ConsumerWidget {
         children: [
           _buildHeaderCell(
               context, ref, productDefState, 'ID', 'prodDefID', headerTextStyle,
-              flex: 2),
+              flex: 1),
           _buildHeaderCell(context, ref, productDefState, 'Name', 'prodDefName',
               headerTextStyle,
-              flex: 4),
+              flex: 3),
           _buildHeaderCell(context, ref, productDefState, 'Type', 'itemTypeID',
               headerTextStyle,
-              flex: 3),
+              flex: 2),
           _buildHeaderCell(context, ref, productDefState, 'Manufacturer',
               'manufacturerName', headerTextStyle,
-              flex: 3),
+              flex: 2),
           _buildHeaderCell(context, ref, productDefState, 'MSRP', 'prodDefMSRP',
               headerTextStyle,
+              flex: 1),
+          _buildHeaderCell(context, ref, productDefState, 'Current Stock',
+              'item_serials.count', headerTextStyle,
               flex: 2),
           _buildHeaderCell(context, ref, productDefState, 'Description',
               'prodDefDescription', headerTextStyle,
-              flex: 5),
+              flex: 3),
           const Expanded(
-              flex: 3,
+              flex: 2,
               child: Text('Actions',
                   style: headerTextStyle, textAlign: TextAlign.center)),
         ],
@@ -351,9 +346,13 @@ class InventoryPage extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Expanded(
+                child: Tooltip(
+                  message: columnTitle,
                   child: Text(columnTitle,
-                      style: textStyle, overflow: TextOverflow.ellipsis)),
-              if (sortIcon != null) ...[const SizedBox(width: 2), sortIcon],
+                      style: textStyle, overflow: TextOverflow.ellipsis),
+                ),
+              ),
+              if (sortIcon != null) ...[const SizedBox(width: 1), sortIcon],
             ],
           ),
         ),
@@ -364,14 +363,17 @@ class InventoryPage extends ConsumerWidget {
   // Builds a single data row for a Product Definition
   Widget _buildItemRow(BuildContext context, WidgetRef ref,
       ProductDefinitionData item, Color rowColor, Key key) {
+    //Formatting the data, prior presentation and ensuring data integrity
     String formattedID =
         item.prodDefID?.split('-').first ?? 'N/A'; // Handle potential null ID
     String msrp = item.prodDefMSRP != null
-        ? 'P ${item.prodDefMSRP!.toStringAsFixed(2)}'
+        ? '₱ ${item.prodDefMSRP!.toStringAsFixed(2)}'
         : 'N/A';
     String description = item.prodDefDescription ?? 'N/A';
-    String manufacturer =
-        item.manufacturerName; // Directly use manufacturer name
+    String manufacturer = item.manufacturerName;
+    String desiredStockLevel = item.desiredStockLevel.toString();
+    String currentStock = item.serialsCount?.toString() ?? '0';
+
     const rowTextStyle = TextStyle(fontFamily: 'NunitoSans', fontSize: 13);
 
     return Container(
@@ -381,17 +383,17 @@ class InventoryPage extends ConsumerWidget {
       child: Row(
         children: [
           Expanded(
-              flex: 2,
+              flex: 1,
               child: Text(formattedID,
                   style: rowTextStyle,
                   textAlign: TextAlign.start,
                   overflow: TextOverflow.ellipsis)),
           Expanded(
-              flex: 4,
+              flex: 3,
               child: Text(item.prodDefName,
                   style: rowTextStyle, overflow: TextOverflow.ellipsis)),
           Expanded(
-              flex: 3,
+              flex: 2,
               child: FutureBuilder<String>(
                   future: ItemtypesService().getTypeNameByID(item.itemTypeID),
                   builder: (context, snapshot) => Text(snapshot.data ?? '...',
@@ -399,12 +401,11 @@ class InventoryPage extends ConsumerWidget {
                       textAlign: TextAlign.start,
                       overflow: TextOverflow.ellipsis))),
           Expanded(
-              flex: 3,
+              flex: 2,
               child: Text(manufacturer,
                   style: rowTextStyle,
                   textAlign: TextAlign.start,
-                  overflow:
-                      TextOverflow.ellipsis)), // Display manufacturer name
+                  overflow: TextOverflow.ellipsis)),
           Expanded(
               flex: 2,
               child: Text(msrp,
@@ -412,7 +413,15 @@ class InventoryPage extends ConsumerWidget {
                   textAlign: TextAlign.start,
                   overflow: TextOverflow.ellipsis)),
           Expanded(
-              flex: 5,
+              flex: 1,
+              child: Tooltip(
+                  message: "Desired quantity is $desiredStockLevel",
+                  child: Text(currentStock,
+                      style: rowTextStyle,
+                      textAlign: TextAlign.start,
+                      overflow: TextOverflow.ellipsis))),
+          Expanded(
+              flex: 4,
               child: Tooltip(
                   message: description,
                   child: Text(description,
@@ -420,7 +429,7 @@ class InventoryPage extends ConsumerWidget {
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1))),
           Expanded(
-              flex: 3,
+              flex: 2,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -496,6 +505,15 @@ class InventoryPage extends ConsumerWidget {
       ),
     );
   }
+
+  // Widget _stockStatusIndicator({
+  //   required int currentQuantity,
+  //   required int desiredStockLevel,
+  //   double lowStockThreshold = 0.3, //30% total serial items remaining
+  //   double mediumStockThreshold = 0.7, //70% total serial items remaining
+  // }) {
+
+  // }
 
   Widget _buildPaginationControls(BuildContext context, WidgetRef ref,
       ProductDefinitionState productDefState) {

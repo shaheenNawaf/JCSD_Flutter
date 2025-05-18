@@ -13,6 +13,23 @@ const int defaultItemsPerPage = 10;
 class ProductDefinitionServices {
   AuditServices addAuditLogs = AuditServices();
 
+  //JOIN Select Query
+  static const String _baseProductDefinitionsSelect = '''
+    prodDefID,
+    prodDefName,
+    prodDefDescription,
+    manufacturerName, 
+    createDate,
+    updateDate,
+    prodDefMSRP,
+    isVisible,
+    itemTypeID,
+    desiredStockLevel,
+    preferredSupplierID,
+    manufacturerName,
+    item_serials(count)
+''';
+
   //Fetches selected product definitions, mainly basing whether such PD is active/archived
   Future<List<ProductDefinitionData>> fetchProductDefinitions({
     String sortBy = 'itemID',
@@ -21,24 +38,13 @@ class ProductDefinitionServices {
     int itemsPerPage = defaultItemsPerPage,
     String? searchQuery,
     bool isVisible = true,
-
-    //Additional filters that I added lang
     int? itemTypeID,
     String? manufacturerName,
   }) async {
     try {
-      //Added JOINS for single-query for multiple reach functionality. Really powerful stuff.
-      //Bale allows us to search names through their IDs
-
-      //Note: Table Name, Table Column - for adding other selected queries
-      const String selectPDQuery = '''
-        *,
-        item_types ( itemType ),
-      ''';
-
       var fetchPDQuery = supabaseDB
           .from('product_definitions')
-          .select()
+          .select(_baseProductDefinitionsSelect)
           .eq('isVisible', isVisible);
 
       //Added new queries - for both itemTypeID and manufacturerID
@@ -54,13 +60,8 @@ class ProductDefinitionServices {
         final searchTerm = "%$searchQuery%";
 
         fetchPDQuery = fetchPDQuery.or('prodDefName.ilike.$searchTerm,'
-            'prodDefDescription.ilike.$searchTerm'
-            // 'item_types.itemType.ilike.$searchTerm,'
-            // 'manufacturerName.ilike.$searchTerm'
-            );
+            'prodDefDescription.ilike.$searchTerm');
       }
-
-      //Actual Sorting functionality -- essentially we're doing here are all service-side functionality to lessen load
 
       //Pages
       final offset = (page - 1) * itemsPerPage;
@@ -110,7 +111,8 @@ class ProductDefinitionServices {
         countTotalPD = countTotalPD.or('prodDefName.ilike.$searchTerm,'
             'prodDefDescription.ilike.$searchTerm,'
             'itemTypeID::text.ilike.$searchTerm,'
-            'manufacturers.manufacturerName.ilike.$searchTerm');
+            //'manufacturers.manufacturerName.ilike.$searchTerm'
+            );
       }
 
       final finalCount = await countTotalPD;
@@ -121,17 +123,12 @@ class ProductDefinitionServices {
     }
   }
 
-  //Fetches all active na PD
-  //Para rani sa dropdown, so strict ang viewing ani. Removed pagination function
+  //Fetches all active Product Definitions; mainly for the Dropdown
   Future<List<ProductDefinitionData>> getAllActiveProductDefinitions() async {
     try {
-      //Force JOINS to fetch results from the ItemTypes - bale ItemTypeID: 1 {Accesorries} - gidikit sa isa ka result ba. No need for a separate query na
-
-      const String selectPDQuery = '''*, item_types ( itemType )''';
-
       final activePDQuery = await supabaseDB
           .from('product_definitions')
-          .select(selectPDQuery)
+          .select(_baseProductDefinitionsSelect)
           .eq('isVisible', true)
           .order('prodDefName', ascending: true);
 
@@ -150,12 +147,10 @@ class ProductDefinitionServices {
   Future<ProductDefinitionData> addProductDefinition(
       ProductDefinitionData newProdDef) async {
     try {
-      const String returnSelectQuery = '''*, item_types ( itemType )''';
-
       final addNewProdDef = await supabaseDB
           .from('product_definitions')
           .insert(newProdDef.toJson())
-          .select(returnSelectQuery)
+          .select(_baseProductDefinitionsSelect)
           .single();
 
       print('ADDED NEW PRODUCT DEFINITION: ${newProdDef.prodDefName}');
@@ -223,5 +218,4 @@ class ProductDefinitionServices {
       rethrow;
     }
   }
-  //April 24 Edit: Removed Dropdown helper functions. Focus rani na file for Product Definitions
 }
