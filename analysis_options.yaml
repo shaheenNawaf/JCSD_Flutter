@@ -7,3 +7,4 @@ analyzer:
     library_private_types_in_public_api: ignore
     no_leading_underscores_for_local_identifiers: ignore
     deprecated_member_use: ignore
+    constant_identifier_names: ignore

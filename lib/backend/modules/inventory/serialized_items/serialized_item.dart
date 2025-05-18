@@ -27,21 +27,23 @@ class SerializedItem {
 
   // Factory constructor for parsing JSON from Supabase
   factory SerializedItem.fromJson(Map<String, dynamic> json) {
-     // Helper for safe date parsing
+    // Helper for safe date parsing
     DateTime? parseOptionalDateTime(String? dateString) {
       return dateString != null ? DateTime.tryParse(dateString) : null;
     }
-     // Helper for safe double parsing from numeric/decimal/float
+
+    // Helper for safe double parsing from numeric/decimal/float
     double? parseOptionalDouble(dynamic priceValue) {
-       if (priceValue == null) return null;
-       if (priceValue is double) return priceValue;
-       if (priceValue is int) return priceValue.toDouble();
-       if (priceValue is String) return double.tryParse(priceValue);
-       return null;
+      if (priceValue == null) return null;
+      if (priceValue is double) return priceValue;
+      if (priceValue is int) return priceValue.toDouble();
+      if (priceValue is String) return double.tryParse(priceValue);
+      return null;
     }
 
     return SerializedItem(
-      serialNumber: json['serialNumber'] as String, // Ensure this matches DB type
+      serialNumber:
+          json['serialNumber'] as String, // Ensure this matches DB type
       prodDefID: json['prodDefID'],
       purchaseDate: parseOptionalDateTime(json['purchaseDate']),
       employeeID: json['employeeID'] as int?,
@@ -50,27 +52,28 @@ class SerializedItem {
       updateDate: parseOptionalDateTime(json['updateDate']),
       costPrice: parseOptionalDouble(json['costPrice']),
       notes: json['notes'] as String?,
-      status: json['status'] as String? ?? 'Available', // Provide default if status could be null
+      status: json['status'] as String? ??
+          'Available', // Provide default if status could be null
       currentBookingID: json['bookingID'] as int?,
     );
   }
 
-   // toJson (only include fields you'd typically insert/update)
-   Map<String, dynamic> toJson() {
-     return {
-       'serialNumber': serialNumber, // Usually needed for inserts/updates
-       'prodDefID': prodDefID,
-       'purchaseDate': purchaseDate?.toIso8601String(),
-       'employeeID': employeeID,
-       'supplierID': supplierID,
-       'costPrice': costPrice,
-       'notes': notes,
-       'status': status,
-       'bookingID': currentBookingID,
-     };
-   }
+  // toJson (only include fields you'd typically insert/update)
+  Map<String, dynamic> toJson() {
+    return {
+      'serialNumber': serialNumber, // Usually needed for inserts/updates
+      'prodDefID': prodDefID,
+      'purchaseDate': purchaseDate?.toIso8601String(),
+      'employeeID': employeeID,
+      'supplierID': supplierID,
+      'costPrice': costPrice,
+      'notes': notes,
+      'status': status,
+      'bookingID': currentBookingID,
+    };
+  }
 
-   // copyWith method for immutable updates
+  // copyWith method for immutable updates
   SerializedItem copyWith({
     String? serialNumber,
     String? prodDefID,

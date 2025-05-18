@@ -1,5 +1,7 @@
+// ignore_for_file: constant_identifier_names
+
 import 'package:flutter/foundation.dart';
-import 'package:jcsd_flutter/view/inventory/vendor_return_orders/models/vendor_return_order_item_data.dart'; // For listEquals
+import 'package:jcsd_flutter/backend/modules/inventory/vendor_return_orders/models/vendor_return_order_item_data.dart'; // For listEquals
 
 class VendorReturnOrder {
   final int vroID;
