@@ -266,7 +266,7 @@ class _ReceivePurchaseOrderItemsModalState
       if (productNames.length > 1) {
         hasDuplicates = true;
         duplicateErrorMessage +=
-            'Serial "$serial" appears in multiple items: ${productNames.join(', ')}\n';
+            'Serial Number: "$serial" appears in multiple items -- ${productNames.join(', ')} \n';
       }
     });
 
@@ -289,7 +289,7 @@ class _ReceivePurchaseOrderItemsModalState
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('OK'),
+                child: const Text('Ok'),
               ),
             ],
           ),
