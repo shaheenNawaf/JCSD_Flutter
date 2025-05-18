@@ -1,4 +1,5 @@
 import 'package:jcsd_flutter/api/global_variables.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_attendance.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -95,6 +96,25 @@ class EmployeeService {
       return 0;
     }
   }
+
+  // Future<EmployeeData> getEmployeeByUserID(String currentUserID) async {
+  //   try {
+  //     final employeeDetails = await supabase
+  //         .from('employee')
+  //         .select()
+  //         .eq('userID', currentUserID)
+  //         .single();
+
+  //     if (employeeDetails != null || employeeDetails.isNotEmpty) {
+  //       return employeeDetails;
+  //     }
+  //     return
+  //   } catch (err, st) {
+  //     print(
+  //         'Failed to fetch employee details brothers \n Error: $err \n Stack Trace: $st');
+  //     rethrow;
+  //   }
+  // }
 
   Future<void> registerNewEmployeeWithProfile({
     required AuthResponse authResponse,

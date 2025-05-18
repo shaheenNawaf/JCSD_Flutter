@@ -69,17 +69,15 @@ Future<void> fetchEmployeeName(String empUUID) async {
   }
 }
 
-Future<void> fetchEmployeeIDviaUUID(String empUUID) async {
+Future<int?> fetchEmployeeIDviaUUID(String empUUID) async {
   try {
     final fetchUserDetails = await supabaseDB
         .from('employee')
         .select('employeeID')
         .eq('userID', empUUID)
         .single();
-
-    currentEmployeeID = fetchUserDetails['employeeID'];
-    print(fetchUserDetails['employeeID']);
-  } catch (err, sty) {
+    return fetchUserDetails['employeeID'] as int?;
+  } catch (err) {
     print('Failed to fetch Account details, kindly relogin \n $err');
     currentEmployeeID = null;
     rethrow;
@@ -203,29 +201,28 @@ class _CreatePurchaseOrderModalState
       return;
     }
 
-    final currentAuthUserId = supabaseDB.auth.currentUser?.id;
-    if (currentAuthUserId == null) {
-      ToastManager()
-          .showToast(context, 'Error: User not authenticated.', Colors.red);
-      context.go('/login');
-      return;
-    }
-
     setState(() => _isSaving = true);
     try {
-      //Scuffed implementation but gets the job done bitccch
-
-      //Fetching the current user's UUID
       final String currentAuthID = supabaseDB.auth.currentUser!.id;
+      final int? fetchedEmployeeID =
+          await fetchEmployeeIDviaUUID(currentAuthID);
 
-      fetchEmployeeIDviaUUID(
-          currentAuthID); //This assumes btw na naay sulod wahaha
+      fetchEmployeeIDviaUUID(currentAuthID); //Null safety was implemented
+
+      if (fetchedEmployeeID == null) {
+        ToastManager().showToast(
+            context,
+            'Error: Could not retrieve employee details. Please try again.',
+            Colors.red);
+        if (mounted) setState(() => _isSaving = false);
+        return;
+      }
 
       await ref
           .read(purchaseOrderListNotifierProvider.notifier)
           .createNewPurchaseOrder(
             supplierID: selectedSupplierId,
-            createdByEmployee: currentEmployeeID!,
+            createdByEmployee: fetchedEmployeeID,
             orderDate: ref.read(_selectedOrderDateProvider),
             expectedDeliveryDate:
                 ref.read(_selectedExpectedDeliveryDateProvider),

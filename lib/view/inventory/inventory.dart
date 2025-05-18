@@ -520,10 +520,7 @@ class InventoryPage extends ConsumerWidget {
     Color chipColor = Colors.grey; // Default
     Color textColor = Colors.white;
 
-    if (currentQuantity.isNaN ||
-        desiredStockLevel.isNaN ||
-        currentQuantity < 0 ||
-        desiredStockLevel < 0) {
+    if (currentQuantity < 0 || desiredStockLevel < 0) {
       return Tooltip(
         message: "There is no set Desired Stock Level",
         child: Center(
