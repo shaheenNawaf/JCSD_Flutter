@@ -156,7 +156,6 @@ class _PayslipState extends ConsumerState<Payslip> {
         payroll!.deductions);
   }
 
-
   Future<void> uploadCalculatedMonthlySalary() async {
     try {
       final double calculatedMonthlySalary = totalSalary();
@@ -398,8 +397,7 @@ class _PayslipState extends ConsumerState<Payslip> {
                           child: pw.Text('Pagibig:')),
                       pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text(
-                              '${(payroll?.pagibig ?? 0).toStringAsFixed(2)}')),
+                          child: pw.Text('$pagIbigEmployee')),
                     ]),
                     pw.TableRow(children: [
                       pw.Padding(
@@ -407,8 +405,7 @@ class _PayslipState extends ConsumerState<Payslip> {
                           child: pw.Text('PhilHealth:')),
                       pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text(
-                              '${(payroll?.philhealth ?? 0).toStringAsFixed(2)}')),
+                          child: pw.Text('$philHealthEmployee')),
                     ]),
                     pw.TableRow(children: [
                       pw.Padding(
@@ -416,8 +413,28 @@ class _PayslipState extends ConsumerState<Payslip> {
                           child: pw.Text('SSS:')),
                       pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text('$sssEmployee')),
+                    ]),
+
+                    pw.TableRow(children: [
+                      pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text('Tardiness')),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text(((payroll!.monthlySalary / 170) *
+                                ((lateMinutes / 60) + (leaveDays * 8)))
+                            .toStringAsFixed(2)),
+                      )
+                    ]),
+                    pw.TableRow(children: [
+                      pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text('Others:')),
+                      pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
                           child: pw.Text(
-                              '${(payroll?.sss ?? 0).toStringAsFixed(2)}')),
+                              '${(payroll?.deductions ?? 0).toStringAsFixed(2)}')),
                     ]),
                     pw.TableRow(children: [
                       pw.Padding(
@@ -425,8 +442,7 @@ class _PayslipState extends ConsumerState<Payslip> {
                           child: pw.Text('Withholding Tax:')),
                       pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text(
-                              '${(payroll?.withholdingTax ?? 0).toStringAsFixed(2)}')),
+                          child: pw.Text('$withholdingTax')),
                     ]),
                     pw.TableRow(children: [
                       pw.Padding(
@@ -469,6 +485,15 @@ class _PayslipState extends ConsumerState<Payslip> {
                           padding: const pw.EdgeInsets.all(2),
                           child: pw.Text(
                               '${(payroll?.monthlySalary ?? 0).toStringAsFixed(2)}')),
+                    ]),
+                    pw.TableRow(children: [
+                      pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text('Total Deductions:')),
+                      pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text(
+                              '${totaldeducations().toStringAsFixed(2)}')),
                     ]),
                     pw.TableRow(children: [
                       pw.Padding(
@@ -579,7 +604,7 @@ class _PayslipState extends ConsumerState<Payslip> {
       uploadCalculatedMonthlySalary();
     }).catchError((error) {
       print('Error fetching data: $error');
-  });
+    });
   }
 
   void _showRequestCashAdvanceModal() {
