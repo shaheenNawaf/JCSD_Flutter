@@ -133,27 +133,34 @@ class _GeneratePayrollPageState extends ConsumerState<GeneratePayrollPage> {
                       const SizedBox(width: 16),
                       ElevatedButton.icon(
                         onPressed: () {
-                          for (final entry in payrollEntries) {
-                            final name = entry.account.lastname;
-                            print('Controller exists for $name: true');
-                            
-                            final bonus = entry.bonusController.text;
-                            final deduction = entry.deductionController.text;
-                            final remarks = entry.remarksController.text;
-                            
-                            print('Employee: $name');
-                            print('Bonus: $bonus');
-                            print('Deduction: $deduction');
-                            print('Remarks: $remarks');
-                            print('----------------------');
-                          }
-
-                          // showDialog(
-                          //   context: context,
-                          //   builder: (context) => ConfirmGeneratePayroll(onSuccess: () {
-                          //     // Process the payroll data here
-                          //   }),
-                          // );
+                            showDialog(
+                              context: context,
+                              builder: (context) => ConfirmGeneratePayroll(
+                                onSuccess: () {
+                                  // Show success message
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Payroll generated successfully!')),
+                                  );
+                                },
+                                onConfirm: () async {
+                                  // Your payroll generation logic here
+                                  final payrollData = payrollEntries.map((entry) {
+                                    return {
+                                      'employeeID': entry.employee.employeeID,
+                                      'monthlySalary': entry.employee.monthlySalary,
+                                      'bonus': double.tryParse(entry.bonusController.text) ?? 0,
+                                      'deductions': double.tryParse(entry.deductionController.text) ?? 0,
+                                      'remarks': entry.remarksController.text,
+                                    };
+                                  }).toList();
+                                  
+                                  // Save to database
+                                  await Supabase.instance.client
+                                    .from('payroll')
+                                    .insert(payrollData);
+                                },
+                              ),
+                            );
                         },
                         icon: const Icon(Icons.payment_rounded,
                             color: Colors.white),
