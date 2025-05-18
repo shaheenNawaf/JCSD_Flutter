@@ -6,7 +6,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_data.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/purchase_order/models/purchase_order_item_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/vendor_return_orders/models/vendor_return_order_item_data.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/vendor_return_orders/vro_enums.dart';
 
 import '../../../../backend/modules/accounts/account_notifier.dart'; // For userProvider
 
@@ -30,351 +33,168 @@ import 'package:jcsd_flutter/view/inventory/vendor_return/modals/create_vro_moda
 import 'package:jcsd_flutter/view/inventory/vendor_return/modals/view_vro_modal.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/purchase_order/notifiers/purchase_order_notifier.dart';
 
-class CreateVROModal extends ConsumerStatefulWidget {
-  const CreateVROModal({super.key});
+class CreateBasicVROModal extends ConsumerStatefulWidget {
+  final PurchaseOrderData originalPurchaseOrder;
+  final PurchaseOrderItemData purchaseOrderItemToReturn;
+  final String serialNumberOfItemToReturn;
+
+  const CreateBasicVROModal({
+    super.key,
+    required this.originalPurchaseOrder,
+    required this.purchaseOrderItemToReturn,
+    required this.serialNumberOfItemToReturn,
+  });
 
   @override
-  ConsumerState<CreateVROModal> createState() => _CreateVROModalState();
+  ConsumerState<CreateBasicVROModal> createState() =>
+      _CreateBasicVROModalState();
 }
 
-class _CreateVROModalState extends ConsumerState<CreateVROModal> {
+class _CreateBasicVROModalState extends ConsumerState<CreateBasicVROModal> {
   final _formKey = GlobalKey<FormState>();
-
-  SuppliersData? _selectedSupplier;
-  PurchaseOrderData? _selectedPO;
-  final Set<SerializedItem> _selectedSerials = {};
-  late String _vroNumber;
-  String _notes = '';
-  final String _initialVROStatus = "Draft";
+  late BasicVROFormParams _formArgs;
 
   @override
   void initState() {
     super.initState();
-    _vroNumber =
-        'VRO-${DateTime.now().millisecondsSinceEpoch.toString().substring(6)}';
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // activeSuppliersForDropdownProvider is FutureProvider, watched directly in build
-      ref
-          .read(vendorReturnOrderNotifierProvider.notifier)
-          .clearDefectiveSerials();
-    });
-  }
-
-  Future<void> _createVRO() async {
-    if (!_formKey.currentState!.validate()) return;
-    _formKey.currentState!.save();
-
-    if (_selectedSupplier == null ||
-        _selectedPO == null ||
-        _selectedSerials.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            backgroundColor: Colors.red,
-            content:
-                Text('Supplier, PO, and at least one item must be selected.')),
-      );
-      return;
-    }
-
-    final vroNotifier = ref.read(vendorReturnOrderNotifierProvider.notifier);
-    // Use your actual provider for current employee data
-    final currentEmployeeAsync =
-        ref.read(currentEmployeeDataProvider); // Assumed provider
-
-    if (!currentEmployeeAsync.hasValue ||
-        currentEmployeeAsync.value?.employeeID == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            backgroundColor: Colors.red,
-            content: Text('Current employee data not available.')),
-      );
-      return;
-    }
-    final employeeId = currentEmployeeAsync.value!.employeeID!;
-
-    final List<VendorReturnOrderItem> vroItems = _selectedSerials.map((serial) {
-      return VendorReturnOrderItem(
-        vroItemID: 0,
-        vroID: 0,
-        returnedSerialNumber: serial.toString(),
-        prodDefID: serial.prodDefID,
-        costAtTimeOfPurchase: serial.costPrice ?? 0.0,
-        rejectionReason: 'Defective on Arrival',
-        createdAt: DateTime.now(),
-      );
-    }).toList();
-
-    final newVROData = VendorReturnOrder(
-      vroID: 0,
-      vroNumber: _vroNumber,
-      supplierID: _selectedSupplier!.supplierID,
-      originalPoID: _selectedPO!.poId,
-      status: _initialVROStatus,
-      isReplacementExpected: true,
-      returnInitiationDate: DateTime.now(),
-      createdByEmployeeID: employeeId,
-      notes: _notes,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-      items: const [],
+    _formArgs = BasicVROFormParams(
+      originalPurchaseOrder: widget.originalPurchaseOrder,
+      purchaseOrderItemToReturn: widget.purchaseOrderItemToReturn,
+      serialNumberOfItemToReturn: widget.serialNumberOfItemToReturn,
     );
-
-    try {
-      final createdVRO = await vroNotifier.createVRO(
-        vroData: newVROData,
-        items: vroItems,
-        initialDefectiveStatus: "Defective",
-        postCreationSerialStatus: "PendingReturn",
-      );
-
-      if (mounted && createdVRO != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              backgroundColor: Colors.green,
-              content: Text('VRO ${createdVRO.vroNumber} created!')),
-        );
-        Navigator.of(context).pop(true);
-      } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              backgroundColor: Colors.red,
-              content: Text('Failed to create VRO.')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              backgroundColor: Colors.red,
-              content: Text('Error: ${e.toString()}')),
-        );
-      }
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final suppliersAsync = ref.watch(activeSuppliersForDropdownProvider);
-
-    // Watch the main PO list and filter client-side for the dropdown
-    final allPOsAsync = ref.watch(purchaseOrderListNotifierProvider);
-
-    List<PurchaseOrderData> filteredPOs = [];
-    if (_selectedSupplier != null && allPOsAsync.hasValue) {
-      filteredPOs = allPOsAsync.value!.purchaseOrders
-          .where((po) =>
-                  po.supplierID == _selectedSupplier!.supplierID &&
-                  (po.status ==
-                          PurchaseOrderStatus
-                              .Received || // Using your enum from PurchaseOrderData
-                      po.status == PurchaseOrderStatus.PartiallyReceived ||
-                      po.status ==
-                          PurchaseOrderStatus
-                              .Approved) // Or other relevant statuses
-              )
-          .toList();
-    }
-
-    final defectiveSerialsAsync =
-        ref.watch(defectiveSerialsForSelectedPOProvider);
+    final notifier = ref.read(basicVroFormNotifierProvider(_formArgs).notifier);
+    final state = ref.watch(basicVroFormNotifierProvider(_formArgs));
 
     return AlertDialog(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text('Create Vendor Return Order'),
-          IconButton(
-              icon: const Icon(Icons.close),
-              onPressed: () => Navigator.of(context).pop(),
-              tooltip: "Close")
-        ],
-      ),
-      content: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.7,
-        height: MediaQuery.of(context).size.height * 0.85,
+      title: const Text('Process Item Return'),
+      content: SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              TextFormField(
-                initialValue: _vroNumber,
+            children: [
+              Text('Product: ${widget.purchaseOrderItemToReturn.prodDefID}'),
+              Text('Serial to Return: ${widget.serialNumberOfItemToReturn}'),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
                 decoration: const InputDecoration(
-                    labelText: 'VRO Number', border: OutlineInputBorder()),
-                readOnly: true,
+                    labelText: 'Reason for Return',
+                    border: OutlineInputBorder()),
+                value: state.reasonForReturn,
+                items: kBasicReturnReasons
+                    .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+                    .toList(),
+                onChanged: (val) => notifier.setReason(val!),
+                validator: (val) =>
+                    val == null || val.isEmpty ? 'Reason is required' : null,
               ),
               const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: suppliersAsync.when(
-                      data: (suppliers) =>
-                          DropdownButtonFormField<SuppliersData>(
-                        decoration: const InputDecoration(
-                            labelText: 'Select Supplier *',
-                            border: OutlineInputBorder()),
-                        value: _selectedSupplier,
-                        isExpanded: true,
-                        items: suppliers
-                            .map((s) => DropdownMenuItem(
-                                value: s,
-                                child: Text(s.supplierName ?? '',
-                                    overflow: TextOverflow.ellipsis)))
-                            .toList(),
-                        onChanged: (val) {
-                          if (!mounted) return;
-                          setState(() {
-                            _selectedSupplier = val;
-                            _selectedPO = null;
-                            _selectedSerials.clear();
-                            ref
-                                .read(
-                                    vendorReturnOrderNotifierProvider.notifier)
-                                .clearDefectiveSerials();
-                            // Trigger PO list filter if needed, though watching allPOsAsync and filtering locally
-                          });
-                        },
-                        validator: (v) =>
-                            v == null ? 'Supplier is required' : null,
-                      ),
-                      loading: () => const Center(
-                          child: SizedBox(
-                              width: 24,
-                              height: 24,
-                              child:
-                                  CircularProgressIndicator(strokeWidth: 2))),
-                      error: (e, s) => Text('Error: $e'),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: DropdownButtonFormField<PurchaseOrderData>(
-                      decoration: const InputDecoration(
-                          labelText: 'Select Original PO *',
-                          border: OutlineInputBorder()),
-                      value: _selectedPO,
-                      isExpanded: true,
-                      disabledHint: _selectedSupplier == null
-                          ? const Text("Select supplier first")
-                          : (filteredPOs.isEmpty
-                              ? const Text("No eligible POs")
-                              : null),
-                      items: _selectedSupplier == null
-                          ? []
-                          : filteredPOs
-                              .map((p) => DropdownMenuItem(
-                                  value: p,
-                                  child: Text(p.poId.toString(),
-                                      overflow: TextOverflow.ellipsis)))
-                              .toList(), // Using poId for display
-                      onChanged: _selectedSupplier == null
-                          ? null
-                          : (val) {
-                              if (!mounted) return;
-                              setState(() {
-                                _selectedPO = val;
-                                _selectedSerials.clear();
-                                if (val != null) {
-                                  ref
-                                      .read(vendorReturnOrderNotifierProvider
-                                          .notifier)
-                                      .fetchDefectiveSerialsForPO(
-                                          val.poId, "Defective");
-                                } else {
-                                  ref
-                                      .read(vendorReturnOrderNotifierProvider
-                                          .notifier)
-                                      .clearDefectiveSerials();
-                                }
-                              });
-                            },
-                      validator: (v) => v == null ? 'PO is required' : null,
-                    ),
-                  ),
-                ],
+              DropdownButtonFormField<BasicReturnAction>(
+                decoration: const InputDecoration(
+                    labelText: 'Action / Status', border: OutlineInputBorder()),
+                value: state.returnAction,
+                items: BasicReturnAction.values
+                    .map((act) =>
+                        DropdownMenuItem(value: act, child: Text(act.name)))
+                    .toList(),
+                onChanged: (val) => notifier.setAction(val!),
+                validator: (val) => val == null ? 'Action is required' : null,
               ),
               const SizedBox(height: 16),
-              const Text('Select Defective Items for Return *:',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 8),
-              Expanded(
-                child: defectiveSerialsAsync.when(
-                  data: (serials) {
-                    if (_selectedPO == null) {
-                      return const Center(
-                          child: Text('Please select a Purchase Order first.'));
-                    }
-                    if (serials.isEmpty) {
-                      return const Center(
-                          child: Text(
-                              'No items marked "Defective" found for this PO.'));
-                    }
-                    return Container(
-                      decoration:
-                          BoxDecoration(border: Border.all(color: Colors.grey)),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: serials.length,
-                        itemBuilder: (context, index) {
-                          final serial = serials[index];
-                          return CheckboxListTile(
-                            title: Text(serial.serialNumber ?? 'N/A'),
-                            subtitle: Text(
-                                'Product ID: ${serial.prodDefID} - Cost: ${serial.costPrice?.toStringAsFixed(2) ?? 'N/A'}'),
-                            value: _selectedSerials.any(
-                                (s) => s.serialNumber == serial.serialNumber),
-                            onChanged: (bool? value) {
-                              if (!mounted) return;
-                              setState(() {
-                                if (value == true) {
-                                  _selectedSerials.add(serial);
-                                } else {
-                                  _selectedSerials.removeWhere((s) =>
-                                      s?.serialNumber == serial.serialNumber);
-                                }
-                              });
-                            },
-                            controlAffinity: ListTileControlAffinity.leading,
-                          );
-                        },
-                      ),
-                    );
-                  },
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (e, s) => Center(child: Text('Error: $e')),
+              if (state.returnAction == BasicReturnAction.UpgradeReceived)
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(
+                      labelText: 'Select Upgraded Product',
+                      border: OutlineInputBorder()),
+                  value: state.selectedUpgradeProductId,
+                  items: state.availableProductsForUpgrade
+                      .map((p) => DropdownMenuItem(
+                          value: p.prodDefID, child: Text(p.prodDefName)))
+                      .toList(),
+                  onChanged: (val) => notifier.setSelectedUpgradeProductId(val),
+                  validator: (val) =>
+                      state.returnAction == BasicReturnAction.UpgradeReceived &&
+                              (val == null || val.isEmpty)
+                          ? 'Product is required for upgrade'
+                          : null,
                 ),
-              ),
-              const SizedBox(height: 16),
+              if (state.returnAction == BasicReturnAction.UpgradeReceived)
+                const SizedBox(height: 16),
+              if (state.returnAction == BasicReturnAction.ReplacementReceived ||
+                  state.returnAction == BasicReturnAction.UpgradeReceived)
+                TextFormField(
+                  decoration: const InputDecoration(
+                      labelText: 'New Received Serial Number',
+                      border: OutlineInputBorder()),
+                  initialValue: state.newReceivedSerialNumber,
+                  onChanged: (val) => notifier.setNewReceivedSerial(val),
+                  validator: (val) => (state.returnAction ==
+                                  BasicReturnAction.ReplacementReceived ||
+                              state.returnAction ==
+                                  BasicReturnAction.UpgradeReceived) &&
+                          (val == null || val.isEmpty)
+                      ? 'New serial is required'
+                      : null,
+                ),
+              if (state.returnAction == BasicReturnAction.ReplacementReceived ||
+                  state.returnAction == BasicReturnAction.UpgradeReceived)
+                const SizedBox(height: 16),
               TextFormField(
                 decoration: const InputDecoration(
                     labelText: 'Notes (Optional)',
-                    border: OutlineInputBorder(),
-                    alignLabelWithHint: true),
+                    border: OutlineInputBorder()),
+                initialValue: state.notes,
+                onChanged: (val) => notifier.setNotes(val),
                 maxLines: 2,
-                onSaved: (value) => _notes = value ?? '',
               ),
+              const SizedBox(height: 24),
+              if (state.isLoading)
+                const Center(child: CircularProgressIndicator())
+              else
+                ElevatedButton(
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      final success = await notifier.submitBasicReturn();
+                      if (mounted) {
+                        if (success) {
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(const SnackBar(
+                            content: Text('Return processed successfully!'),
+                            backgroundColor: Colors.green,
+                          ));
+                          Navigator.of(context).pop(true);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(state.errorMessage ??
+                                'Failed to process return.'),
+                            backgroundColor: Colors.red,
+                          ));
+                        }
+                      }
+                    }
+                  },
+                  child: const Text('Submit Return'),
+                ),
+              if (state.errorMessage != null && !state.isLoading)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(state.errorMessage!,
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.error)),
+                ),
             ],
           ),
         ),
       ),
-      actionsAlignment: MainAxisAlignment.end,
-      actions: <Widget>[
+      actions: [
         TextButton(
-          child: const Text('Cancel'),
-          onPressed: () => Navigator.of(context).pop(false),
-        ),
-        ElevatedButton.icon(
-          icon: const Icon(Icons.save_alt_outlined),
-          onPressed: _createVRO,
-          label: const Text('Create VRO'),
-          style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(context).primaryColor,
-              foregroundColor: Colors.white,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12)),
-        ),
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'))
       ],
     );
   }
