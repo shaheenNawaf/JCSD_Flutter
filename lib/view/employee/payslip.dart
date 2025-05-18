@@ -156,9 +156,6 @@ class _PayslipState extends ConsumerState<Payslip> {
         payroll!.deductions);
   }
 
-  totalSalary() {
-    return (payroll!.monthlySalary + payroll!.bonus - totaldeducations());
-  }
 
   Future<void> uploadCalculatedMonthlySalary() async {
     try {
@@ -559,14 +556,30 @@ class _PayslipState extends ConsumerState<Payslip> {
     // );
   }
 
+  totalSalary() {
+    return (payroll!.monthlySalary + payroll!.bonus - totaldeducations());
+  }
+
   @override
   void initState() {
     super.initState();
     monthlySalary = payroll!.monthlySalary;
-    _fetchAttendanceData();
-    _fetchLeavesData();
-    _fetchCashAdvanceData();
-    uploadCalculatedMonthlySalary();
+    Future.wait([
+      _fetchAttendanceData(),
+      _fetchLeavesData(),
+      _fetchCashAdvanceData(),
+    ]).then((_) {
+      setState(() {
+        sssEmployee = calculateSSS(monthlySalary);
+        philHealthEmployee = calculatePhilHealth(monthlySalary);
+        pagIbigEmployee = calculatePagIBIG(monthlySalary);
+        withholdingTax = calculateWithholdingTax(
+            monthlySalary, sssEmployee, philHealthEmployee, pagIbigEmployee);
+      });
+      uploadCalculatedMonthlySalary();
+    }).catchError((error) {
+      print('Error fetching data: $error');
+  });
   }
 
   void _showRequestCashAdvanceModal() {
