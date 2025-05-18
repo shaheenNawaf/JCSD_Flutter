@@ -105,6 +105,7 @@ class SerializedItemListPage extends ConsumerWidget {
   Widget _buildWebView(BuildContext context, WidgetRef ref,
       SerializedItemState serialItemState, Map<int, String> supplierMap) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _buildTopControls(context, ref, serialItemState),
         const SizedBox(height: 16),
@@ -124,105 +125,118 @@ class SerializedItemListPage extends ConsumerWidget {
           icon: const Icon(Icons.arrow_back),
           tooltip: 'Back to Product Definitions',
           onPressed: () => context.go('/inventory'),
-
-          /// Added this route, adjust if needed
         ),
         const SizedBox(width: 10),
-        // Status Filter Dropdown
         SizedBox(
-          width: 180, // Adjust width as needed
+          width: 180,
           height: 40,
           child: _buildStatusFilterDropdown(ref, serialItemState),
         ),
         const Spacer(),
         SizedBox(
           width: 250,
-          height: 40,
           child: TextField(
             decoration: InputDecoration(
-                hintText: 'Search Serial/Notes...',
-                prefixIcon: const Icon(Icons.search, size: 20),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                hintStyle: const TextStyle(fontSize: 12)),
+              hintText: 'Search Serial/Notes...',
+              prefixIcon: const Icon(Icons.search, size: 20),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+              hintStyle: const TextStyle(fontSize: 12),
+            ),
             onChanged: (searchText) => ref
                 .read(serializedItemNotifierProvider(prodDefID).notifier)
                 .search(searchText),
           ),
         ),
         const SizedBox(width: 16),
-        // Add Button
         ElevatedButton.icon(
-            onPressed: () => _showAddSerializedItemModal(context, ref),
-            icon: const Icon(Icons.add, color: Colors.white, size: 18),
-            label:
-                const Text('Add Serial', style: TextStyle(color: Colors.white)),
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 10))),
+          onPressed: () => _showAddSerializedItemModal(context, ref),
+          icon: const Icon(Icons.add, color: Colors.white, size: 18),
+          label: const Text(
+            'Add Serial',
+            style: TextStyle(color: Colors.white),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green,
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+          ),
+        ),
       ],
     );
   }
 
-  // New Status Filter Dropdown
   Widget _buildStatusFilterDropdown(
       WidgetRef ref, SerializedItemState serialItemState) {
     final statusesAsync = ref.watch(allItemStatusesProvider);
 
     return statusesAsync.when(
-      data: (statuses) => DropdownButtonFormField<String?>(
-        value: serialItemState.statusFilter, // Current filter value from state
-        hint: const Text('Filter by Status...',
-            style: TextStyle(fontSize: 12, color: Colors.grey)),
-        decoration: InputDecoration(
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-
-          // Add clear button if filter is active
-          suffixIcon: serialItemState.statusFilter != null
-              ? IconButton(
-                  icon: const Icon(Icons.clear, size: 16),
-                  tooltip: 'Clear Filter',
-                  onPressed: () => ref
-                      .read(serializedItemNotifierProvider(prodDefID).notifier)
-                      .filterByStatus(null),
-                )
-              : null,
-        ),
-        isExpanded: true,
-        items: [
-          // Add an "All" option to clear the filter
+      data: (statuses) {
+        List<DropdownMenuItem<String?>> dropdownItems = [
           const DropdownMenuItem<String?>(
-            value: null, // Value null represents no filter
-            child: Text('All Statuses',
-                style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic)),
+            value: null,
+            child: Text(
+              'All Statuses',
+              style: TextStyle(fontSize: 13, fontStyle: FontStyle.italic),
+            ),
           ),
-          // Add items for each status fetched
-          ...statuses
+        ];
+        dropdownItems.addAll(
+          statuses
               .map((status) => DropdownMenuItem<String?>(
                     value: status,
-                    child: Text(status, style: const TextStyle(fontSize: 12)),
+                    child: Text(
+                      status,
+                      style: const TextStyle(fontSize: 13),
+                    ),
                   ))
               .toList(),
-        ],
-        onChanged: (value) {
-          // Call notifier to update filter
-          ref
-              .read(serializedItemNotifierProvider(prodDefID).notifier)
-              .filterByStatus(value);
-        },
-      ),
+        );
+
+        return DropdownButtonFormField<String?>(
+          value: serialItemState.statusFilter,
+          hint: const Text('Filter by Status',
+              style: TextStyle(fontSize: 13, color: Colors.grey)),
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+                vertical: 8, horizontal: 12), // Adjusted padding
+            isDense: true,
+            suffixIcon: serialItemState.statusFilter != null
+                ? IconButton(
+                    icon: const Icon(Icons.clear, size: 18),
+                    tooltip: 'Clear Filter',
+                    onPressed: () => ref
+                        .read(
+                            serializedItemNotifierProvider(prodDefID).notifier)
+                        .filterByStatus(null),
+                  )
+                : null,
+          ),
+          isExpanded: true,
+          items: dropdownItems,
+          onChanged: (value) {
+            ref
+                .read(serializedItemNotifierProvider(prodDefID).notifier)
+                .filterByStatus(value);
+          },
+        );
+      },
       loading: () => const Center(
-          child: SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2))),
-      error: (err, _) => Text('Error: $err',
-          style: const TextStyle(color: Colors.red, fontSize: 12)),
+        child: SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+      error: (err, _) => Text(
+        'Error: $err',
+        style: const TextStyle(color: Colors.red, fontSize: 12),
+      ),
     );
   }
 
@@ -252,7 +266,10 @@ class SerializedItemListPage extends ConsumerWidget {
                                 serialItemState.statusFilter == null
                             ? 'No Serial Items found for "$prodDefName".' // Initial empty message
                             : 'No Serial Items match current filters/search.', // Empty after filter/search
-                        style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[600],
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -294,7 +311,7 @@ class SerializedItemListPage extends ConsumerWidget {
               flex: 2),
           _buildHeaderCell(context, ref, serialItemState, 'Supplier',
               'supplierID', headerTextStyle,
-              flex: 3), // Sort by ID
+              flex: 3),
           _buildHeaderCell(context, ref, serialItemState, 'Cost Price',
               'costPrice', headerTextStyle,
               flex: 2),
@@ -303,7 +320,7 @@ class SerializedItemListPage extends ConsumerWidget {
               flex: 2),
           _buildHeaderCell(
               context, ref, serialItemState, 'Notes', 'notes', headerTextStyle,
-              flex: 4),
+              flex: 3),
           const Expanded(
               flex: 2,
               child: Text('Actions',
@@ -366,41 +383,45 @@ class SerializedItemListPage extends ConsumerWidget {
       child: Row(
         children: [
           Expanded(
-              flex: 3,
-              child: Text(item.serialNumber,
-                  style: rowTextStyle, overflow: TextOverflow.ellipsis)),
+            flex: 3,
+            child: Text(item.serialNumber,
+                style: rowTextStyle, overflow: TextOverflow.ellipsis),
+          ),
           Expanded(
-              flex: 2,
-              child: Text(item.status,
+            flex: 2,
+            child: _getStatusChip(item.status),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(supplierName,
+                style: rowTextStyle,
+                textAlign: TextAlign.start,
+                overflow: TextOverflow.ellipsis),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(costPrice,
+                style: rowTextStyle,
+                textAlign: TextAlign.start,
+                overflow: TextOverflow.ellipsis),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(purchaseDate,
+                style: rowTextStyle,
+                textAlign: TextAlign.start,
+                overflow: TextOverflow.ellipsis),
+          ),
+          Expanded(
+            flex: 3,
+            child: Tooltip(
+              message: notes,
+              child: Text(notes,
                   style: rowTextStyle,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis)),
-          Expanded(
-              flex: 3,
-              child: Text(supplierName,
-                  style: rowTextStyle,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis)),
-          Expanded(
-              flex: 2,
-              child: Text(costPrice,
-                  style: rowTextStyle,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis)),
-          Expanded(
-              flex: 2,
-              child: Text(purchaseDate,
-                  style: rowTextStyle,
-                  textAlign: TextAlign.start,
-                  overflow: TextOverflow.ellipsis)),
-          Expanded(
-              flex: 4,
-              child: Tooltip(
-                  message: notes,
-                  child: Text(notes,
-                      style: rowTextStyle,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1))),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1),
+            ),
+          ),
           Expanded(
               flex: 2,
               child: Row(
@@ -494,19 +515,40 @@ class SerializedItemListPage extends ConsumerWidget {
         baseColor: Colors.white.withValues(alpha: 0.3),
         highlightColor: Colors.white.withValues(alpha: 0.6),
         child: Row(children: [
-          Expanded(flex: 3, child: Container(height: 16, color: Colors.white)),
+          Expanded(
+            flex: 3,
+            child: Container(height: 16, color: Colors.white),
+          ),
           const SizedBox(width: 8),
-          Expanded(flex: 2, child: Container(height: 16, color: Colors.white)),
+          Expanded(
+            flex: 2,
+            child: Container(height: 16, color: Colors.white),
+          ),
           const SizedBox(width: 8),
-          Expanded(flex: 3, child: Container(height: 16, color: Colors.white)),
+          Expanded(
+            flex: 3,
+            child: Container(height: 16, color: Colors.white),
+          ),
           const SizedBox(width: 8),
-          Expanded(flex: 2, child: Container(height: 16, color: Colors.white)),
+          Expanded(
+            flex: 2,
+            child: Container(height: 16, color: Colors.white),
+          ),
           const SizedBox(width: 8),
-          Expanded(flex: 2, child: Container(height: 16, color: Colors.white)),
+          Expanded(
+            flex: 2,
+            child: Container(height: 16, color: Colors.white),
+          ),
           const SizedBox(width: 8),
-          Expanded(flex: 4, child: Container(height: 16, color: Colors.white)),
+          Expanded(
+            flex: 4,
+            child: Container(height: 16, color: Colors.white),
+          ),
           const SizedBox(width: 8),
-          Expanded(flex: 2, child: Container(height: 16, color: Colors.white)),
+          Expanded(
+            flex: 2,
+            child: Container(height: 16, color: Colors.white),
+          ),
         ]),
       ),
     );
@@ -516,17 +558,35 @@ class SerializedItemListPage extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       child: Row(children: [
-        Expanded(flex: 3, child: Container(height: 14.0, color: Colors.white)),
+        Expanded(
+          flex: 3,
+          child: Container(height: 14.0, color: Colors.white),
+        ),
         const SizedBox(width: 8),
-        Expanded(flex: 2, child: Container(height: 14.0, color: Colors.white)),
+        Expanded(
+          flex: 2,
+          child: Container(height: 14.0, color: Colors.white),
+        ),
         const SizedBox(width: 8),
-        Expanded(flex: 3, child: Container(height: 14.0, color: Colors.white)),
+        Expanded(
+          flex: 3,
+          child: Container(height: 14.0, color: Colors.white),
+        ),
         const SizedBox(width: 8),
-        Expanded(flex: 2, child: Container(height: 14.0, color: Colors.white)),
+        Expanded(
+          flex: 2,
+          child: Container(height: 14.0, color: Colors.white),
+        ),
         const SizedBox(width: 8),
-        Expanded(flex: 2, child: Container(height: 14.0, color: Colors.white)),
+        Expanded(
+          flex: 2,
+          child: Container(height: 14.0, color: Colors.white),
+        ),
         const SizedBox(width: 8),
-        Expanded(flex: 4, child: Container(height: 14.0, color: Colors.white)),
+        Expanded(
+          flex: 4,
+          child: Container(height: 14.0, color: Colors.white),
+        ),
         const SizedBox(width: 8),
         Expanded(
             flex: 2,
@@ -689,33 +749,77 @@ class SerializedItemListPage extends ConsumerWidget {
   // Builds the empty state display widget
   Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
     return Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Align(
-        alignment: Alignment.topLeft,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: IconButton(
-            tooltip: 'Back to Product Definitions',
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.go('/inventory'),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: IconButton(
+                tooltip: 'Back to Product Definitions',
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => context.go('/inventory'),
+              ),
+            ),
           ),
-        ),
+          const Icon(FontAwesomeIcons.barcode, size: 80, color: Colors.grey),
+          const SizedBox(height: 16),
+          Text('No Serial Items found for "$prodDefName".',
+              style: const TextStyle(fontSize: 18, color: Colors.grey),
+              textAlign: TextAlign.center),
+          const SizedBox(height: 12),
+          ElevatedButton.icon(
+              icon: const Icon(Icons.add),
+              onPressed: () => _showAddSerializedItemModal(context, ref),
+              label: const Text('Add First Serial Item'),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 12))),
+        ],
       ),
-      const Icon(FontAwesomeIcons.barcode, size: 80, color: Colors.grey),
-      const SizedBox(height: 16),
-      Text('No Serial Items found for "$prodDefName".',
-          style: const TextStyle(fontSize: 18, color: Colors.grey),
-          textAlign: TextAlign.center),
-      const SizedBox(height: 12),
-      ElevatedButton.icon(
-          icon: const Icon(Icons.add),
-          onPressed: () => _showAddSerializedItemModal(context, ref),
-          label: const Text('Add First Serial Item'),
-          style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green,
-              foregroundColor: Colors.white,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12))),
-    ]));
+    );
+  }
+
+  Widget _getStatusChip(String status) {
+    Color chipColor = Colors.grey; // Default
+    Color textColor = Colors.white;
+
+    switch (status.toLowerCase()) {
+      case 'available':
+        chipColor = Colors.green;
+        break;
+      case 'reserved':
+        chipColor = Colors.orange;
+        break;
+      case 'pending':
+        chipColor = Colors.blue;
+        break;
+      case 'sold':
+        chipColor = Colors.purple;
+        break;
+      case 'defective':
+      case 'pending return':
+        chipColor = Colors.red;
+        break;
+      case 'returned':
+      case 'unused':
+        chipColor = Colors.grey.shade700;
+        break;
+      default:
+        chipColor = Colors.black54;
+    }
+    return Chip(
+      label: Text(
+        status,
+        style: TextStyle(color: textColor, fontSize: 11),
+      ),
+      backgroundColor: chipColor,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0.0),
+      labelPadding: const EdgeInsets.symmetric(horizontal: 2.0),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
   }
 }

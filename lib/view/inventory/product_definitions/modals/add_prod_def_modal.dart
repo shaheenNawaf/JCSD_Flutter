@@ -8,6 +8,7 @@ import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_prov
 import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_notifier.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/manufacturers/manufacturers_providers.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_providers.dart';
 
 //Front-End -- Improved User Feedback
 import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
@@ -29,16 +30,19 @@ class _AddProdDefModalState extends ConsumerState<AddProdDefModal> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _msrpController = TextEditingController();
+  final TextEditingController _desiredStockLevel = TextEditingController();
 
   //For the dropdowns
   int? selectedItemTypeID;
   String? selectedManufacturerName;
+  int? selectedSupplierID;
 
   @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
     _msrpController.dispose();
+    _desiredStockLevel.dispose();
     super.dispose();
   }
 
@@ -48,18 +52,22 @@ class _AddProdDefModalState extends ConsumerState<AddProdDefModal> {
     if (!formKey.currentState!.validate()) {
       ToastManager()
           .showToast(context, 'Please fix errors in the form', Colors.orange);
+      return;
     }
 
     //Indicates processing
     setState(() => isSaving = true);
 
     final newProdDef = ProductDefinitionData(
-        prodDefName: _nameController.text.trim(),
-        prodDefDescription: _descriptionController.text.trim(),
-        manufacturerName: selectedManufacturerName!,
-        prodDefMSRP: double.tryParse(_msrpController.text.trim()) ?? 0.0,
-        isVisible: true,
-        itemTypeID: selectedItemTypeID!);
+      prodDefName: _nameController.text.trim(),
+      prodDefDescription: _descriptionController.text.trim(),
+      manufacturerName: selectedManufacturerName!,
+      prodDefMSRP: double.tryParse(_msrpController.text.trim()) ?? 0.0,
+      isVisible: true,
+      itemTypeID: selectedItemTypeID!,
+      desiredStockLevel: int.tryParse(_desiredStockLevel.text.trim()),
+      preferredSupplierID: selectedSupplierID,
+    );
 
     //Actual Supabase DB Call
     try {
@@ -95,15 +103,13 @@ class _AddProdDefModalState extends ConsumerState<AddProdDefModal> {
       insetPadding:
           EdgeInsets.symmetric(horizontal: screenWidth > 600 ? 50.0 : 16.0),
       child: SizedBox(
-        // Use SizedBox for better sizing control
         width: containerWidth,
         child: Form(
           key: formKey,
           child: Column(
-            mainAxisSize: MainAxisSize.min, // Fit content vertically
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // --- Dialog Header ---
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -120,22 +126,18 @@ class _AddProdDefModalState extends ConsumerState<AddProdDefModal> {
                           color: Colors.white)),
                 ),
               ),
-
-              // --- Form Fields ---
+              // Form Fields
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: SingleChildScrollView(
-                  // Ensure scrollability
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Left Column
                       Expanded(
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             _buildTextField(
-                              // Reusable text field widget
                               label: 'Product Name',
                               hintText: 'e.g., GeForce RTX 4090 OC',
                               controller: _nameController,
@@ -143,17 +145,36 @@ class _AddProdDefModalState extends ConsumerState<AddProdDefModal> {
                             ),
                             const SizedBox(height: 15),
                             _buildTextField(
-                              // Reusable text field widget
                               label: 'Product Description',
                               hintText: 'Enter detailed description...',
                               controller: _descriptionController,
-                              maxLines: 4,
+                              maxLines: 5,
                               isRequired: true,
+                            ),
+                            const SizedBox(height: 19),
+                            _buildTextField(
+                              label: 'Desired Stock Level',
+                              hintText: 'Enter desired quantity',
+                              controller: _desiredStockLevel,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              isRequired: true,
+                              validator: (value) {
+                                if (value != null && value.isNotEmpty) {
+                                  final stock = int.tryParse(value);
+                                  if (stock == null || stock < 1) {
+                                    return 'Must be a positive number and more than zero';
+                                  }
+                                  return null;
+                                }
+                              },
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 20), // Spacing
+                      const SizedBox(width: 20),
                       // Right Column
                       Expanded(
                         child: Column(
@@ -163,6 +184,8 @@ class _AddProdDefModalState extends ConsumerState<AddProdDefModal> {
                             const SizedBox(height: 15),
                             _buildManufacturerDropdown(
                                 ref), // Manufacturer dropdown
+                            const SizedBox(height: 15),
+                            _buildSupplierDropdown(ref),
                             const SizedBox(height: 15),
                             _buildTextField(
                                 // Reusable text field widget
@@ -195,15 +218,12 @@ class _AddProdDefModalState extends ConsumerState<AddProdDefModal> {
                   ),
                 ),
               ),
-
-              // --- Action Buttons ---
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Expanded(
-                      // Makes buttons flexible
                       child: TextButton(
                         onPressed: isSaving
                             ? null
@@ -223,7 +243,6 @@ class _AddProdDefModalState extends ConsumerState<AddProdDefModal> {
                     ),
                     const SizedBox(width: 10),
                     Expanded(
-                      // Makes buttons flexible
                       child: ElevatedButton.icon(
                         icon: isSaving
                             ? Container()
@@ -234,20 +253,21 @@ class _AddProdDefModalState extends ConsumerState<AddProdDefModal> {
                                 height: 18,
                                 width: 18,
                                 child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white)) // Loading indicator
+                                    strokeWidth: 2, color: Colors.white),
+                              )
                             : const Text('Add Product'),
-                        onPressed:
-                            isSaving ? null : submitForm, // Disable if saving
+                        onPressed: isSaving ? null : submitForm,
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green, // Use green for Add
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 14.0),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5)),
-                            textStyle: const TextStyle(
-                                fontFamily: 'NunitoSans',
-                                fontWeight: FontWeight.bold)),
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          textStyle: const TextStyle(
+                              fontFamily: 'NunitoSans',
+                              fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   ],
@@ -260,7 +280,6 @@ class _AddProdDefModalState extends ConsumerState<AddProdDefModal> {
     );
   }
 
-  //Builder Widgets
   Widget _buildTextField({
     required String label,
     required String hintText,
@@ -272,7 +291,6 @@ class _AddProdDefModalState extends ConsumerState<AddProdDefModal> {
     String? Function(String?)? validator,
   }) {
     return Column(
-      // Structure for label and field
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
@@ -281,13 +299,11 @@ class _AddProdDefModalState extends ConsumerState<AddProdDefModal> {
         ]), // Label with optional required marker
         const SizedBox(height: 5),
         TextFormField(
-          // The actual input field
           controller: controller,
           maxLines: maxLines,
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
           decoration: InputDecoration(
-            // Styling for the input field
             hintText: hintText,
             border: const OutlineInputBorder(),
             contentPadding:
@@ -299,7 +315,6 @@ class _AddProdDefModalState extends ConsumerState<AddProdDefModal> {
           ),
           validator: validator ??
               (value) {
-                // Default required field validation
                 if (isRequired && (value == null || value.trim().isEmpty)) {
                   return '$label is required';
                 }
@@ -404,6 +419,55 @@ class _AddProdDefModalState extends ConsumerState<AddProdDefModal> {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2))),
           error: (err, stack) => Text('Error loading manufacturers: $err',
+              style: const TextStyle(color: Colors.red, fontSize: 12)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSupplierDropdown(WidgetRef ref) {
+    final suppliersAsync = ref.watch(activeSuppliersForDropdownProvider);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(children: [
+          Text('Preferred Supplier'),
+          Text(' *', style: TextStyle(color: Colors.red))
+        ]),
+        const SizedBox(height: 5),
+        suppliersAsync.when(
+          data: (suppliers) => DropdownButtonFormField<int>(
+            // Value is int (supplierID)
+            value: selectedSupplierID,
+            hint: const Text('Select supplier (optional)...',
+                style: TextStyle(fontSize: 12, color: Colors.grey)),
+            decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 10.0, horizontal: 12.0)),
+            isExpanded: true,
+            items: suppliers
+                .map((supplier) => DropdownMenuItem<int>(
+                      value: supplier.supplierID, // Store supplierID
+                      child: Text(supplier.supplierName, // Display supplierName
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 12)),
+                    ))
+                .toList(),
+            onChanged: (value) => setState(() => selectedSupplierID = value),
+            validator: (value) {
+              if (value == null) return 'Preferred Supplier is required';
+              return null;
+            },
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+          ),
+          loading: () => const Center(
+              child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2))),
+          error: (err, stack) => Text('Error loading suppliers: $err',
               style: const TextStyle(color: Colors.red, fontSize: 12)),
         ),
       ],

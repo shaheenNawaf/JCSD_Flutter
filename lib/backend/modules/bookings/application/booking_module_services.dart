@@ -247,8 +247,6 @@ class BookingModuleServices implements BookingRepository {
       print('Error during createBooking process: $e');
       // Log Supabase specific error if available from the insert step
       if (insertedBookingData != null && insertedBookingData['id'] == null) {
-        // Check if insert failed based on response
-        // Supabase might provide error details in the response or throw PostgrestException
         print('Supabase Error during booking insert might have occurred.');
       }
       print('Stack trace: \n$st');
@@ -258,7 +256,6 @@ class BookingModuleServices implements BookingRepository {
 
   @override
   Future<Booking> updateBookingDetails(Booking updatedBookingData) async {
-    // Simplified ID check
     if (updatedBookingData.id == null) {
       throw ArgumentError("Booking ID is required for update.");
     }
