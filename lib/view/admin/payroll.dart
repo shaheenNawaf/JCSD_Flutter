@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 import 'package:jcsd_flutter/backend/modules/payroll/payroll_data.dart';
@@ -405,6 +406,11 @@ class EmployeePayrollTable extends ConsumerWidget {
                                         fontFamily: 'NunitoSans',
                                         color: Colors.white,
                                       ),)),
+              DataColumn(label: Text('Actions',style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: 'NunitoSans',
+                                        color: Colors.white,
+                                      ),)),
             ],
             rows: filteredPayrolls.map((record) {
               final payroll = record['payroll'] as PayrollData;
@@ -412,6 +418,27 @@ class EmployeePayrollTable extends ConsumerWidget {
                 DataCell(Text(_formatDate(payroll.createdAt))),
                 DataCell(Text('\$${payroll.monthlySalary.toStringAsFixed(2)}')),
                 DataCell(Text('\$${payroll.calculatedMonthlySalary.toStringAsFixed(2)}')),
+                DataCell(
+                ElevatedButton(
+                  onPressed: () {
+                    final payroll = record['payroll'] as PayrollData;
+                    final employee = record['employee'] as EmployeeData?;
+                    final account = record['account'] as AccountsData?;
+                    context.push('/employeeList/profile/payslip', extra: {
+                      'account': account,
+                      'employee': employee,
+                      'payroll': payroll,
+                    });
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00AEEF),
+                  ),
+                  child: const Text(
+                    'View Details',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
               ]);
             }).toList(),
           ),
