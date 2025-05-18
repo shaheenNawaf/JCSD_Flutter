@@ -24,13 +24,21 @@ class PayrollNotifier extends StateNotifier<PayrollState> {
   Future<void> fetchPayrollData() async {
     state = state.copyWith(loading: true);
     try {
-      final payrollWithDetails = await _payrollService.fetchPayrollsWithEmployeeDetails();
+      final payrollWithDetails = await _payrollService.fetchPayrollsWithEmployeeDetails(
+        sortBy: state.sortBy,
+        ascending: state.ascending,
+        page: state.currentPage,
+        itemsPerPage: _itemsPerPage,
+      );
+      
+      // Get total count for proper pagination
+      final totalCount = await _payrollService.getTotalPayrollCount();
+      
       state = state.copyWith(
         payrolls: payrollWithDetails,
         loading: false,
-        totalPages: (payrollWithDetails.length / _itemsPerPage).ceil(),
+        totalPages: (totalCount / _itemsPerPage).ceil(),
       );
-      _applySortAndPagination();
     } catch (e) {
       state = state.copyWith(
         loading: false,
@@ -44,53 +52,14 @@ class PayrollNotifier extends StateNotifier<PayrollState> {
     state = state.copyWith(
       sortBy: column,
       ascending: ascending,
+      currentPage: 1,
     );
-    _applySortAndPagination();
+    fetchPayrollData();
   }
 
   void goToPage(int page) {
     state = state.copyWith(currentPage: page);
-    _applySortAndPagination();
+    fetchPayrollData();
   }
 
-  void _applySortAndPagination() {
-    List<Map<String, dynamic>> sorted = List.from(state.payrolls);
-
-    // Apply sorting
-    sorted.sort((a, b) {
-      final aPayroll = a['payroll'] as PayrollData;
-      final bPayroll = b['payroll'] as PayrollData;
-      final aAccount = a['account'] as AccountsData?;
-      final bAccount = b['account'] as AccountsData?;
-
-      int compareResult;
-      switch (state.sortBy) {
-        case 'created_at':
-          compareResult = aPayroll.createdAt.compareTo(bPayroll.createdAt);
-          break;
-        case 'monthlySalary':
-          compareResult = aPayroll.monthlySalary.compareTo(bPayroll.monthlySalary);
-          break;
-        case 'employeeName':
-          compareResult = (aAccount?.firstName ?? '')
-              .compareTo(bAccount?.firstName ?? '');
-          break;
-        default:
-          compareResult = aPayroll.createdAt.compareTo(bPayroll.createdAt);
-      }
-
-      return state.ascending ? compareResult : -compareResult;
-    });
-
-    // Apply pagination
-    final total = sorted.length;
-    final start = (state.currentPage - 1) * _itemsPerPage;
-    final end = (start + _itemsPerPage).clamp(0, total);
-    final paginated = sorted.sublist(start, end);
-
-    state = state.copyWith(
-      payrolls: paginated,
-      totalPages: (total / _itemsPerPage).ceil(),
-    );
-  }
 }

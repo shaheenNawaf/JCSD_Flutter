@@ -13,6 +13,18 @@ import 'package:jcsd_flutter/widgets/sidebar.dart';
 class PayrollList extends ConsumerWidget {
   const PayrollList({super.key});
 
+  bool _hasPayrollForCurrentMonth(PayrollState state) {
+  final now = DateTime.now();
+  final currentMonth = now.month;
+  final currentYear = now.year;
+  
+  return state.payrolls.any((record) {
+    final payroll = record['payroll'] as PayrollData;
+    return payroll.createdAt.month == currentMonth && 
+           payroll.createdAt.year == currentYear;
+  });
+}
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(payrollNotifierProvider);
@@ -68,26 +80,37 @@ class PayrollList extends ConsumerWidget {
                           ),
                           const SizedBox(width: 16),
                           ElevatedButton.icon(
-                            onPressed: () {
-                              context.go('/employeeList/payrollList/generatePayroll');
-                            },
-                            icon: const Icon(Icons.payment_rounded, color: Colors.white),
-                            label: const Text(
+                            onPressed: _hasPayrollForCurrentMonth(state)
+                                ? null
+                                : () {
+                                    context.go('/employeeList/payrollList/generatePayroll');
+                                  },
+                            icon: Icon(
+                              Icons.payment_rounded,
+                              color: _hasPayrollForCurrentMonth(state) 
+                                  ? Colors.grey 
+                                  : Colors.white,
+                            ),
+                            label: Text(
                               'Generate Payroll',
                               style: TextStyle(
                                 fontFamily: 'NunitoSans',
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: _hasPayrollForCurrentMonth(state)
+                                    ? Colors.grey
+                                    : Colors.white,
                               ),
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF00AEEF),
+                              backgroundColor: _hasPayrollForCurrentMonth(state)
+                                  ? Colors.grey[300]
+                                  : const Color(0xFF00AEEF),
                               minimumSize: const Size(120, 48),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
-                          ),
-                        )],
+                          )],
                       ),
                     ],
                   ),

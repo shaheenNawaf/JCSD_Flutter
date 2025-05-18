@@ -2,6 +2,7 @@ import 'package:jcsd_flutter/api/global_variables.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 import 'package:jcsd_flutter/backend/modules/payroll/payroll_data.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 const int defaultItemsPerPage = 10;
 
@@ -87,6 +88,15 @@ class PayrollService {
     return [];
   }
 }
+  Future<int> getTotalPayrollCount() async {
+    try {
+      final result = await supabaseDB.from('payroll').select('id');
+      return result.length;
+    } catch (err) {
+      print('Error fetching payroll count: $err');
+      return 0;
+    }
+  }
 
   Future<List<Map<String, dynamic>>> fetchEmployeesWithAccounts({
     String sortBy = 'createDate',
