@@ -4,16 +4,16 @@ enum BookingStatus {
   inProgress,
   pendingParts,
   pendingCustomerResponse,
-  readyForPickup, // Simplified from readyForPickup/Completion
+  readyForPickup,
   pendingAdminApproval,
   pendingPayment,
   completed,
   cancelled,
   noShow,
-  unknown, 
+  unknown,
 }
 
-enum BookingType{
+enum BookingType {
   appointment,
   walkIn,
   homeService,
@@ -27,7 +27,8 @@ extension BookingStatusExtension on BookingStatus {
   static BookingStatus fromString(String? statusString) {
     if (statusString == null) return BookingStatus.unknown;
     for (var status in BookingStatus.values) {
-      if (status.name == statusString) { // Use .name comparison
+      if (status.name == statusString) {
+        // Use .name comparison
         return status;
       }
     }
@@ -38,16 +39,16 @@ extension BookingStatusExtension on BookingStatus {
 
 //Fetching the Booking Type -- Same code ra sa taas but for diff enum
 extension BookingTypeExtension on BookingType {
-   String get name => toString().split('.').last; 
+  String get name => toString().split('.').last;
 
-   static BookingType fromString(String? typeString) {
+  static BookingType fromString(String? typeString) {
     if (typeString == null) return BookingType.unknown;
     for (var type in BookingType.values) {
-      if (type.name == typeString) { 
+      if (type.name == typeString) {
         return type;
       }
     }
     print("Warning: Unknown BookingType string received: $typeString");
-    return BookingType.unknown; 
+    return BookingType.unknown;
   }
 }

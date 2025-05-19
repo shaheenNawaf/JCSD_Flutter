@@ -716,34 +716,32 @@ class SerializedItemListPage extends ConsumerWidget {
       BuildContext context) {
     print('Serialized Item List Page Error: $error \n $stackTrace');
     return Center(
-        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      Align(
-        alignment: Alignment.topLeft,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: IconButton(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(FontAwesomeIcons.circleExclamation,
+              color: Colors.redAccent, size: 60),
+          const SizedBox(height: 16),
+          const Text('Error Loading Serialized Items',
+              style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          Text('$error',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[700])),
+          const SizedBox(height: 20),
+          IconButton(
             tooltip: 'Back to Product Definitions',
-            icon: const Icon(Icons.arrow_back),
+            hoverColor: Colors.blue,
+            focusColor: Colors.white,
+            icon: const Icon(
+              Icons.arrow_back,
+              size: 20,
+            ),
             onPressed: () => context.go('/inventory'),
           ),
-        ),
+        ],
       ),
-      const Icon(FontAwesomeIcons.circleExclamation,
-          color: Colors.redAccent, size: 60),
-      const SizedBox(height: 16),
-      const Text('Error Loading Serialized Items',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-      const SizedBox(height: 8),
-      Text('$error',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.grey[700])),
-      const SizedBox(height: 20),
-      ElevatedButton.icon(
-          icon: const Icon(Icons.refresh),
-          label: const Text("Retry"),
-          onPressed: () =>
-              ref.invalidate(serializedItemNotifierProvider(prodDefID))),
-    ]));
+    );
   }
 
   // Builds the empty state display widget

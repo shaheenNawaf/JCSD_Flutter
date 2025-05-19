@@ -76,8 +76,6 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
       return;
     }
 
-    // Get current employee ID (assuming they are logged in)
-    // This is a placeholder. In a real app, you'd get this from your auth state.
     final currentUserId = supabaseDB.auth.currentUser?.id;
     if (currentUserId == null) {
       ToastManager().showToast(
@@ -174,11 +172,9 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
                           color: Colors.white)),
                 ),
               ),
-              // Content
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: SingleChildScrollView(
-                  // Make content scrollable
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -190,12 +186,11 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
                       ],
                       _buildPriceField(),
                       const SizedBox(height: 16),
-                      _buildQuantityField(), // Read-only for serialized items
+                      _buildQuantityField(),
                     ],
                   ),
                 ),
               ),
-              // Actions
               Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Row(
