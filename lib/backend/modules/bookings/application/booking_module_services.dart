@@ -184,7 +184,6 @@ class BookingModuleServices implements BookingRepository {
 
     try {
       final bookingJson = bookingData.toJson();
-      //Sabi best practice daw to eh
       bookingJson.remove('id');
       bookingJson.remove('uuid');
       bookingJson.remove('created_at');

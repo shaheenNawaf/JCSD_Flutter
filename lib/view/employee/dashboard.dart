@@ -293,7 +293,7 @@ class _DashboardPageState extends State<DashboardPage> {
       child: BarChart(
         BarChartData(
           barTouchData: BarTouchData(
-            enabled: false,
+            enabled: true,
             touchTooltipData: BarTouchTooltipData(
               getTooltipColor: (group) => Colors.transparent,
               tooltipPadding: EdgeInsets.zero,

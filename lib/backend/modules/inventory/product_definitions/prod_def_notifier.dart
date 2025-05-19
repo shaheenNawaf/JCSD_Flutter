@@ -24,9 +24,8 @@ class ProductDefinitionNotifier
       _isVisible; // Stores visibility context (true=active, false=archived)
   Timer? _debounce; // Timer for debouncing search input
 
-  // Helper to easily access the ProductDefinitionService
   ProductDefinitionServices get _service =>
-      ref.read(productDefinitionServiceProv); // Reads the service provider
+      ref.read(productDefinitionServiceProv);
 
   @override
   Future<ProductDefinitionState> build(bool arg) async {

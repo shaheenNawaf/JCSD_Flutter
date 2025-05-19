@@ -248,13 +248,14 @@ class _EditBookingModalState extends ConsumerState<EditBookingModal> {
                                 orElse: () => {
                                   'account': AccountsData.empty(''),
                                   'employee': EmployeeData(
-                                      employeeID: '',
-                                      userID: '',
-                                      isAdmin: false,
-                                      companyRole: 'N/A',
-                                      isActive: false,
-                                      createDate: DateTime.now(),
-                                      monthlySalary: 220.0,)
+                                    employeeID: '',
+                                    userID: '',
+                                    isAdmin: false,
+                                    companyRole: 'N/A',
+                                    isActive: false,
+                                    createDate: DateTime.now(),
+                                    monthlySalary: 220.0,
+                                  )
                                 },
                               );
                               final account = empMap['account'] as AccountsData;

@@ -407,7 +407,6 @@ class _ClientBooking1State extends ConsumerState<ClientBooking1> {
   }
 
   Widget _buildSubmitButton(bool isSubmitting, BuildContext context) {
-    // Check if it's desktop view for different button text
     final isDesktop = MediaQuery.of(context).size.width > 600;
     String buttonText = isDesktop ? 'Book Now!' : 'Continue';
 

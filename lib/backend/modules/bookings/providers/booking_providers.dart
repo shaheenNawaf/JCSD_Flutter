@@ -19,11 +19,8 @@ final bookingRepositoryProvider = Provider<BookingRepository>((ref) {
   return BookingModuleServices();
 });
 
-/// Provider for the Booking Service.
-/// It depends on the booking repository and other necessary services.
 final bookingServiceProvider = Provider<BookingService>((ref) {
   final repository = ref.watch(bookingRepositoryProvider);
-  // Watch other services required by BookingService constructor
   final servicesService = ref.watch(serviceStateProvider);
   final inventoryService =
       ref.watch(serialitemServiceProvider); // Make sure this provider exists

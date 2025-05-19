@@ -13,6 +13,7 @@ import 'package:jcsd_flutter/backend/modules/bookings/data/booking.dart'; // For
 import 'package:jcsd_flutter/backend/modules/bookings/providers/booking_providers.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/state/list_view/booking_list_notifier.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/state/list_view/booking_list_state.dart';
+import 'package:jcsd_flutter/view/bookings/modals/add_walkin_booking_modal.dart';
 
 //UI Imports
 import 'package:shimmer/shimmer.dart';
@@ -23,6 +24,24 @@ class BookingsPage extends ConsumerWidget {
   const BookingsPage({super.key});
 
   final String _activeSubItem = '/bookings';
+
+  void _showAddWalkInBookingModal(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return const AddWalkInBookingModal();
+      },
+    ).then(
+      (result) {
+        if (result == true) {
+          print("Walk-in booking modal closed with success.");
+        } else {
+          print("Walk-in booking modal closed without explicit success.");
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -107,8 +126,7 @@ class BookingsPage extends ConsumerWidget {
               const DropdownMenuItem<BookingStatus?>(
                 value: null, // Represents "All"
                 child: Text('All Statuses',
-                    style:
-                        TextStyle(fontSize: 13,fontFamily: 'NunitoSans')),
+                    style: TextStyle(fontSize: 13, fontFamily: 'NunitoSans')),
               ),
               ...BookingStatus.values
                   .where((s) => s != BookingStatus.unknown) // Exclude 'unknown'
@@ -132,7 +150,35 @@ class BookingsPage extends ConsumerWidget {
           ),
         ),
         // TODO: Add Date Range Filter if needed later
+        const Spacer(),
 
+        ElevatedButton(
+          onPressed: () {
+            _showAddWalkInBookingModal(context);
+          },
+          style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF00AEEF),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
+              textStyle: const TextStyle(fontSize: 12)),
+          child: const Row(
+            children: [
+              Icon(
+                Icons.open_in_new,
+                size: 18,
+                color: Colors.white,
+              ),
+              SizedBox(width: 5),
+              Text(
+                'Add Walk-In Booking',
+                style: TextStyle(
+                    fontFamily: 'NunitoSans',
+                    color: Colors.white,
+                    fontSize: 13),
+              )
+            ],
+          ),
+        ),
+        const SizedBox(width: 10),
         SizedBox(
           width: 300,
           height: 40,
@@ -140,8 +186,7 @@ class BookingsPage extends ConsumerWidget {
             decoration: InputDecoration(
               hintText: 'Search ID, Customer, Notes...',
               hintStyle: const TextStyle(
-                  color: Color(0xFFABABAB),
-                  fontFamily: 'NunitoSans'),
+                  color: Color(0xFFABABAB), fontFamily: 'NunitoSans'),
               prefixIcon: const Icon(Icons.search, size: 20),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -186,30 +231,32 @@ class BookingsPage extends ConsumerWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minWidth: constraints.maxWidth),
-          child: DataTable(
-            dividerThickness: 0.0,
-            headingRowColor: MaterialStateProperty.all(const Color(0xFF00AEEF)),
-            columns: [
-          _buildSortableHeader('ID', 'id', state, notifier),
-          _buildSortableHeader(
-              'Customer', 'walk_in_customer_name', state, notifier),
-          _buildSortableHeader(
-              'Scheduled At', 'scheduled_start_time', state, notifier),
-          DataColumn(
-              label: _buildHeaderText(
-              'Services')), // Not easily sortable directly
-          _buildSortableHeader('Type', 'booking_type', state, notifier),
-          _buildSortableHeader('Status', 'status', state, notifier),
-          DataColumn(label: _buildHeaderText('Action', center: true)),
-            ],
-            rows: state.bookings.map((booking) {
-          return _buildDataRow(context, booking, state.bookings.indexOf(booking));
-            }).toList(),
-          ),
-        ),
+            scrollDirection: Axis.horizontal,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minWidth: constraints.maxWidth),
+              child: DataTable(
+                dividerThickness: 0.0,
+                headingRowColor:
+                    MaterialStateProperty.all(const Color(0xFF00AEEF)),
+                columns: [
+                  _buildSortableHeader('ID', 'id', state, notifier),
+                  _buildSortableHeader(
+                      'Customer', 'walk_in_customer_name', state, notifier),
+                  _buildSortableHeader(
+                      'Scheduled At', 'scheduled_start_time', state, notifier),
+                  DataColumn(
+                      label: _buildHeaderText(
+                          'Services')), // Not easily sortable directly
+                  _buildSortableHeader('Type', 'booking_type', state, notifier),
+                  _buildSortableHeader('Status', 'status', state, notifier),
+                  DataColumn(label: _buildHeaderText('Action', center: true)),
+                ],
+                rows: state.bookings.map((booking) {
+                  return _buildDataRow(
+                      context, booking, state.bookings.indexOf(booking));
+                }).toList(),
+              ),
+            ),
           );
         },
       ),
@@ -241,9 +288,10 @@ class BookingsPage extends ConsumerWidget {
     return Text(
       text,
       style: const TextStyle(
-          fontFamily: 'NunitoSans',
-          fontWeight: FontWeight.w600,
-          color: Colors.white,),
+        fontFamily: 'NunitoSans',
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
       textAlign: center ? TextAlign.center : TextAlign.start,
     );
   }
@@ -262,23 +310,24 @@ class BookingsPage extends ConsumerWidget {
 
     return DataRow(
       color: index.isEven
-        ? MaterialStateProperty.all<Color>(Colors.grey.withOpacity(0.1))
-        : MaterialStateProperty.all<Color>(Colors.transparent),
+          ? MaterialStateProperty.all<Color>(Colors.grey.withOpacity(0.1))
+          : MaterialStateProperty.all<Color>(Colors.transparent),
       cells: [
-        DataCell(
-            Text(booking.id.toString(), style: const TextStyle(fontSize: 13,fontFamily: 'NunitoSans'))),
-        DataCell(Text(customerDisplay, style: const TextStyle(fontSize: 13,fontFamily: 'NunitoSans'))),
+        DataCell(Text(booking.id.toString(),
+            style: const TextStyle(fontSize: 13, fontFamily: 'NunitoSans'))),
+        DataCell(Text(customerDisplay,
+            style: const TextStyle(fontSize: 13, fontFamily: 'NunitoSans'))),
         DataCell(Text(
             DateFormat.yMd().add_jm().format(booking.scheduledStartTime),
-            style: const TextStyle(fontSize: 13,fontFamily: 'NunitoSans'))),
+            style: const TextStyle(fontSize: 13, fontFamily: 'NunitoSans'))),
         DataCell(Text(
           serviceNames,
-          style: const TextStyle(fontSize: 13,fontFamily: 'NunitoSans'),
+          style: const TextStyle(fontSize: 13, fontFamily: 'NunitoSans'),
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
         )),
         DataCell(Text(booking.bookingType.name,
-            style: const TextStyle(fontSize: 13,fontFamily: 'NunitoSans'))),
+            style: const TextStyle(fontSize: 13, fontFamily: 'NunitoSans'))),
         DataCell(Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
