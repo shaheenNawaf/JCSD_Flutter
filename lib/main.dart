@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/api/supa_details.dart';
 
 //Page Routings
+import 'package:jcsd_flutter/view/inventory/return_orders/return_orders_page.dart';
+import 'package:jcsd_flutter/view/inventory/return_orders/modals/view_return_order_detail_modal.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
@@ -94,6 +96,10 @@ final router = GoRouter(
         return EmailVerification(email: email);
       },
     ),
+    GoRoute(
+        path: '/returnOrders',
+        name: 'returnOrdersList',
+        builder: (context, state) => const ReturnOrderListPage()),
     GoRoute(
       path: '/forgotPassword',
       builder: (context, state) => const ForgotPassword(),
@@ -430,7 +436,7 @@ final router = GoRouter(
           '/employeeList/payrollList/generatePayroll',
           '/employeeList/cashAdvanceList',
           '/employeeList/cashAdvanceList/generateCashAdvance',
-         ' /employeeList/profile/payroll',
+          ' /employeeList/profile/payroll',
           '/payroll',
           '/accountDetails',
           '/manufacturers',
@@ -456,7 +462,7 @@ final router = GoRouter(
           '/bookingDetail',
           '/inventory',
           '/manufacturers'
-          '/suppliers',
+              '/suppliers',
           '/bookings',
           '/payroll',
           '/accountDetails',

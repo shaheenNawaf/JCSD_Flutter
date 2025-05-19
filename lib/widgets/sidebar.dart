@@ -34,7 +34,7 @@ class _SidebarState extends ConsumerState<Sidebar> {
     _isInventoryExpanded = widget.activePage.startsWith('/inventory') ||
         widget.activePage == '/archiveList' ||
         widget.activePage == '/orderList' ||
-        widget.activePage == '/auditLog';
+        widget.activePage == '/returnOrders';
     _isBookingsExpanded = widget.activePage.startsWith('/bookings') ||
         widget.activePage == '/transactions';
     _isSuppliersExpanded = widget.activePage.startsWith('/suppliers') ||
@@ -187,20 +187,7 @@ class _SidebarState extends ConsumerState<Sidebar> {
                               : const SizedBox.shrink(),
                           loading: () => const SizedBox.shrink(),
                           error: (error, stackTrace) => const SizedBox.shrink(),
-                        ),
-                        userRoleAsyncValue.when(
-                          data: (role) => role != 'employee'
-                              ? SubSidebarItem(
-                                  icon: FontAwesomeIcons.clockRotateLeft,
-                                  title: 'Audit Log',
-                                  route: '/auditLog',
-                                  isActive: _activeSubItem == '/auditLog',
-                                  onTap: () => _navigateTo('/auditLog'),
-                                )
-                              : const SizedBox.shrink(),
-                          loading: () => const SizedBox.shrink(),
-                          error: (error, stackTrace) => const SizedBox.shrink(),
-                        ),
+                        )
                       ],
                       SidebarItemWithDropdown(
                         icon: FontAwesomeIcons.calendarDays,
@@ -412,11 +399,12 @@ class _SidebarState extends ConsumerState<Sidebar> {
                     onTap: () => _navigateTo('/orderList'),
                   ),
                   SubSidebarItem(
-                    icon: FontAwesomeIcons.clockRotateLeft,
-                    title: 'Audit Log',
-                    route: '/auditLog',
-                    isActive: _activeSubItem == '/auditLog',
-                    onTap: () => _navigateTo('/auditLog'),
+                    icon: FontAwesomeIcons
+                        .undoAlt, // Or a more fitting icon like faTruckRampBox or faReceipt
+                    title: 'Return Orders',
+                    route: '/returnOrders', // Matches the GoRouter path
+                    isActive: _activeSubItem == '/returnOrders',
+                    onTap: () => _navigateTo('/returnOrders'),
                   ),
                 ],
                 SidebarItemWithDropdown(
