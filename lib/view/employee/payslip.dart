@@ -303,7 +303,7 @@ class _PayslipState extends ConsumerState<Payslip> {
                 pw.SizedBox(height: 12),
                 pw.Text(
                     'Name: ${user?.firstName ?? 'N/A'} ${user?.lastname ?? ''}'),
-                pw.Text('Role: ${emp?.companyRole ?? 'N/A'}'),
+                pw.Text('Role: ${emp?.position ?? 'N/A'}'),
                 pw.Text(
                     'Date Issued: ${selectedDate.toLocal().toString().split(' ')[0]}'),
                 pw.SizedBox(height: 20),
@@ -598,7 +598,7 @@ class _PayslipState extends ConsumerState<Payslip> {
                             '${user?.firstName ?? 'N/A'} ${user?.lastname ?? ''}',
                             style: pw.TextStyle(
                                 fontSize: 12, fontWeight: pw.FontWeight.bold)),
-                        pw.Text(emp?.companyRole ?? 'N/A',
+                        pw.Text(emp?.position ?? 'N/A',
                             style: pw.TextStyle(fontSize: 12)),
                       ],
                     ),

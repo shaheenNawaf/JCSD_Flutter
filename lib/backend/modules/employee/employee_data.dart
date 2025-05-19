@@ -3,6 +3,7 @@ class EmployeeData {
   final String userID;
   final bool isAdmin;
   final String companyRole;
+  final String position;
   final bool isActive;
   final DateTime createDate;
   final double monthlySalary;
@@ -12,6 +13,7 @@ class EmployeeData {
       required this.userID,
       required this.isAdmin,
       required this.companyRole,
+      required this.position,
       required this.isActive,
       required this.createDate,
       required this.monthlySalary});
@@ -22,6 +24,7 @@ class EmployeeData {
       userID: json['userID'].toString(),
       isAdmin: json['isAdmin'] as bool,
       companyRole: json['companyRole'] as String,
+      position: json['position'] as String,
       isActive: json['isActive'] as bool,
       createDate: DateTime.parse(json['createDate']),
       monthlySalary: double.tryParse(json['monthlySalary'].toString()) ?? 0.0,
@@ -34,6 +37,7 @@ class EmployeeData {
       'userID': userID,
       'isAdmin': isAdmin,
       'companyRole': companyRole,
+      'position': position,
       'isActive': isActive,
       'createDate': createDate.toIso8601String(),
       'monthlySalary': monthlySalary,

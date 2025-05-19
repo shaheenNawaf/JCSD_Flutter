@@ -252,6 +252,7 @@ class _EditBookingModalState extends ConsumerState<EditBookingModal> {
                                     userID: '',
                                     isAdmin: false,
                                     companyRole: 'N/A',
+                                    position: 'N/A',
                                     isActive: false,
                                     createDate: DateTime.now(),
                                     monthlySalary: 220.0,
