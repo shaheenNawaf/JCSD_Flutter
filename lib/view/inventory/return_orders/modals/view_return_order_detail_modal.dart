@@ -1,6 +1,3 @@
-// lib/view/inventory/return_orders/modals/view_return_order_detail_modal.dart
-// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -8,9 +5,10 @@ import 'package:jcsd_flutter/api/global_variables.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_item_data.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_notifier.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_service.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_status.dart';
+// You'll need a notifier for Return Orders soon
+import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_notifier.dart';
 import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:jcsd_flutter/view/inventory/return_orders/modals/record_replacement_modal.dart';
 
@@ -22,7 +20,7 @@ final returnOrderDetailNotifierProvider = StateNotifierProvider.autoDispose
 
 class ReturnOrderDetailNotifier
     extends StateNotifier<AsyncValue<ReturnOrderData?>> {
-  final AutoDisposeRef _ref; // Changed to AutoDisposeRef for families
+  final AutoDisposeRef _ref;
   final int _roId;
   ReturnOrderService get _service => _ref.read(returnOrderServiceProvider);
 
@@ -32,27 +30,15 @@ class ReturnOrderDetailNotifier
   }
 
   Future<void> _fetchReturnOrderDetails() async {
-    state = const AsyncLoading();
-    try {
-      final roData = await _service.getReturnOrderById(_roId);
-      if (mounted) {
-        state = AsyncData(roData?.copyWith(
-            isLoading: false)); // Ensure isLoading is false initially
-      }
-    } catch (e, st) {
-      print("Error fetching RO details for $_roId: $e\n$st");
-      if (mounted) {
-        state = AsyncError(e, st);
-      }
-    }
+    state = const AsyncLoading<ReturnOrderData?>(); // Explicit type
+    state = await AsyncValue.guard(() => _service.getReturnOrderById(_roId));
   }
 
   Future<void> updateStatus(ReturnOrderStatus newStatus,
       {String? notes}) async {
-    final currentDataValue = state.asData?.value;
-    if (currentDataValue == null) return;
-
-    state = AsyncData(currentDataValue.copyWith(isLoading: true));
+    final previousState = state;
+    state = const AsyncLoading<ReturnOrderData?>()
+        .copyWithPrevious(previousState); // Explicit type
 
     final currentUserAuthId = supabaseDB.auth.currentUser?.id;
     int? adminId;
@@ -62,53 +48,51 @@ class ReturnOrderDetailNotifier
             .from('employee')
             .select('employeeID')
             .eq('userID', currentUserAuthId)
-            .eq('isAdmin', true)
+            // .eq('isAdmin', true) // Consider if role check is better done in service or if needed here
             .maybeSingle();
         adminId = empRecord?['employeeID'] as int?;
       } catch (e) {
         print("Error fetching admin ID for status update: $e");
-        // Handle error, maybe show toast from UI
+        if (mounted) {
+          state = AsyncError<ReturnOrderData?>(e, StackTrace.current)
+              .copyWithPrevious(previousState); // Explicit type
+        }
+        return;
       }
     }
 
-    try {
+    state = await AsyncValue.guard(() async {
       final updatedRO = await _service.updateReturnOrderStatus(
         roId: _roId,
         newStatus: newStatus,
         adminId: adminId,
         notes: notes,
       );
-      if (mounted) {
-        state = AsyncData(updatedRO?.copyWith(isLoading: false));
-      }
       _ref.read(returnOrderListNotifierProvider.notifier).refresh();
-    } catch (e, st) {
-      print("Error updating RO status in notifier: $e\n$st");
-      if (mounted) {
-        state = AsyncError(e, st).copyWithPrevious(
-            AsyncData(currentDataValue.copyWith(isLoading: false)));
-      }
+      return updatedRO;
+    });
+    if (state.hasError && previousState.hasValue) {
+      state = AsyncError<ReturnOrderData?>(state.error!, state.stackTrace!)
+          .copyWithPrevious(previousState); // Explicit type
     }
   }
 
   Future<void> cancelRO(int cancellingEmployeeId, String? reason) async {
-    final currentDataValue = state.asData?.value;
-    if (currentDataValue == null) return;
-    state = AsyncData(currentDataValue.copyWith(isLoading: true));
-    try {
+    final previousState = state;
+    state = const AsyncLoading<ReturnOrderData?>()
+        .copyWithPrevious(previousState); // Explicit type
+
+    state = await AsyncValue.guard(() async {
       final updatedRO = await _service.cancelReturnOrder(
           roId: _roId,
           cancellingEmployeeId: cancellingEmployeeId,
           cancellationReason: reason);
-      if (mounted) {
-        state = AsyncData(updatedRO?.copyWith(isLoading: false));
-      }
       _ref.read(returnOrderListNotifierProvider.notifier).refresh();
-    } catch (e, st) {
-      if (mounted) {
-        state = AsyncError(e, st).copyWithPrevious(
-            AsyncData(currentDataValue.copyWith(isLoading: false)));
-      }
+      return updatedRO;
+    });
+    if (state.hasError && previousState.hasValue) {
+      state = AsyncError<ReturnOrderData?>(state.error!, state.stackTrace!)
+          .copyWithPrevious(previousState); // Explicit type
     }
   }
 
@@ -120,9 +104,9 @@ class ReturnOrderDetailNotifier
     required int originalSupplierID,
     double? actualCostOfReplacement,
   }) async {
-    final currentDataValue = state.asData?.value;
-    if (currentDataValue == null) return;
-    state = AsyncData(currentDataValue.copyWith(isLoading: true));
+    final previousState = state;
+    state = const AsyncLoading<ReturnOrderData?>()
+        .copyWithPrevious(previousState); // Explicit type
 
     final currentUserAuthId = supabaseDB.auth.currentUser?.id;
     int? receivingEmployeeId;
@@ -137,41 +121,41 @@ class ReturnOrderDetailNotifier
       } catch (e) {
         print("Error fetching receiving employee ID: $e");
         if (mounted) {
-          state = AsyncError(
+          state = AsyncError<ReturnOrderData?>(
                   "Could not identify receiving employee.", StackTrace.current)
-              .copyWithPrevious(
-                  AsyncData(currentDataValue.copyWith(isLoading: false)));
+              .copyWithPrevious(previousState); // Explicit type
         }
         return;
       }
     }
     if (receivingEmployeeId == null) {
       if (mounted) {
-        state = AsyncError("Receiving employee could not be identified.",
+        state = AsyncError<ReturnOrderData?>(
+                "Receiving employee could not be identified.",
                 StackTrace.current)
-            .copyWithPrevious(
-                AsyncData(currentDataValue.copyWith(isLoading: false)));
+            .copyWithPrevious(previousState); // Explicit type
       }
       return;
     }
 
-    try {
+    state = await AsyncValue.guard(() async {
       await _service.receiveReplacementForItem(
         returnOrderItemId: returnOrderItemId,
         newSerialNumber: newSerialNumber,
         dateReceived: dateReceived,
-        receivingEmployeeId: receivingEmployeeId,
+        receivingEmployeeId: receivingEmployeeId!,
         originalReturnedProdDefID: originalReturnedProdDefID,
         originalSupplierID: originalSupplierID,
         actualCostOfReplacement: actualCostOfReplacement,
       );
-      await _fetchReturnOrderDetails(); // Re-fetch to update items and potentially RO status
+      // Re-fetch to get updated RO details (items, status)
+      final updatedRO = await _service.getReturnOrderById(_roId);
       _ref.read(returnOrderListNotifierProvider.notifier).refresh();
-    } catch (e, st) {
-      if (mounted) {
-        state = AsyncError(e, st).copyWithPrevious(
-            AsyncData(currentDataValue.copyWith(isLoading: false)));
-      }
+      return updatedRO;
+    });
+    if (state.hasError && previousState.hasValue) {
+      state = AsyncError<ReturnOrderData?>(state.error!, state.stackTrace!)
+          .copyWithPrevious(previousState); // Explicit type
     }
   }
 
@@ -180,6 +164,8 @@ class ReturnOrderDetailNotifier
   }
 }
 
+// The rest of your ViewReturnOrderDetailModal widget code remains the same.
+// Ensure the widget part is also updated to handle AsyncValue correctly for loading and error states.
 class ViewReturnOrderDetailModal extends ConsumerWidget {
   final int roId;
 
@@ -245,6 +231,7 @@ class ViewReturnOrderDetailModal extends ConsumerWidget {
                     ref
                         .read(returnOrderDetailNotifierProvider(roId).notifier)
                         .cancelRO(
+                            // Changed to cancelRO as per your notifier
                             adminId,
                             reason.isEmpty
                                 ? "Rejected by Admin"
@@ -324,9 +311,8 @@ class ViewReturnOrderDetailModal extends ConsumerWidget {
             if (roData == null) {
               return const Center(child: Text("Return Order not found."));
             }
-            final ro = roData; // Use the data directly
-            final bool isProcessing =
-                ro.isLoading; // Get loading state from the data
+            final ro = roData;
+            final bool isProcessing = roDetailAsync.isLoading;
 
             bool canAdminApproveReject = currentUserRole == 'admin' &&
                 ro.status == ReturnOrderStatus.PendingApproval;
@@ -365,12 +351,11 @@ class ViewReturnOrderDetailModal extends ConsumerWidget {
                             overflow: TextOverflow.ellipsis),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
-                        onPressed: isProcessing
-                            ? null
-                            : () => Navigator.of(context).pop(false),
-                        tooltip: "Close",
-                      )
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          onPressed: isProcessing
+                              ? null
+                              : () => Navigator.of(context).pop(false),
+                          tooltip: "Close")
                     ],
                   ),
                 ),
@@ -419,6 +404,7 @@ class ViewReturnOrderDetailModal extends ConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                   child: Wrap(
+                    // Use Wrap for better responsiveness
                     alignment: WrapAlignment.end,
                     spacing: 8.0,
                     runSpacing: 8.0,
@@ -534,7 +520,7 @@ class ViewReturnOrderDetailModal extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 140,
+            width: 140, // Adjust as needed
             child: Text(label,
                 style: const TextStyle(
                     fontWeight: FontWeight.w600,
@@ -569,12 +555,9 @@ class ViewReturnOrderDetailModal extends ConsumerWidget {
         bool itemAwaitingReplacement = (item.itemStatus.toLowerCase() ==
                     "awaitingreplacement" ||
                 (ro.status == ReturnOrderStatus.Approved &&
-                    item.itemStatus.toLowerCase() ==
-                        "pendingapproval") || // Can receive if RO is approved and item is pending
+                    item.itemStatus.toLowerCase() == "pendingapproval") ||
                 (ro.status == ReturnOrderStatus.ItemsSentToSupplier &&
-                    item.itemStatus.toLowerCase() ==
-                        "awaitingreplacement") // Standard case
-            ) &&
+                    item.itemStatus.toLowerCase() == "awaitingreplacement")) &&
             item.replacementSerialID == null;
 
         return Card(
