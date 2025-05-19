@@ -83,10 +83,6 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                   value: '/home',
                   child: Text('Home'),
                 ),
-                const PopupMenuItem<String>(
-                  value: '/services',
-                  child: Text('Services'),
-                ),
                 PopupMenuItem<String>(
                   value: isLoggedIn ? 'logout' : '/login',
                   child: Text(isLoggedIn ? 'Logout' : 'Login'),
@@ -101,13 +97,6 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                   title: 'Home',
                   route: '/home',
                   isActive: activePage == 'home' || activePage == 'HomeView',
-                ),
-                const SizedBox(width: 10),
-                NavItem(
-                  onTap: () => context.go('/services'),
-                  title: 'Services',
-                  route: '/services',
-                  isActive: activePage == 'services',
                 ),
                 const SizedBox(width: 15),
                 if (isLoggedIn)

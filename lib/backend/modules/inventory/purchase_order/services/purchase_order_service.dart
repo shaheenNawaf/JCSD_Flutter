@@ -102,9 +102,12 @@ class PurchaseOrderService {
     String? searchQuery,
   }) async {
     try {
-      var query =
-          supabaseDB.from('purchase_order').select(); // Join supplier name
+      // In Supabase v2, start with select to build the query
+      var query = supabaseDB
+          .from('purchase_order')
+          .select('*, suppliers(supplierName)'); // Join supplier name
 
+      // Apply filters
       if (status != null) {
         query = query.eq('status', status);
       }
@@ -112,17 +115,24 @@ class PurchaseOrderService {
         query = query.eq('supplierID', supplierID);
       }
 
+      // Handle search query
       if (searchQuery != null && searchQuery.isNotEmpty) {
-        query = query.or(
-            'po_id::text.ilike.%$searchQuery%,note.ilike.%$searchQuery%,suppliers.supplierName.ilike.%$searchQuery%');
+        searchQuery = searchQuery.trim();
+        print(int.parse(searchQuery));
+        query = query.or('po_id.eq.${int.parse(searchQuery)}');
+        query = query.or('note.ilike.$searchQuery');
+        //query = query.or('suppliers.supplierName.ilike.$searchQuery');
       }
 
+      // Apply pagination
       final offset = (page - 1) * itemsPerPage;
-      final results = await query
+
+      // Execute query
+      final response = await query
           .order(sortBy, ascending: ascending)
           .range(offset, offset + itemsPerPage - 1);
 
-      return results.map((data) => PurchaseOrderData.fromJson(data)).toList();
+      return response.map((data) => PurchaseOrderData.fromJson(data)).toList();
     } catch (e, st) {
       print('Error fetching purchase orders: $e\n$st');
       return [];

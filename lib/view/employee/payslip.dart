@@ -154,7 +154,7 @@ class _PayslipState extends ConsumerState<Payslip> {
         ((payroll!.monthlySalary / 170) *
             ((lateMinutes / 60) +
                 (leaveDays * 8) +
-                ((20 - attendanceRecords) * 8))) +
+                ((20 - attendanceRecords - leaveDays) * 8))) +
         totalCashAdvance +
         payroll!.deductions);
   }
@@ -303,7 +303,7 @@ class _PayslipState extends ConsumerState<Payslip> {
                 pw.SizedBox(height: 12),
                 pw.Text(
                     'Name: ${user?.firstName ?? 'N/A'} ${user?.lastname ?? ''}'),
-                pw.Text('Role: ${emp?.companyRole ?? 'N/A'}'),
+                pw.Text('Role: ${emp?.position ?? 'N/A'}'),
                 pw.Text(
                     'Date Issued: ${selectedDate.toLocal().toString().split(' ')[0]}'),
                 pw.SizedBox(height: 20),
@@ -357,7 +357,7 @@ class _PayslipState extends ConsumerState<Payslip> {
                     pw.TableRow(children: [
                       pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('OT Regular Day:')),
+                          child: pw.Text('OT Hours:')),
                       pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
                           child: pw.Text(
@@ -445,7 +445,7 @@ class _PayslipState extends ConsumerState<Payslip> {
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(2),
                         child: pw.Text(
-                          'PHP ${NumberFormat("#,##0.00", "en_US").format((payroll!.monthlySalary / 170) * ((lateMinutes / 60) + (leaveDays * 8) + ((20 - attendanceRecords) * 8)))}',
+                          'PHP ${NumberFormat("#,##0.00", "en_US").format((payroll!.monthlySalary / 170) * ((lateMinutes / 60) + (leaveDays * 8) + ((20 - attendanceRecords - leaveDays) * 8)))}',
                         ),
                       ),
                     ]),
@@ -598,7 +598,7 @@ class _PayslipState extends ConsumerState<Payslip> {
                             '${user?.firstName ?? 'N/A'} ${user?.lastname ?? ''}',
                             style: pw.TextStyle(
                                 fontSize: 12, fontWeight: pw.FontWeight.bold)),
-                        pw.Text(emp?.companyRole ?? 'N/A',
+                        pw.Text(emp?.position ?? 'N/A',
                             style: pw.TextStyle(fontSize: 12)),
                       ],
                     ),
@@ -622,7 +622,10 @@ class _PayslipState extends ConsumerState<Payslip> {
   }
 
   totalSalary() {
-    return (payroll!.monthlySalary + payroll!.bonus - totaldeducations());
+    return (payroll!.monthlySalary +
+        payroll!.bonus -
+        totaldeducations() +
+        ((overtimeMinutes / 60) * (payroll!.monthlySalary / 170) * 1.25));
   }
 
   @override
@@ -771,13 +774,14 @@ class _PayslipState extends ConsumerState<Payslip> {
                             ),
                             PayslipRow(
                               label: 'Number of Days Absent ',
-                              value: (20 - attendanceRecords).toString(),
+                              value: (20 - attendanceRecords - leaveDays)
+                                  .toString(),
                             ),
                             PayslipRow(
                                 label: 'Number of Leaves: ',
                                 value: leaveDays.toString()),
                             PayslipRow(
-                                label: 'OT Regular Day: ',
+                                label: 'OT Hours: ',
                                 value: (overtimeMinutes / 60).toString()),
                             PayslipRow(
                               label: 'Tardiness (hours): ',
@@ -812,7 +816,7 @@ class _PayslipState extends ConsumerState<Payslip> {
                             PayslipRow(
                               label: 'Tardiness and Absences: ',
                               value:
-                                  '₱${NumberFormat("#,##0.00", "en_US").format((payroll!.monthlySalary / 170) * ((lateMinutes / 60) + (leaveDays * 8) + ((20 - attendanceRecords) * 8)))}',
+                                  '₱${NumberFormat("#,##0.00", "en_US").format((payroll!.monthlySalary / 170) * ((lateMinutes / 60) + (leaveDays * 8) + ((20 - attendanceRecords - leaveDays) * 8)))}',
                             ),
                             PayslipRow(
                               label: 'Others: ',
@@ -854,6 +858,11 @@ class _PayslipState extends ConsumerState<Payslip> {
                             label: 'Total Deductions: ',
                             value:
                                 '₱${NumberFormat("#,##0.00", "en_US").format(totaldeducations())}',
+                          ),
+                          PayslipRow(
+                            label: 'OT: ',
+                            value:
+                                '₱${NumberFormat("#,##0.00", "en_US").format((overtimeMinutes / 60) * (payroll!.monthlySalary / 170) * 1.25)}',
                           ),
                           PayslipRow(
                             label: 'Bonus: ',

@@ -267,6 +267,7 @@ class PurchaseOrderListNotifier
           'status': 'Available', // Default in-stock status
           'employeeID': employeeId,
           'notes': 'Received via PO #${purchaseOrder.poId}',
+          'purchaseOrderID': purchaseOrder.poId,
         });
       }
 

@@ -282,7 +282,7 @@ class _CashAdvancePageState extends ConsumerState<CashAdvancePage> {
                 ),
               ),
               Text(
-                (emp?.isAdmin ?? false) ? 'Admin' : 'Employee',
+                (emp?.position) != null ? emp!.position : 'N/A',
                 style: const TextStyle(fontFamily: 'NunitoSans', fontSize: 14),
               ),
             ],

@@ -12,8 +12,15 @@ import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_notifier.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_providers.dart';
 
-class EmployeeListPage extends ConsumerWidget {
+class EmployeeListPage extends ConsumerStatefulWidget {
   const EmployeeListPage({super.key});
+
+  @override
+  ConsumerState<EmployeeListPage> createState() => _EmployeeListPageState();
+}
+
+class _EmployeeListPageState extends ConsumerState<EmployeeListPage> {
+  String _searchText = '';
 
   void _AddEmployeeModal(BuildContext context, WidgetRef ref) {
     showDialog(
@@ -27,10 +34,29 @@ class EmployeeListPage extends ConsumerWidget {
     });
   }
 
+  List<Map<String, dynamic>> _applyFilters(List<Map<String, dynamic>> data) {
+    if (_searchText.trim().isEmpty) return data;
+    final query = _searchText.toLowerCase();
+    return data.where((row) {
+      final acc = row['account'] as AccountsData;
+      final emp = row['employee'] as EmployeeData;
+      final name =
+          '${acc.firstName} ${acc.middleName} ${acc.lastname}'.toLowerCase();
+      final email = (acc.email ?? '').toLowerCase();
+      final position = (emp.position ?? '').toLowerCase();
+      return name.contains(query) ||
+          email.contains(query) ||
+          position.contains(query);
+    }).toList();
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final state = ref.watch(employeeNotifierProvider);
     final notifier = ref.read(employeeNotifierProvider.notifier);
+
+    // 1. Filter before sort & pagination
+    final filteredData = _applyFilters(state.employeeAccounts);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
@@ -126,6 +152,11 @@ class EmployeeListPage extends ConsumerWidget {
                             height: 40,
                             child: TextField(
                               enabled: true,
+                              controller:
+                                  TextEditingController(text: _searchText)
+                                    ..selection = TextSelection.collapsed(
+                                      offset: _searchText.length,
+                                    ),
                               decoration: InputDecoration(
                                 hintText: 'Search',
                                 hintStyle: const TextStyle(
@@ -133,6 +164,16 @@ class EmployeeListPage extends ConsumerWidget {
                                   fontFamily: 'NunitoSans',
                                 ),
                                 prefixIcon: const Icon(Icons.search),
+                                suffixIcon: _searchText.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () {
+                                          setState(() {
+                                            _searchText = '';
+                                          });
+                                        },
+                                      )
+                                    : null,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -141,6 +182,11 @@ class EmployeeListPage extends ConsumerWidget {
                                   horizontal: 16,
                                 ),
                               ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _searchText = value;
+                                });
+                              },
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -175,7 +221,7 @@ class EmployeeListPage extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: _buildDataTable(
                       context,
-                      state.employeeAccounts,
+                      filteredData, // Pass filtered, not state.employeeAccounts
                       notifier,
                       state,
                     ),
@@ -266,7 +312,7 @@ class EmployeeListPage extends ConsumerWidget {
                 cells: [
                   DataCell(Text(fullName, style: _tableBodyStyle)),
                   DataCell(Text(acc.email, style: _tableBodyStyle)),
-                  DataCell(Text(emp.companyRole, style: _tableBodyStyle)),
+                  DataCell(Text(emp.position, style: _tableBodyStyle)),
                   DataCell(Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

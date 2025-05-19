@@ -9,7 +9,8 @@ class SerializedItem {
   final double? costPrice;
   final String? notes;
   final String status;
-  final int? currentBookingID;
+  final int? bookingID;
+  final int? purchaseOrderID;
 
   SerializedItem({
     required this.serialNumber,
@@ -22,7 +23,8 @@ class SerializedItem {
     this.costPrice,
     this.notes,
     required this.status,
-    this.currentBookingID,
+    this.bookingID,
+    this.purchaseOrderID,
   });
 
   // Factory constructor for parsing JSON from Supabase
@@ -42,20 +44,20 @@ class SerializedItem {
     }
 
     return SerializedItem(
-      serialNumber:
-          json['serialNumber'] as String, // Ensure this matches DB type
-      prodDefID: json['prodDefID'],
-      purchaseDate: parseOptionalDateTime(json['purchaseDate']),
-      employeeID: json['employeeID'] as int?,
-      supplierID: json['supplierID'] as int,
-      createdDate: json['createdDate'],
-      updateDate: parseOptionalDateTime(json['updateDate']),
-      costPrice: parseOptionalDouble(json['costPrice']),
-      notes: json['notes'] as String?,
-      status: json['status'] as String? ??
-          'Available', // Provide default if status could be null
-      currentBookingID: json['bookingID'] as int?,
-    );
+        serialNumber:
+            json['serialNumber'] as String, // Ensure this matches DB type
+        prodDefID: json['prodDefID'],
+        purchaseDate: parseOptionalDateTime(json['purchaseDate']),
+        employeeID: json['employeeID'] as int?,
+        supplierID: json['supplierID'] as int,
+        createdDate: json['createdDate'],
+        updateDate: parseOptionalDateTime(json['updateDate']),
+        costPrice: parseOptionalDouble(json['costPrice']),
+        notes: json['notes'] as String?,
+        status: json['status'] as String? ??
+            'Available', // Provide default if status could be null
+        bookingID: json['bookingID'] as int?,
+        purchaseOrderID: json['purchaseOrderID']);
   }
 
   // toJson (only include fields you'd typically insert/update)
@@ -69,7 +71,8 @@ class SerializedItem {
       'costPrice': costPrice,
       'notes': notes,
       'status': status,
-      'bookingID': currentBookingID,
+      'bookingID': bookingID,
+      'purchaseOrderID': purchaseOrderID,
     };
   }
 
@@ -85,7 +88,8 @@ class SerializedItem {
     double? costPrice,
     String? notes,
     String? status,
-    int? currentBookingID,
+    int? bookingID,
+    int? purchaseOrderID,
     bool? isVisible,
   }) {
     return SerializedItem(
@@ -99,7 +103,7 @@ class SerializedItem {
       costPrice: costPrice ?? this.costPrice,
       notes: notes ?? this.notes,
       status: status ?? this.status,
-      currentBookingID: currentBookingID ?? this.currentBookingID,
+      bookingID: bookingID ?? this.bookingID,
     );
   }
 }

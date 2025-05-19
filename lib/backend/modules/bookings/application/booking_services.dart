@@ -493,6 +493,7 @@ class BookingService {
     String? customerUserId,
     int? assignedEmployeeId,
     List<BookingStatus>? statuses,
+    BookingType? bookingTypes,
     DateTime? dateFrom,
     DateTime? dateTo,
     String sortBy = 'created_at',
@@ -504,6 +505,7 @@ class BookingService {
       customerUserId: customerUserId,
       assignedEmployeeId: assignedEmployeeId,
       statuses: statuses,
+      bookingTypes: bookingTypes,
       dateFrom: dateFrom,
       dateTo: dateTo,
       sortBy: sortBy,
@@ -518,6 +520,7 @@ class BookingService {
     String? customerUserId,
     int? assignedEmployeeId,
     List<BookingStatus>? statuses,
+    BookingType? bookingTypes,
     DateTime? dateFrom,
     DateTime? dateTo,
   }) async {
@@ -525,6 +528,7 @@ class BookingService {
       customerUserId: customerUserId,
       assignedEmployeeId: assignedEmployeeId,
       statuses: statuses,
+      bookingTypes: bookingTypes,
       dateFrom: dateFrom,
       dateTo: dateTo,
     );

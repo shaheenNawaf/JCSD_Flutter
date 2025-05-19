@@ -327,7 +327,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                             style: TextStyle(fontWeight: FontWeight.bold)),
                         Text(
                           emp?.monthlySalary != null
-                              ? '₱${NumberFormat("#,##0.00", "en_US").format(emp!.monthlySalary)}'
+                              ? '₱${NumberFormat("#,##0.00", "en_US").format(emp?.monthlySalary)}'
                               : 'N/A',
                           style: const TextStyle(fontWeight: FontWeight.normal),
                         ),
@@ -875,7 +875,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 ),
               ),
               Text(
-                (emp?.isAdmin ?? false) ? 'Admin' : 'Employee',
+                (emp?.position) != null ? emp!.position : 'N/A',
                 style: const TextStyle(fontFamily: 'NunitoSans', fontSize: 14),
               ),
             ],

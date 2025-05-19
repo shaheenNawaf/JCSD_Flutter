@@ -21,10 +21,29 @@ class AccountListPage extends ConsumerStatefulWidget {
 }
 
 class _AccountListPageState extends ConsumerState<AccountListPage> {
+  String _searchText = '';
+
+  List<AccountsData> _applyFilters(List<AccountsData> data) {
+    if (_searchText.trim().isEmpty) return data;
+    final query = _searchText.toLowerCase();
+    return data.where((user) {
+      final name =
+          '${user.firstName ?? ''} ${user.middleName ?? ''} ${user.lastname ?? ''}'
+              .toLowerCase();
+      final email = (user.email ?? '').toLowerCase();
+      final city = (user.city ?? '').toLowerCase();
+      return name.contains(query) ||
+          email.contains(query) ||
+          city.contains(query);
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(accountNotifierProvider);
     final notifier = ref.read(accountNotifierProvider.notifier);
+
+    final filteredAccounts = _applyFilters(state.accounts);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
@@ -46,6 +65,10 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
                             width: 350,
                             height: 40,
                             child: TextField(
+                              controller:
+                                  TextEditingController(text: _searchText)
+                                    ..selection = TextSelection.collapsed(
+                                        offset: _searchText.length),
                               decoration: InputDecoration(
                                 hintText: 'Search',
                                 hintStyle: const TextStyle(
@@ -53,6 +76,16 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
                                   fontFamily: 'NunitoSans',
                                 ),
                                 prefixIcon: const Icon(Icons.search),
+                                suffixIcon: _searchText.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () {
+                                          setState(() {
+                                            _searchText = '';
+                                          });
+                                        },
+                                      )
+                                    : null,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -61,13 +94,19 @@ class _AccountListPageState extends ConsumerState<AccountListPage> {
                                   horizontal: 16,
                                 ),
                               ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _searchText = value;
+                                });
+                              },
                             ),
                           ),
                         ),
                         const SizedBox(height: 16),
                         Expanded(
-                            child: _buildDataTable(
-                                state.accounts, notifier, state)),
+                          child: _buildDataTable(
+                              filteredAccounts, notifier, state),
+                        ),
                         const SizedBox(height: 8),
                         _buildPagination(state, notifier),
                       ],

@@ -52,6 +52,21 @@ bool _hasPayrollForCurrentMonth(PayrollState state) {
 }
 
 class _PayrollListState extends ConsumerState<PayrollList> {
+  String _searchText = '';
+
+  List<Map<String, dynamic>> _applyFilters(List<Map<String, dynamic>> data) {
+    if (_searchText.trim().isEmpty) return data;
+    final query = _searchText.toLowerCase();
+    return data.where((record) {
+      final account = record['account'] as AccountsData?;
+      final payroll = record['payroll'] as PayrollData;
+      final name = '${account?.firstName ?? ''} ${account?.lastname ?? ''}'
+          .toLowerCase();
+      final payDate = _formatDate(payroll.createdAt).toLowerCase();
+      return name.contains(query) || payDate.contains(query);
+    }).toList();
+  }
+
   DateTime selectedDate = DateTime.now();
 
   int selectedMonth = DateTime.now().month;
@@ -317,6 +332,8 @@ class _PayrollListState extends ConsumerState<PayrollList> {
     final state = ref.watch(payrollNotifierProvider);
     final notifier = ref.read(payrollNotifierProvider.notifier);
 
+    final filteredPayrolls = _applyFilters(state.payrolls);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F8F8),
       body: Row(
@@ -418,6 +435,10 @@ class _PayrollListState extends ConsumerState<PayrollList> {
                             width: 250,
                             height: 40,
                             child: TextField(
+                              controller:
+                                  TextEditingController(text: _searchText)
+                                    ..selection = TextSelection.collapsed(
+                                        offset: _searchText.length),
                               decoration: InputDecoration(
                                 hintText: 'Search',
                                 hintStyle: const TextStyle(
@@ -425,6 +446,16 @@ class _PayrollListState extends ConsumerState<PayrollList> {
                                   fontFamily: 'NunitoSans',
                                 ),
                                 prefixIcon: const Icon(Icons.search),
+                                suffixIcon: _searchText.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () {
+                                          setState(() {
+                                            _searchText = '';
+                                          });
+                                        },
+                                      )
+                                    : null,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -434,7 +465,9 @@ class _PayrollListState extends ConsumerState<PayrollList> {
                                 ),
                               ),
                               onChanged: (value) {
-                                // Implement search functionality if needed
+                                setState(() {
+                                  _searchText = value;
+                                });
                               },
                             ),
                           ),
@@ -489,7 +522,8 @@ class _PayrollListState extends ConsumerState<PayrollList> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: _buildDataTable(context, state, notifier),
+                    child: _buildDataTable(
+                        context, filteredPayrolls, state, notifier),
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -504,7 +538,11 @@ class _PayrollListState extends ConsumerState<PayrollList> {
   }
 
   Widget _buildDataTable(
-      BuildContext context, PayrollState state, PayrollNotifier notifier) {
+    BuildContext context,
+    List<Map<String, dynamic>> payrolls,
+    PayrollState state,
+    PayrollNotifier notifier,
+  ) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -544,7 +582,8 @@ class _PayrollListState extends ConsumerState<PayrollList> {
             final account = record['account'] as AccountsData?;
 
             return DataRow(cells: [
-              DataCell(Text(account?.firstName ?? '')),
+              DataCell(Text(
+                  '${account?.firstName ?? 'N/A'} ${account?.lastname ?? ''}')),
               DataCell(Text(_formatDate(payroll.createdAt))),
               DataCell(
                 Text(
@@ -692,7 +731,7 @@ class _PayrollListState extends ConsumerState<PayrollList> {
                   pw.SizedBox(height: 12),
                   pw.Text(
                       'Name: ${account?.firstName ?? 'N/A'} ${account?.lastname ?? ''}'),
-                  pw.Text('Role: ${employee?.companyRole ?? 'N/A'}'),
+                  pw.Text('Role: ${employee?.position ?? 'N/A'}'),
                   pw.Text(
                       'Date Issued: ${payroll.createdAt.toLocal().toString().split(' ')[0]}'),
                   pw.SizedBox(height: 20),
@@ -794,7 +833,7 @@ class _PayrollListState extends ConsumerState<PayrollList> {
                               style: pw.TextStyle(
                                   fontSize: 12,
                                   fontWeight: pw.FontWeight.bold)),
-                          pw.Text(employee?.companyRole ?? 'N/A',
+                          pw.Text(employee?.position ?? 'N/A',
                               style: pw.TextStyle(fontSize: 12)),
                         ],
                       ),

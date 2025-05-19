@@ -127,6 +127,7 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
   bool isLoading = false;
 
   String _selectedRole = 'Employee';
+  String _selectedPosition = 'Computer Repair Technician';
   bool _isSubmitting = false;
 
   Future<void> _submit() async {
@@ -150,6 +151,7 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
           password: _password.text.trim(),
           role: _selectedRole,
           isAdmin: _selectedRole == 'Admin',
+          position: _selectedPosition,
           firstName: _firstName.text.trim(),
           lastName: _lastName.text.trim(),
           middleInitial: _middleInitial.text.trim(),
@@ -277,6 +279,7 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
                                 controller: _password,
                                 isPassword: true),
                             _buildDropdownField(),
+                            _buildDropdownPosition(),
                           ],
                         ),
                       ),
@@ -512,7 +515,7 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
       children: [
         const Row(
           children: [
-            Text("Position", style: TextStyle(fontFamily: 'NunitoSans')),
+            Text("Controls", style: TextStyle(fontFamily: 'NunitoSans')),
             Text('*', style: TextStyle(color: Colors.red, fontSize: 14)),
           ],
         ),
@@ -532,6 +535,43 @@ class _AddEmployeeModalState extends State<AddEmployeeModal> {
           onChanged: (String? value) {
             setState(() {
               _selectedRole = value ?? 'Employee';
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDropdownPosition() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Text("Position", style: TextStyle(fontFamily: 'NunitoSans')),
+            Text('*', style: TextStyle(color: Colors.red, fontSize: 14)),
+          ],
+        ),
+        const SizedBox(height: 5),
+        DropdownButtonFormField<String>(
+          value: _selectedPosition,
+          decoration: const InputDecoration(border: OutlineInputBorder()),
+          items: [
+            'Computer Repair Technician',
+            'IT Support Technician',
+            'Field Service Technician'
+          ].map((String item) {
+            return DropdownMenuItem<String>(
+              value: item,
+              child: Text(
+                item,
+                style: const TextStyle(fontFamily: 'Poppins', fontSize: 12),
+              ),
+            );
+          }).toList(),
+          onChanged: (String? value) {
+            setState(() {
+              _selectedPosition = value ?? 'Computer Repair Technician';
             });
           },
         ),
