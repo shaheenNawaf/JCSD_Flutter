@@ -97,8 +97,9 @@ class SerializedItemNotifier
 
   Future<void> goToPage(int page) async {
     final currentState = state.valueOrNull; // Get current state data safely
-    if (currentState == null || page < 1 || page > currentState.totalPages)
+    if (currentState == null || page < 1 || page > currentState.totalPages) {
       return; // Basic validation
+    }
 
     state = const AsyncLoading<SerializedItemState>().copyWithPrevious(state);
 
@@ -149,8 +150,9 @@ class SerializedItemNotifier
   Future<void> filterByStatus(String? newStatusFilter) async {
     final currentState = state.valueOrNull;
 
-    if (currentState == null || currentState.statusFilter == newStatusFilter)
+    if (currentState == null || currentState.statusFilter == newStatusFilter) {
       return;
+    }
 
     const newPage = 1;
     state = const AsyncLoading<SerializedItemState>().copyWithPrevious(state);
@@ -189,8 +191,9 @@ class SerializedItemNotifier
     _debounce = Timer(const Duration(milliseconds: 500), () async {
       final currentState = state.valueOrNull;
 
-      if (currentState == null || currentState.searchText == newSearchText)
+      if (currentState == null || currentState.searchText == newSearchText) {
         return;
+      }
 
       const newPage = 1;
 
@@ -244,8 +247,9 @@ class SerializedItemNotifier
       final calculatedTotalPages = totalPages > 0 ? totalPages : 1;
 
       int pageToFetch = currentState.currentPage;
-      if (pageToFetch > calculatedTotalPages)
+      if (pageToFetch > calculatedTotalPages) {
         pageToFetch = calculatedTotalPages;
+      }
       if (pageToFetch < 1) pageToFetch = 1;
 
       final items = await _fetchPageData(
@@ -338,8 +342,4 @@ class SerializedItemNotifier
 
     await updateSerializedItem(updatedItem);
   }
-
-  // Note: updateSerializedItemVisibility method is removed as the 'isVisible'
-  // field was removed from the data model and service.
-  // Deletion/removal should be handled by updating the status (e.g., to 'Disposed').
 }
