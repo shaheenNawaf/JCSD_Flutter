@@ -26,16 +26,15 @@ class EditServiceModal extends ConsumerStatefulWidget {
 class _EditServiceModalState extends ConsumerState<EditServiceModal> {
   final TextEditingController _serviceNameController = TextEditingController();
   final TextEditingController _minPriceController = TextEditingController();
-  final TextEditingController _maxPriceController= TextEditingController();
+  final TextEditingController _maxPriceController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    
+
     ServicesData _serviceData = widget.servicesData;
 
     _serviceNameController.text = _serviceData.serviceName;
-    _minPriceController.text = _serviceData.minPrice.toString();
     _maxPriceController.text = _serviceData.maxPrice.toString();
   }
 
@@ -152,20 +151,29 @@ class _EditServiceModalState extends ConsumerState<EditServiceModal> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        try{
+                        try {
                           int serviceID = widget.serviceID;
                           String serviceName = _serviceNameController.text;
-                          double minPrice = double.parse(_minPriceController.text);
-                          double maxPrice = double.parse(_maxPriceController.text);
+                          double minPrice =
+                              double.parse(_minPriceController.text);
+                          double maxPrice =
+                              double.parse(_maxPriceController.text);
 
                           final editService = JcsdServices();
-                          await editService.updateService(serviceID, serviceName, minPrice, maxPrice);
+                          await editService.updateService(
+                              serviceID, serviceName, minPrice, maxPrice);
 
                           ref.invalidate(fetchAvailableServices);
                           Navigator.pop(context);
-                          ToastManager().showToast(context, 'Service "$serviceName" edited successfully!', const Color.fromARGB(255, 0, 143, 19));
-                        }catch(err){
-                          ToastManager().showToast(context, 'Error editing service. $err', const Color.fromARGB(255, 255, 0, 0));
+                          ToastManager().showToast(
+                              context,
+                              'Service "$serviceName" edited successfully!',
+                              const Color.fromARGB(255, 0, 143, 19));
+                        } catch (err) {
+                          ToastManager().showToast(
+                              context,
+                              'Error editing service. $err',
+                              const Color.fromARGB(255, 255, 0, 0));
                           print('Error editing service. $err');
                         }
                       },

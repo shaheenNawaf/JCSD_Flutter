@@ -149,7 +149,7 @@ class _ClientBooking1State extends ConsumerState<ClientBooking1> {
       for (int id in selectedIDs) {
         final service = serviceMap[id];
         if (service != null) {
-          totalEsitmate += service.minPrice ?? 0.0;
+          totalEsitmate += service.maxPrice ?? 0.0;
         }
       }
       if (mounted) {

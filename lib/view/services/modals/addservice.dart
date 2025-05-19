@@ -10,7 +10,7 @@ import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
 import 'package:jcsd_flutter/view/generic/dialogs/error_dialog.dart';
 import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 
-class AddServiceModal extends ConsumerStatefulWidget{
+class AddServiceModal extends ConsumerStatefulWidget {
   const AddServiceModal({super.key});
 
   @override
@@ -23,7 +23,7 @@ class _AddServiceModalState extends ConsumerState<AddServiceModal> {
   final TextEditingController _maxPriceController = TextEditingController();
 
   //Validators
-    String? numberValidator(String? value) {
+  String? numberValidator(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter a number';
     }
@@ -128,15 +128,7 @@ class _AddServiceModalState extends ConsumerState<AddServiceModal> {
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
-                    label: 'Minimum Price',
-                    hintText: 'Enter amount',
-                    controller: _minPriceController,
-                    validator: numberValidator,
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 16),
-                  _buildTextField(
-                    label: 'Maximum Price',
+                    label: 'Service Price',
                     hintText: 'Enter amount',
                     validator: numberValidator,
                     controller: _maxPriceController,
@@ -179,51 +171,55 @@ class _AddServiceModalState extends ConsumerState<AddServiceModal> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () async {
-                        try{  
-                          if(_serviceNameController.text.isEmpty && _maxPriceController.text.isEmpty && _minPriceController.text.isEmpty){
+                        try {
+                          if (_serviceNameController.text.isEmpty &&
+                              _maxPriceController.text.isEmpty &&
+                              _minPriceController.text.isEmpty) {
                             showDialog(
-                              context: context, 
-                              builder: (context) => const ErrorDialog(
-                                title: 'Empty fields are detected', 
-                                content: 'Please fill in the required fields.')
-                              );
-                          }else if (_serviceNameController.text.isEmpty){ 
+                                context: context,
+                                builder: (context) => const ErrorDialog(
+                                    title: 'Empty fields are detected',
+                                    content:
+                                        'Please fill in the required fields.'));
+                          } else if (_serviceNameController.text.isEmpty) {
                             showDialog(
-                              context: context, 
-                              builder: (context) => const ErrorDialog(
-                                title: 'Service Name is empty.', 
-                                content: 'Please fill in the required fields.')
-                              );
-                          }else if (_maxPriceController.text.isEmpty){ 
+                                context: context,
+                                builder: (context) => const ErrorDialog(
+                                    title: 'Service Name is empty.',
+                                    content:
+                                        'Please fill in the required fields.'));
+                          } else if (_maxPriceController.text.isEmpty) {
                             showDialog(
-                              context: context, 
-                              builder: (context) => const ErrorDialog(
-                                title: 'Max Price field is empty.', 
-                                content: 'Please fill in the required fields.')
-                              );
-                          }else if (_minPriceController.text.isEmpty){ 
-                            showDialog(
-                              context: context, 
-                              builder: (context) => const ErrorDialog(
-                                title: 'Min Price field is empty.', 
-                                content: 'Please fill in the required fields.')
-                              );
-                          }else{
+                                context: context,
+                                builder: (context) => const ErrorDialog(
+                                    title: 'Service Price field is empty.',
+                                    content:
+                                        'Please fill in the required fields.'));
+                          } else {
                             final addNewService = JcsdServices();
 
                             String serviceName = _serviceNameController.text;
-                            double minPrice = double.parse(_minPriceController.text);
-                            double maxPrice = double.parse(_maxPriceController.text);
+                            double minPrice =
+                                double.parse(_minPriceController.text);
+                            double maxPrice =
+                                double.parse(_maxPriceController.text);
 
-                            await addNewService.addService(serviceName, minPrice, maxPrice);
+                            await addNewService.addService(
+                                serviceName, minPrice, maxPrice);
 
                             //Force refresh
                             ref.invalidate(fetchAvailableServices);
-                            ToastManager().showToast(context, 'Service "$serviceName" added successfully!', const Color.fromARGB(255, 0, 143, 19));
+                            ToastManager().showToast(
+                                context,
+                                'Service "$serviceName" added successfully!',
+                                const Color.fromARGB(255, 0, 143, 19));
                             Navigator.pop(context); // To be updated
                           }
-                        }catch(err){
-                          ToastManager().showToast(context, 'Error adding service. $err', const Color.fromARGB(255, 255, 0, 0));
+                        } catch (err) {
+                          ToastManager().showToast(
+                              context,
+                              'Error adding service. $err',
+                              const Color.fromARGB(255, 255, 0, 0));
                           print('Error adding service. $err');
                         }
                       },

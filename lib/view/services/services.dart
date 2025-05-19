@@ -216,18 +216,7 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
           ),
           Expanded(
             child: Text(
-              'Minimum Price',
-              style: TextStyle(
-                fontFamily: 'NunitoSans',
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              'Maximum Price',
+              'Service Price',
               style: TextStyle(
                 fontFamily: 'NunitoSans',
                 fontWeight: FontWeight.w600,
@@ -276,15 +265,6 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
               style: const TextStyle(
                 fontFamily: 'NunitoSans',
               ),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              services[index].minPrice.toString(),
-              style: const TextStyle(
-                fontFamily: 'NunitoSans',
-              ),
-              textAlign: TextAlign.center,
             ),
           ),
           Expanded(

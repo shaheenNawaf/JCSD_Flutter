@@ -19,7 +19,7 @@ class BookingModuleServices implements BookingRepository {
    *,
     booking_services!inner ( 
       *, 
-      jcsd_services!inner ( serviceID, serviceName, minPrice, maxPrice, estimatedDuration, isWalkInOnly, requiresAddress ) 
+      jcsd_services!inner ( serviceID, serviceName, maxPrice, estimatedDuration, isWalkInOnly, requiresAddress ) 
     ),
     booking_items ( 
       *, 
@@ -203,13 +203,12 @@ class BookingModuleServices implements BookingRepository {
       if (serviceIds.isNotEmpty) {
         final servicesDetails = await supabaseDB
             .from('jcsd_services')
-            .select('serviceID, minPrice')
+            .select('serviceID, maxPrice')
             .inFilter('serviceID', serviceIds);
 
-        // Map that looks up for the given minPrice of a service - USED for estimation
         final servicePriceMap = {
           for (var service in servicesDetails)
-            service['serviceID'] as int: (service['minPrice'] as num?)
+            service['serviceID'] as int: (service['maxPrice'] as num?)
                     ?.toDouble() ??
                 0.0 // Fallback to def (0) if there is no minPrice; safe data passing tayo ser
         };
@@ -363,8 +362,7 @@ class BookingModuleServices implements BookingRepository {
       // Join to get service details needed for display
       final data = await supabaseDB
           .from('booking_services')
-          .select(
-              '*, jcsd_services!inner(serviceID, serviceName, minPrice, maxPrice)')
+          .select('*, jcsd_services!inner(serviceID, serviceName, maxPrice)')
           .eq('booking_id', bookingId);
 
       // IMPORTANT TODO: Ensure BookingServiceItem.fromJson handles nested jcsd_services data if selected

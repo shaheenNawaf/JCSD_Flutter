@@ -2,7 +2,6 @@ class ServicesData {
   final int serviceID;
   final String serviceName;
   final bool isActive;
-  final double? minPrice;
   final double? maxPrice;
   final String? description;
   final int? estimatedDuration;
@@ -15,7 +14,6 @@ class ServicesData {
     required this.serviceID,
     required this.serviceName,
     required this.isActive,
-    this.minPrice,
     this.maxPrice,
     this.description,
     this.estimatedDuration,
@@ -64,7 +62,6 @@ class ServicesData {
       serviceID: json['serviceID'] as int,
       serviceName: json['serviceName'] as String,
       isActive: json['isActive'] as bool,
-      minPrice: _parseOptionalDouble(json['minPrice']),
       maxPrice: _parseOptionalDouble(json['maxPrice']),
       description: json['description'] as String?,
       estimatedDuration: _parseOptionalInt(json['estimatedDuration']),
@@ -79,7 +76,6 @@ class ServicesData {
     return {
       'serviceName': serviceName,
       'isActive': isActive,
-      'minPrice': minPrice,
       'maxPrice': maxPrice,
       'description': description,
       'estimatedDuration': estimatedDuration,
