@@ -1,4 +1,3 @@
-// lib/backend/modules/inventory/return_orders/return_order_notifier.dart
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_data.dart';
@@ -14,7 +13,7 @@ final returnOrderServiceProvider = Provider<ReturnOrderService>((ref) {
 // Notifier Provider for the Return Order List
 final returnOrderListNotifierProvider = AutoDisposeAsyncNotifierProvider<
     ReturnOrderListNotifier, ReturnOrderListState>(
-  () => ReturnOrderListNotifier(),
+  ReturnOrderListNotifier.new,
 );
 
 class ReturnOrderListNotifier
@@ -22,80 +21,62 @@ class ReturnOrderListNotifier
   Timer? _searchDebounce;
   ReturnOrderService get _service => ref.read(returnOrderServiceProvider);
 
-  @override
-  Future<ReturnOrderListState> build() async {
-    ref.onDispose(() => _searchDebounce?.cancel());
-    // Initial state with default filters/sorting
-    const initialState = ReturnOrderListState();
-    return _fetchDataForState(initialState);
-  }
-
-  Future<ReturnOrderListState> _fetchDataForState(
-      ReturnOrderListState stateToFetch,
-      {bool isLoadMore = false}) async {
-    if (!isLoadMore) {
-      // For initial load or filter change, update isLoading
-      state = AsyncData(
-          stateToFetch.copyWith(isLoading: true, errorMessage: () => null));
-    } else {
-      // For load more, update isLoadingMore
-      state = AsyncData(
-          stateToFetch.copyWith(isLoadingMore: true, errorMessage: () => null));
-    }
+  /// Core private method to fetch data and update state.
+  /// This method is called by build, goToPage, sort, search, applyFilters, and refresh.
+  Future<ReturnOrderListState> _fetchAndUpdateState(
+      ReturnOrderListState targetStateConfig) async {
+    // Indicate loading, but preserve previous data for a smoother UI update if available
+    final previousData = state.asData?.value;
+    state = const AsyncLoading<ReturnOrderListState>().copyWithPrevious(state);
 
     try {
       final totalItems = await _service.getTotalReturnOrderCount(
-        searchQuery: stateToFetch.searchText,
-        statusFilter: stateToFetch.statusFilter,
-        supplierIdFilter: stateToFetch.supplierFilter,
-        purchaseOrderIdFilter: stateToFetch.purchaseOrderFilter,
+        searchQuery: targetStateConfig.searchText,
+        statusFilter: targetStateConfig.statusFilter,
+        supplierIdFilter: targetStateConfig.supplierFilter,
+        purchaseOrderIdFilter: targetStateConfig.purchaseOrderFilter,
       );
 
-      final totalPages = (totalItems / stateToFetch.itemsPerPage).ceil();
+      final totalPages = (totalItems / targetStateConfig.itemsPerPage).ceil();
+      final calculatedTotalPages = totalPages > 0 ? totalPages : 1;
+      // Ensure currentPage is valid after totalPages might have changed
       final currentPage =
-          stateToFetch.currentPage.clamp(1, totalPages > 0 ? totalPages : 1);
+          targetStateConfig.currentPage.clamp(1, calculatedTotalPages);
 
       final items = await _service.fetchReturnOrders(
-        searchQuery: stateToFetch.searchText,
-        statusFilter: stateToFetch.statusFilter,
-        supplierIdFilter: stateToFetch.supplierFilter,
-        purchaseOrderIdFilter: stateToFetch.purchaseOrderFilter,
-        sortBy: stateToFetch.sortBy,
-        ascending: stateToFetch.ascending,
+        searchQuery: targetStateConfig.searchText,
+        statusFilter: targetStateConfig.statusFilter,
+        supplierIdFilter: targetStateConfig.supplierFilter,
+        purchaseOrderIdFilter: targetStateConfig.purchaseOrderFilter,
+        sortBy: targetStateConfig.sortBy,
+        ascending: targetStateConfig.ascending,
         page: currentPage,
-        itemsPerPage: stateToFetch.itemsPerPage,
+        itemsPerPage: targetStateConfig.itemsPerPage,
       );
 
-      List<ReturnOrderData> combinedItems;
-      if (isLoadMore) {
-        final currentItems = stateToFetch.returnOrders;
-        // Avoid duplicates if re-fetching same page due to some logic error
-        final newItems = items
-            .where((newItem) => !currentItems.any(
-                (oldItem) => oldItem.returnOrderID == newItem.returnOrderID))
-            .toList();
-        combinedItems = [...currentItems, ...newItems];
-      } else {
-        combinedItems = items;
-      }
-
-      return stateToFetch.copyWith(
-        returnOrders: combinedItems,
-        totalPages: totalPages > 0 ? totalPages : 1,
+      return targetStateConfig.copyWith(
+        returnOrders: items,
+        totalPages: calculatedTotalPages,
         currentPage: currentPage,
-        isLoading: false,
-        isLoadingMore: false,
+        isLoading: false, // Explicitly set isLoading to false
+        errorMessage: () => null, // Clear previous errors
       );
     } catch (e, st) {
-      print("Error in _fetchDataForState (ReturnOrderNotifier): $e\n$st");
-      // Preserve existing data on error if possible, or clear it
-      final previousData = state.asData?.value.returnOrders ?? [];
-      return stateToFetch.copyWith(
-          returnOrders: previousData, // Keep old data on error
-          isLoading: false,
-          isLoadingMore: false,
-          errorMessage: () => e.toString());
+      print("Error in _fetchAndUpdateState (ReturnOrderNotifier): $e\n$st");
+      // Return the previous state with an error message, or a new state with error
+      if (previousData != null) {
+        return previousData.copyWith(
+            isLoading: false, errorMessage: () => e.toString());
+      }
+      return targetStateConfig.copyWith(
+          isLoading: false, errorMessage: () => e.toString(), returnOrders: []);
     }
+  }
+
+  @override
+  Future<ReturnOrderListState> build() async {
+    ref.onDispose(() => _searchDebounce?.cancel());
+    return _fetchAndUpdateState(const ReturnOrderListState()); // Initial load
   }
 
   Future<void> goToPage(int page) async {
@@ -103,53 +84,42 @@ class ReturnOrderListNotifier
     if (currentState == null ||
         page < 1 ||
         page > currentState.totalPages ||
-        page == currentState.currentPage) {
+        page == currentState.currentPage ||
+        currentState.isLoading) {
       return;
     }
-    // If loading more, current page in state is already updated
-    if (page > currentState.currentPage && !currentState.isLoadingMore) {
-      // Load More
-      ref.read(_modalProductDefinitionsCurrentPageProvider.notifier).state =
-          page; // Using a modal provider as an example, create a specific one if needed
-      state = await _fetchDataForState(currentState.copyWith(currentPage: page),
-          isLoadMore: true);
-    } else if (page < currentState.currentPage) {
-      // Navigating to a previous page or specific page
-      state =
-          await _fetchDataForState(currentState.copyWith(currentPage: page));
-    }
+    state = await AsyncValue.guard(
+        () => _fetchAndUpdateState(currentState.copyWith(currentPage: page)));
   }
 
   Future<void> sort(String newSortBy) async {
     final currentState = state.asData?.value;
-    if (currentState == null) return;
+    if (currentState == null || currentState.isLoading) return;
 
     final newAscending =
         currentState.sortBy == newSortBy ? !currentState.ascending : true;
-    state = await _fetchDataForState(currentState.copyWith(
-      sortBy: newSortBy,
-      ascending: newAscending,
-      currentPage: 1, // Reset to first page on sort
-      returnOrders: [], // Clear current items before fetching sorted
-      isLoadingMore: false,
-      totalPages: 1, // Reset total pages until fetched
-    ));
+
+    state =
+        await AsyncValue.guard(() => _fetchAndUpdateState(currentState.copyWith(
+              sortBy: newSortBy,
+              ascending: newAscending,
+              currentPage: 1, // Reset to first page on sort
+            )));
   }
 
   void search(String newSearchText) {
     _searchDebounce?.cancel();
-    _searchDebounce = Timer(const Duration(milliseconds: 500), () async {
+    _searchDebounce = Timer(const Duration(milliseconds: 400), () async {
+      // Slightly shorter debounce
       final currentState = state.asData?.value;
-      if (currentState == null || currentState.searchText == newSearchText)
-        return;
+      // Allow search even if current text is same, to re-trigger if needed, but check loading.
+      if (currentState == null || currentState.isLoading) return;
 
-      state = await _fetchDataForState(currentState.copyWith(
-        searchText: newSearchText,
-        currentPage: 1,
-        returnOrders: [],
-        isLoadingMore: false,
-        totalPages: 1,
-      ));
+      state = await AsyncValue.guard(
+          () => _fetchAndUpdateState(currentState.copyWith(
+                searchText: newSearchText,
+                currentPage: 1,
+              )));
     });
   }
 
@@ -162,7 +132,7 @@ class ReturnOrderListNotifier
     bool clearPurchaseOrder = false,
   }) async {
     final currentState = state.asData?.value;
-    if (currentState == null) return;
+    if (currentState == null || currentState.isLoading) return;
 
     final newStatusFilter =
         clearStatus ? null : (status ?? currentState.statusFilter);
@@ -175,29 +145,28 @@ class ReturnOrderListNotifier
     if (newStatusFilter == currentState.statusFilter &&
         newSupplierFilter == currentState.supplierFilter &&
         newPoFilter == currentState.purchaseOrderFilter) {
-      return; // No change in filters
+      return;
     }
 
-    state = await _fetchDataForState(currentState.copyWith(
-      statusFilter: () => newStatusFilter,
-      supplierFilter: () => newSupplierFilter,
-      purchaseOrderFilter: () => newPoFilter,
-      currentPage: 1,
-      returnOrders: [],
-      isLoadingMore: false,
-      totalPages: 1,
-    ));
+    state =
+        await AsyncValue.guard(() => _fetchAndUpdateState(currentState.copyWith(
+              statusFilter: () => newStatusFilter,
+              supplierFilter: () => newSupplierFilter,
+              purchaseOrderFilter: () => newPoFilter,
+              currentPage: 1,
+            )));
   }
 
   Future<void> refresh() async {
     final currentState = state.asData?.value;
-    if (currentState == null) {
-      state = const AsyncLoading(); // Go to loading if no previous state
-      state = await AsyncValue.guard(() => build()); // Re-run build
+    if (currentState == null || currentState.isLoading) {
+      // If no current state or already loading, just rebuild from scratch
+      state = const AsyncLoading(); // Show loading
+      state = await AsyncValue.guard(() => build());
       return;
     }
-    // Re-fetch data for the current state (current page, filters, etc.)
-    state = await _fetchDataForState(
-        currentState.copyWith(returnOrders: [], isLoadingMore: false));
+    // Re-fetch data for the current filters but reset to page 1 for a full refresh
+    state = await AsyncValue.guard(
+        () => _fetchAndUpdateState(currentState.copyWith(currentPage: 1)));
   }
 }
