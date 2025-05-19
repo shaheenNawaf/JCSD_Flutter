@@ -1,5 +1,4 @@
-// lib/modals/select_inventory_item_modal.dart
-// ignore_for_file: library_private_types_in_public_api, avoid_print, use_build_context_synchronously
+// ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,8 +7,7 @@ import 'package:jcsd_flutter/api/global_variables.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/data/booking_item.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/providers/booking_providers.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_data.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_notifier.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_state.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_providers.dart'; // For allActiveProductDefinitionsProvider
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_item.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_notifiers.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_providers.dart';
@@ -20,25 +18,12 @@ import 'dart:async'; // For Timer
 final _modalSelectedProdDefProvider =
     StateProvider.autoDispose<ProductDefinitionData?>((ref) => null);
 
-// State for the accumulated list of product definitions in the modal
-final _modalProductDefinitionsListProvider =
-    StateProvider.autoDispose<List<ProductDefinitionData>>((ref) => []);
-
-// State for the current page of product definitions loaded IN THE MODAL for its own pagination
-final _modalProductDefinitionsCurrentPageProvider =
-    StateProvider.autoDispose<int>((ref) => 1);
-
-// State to track if all product definitions have been loaded for the current search/filter
-final _modalAllProductDefinitionsLoadedProvider =
-    StateProvider.autoDispose<bool>((ref) => false);
-
 // State for the search text specifically within this modal for Product Definitions
 final _modalPdSearchTextProvider =
     StateProvider.autoDispose<String>((ref) => '');
 
 class SelectInventoryItemModal extends ConsumerWidget {
   final int bookingId;
-  final bool _isVisibleFilter = true; // For active product definitions
 
   const SelectInventoryItemModal({super.key, required this.bookingId});
 
@@ -58,42 +43,16 @@ class SelectInventoryItemModal extends ConsumerWidget {
     }
   }
 
-  // Function to fetch and append product definitions
-  Future<void> _fetchMoreProductDefinitions(
-      WidgetRef ref, BuildContext context) async {
-    final notifier =
-        ref.read(productDefinitionNotifierProvider(_isVisibleFilter).notifier);
-    final currentNotifierState = ref
-        .read(productDefinitionNotifierProvider(_isVisibleFilter))
-        .asData
-        ?.value;
-
-    final modalCurrentPage =
-        ref.read(_modalProductDefinitionsCurrentPageProvider);
-
-    if (currentNotifierState == null || currentNotifierState.isLoadingMore!) {
-      return;
-    }
-
-    if (modalCurrentPage > currentNotifierState.totalPages &&
-        currentNotifierState.totalPages != 0) {
-      // Check totalPages != 0 to handle initial state where totalPages might be 1 but no items
-      ref.read(_modalAllProductDefinitionsLoadedProvider.notifier).state = true;
-      print("All PDs loaded or notifier state not ready.");
-      return;
-    }
-
-    print(
-        "Modal fetching page: $modalCurrentPage for PDs from Notifier (which is at page ${currentNotifierState.currentPage})");
-    // We want the notifier to go to the *modal's* next desired page
-    await notifier.goToPage(modalCurrentPage, forLoadMore: true);
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedPD = ref.watch(_modalSelectedProdDefProvider);
     final currentBookingAsync =
         ref.watch(bookingDetailNotifierProvider(bookingId));
+    final modalSearchText = ref.watch(_modalPdSearchTextProvider);
+
+    // Fetch all active product definitions based on the current search text
+    final allProductDefsAsync =
+        ref.watch(allActiveProductDefinitionsProvider(modalSearchText));
 
     final Set<String> attachedSerialNumbers = currentBookingAsync
             .asData?.value?.bookingItems
@@ -108,71 +67,6 @@ class SelectInventoryItemModal extends ConsumerWidget {
           return map;
         }) ??
         {};
-
-    // Watch the main ProductDefinitionNotifier state
-    final productDefsNotifierStateAsync =
-        ref.watch(productDefinitionNotifierProvider(_isVisibleFilter));
-
-    // Listen to changes in the main ProductDefinitionNotifier state to update modal's list
-    ref.listen<AsyncValue<ProductDefinitionState>>(
-        productDefinitionNotifierProvider(_isVisibleFilter), (previous, next) {
-      next.whenData((pdState) {
-        final modalCurrentPage =
-            ref.read(_modalProductDefinitionsCurrentPageProvider);
-
-        // If it's the first page (either initial load or after a search reset)
-        if (pdState.currentPage == 1 && modalCurrentPage == 1) {
-          ref.read(_modalProductDefinitionsListProvider.notifier).state =
-              pdState.productDefinitions;
-        }
-        // If the notifier has loaded the page the modal was expecting for "load more"
-        else if (pdState.currentPage == modalCurrentPage &&
-            pdState.currentPage > (previous?.asData?.value?.currentPage ?? 0)) {
-          final currentModalList =
-              ref.read(_modalProductDefinitionsListProvider);
-          final Set<String?> existingIds =
-              currentModalList.map((e) => e.prodDefID).toSet();
-          final newItems = pdState.productDefinitions
-              .where((item) => !existingIds.contains(item.prodDefID))
-              .toList();
-          if (newItems.isNotEmpty) {
-            ref.read(_modalProductDefinitionsListProvider.notifier).state = [
-              ...currentModalList,
-              ...newItems
-            ];
-          }
-        }
-
-        if (pdState.currentPage >= pdState.totalPages &&
-            pdState.totalPages != 0) {
-          ref.read(_modalAllProductDefinitionsLoadedProvider.notifier).state =
-              true;
-        } else {
-          ref.read(_modalAllProductDefinitionsLoadedProvider.notifier).state =
-              false;
-        }
-      });
-    });
-
-    final displayedProductDefinitions =
-        ref.watch(_modalProductDefinitionsListProvider);
-    final allPDsLoaded = ref.watch(_modalAllProductDefinitionsLoadedProvider);
-    final modalSearchText = ref.watch(_modalPdSearchTextProvider);
-
-    // Client-side search/filter for the accumulated list
-    final List<ProductDefinitionData> filteredDisplayedProductDefinitions =
-        modalSearchText.isEmpty
-            ? displayedProductDefinitions
-            : displayedProductDefinitions
-                .where((pd) =>
-                    pd.prodDefName
-                        .toLowerCase()
-                        .contains(modalSearchText.toLowerCase()) ||
-                    (pd.prodDefDescription
-                            ?.toLowerCase()
-                            .contains(modalSearchText.toLowerCase()) ??
-                        false))
-                .toList();
 
     return Dialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -218,12 +112,7 @@ class SelectInventoryItemModal extends ConsumerWidget {
             Expanded(
               child: selectedPD == null
                   ? _buildProductDefinitionListView(
-                      context,
-                      ref,
-                      productDefsNotifierStateAsync,
-                      filteredDisplayedProductDefinitions, // Use filtered list
-                      allPDsLoaded,
-                    )
+                      context, ref, allProductDefsAsync)
                   : _buildSerialNumbersListView(
                       ref,
                       selectedPD.prodDefID!,
@@ -253,16 +142,14 @@ class SelectInventoryItemModal extends ConsumerWidget {
   Widget _buildProductDefinitionListView(
     BuildContext context,
     WidgetRef ref,
-    AsyncValue<ProductDefinitionState> productDefsNotifierStateAsync,
-    List<ProductDefinitionData> itemsToDisplay,
-    bool allItemsLoaded,
+    AsyncValue<List<ProductDefinitionData>> productDefsAsync,
   ) {
     Timer? searchDebounce;
 
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 8.0),
           child: TextField(
             decoration: InputDecoration(
               hintText: 'Search Product Definitions...',
@@ -275,122 +162,72 @@ class SelectInventoryItemModal extends ConsumerWidget {
             ),
             onChanged: (value) {
               searchDebounce?.cancel();
-              searchDebounce = Timer(const Duration(milliseconds: 400), () {
+              searchDebounce = Timer(const Duration(milliseconds: 350), () {
+                // Update the search text provider, which will trigger the family provider to refetch
                 ref.read(_modalPdSearchTextProvider.notifier).state = value;
-                // If server-side search is desired for PDs, trigger notifier search
-                ref
-                    .read(productDefinitionNotifierProvider(_isVisibleFilter)
-                        .notifier)
-                    .search(value);
-                ref
-                    .read(_modalProductDefinitionsCurrentPageProvider.notifier)
-                    .state = 1;
-                ref.read(_modalProductDefinitionsListProvider.notifier).state =
-                    [];
-                ref
-                    .read(_modalAllProductDefinitionsLoadedProvider.notifier)
-                    .state = false;
               });
             },
           ),
         ),
         Expanded(
-          child: productDefsNotifierStateAsync.when(
-            // Still use the notifier's overall loading/error for the container
-            loading: () =>
-                (ref.read(_modalProductDefinitionsListProvider).isEmpty)
-                    ? const Center(child: CircularProgressIndicator())
-                    : _buildPdList(context, ref, itemsToDisplay, allItemsLoaded,
-                        true), // Show list + load more if loading more
-            error: (err, st) => Center(
-                child: Text("Error: $err",
-                    style: const TextStyle(color: Colors.red))),
-            data: (pdState) {
-              if (itemsToDisplay.isEmpty &&
-                  pdState.searchText.isNotEmpty &&
-                  !pdState.isLoadingMore!) {
-                return const Center(
-                    child: Text("No products match your search."));
+          child: productDefsAsync.when(
+            data: (pdList) {
+              if (pdList.isEmpty) {
+                return Center(
+                  child: Text(
+                    ref.read(_modalPdSearchTextProvider).isEmpty
+                        ? "No products defined."
+                        : "No products match your search.",
+                    style: const TextStyle(
+                        fontStyle: FontStyle.italic, color: Colors.grey),
+                  ),
+                );
               }
-              if (itemsToDisplay.isEmpty && !pdState.isLoadingMore!) {
-                return const Center(
-                    child: Text("No products defined or loaded yet."));
-              }
-              return _buildPdList(
-                  context, ref, itemsToDisplay, allItemsLoaded, true);
+              return ListView.builder(
+                itemCount: pdList.length,
+                itemBuilder: (context, index) {
+                  final pdItem = pdList[index];
+                  return Card(
+                    elevation: 1.5,
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
+                    child: ListTile(
+                      title: Text(pdItem.prodDefName,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w500, fontSize: 13)),
+                      subtitle: Text(
+                        "Available Stock: ${pdItem.serialsCount ?? 0} | MSRP: ₱${(pdItem.prodDefMSRP ?? 0.0).toStringAsFixed(2)}",
+                        style: const TextStyle(fontSize: 11),
+                      ),
+                      trailing: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            textStyle: const TextStyle(fontSize: 11)),
+                        onPressed: (pdItem.serialsCount ?? 0) > 0
+                            ? () {
+                                // Only allow viewing if stock > 0
+                                ref
+                                    .read(
+                                        _modalSelectedProdDefProvider.notifier)
+                                    .state = pdItem;
+                              }
+                            : null,
+                        child: const Text(
+                            "View Serials"), // Disable button if no stock
+                      ),
+                    ),
+                  );
+                },
+              );
             },
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (err, st) => Center(
+                child: Text("Error loading products: $err",
+                    style: const TextStyle(color: Colors.red))),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildPdList(
-    BuildContext context,
-    WidgetRef ref,
-    List<ProductDefinitionData> itemsToDisplay,
-    bool allItemsLoaded,
-    bool isLoadingMore,
-  ) {
-    return ListView.builder(
-      itemCount:
-          itemsToDisplay.length + (allItemsLoaded || isLoadingMore ? 0 : 1),
-      itemBuilder: (context, index) {
-        if (index == itemsToDisplay.length &&
-            !allItemsLoaded &&
-            !isLoadingMore) {
-          return Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  final currentPage =
-                      ref.read(_modalProductDefinitionsCurrentPageProvider);
-                  ref
-                      .read(
-                          _modalProductDefinitionsCurrentPageProvider.notifier)
-                      .state = currentPage + 1;
-                  _fetchMoreProductDefinitions(ref, context);
-                },
-                child: const Text("Load More Products"),
-              ),
-            ),
-          );
-        }
-        if (index >= itemsToDisplay.length) {
-          return isLoadingMore
-              ? const Center(
-                  child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: CircularProgressIndicator(strokeWidth: 2)))
-              : const SizedBox.shrink();
-        }
-
-        final pdItem = itemsToDisplay[index];
-        return Card(
-          elevation: 1.5,
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
-          child: ListTile(
-            title: Text(pdItem.prodDefName,
-                style:
-                    const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)),
-            subtitle: Text(
-              "Stock: ${pdItem.serialsCount ?? 'N/A'} | MSRP: ₱${(pdItem.prodDefMSRP ?? 0.0).toStringAsFixed(2)}",
-              style: const TextStyle(fontSize: 11),
-            ),
-            trailing: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  textStyle: const TextStyle(fontSize: 11)),
-              child: const Text("View Serials"),
-              onPressed: () {
-                ref.read(_modalSelectedProdDefProvider.notifier).state = pdItem;
-              },
-            ),
-          ),
-        );
-      },
     );
   }
 

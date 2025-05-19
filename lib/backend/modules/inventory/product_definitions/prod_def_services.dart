@@ -143,6 +143,37 @@ class ProductDefinitionServices {
     }
   }
 
+  Future<List<ProductDefinitionData>> fetchAllActiveProductDefinitions({
+    String? searchQuery,
+    String sortBy = 'prodDefName', // Default sort for the full list
+    bool ascending = true,
+  }) async {
+    try {
+      var query = supabaseDB
+          .from('product_definitions')
+          .select(
+              _baseProductDefinitionsSelect) // Ensure this fetches 'item_serials(count)'
+          .eq('isVisible', true);
+
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        final searchTerm = "%$searchQuery%";
+        // Adjust search fields as needed. This example searches name and description.
+        query = query.or(
+            'prodDefName.ilike.$searchTerm,prodDefDescription.ilike.$searchTerm');
+      }
+      // No .range() for pagination, fetch all that match
+      final results = await query.order(sortBy, ascending: ascending);
+
+      if (results.isEmpty) return [];
+      return results
+          .map((item) => ProductDefinitionData.fromJson(item))
+          .toList();
+    } catch (err, st) {
+      print('Error fetching all active product definitions: $err \n $st');
+      rethrow; // Rethrow to be caught by the FutureProvider
+    }
+  }
+
   //Add - Update - Archive Methods
   Future<ProductDefinitionData> addProductDefinition(
       ProductDefinitionData newProdDef) async {

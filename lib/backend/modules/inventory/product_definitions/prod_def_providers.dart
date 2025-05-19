@@ -54,3 +54,9 @@ final dashboardLowStockItemsProvider =
   // Return the top 5 (or fewer if less than 5 are low)
   return lowStockItems.take(5).toList();
 });
+
+final allActiveProductDefinitionsProvider = FutureProvider.autoDispose
+    .family<List<ProductDefinitionData>, String?>((ref, searchQuery) async {
+  final service = ref.watch(productDefinitionServiceProv);
+  return service.fetchAllActiveProductDefinitions(searchQuery: searchQuery);
+});
