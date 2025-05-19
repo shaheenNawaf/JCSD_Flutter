@@ -618,6 +618,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                                         ),
                                       ),
                                     ),
+                                    const DataColumn(
+                                      label: Text(
+                                        'Hours Worked',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'NunitoSans',
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
                                     if (isAdmin)
                                       const DataColumn(
                                         label: Text(
@@ -651,6 +661,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                                                 DateTime.parse(
                                                     attendance['check_out_time']))
                                             : 'N/A')),
+                                        DataCell(
+                                          Text(
+                                            (attendance['check_in_time'] != null && attendance['check_out_time'] != null)
+                                                ? (() {
+                                                    final checkIn = DateTime.parse(attendance['check_in_time']);
+                                                    final checkOut = DateTime.parse(attendance['check_out_time']);
+                                                    final duration = checkOut.difference(checkIn);
+                                                    final hours = duration.inHours;
+                                                    final minutes = duration.inMinutes.remainder(60);
+                                                    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
+                                                  })()
+                                                : 'N/A',
+                                          ),
+                                        ),
                                         if (isAdmin)
                                           DataCell(
                                             // Only show if admin
