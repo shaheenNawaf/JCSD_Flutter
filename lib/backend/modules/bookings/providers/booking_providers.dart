@@ -4,11 +4,7 @@ import 'package:jcsd_flutter/backend/modules/bookings/application/booking_module
 
 //Booking Imports
 import 'package:jcsd_flutter/backend/modules/bookings/application/booking_services.dart';
-import 'package:jcsd_flutter/backend/modules/bookings/booking_enums.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/data/booking.dart';
-import 'package:jcsd_flutter/backend/modules/bookings/data/booking_assignment.dart';
-import 'package:jcsd_flutter/backend/modules/bookings/data/booking_item.dart';
-import 'package:jcsd_flutter/backend/modules/bookings/data/booking_service_item.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/infrastructure/booking_repository.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/state/detail_view/booking_detail_notifier.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/state/list_view/booking_list_notifier.dart';
@@ -20,7 +16,7 @@ import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serializ
 
 /// Provider for the Booking Repository implementation.
 final bookingRepositoryProvider = Provider<BookingRepository>((ref) {
-  return BookingRepository();
+  return BookingModuleServices();
 });
 
 /// Provider for the Booking Service.

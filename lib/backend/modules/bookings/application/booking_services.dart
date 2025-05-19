@@ -15,7 +15,6 @@ import 'package:jcsd_flutter/backend/modules/bookings/infrastructure/booking_rep
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_service.dart';
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services.dart';
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
-import 'package:printing/printing.dart';
 
 class BookingService {
   final BookingRepository _bookingRepository;

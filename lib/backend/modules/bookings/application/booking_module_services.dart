@@ -13,10 +13,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 // API
 import 'package:jcsd_flutter/api/global_variables.dart'; // Your global Supabase client
 
-class BookingModuleServices {
-  final BookingRepository _bookingRepository;
-  BookingModuleServices(this._bookingRepository);
-
+class BookingModuleServices implements BookingRepository {
   /// Base Select Query
   final String _baseQueryWithRelations = '''
    *,
