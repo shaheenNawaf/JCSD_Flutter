@@ -176,15 +176,6 @@ class _DigitalClockState extends State<DigitalClock> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        const Text(
-          "Have a nice day!",
-          style: TextStyle(
-            fontFamily: 'NunitoSans',
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-            color: Color.fromARGB(255, 82, 209, 255),
-          ),
-        ),
         Text(
           DateFormat('hh:mm:ss a').format(_currentTime),
           style: const TextStyle(
@@ -260,7 +251,7 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
               style: TextStyle(
                 fontFamily: 'NunitoSans',
                 fontWeight: FontWeight.bold,
-                fontSize: 18,
+                fontSize: 25,
               ),
             ),
             DigitalClock(),
@@ -297,7 +288,17 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
             ),
           ],
         ),
-        const SizedBox(height: 30),
+        const SizedBox(height: 25),
+        const Text(
+          'Quick Navigation',
+          style: TextStyle(
+            fontFamily: 'NunitoSans',
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        _buildModuleNavigationButtons(context),
+        const SizedBox(height: 25),
         const Text(
           'Low Stocks',
           style: TextStyle(
@@ -309,30 +310,18 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
         const SizedBox(height: 12),
         _buildLowStocksTable(ref),
         const SizedBox(height: 30),
-        Row(
+        const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Text(
+            Text(
               'Recent Activity',
               style: TextStyle(
                 fontFamily: 'NunitoSans',
                 fontWeight: FontWeight.bold,
                 fontSize: 18,
               ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                context.go('/bookings');
-              },
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF00AEEF),
-                  foregroundColor: Colors.white,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 15, vertical: 10)),
-              child: const Text('View All Bookings',
-                  style: TextStyle(fontSize: 12, fontFamily: 'NunitoSans')),
-            ),
+            )
           ],
         ),
         const SizedBox(height: 12),
@@ -850,6 +839,55 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
                 child: Text("Error loading recent bookings: $err",
                     style: const TextStyle(
                         fontFamily: 'NunitoSans', color: Colors.red)))),
+      ),
+    );
+  }
+
+  Widget _buildModuleNavigationButtons(BuildContext context) {
+    final ButtonStyle buttonStyle = ElevatedButton.styleFrom(
+      backgroundColor: const Color(0xFF00AEEF),
+      foregroundColor: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      textStyle: const TextStyle(
+          fontSize: 14, fontFamily: 'NunitoSans', fontWeight: FontWeight.w600),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      minimumSize: const Size(150, 50),
+    );
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Wrap(
+        spacing: 16.0,
+        runSpacing: 12.0,
+        alignment: WrapAlignment.center,
+        children: [
+          ElevatedButton.icon(
+            icon: const Icon(
+              FontAwesomeIcons.calendarCheck,
+              size: 18,
+              color: Colors.white,
+            ),
+            label: const Text("Manage Bookings"),
+            style: buttonStyle,
+            onPressed: () {
+              context.go('/bookings');
+            },
+          ),
+          ElevatedButton.icon(
+            icon: const Icon(
+              FontAwesomeIcons.boxesStacked,
+              size: 18,
+              color: Colors.white,
+            ),
+            label: const Text("Manage Inventory"),
+            style: buttonStyle,
+            onPressed: () {
+              context.go('/inventory');
+            },
+          ),
+        ],
       ),
     );
   }

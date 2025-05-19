@@ -238,8 +238,9 @@ class _CreateReturnOrderModalState
                     children: [
                       poDetailsAsync.when(
                         data: (po) {
-                          if (po == null)
+                          if (po == null) {
                             return const Text("Error: PO details not found.");
+                          }
                           return supplierNamesMapAsync.when(
                             data: (map) => _buildReadOnlyField("Supplier:",
                                 map[po.supplierID] ?? "ID: ${po.supplierID}"),
