@@ -19,6 +19,7 @@ class _EditEmployeeDetailsModalState
     extends ConsumerState<EditEmployeeDetailsModal> {
   late TextEditingController _salaryController;
   late String _selectedRole;
+  late String _selectedPosition;
 
   @override
   void initState() {
@@ -26,6 +27,7 @@ class _EditEmployeeDetailsModalState
     _salaryController =
         TextEditingController(text: widget.emp.monthlySalary.toString());
     _selectedRole = widget.emp.companyRole;
+    _selectedPosition = widget.emp.position;
   }
 
   void _showNotification(BuildContext context, String message) {
@@ -41,10 +43,12 @@ class _EditEmployeeDetailsModalState
 
       // Only include companyRole and isAdmin if not editing own role
       final isEditingSelf = currentUserId == targetUserId;
+
       final newSalary = double.tryParse(_salaryController.text.trim()) ?? 15000;
 
       final Map<String, dynamic> updatedData = {
         'monthlySalary': newSalary,
+        'position': _selectedPosition,
       };
 
       if (!isEditingSelf) {
@@ -68,6 +72,7 @@ class _EditEmployeeDetailsModalState
         employeeID: widget.emp.employeeID,
         userID: widget.emp.userID,
         isAdmin: isEditingSelf ? widget.emp.isAdmin : _selectedRole == 'Admin',
+        position: _selectedPosition,
         companyRole: isEditingSelf ? widget.emp.companyRole : _selectedRole,
         isActive: widget.emp.isActive,
         createDate: widget.emp.createDate,
@@ -195,7 +200,7 @@ class _EditEmployeeDetailsModalState
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     double containerWidth = screenWidth > 300 ? 400 : screenWidth * 0.9;
-    const double containerHeight = 300;
+    const double containerHeight = 370;
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -244,13 +249,28 @@ class _EditEmployeeDetailsModalState
                 ),
                 const SizedBox(height: 16),
                 _buildDropdownField(
-                  label: 'Company Role',
+                  label: 'System Controls',
                   hintText: 'Select role',
                   value: _selectedRole,
                   items: const ['Employee', 'Admin'],
                   onChanged: (String? value) {
                     setState(() {
                       _selectedRole = value ?? 'Employee';
+                    });
+                  },
+                ),
+                _buildDropdownField(
+                  label: 'Position',
+                  hintText: 'Select position',
+                  value: _selectedPosition,
+                  items: const [
+                    'Computer Repair Technician',
+                    'IT Support Technician',
+                    'Field Service Technician'
+                  ],
+                  onChanged: (String? value) {
+                    setState(() {
+                      _selectedPosition = value ?? 'Computer Repair Technician';
                     });
                   },
                 ),

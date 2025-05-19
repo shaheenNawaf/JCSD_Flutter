@@ -20,7 +20,7 @@ class EmployeeService {
       final results = await supabaseDB
           .from('employee')
           .select(
-              'employeeID, userID, isAdmin, companyRole, isActive, createDate, monthlySalary')
+              'employeeID, userID, isAdmin, companyRole, position, isActive, createDate, monthlySalary')
           .order(sortBy, ascending: ascending)
           .range(from, to);
 
@@ -30,6 +30,7 @@ class EmployeeService {
           userID: e['userID'].toString(),
           isAdmin: e['isAdmin'] as bool,
           companyRole: e['companyRole'] as String,
+          position: e['position'] as String,
           isActive: e['isActive'] as bool,
           createDate: DateTime.parse(e['createDate']),
           monthlySalary: double.parse(e['monthlySalary'].toString()),
@@ -122,6 +123,7 @@ class EmployeeService {
     required String password,
     required String role,
     required bool isAdmin,
+    required String position,
     required String firstName,
     required String lastName,
     required String middleInitial,
@@ -159,6 +161,7 @@ class EmployeeService {
     await supabaseDB.from('employee').insert({
       'userID': userID,
       'companyRole': role,
+      'position': position,
       'isAdmin': isAdmin,
       'isActive': true,
       'monthlySalary': 15000,

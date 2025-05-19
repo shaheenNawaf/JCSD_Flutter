@@ -14,7 +14,8 @@ import 'package:month_picker_dialog/month_picker_dialog.dart';
 class Payroll extends StatefulWidget {
   final EmployeeData? employee;
   final AccountsData? account;
-  const Payroll({
+
+  Payroll({
     super.key,
     required this.employee,
     required this.account,
@@ -27,6 +28,7 @@ class Payroll extends StatefulWidget {
 class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   DateTime selectedDate = DateTime.now();
+  AccountsData? get user => widget.account;
 
   @override
   void initState() {
@@ -56,6 +58,14 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
         return const EditPayrollModal();
       },
     );
+  }
+
+  String _display(dynamic v) =>
+      (v == null || (v is String && v.trim().isEmpty)) ? 'N/A' : v.toString();
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'N/A';
+    return '${date.month}/${date.day}/${date.year}';
   }
 
   @override
@@ -177,10 +187,6 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
     );
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.month}/${date.day}/${date.year}';
-  }
-
   Widget _buildWebView() {
     return Container(
       decoration: BoxDecoration(
@@ -208,27 +214,23 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
                   const SizedBox(height: 20),
                   _buildSectionTitle('Basic Information'),
                   _buildInfoRow(FontAwesomeIcons.envelope, 'Email: ',
-                      widget.account!.email),
+                      _display(user?.email)),
                   _buildInfoRow(FontAwesomeIcons.phone, 'Phone: ',
-                      widget.account?.contactNumber ?? 'N/A'),
-                  _buildInfoRow(
-                      FontAwesomeIcons.cakeCandles,
-                      'Birthday: ',
-                      widget.account?.birthDate != null
-                          ? _formatDate(widget.account!.birthDate!)
-                          : 'N/A'),
+                      _display(user?.contactNumber)),
+                  _buildInfoRow(FontAwesomeIcons.cakeCandles, 'Birthday: ',
+                      _formatDate(user?.birthDate)),
                   _buildDivider(),
                   _buildSectionTitle('Address'),
                   _buildInfoRow(FontAwesomeIcons.locationDot, 'Address: ',
-                      widget.account!.address),
+                      _display(user?.address)),
+                  _buildInfoRow(FontAwesomeIcons.flag, 'Region: ',
+                      _display(user?.region)),
+                  _buildInfoRow(FontAwesomeIcons.globe, 'Province: ',
+                      _display(user?.province)),
                   _buildInfoRow(
-                      FontAwesomeIcons.city, 'City: ', widget.account!.city),
-                  _buildInfoRow(FontAwesomeIcons.globe, 'Region: ',
-                      widget.account!.region),
-                  _buildDivider(),
-                  _buildSectionTitle('Employee Details'),
-                  _buildInfoRow(FontAwesomeIcons.user, 'Title: ',
-                      widget.employee!.companyRole),
+                      FontAwesomeIcons.city, 'City: ', _display(user?.city)),
+                  _buildInfoRow(FontAwesomeIcons.mapPin, 'Zip Code: ',
+                      _display(user?.zipCode)),
                 ],
               ),
             ),
@@ -296,13 +298,15 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
 
   Widget _buildProfileHeader() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 25, 0, 0),
+      padding: const EdgeInsets.fromLTRB(20, 10, 0, 0),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(30.0),
             decoration: const BoxDecoration(
-                shape: BoxShape.circle, color: Colors.black38),
+              shape: BoxShape.circle,
+              color: Colors.black38,
+            ),
             child: const FaIcon(FontAwesomeIcons.user,
                 color: Colors.white, size: 35),
           ),
@@ -311,14 +315,17 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '${widget.account!.firstName} ${widget.account!.lastname}',
+                "${user?.firstName ?? 'N/A'} ${user?.lastname ?? ''}",
                 style: const TextStyle(
-                    fontFamily: 'NunitoSans',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16),
+                  fontFamily: 'NunitoSans',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
               Text(
-                widget.employee!.companyRole,
+                (widget.employee?.position) != null
+                    ? widget.employee!.position
+                    : 'N/A',
                 style: const TextStyle(fontFamily: 'NunitoSans', fontSize: 14),
               ),
             ],
@@ -328,15 +335,13 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(40, 10, 0, 20),
-      child: Text(
-        title,
-        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
+  Widget _buildSectionTitle(String title) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 10, 0, 20),
+        child: Text(
+          title,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+      );
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
@@ -344,7 +349,7 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(40, 0, 10, 10),
+          padding: const EdgeInsets.fromLTRB(20, 0, 10, 10),
           child: SizedBox(
               width: 25, child: FaIcon(icon, color: Colors.grey, size: 20)),
         ),
@@ -354,9 +359,8 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget _buildDivider() {
-    return Divider(color: Colors.grey[300], indent: 40, endIndent: 40);
-  }
+  Widget _buildDivider() =>
+      Divider(color: Colors.grey[300], indent: 40, endIndent: 40);
 }
 
 class EmployeePayrollTable extends ConsumerWidget {

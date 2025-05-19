@@ -844,7 +844,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                 ),
               ),
               Text(
-                (emp?.isAdmin ?? false) ? 'Admin' : 'Employee',
+                (emp?.position) != null ? emp!.position : 'N/A',
                 style: const TextStyle(fontFamily: 'NunitoSans', fontSize: 14),
               ),
             ],
