@@ -36,7 +36,6 @@ class _SidebarState extends ConsumerState<Sidebar> {
         widget.activePage == '/orderList' ||
         widget.activePage == '/auditLog';
     _isBookingsExpanded = widget.activePage.startsWith('/bookings') ||
-        widget.activePage == '/bookingsCalendar' ||
         widget.activePage == '/transactions';
     _isSuppliersExpanded = widget.activePage.startsWith('/suppliers') ||
         widget.activePage == '/supplierArchive';
@@ -205,13 +204,6 @@ class _SidebarState extends ConsumerState<Sidebar> {
                           route: '/bookings',
                           isActive: _activeSubItem == '/bookings',
                           onTap: () => _navigateTo('/bookings'),
-                        ),
-                        SubSidebarItem(
-                          icon: FontAwesomeIcons.calendar,
-                          title: 'Calendar',
-                          route: '/bookingsCalendar',
-                          isActive: _activeSubItem == '/bookingsCalendar',
-                          onTap: () => _navigateTo('/bookingsCalendar'),
                         ),
                         SubSidebarItem(
                           icon: FontAwesomeIcons.fileInvoiceDollar,
