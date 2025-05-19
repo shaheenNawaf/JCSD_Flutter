@@ -603,16 +603,15 @@ class _ProfilePageClientState extends ConsumerState<ProfilePageClient> {
               children: [
                 const SizedBox(height: 4),
                 Text(
-                    DateFormat.yMMMEd()
-                        .add_jm()
-                        .format(booking.scheduledStartTime),
-                    style: const TextStyle(
-                        fontFamily: 'NunitoSans', fontSize: 13)),
+                  DateFormat.yMMMEd()
+                      .add_jm()
+                      .format(booking.scheduledStartTime),
+                  style:
+                      const TextStyle(fontFamily: 'NunitoSans', fontSize: 13),
+                ),
+                const SizedBox(height: 10),
                 Text(
-                    booking.bookingType.name
-                        .replaceAllMapped(
-                            RegExp(r'[A-Z]'), (match) => ' ${match.group(0)}')
-                        .trim(),
+                    "Booking Type: ${booking.bookingType.name.replaceAllMapped(RegExp(r'[A-Z]'), (match) => ' ${match.group(0)}').trim().toUpperCase()}",
                     style: const TextStyle(
                         fontFamily: 'NunitoSans', fontSize: 13)),
               ],
@@ -697,7 +696,8 @@ class _ProfilePageClientState extends ConsumerState<ProfilePageClient> {
     Color chipColor;
     String chipText = status.name
         .replaceAllMapped(RegExp(r'[A-Z]'), (match) => ' ${match.group(0)}')
-        .trim();
+        .trim()
+        .toUpperCase();
 
     switch (status) {
       case BookingStatus.pendingConfirmation:

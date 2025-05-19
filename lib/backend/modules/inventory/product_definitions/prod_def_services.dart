@@ -7,7 +7,6 @@ import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_
 import 'package:jcsd_flutter/backend/modules/audit_logs/audit_services.dart';
 
 //Set default limit - hardcoded
-//TODO: User settable - soon once for QA/Polishing
 const int defaultItemsPerPage = 10;
 
 class ProductDefinitionServices {
