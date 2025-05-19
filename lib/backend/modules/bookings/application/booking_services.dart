@@ -15,6 +15,7 @@ import 'package:jcsd_flutter/backend/modules/bookings/infrastructure/booking_rep
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_service.dart';
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services.dart';
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
+import 'package:printing/printing.dart';
 
 class BookingService {
   final BookingRepository _bookingRepository;
@@ -207,7 +208,6 @@ class BookingService {
       throw Exception(
           "Booking cannot be confirmed. Current status: ${currentBooking.status.name}");
     }
-    // TODO: Validate employeeId exists/is active?
 
     try {
       await _bookingRepository.assignEmployeeToBooking(bookingId, employeeId);
@@ -216,6 +216,29 @@ class BookingService {
           adminNotes: adminNotes);
       print(
           "BookingService: Booking $bookingId confirmed and assigned to employee $employeeId.");
+
+      final items = await _bookingRepository.getBookingItems(bookingId);
+      List<String> failedInventoryUpdates = [];
+      if (items.isNotEmpty) {
+        print(
+            "BookingService: Attempting to update ${items.length} serial items to status 'Reserved' for confirmed booking $bookingId.");
+        for (var item in items) {
+          try {
+            await _inventoryService.updateSerializedItemStatus(
+                item.serialNumber, 'Reserved'); // Directly set to 'Reserved'
+            print(
+                "BookingService: Serial item ${item.serialNumber} status updated to Reserved.");
+          } catch (invError) {
+            print(
+                "BookingService Warning: Failed inventory update for ${item.serialNumber} to Reserved: $invError");
+            failedInventoryUpdates.add(item.serialNumber);
+          }
+        }
+        if (failedInventoryUpdates.isNotEmpty) {
+          print(
+              "BookingService: Inventory status update to Reserved failed for items: ${failedInventoryUpdates.join(', ')}");
+        }
+      }
       // TODO: Trigger notification to Customer and assigned Employee
       return updatedBooking;
     } catch (e) {
@@ -243,7 +266,32 @@ class BookingService {
           adminNotes: adminNote, employeeNotes: employeeNote);
       print(
           "BookingService: Status updated for booking $bookingId to ${newStatus.name}.");
-      // TODO: Trigger relevant notifications
+      final String? targetSerialItemStatus =
+          _getSerialItemStatusForBookingStatus(newStatus);
+
+      if (targetSerialItemStatus != null) {
+        final items = await _bookingRepository.getBookingItems(bookingId);
+        List<String> failedInventoryUpdates = [];
+        print(
+            "BookingService: Attempting to update ${items.length} serial items to status $targetSerialItemStatus for booking $bookingId.");
+        for (var item in items) {
+          try {
+            await _inventoryService.updateSerializedItemStatus(
+                item.serialNumber, targetSerialItemStatus);
+            print(
+                "BookingService: Serial item ${item.serialNumber} status updated to $targetSerialItemStatus.");
+          } catch (invError) {
+            print(
+                "BookingService Warning: Failed inventory update for ${item.serialNumber} to $targetSerialItemStatus: $invError");
+            failedInventoryUpdates.add(item.serialNumber);
+          }
+        }
+        if (failedInventoryUpdates.isNotEmpty) {
+          // Handle or log these failures more robustly if needed
+          print(
+              "BookingService: Inventory status update to $targetSerialItemStatus failed for items: ${failedInventoryUpdates.join(', ')}");
+        }
+      }
       return updatedBooking;
     } catch (e) {
       print("BookingService Error updating status for booking $bookingId: $e");
@@ -261,7 +309,6 @@ class BookingService {
       throw Exception(
           "Cannot add items to booking in status: ${currentBooking.status.name}");
     }
-    // TODO: Validate serialNumber exists and is 'Available' using _inventoryService.
 
     try {
       final addedItem = await _bookingRepository.addBookingItem(
@@ -272,7 +319,7 @@ class BookingService {
         await _bookingRepository.updateBookingDetails(bookingUpdateData);
       }
       await _inventoryService.updateSerializedItemStatus(
-          serialNumber, 'Allocated');
+          serialNumber, 'Reserved');
       print(
           "BookingService: Item $serialNumber added to Booking $bookingId and marked Allocated.");
       return addedItem;
@@ -300,7 +347,7 @@ class BookingService {
     try {
       await _bookingRepository.removeBookingItem(bookingItemId);
       await _inventoryService.updateSerializedItemStatus(
-          serialNumberToUpdate, 'Available');
+          serialNumberToUpdate, 'Unused');
 
       // Re-check if admin approval is still needed
       if (currentBooking.requiresAdminApproval) {
@@ -514,6 +561,20 @@ class BookingService {
     } catch (e) {
       print("BookingService Error removing assignment $assignmentId: $e");
       rethrow;
+    }
+  }
+
+  // Additional Helper Service
+  String? _getSerialItemStatusForBookingStatus(BookingStatus bookingStatus) {
+    switch (bookingStatus) {
+      case BookingStatus.confirmed:
+        return 'Reserved';
+      case BookingStatus.pendingAdminApproval:
+        return 'Pending';
+      case BookingStatus.cancelled:
+        return 'Unused';
+      default:
+        return null;
     }
   }
 }

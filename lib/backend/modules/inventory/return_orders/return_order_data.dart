@@ -1,3 +1,6 @@
+import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_item_data.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_status.dart';
+
 class ReturnOrderData {
   final int? id;
   final DateTime? createdAt;
