@@ -164,14 +164,14 @@ class _SidebarState extends ConsumerState<Sidebar> {
                         ),
                         userRoleAsyncValue.when(
                           data: (role) => role != 'employee'
-                            ? SubSidebarItem(
-                              icon: FontAwesomeIcons.boxArchive,
-                              title: 'Archive List',
-                              route: '/archiveList',
-                              isActive: _activeSubItem == '/archiveList',
-                              onTap: () => _navigateTo('/archiveList'),
-                            )
-                            : const SizedBox.shrink(),
+                              ? SubSidebarItem(
+                                  icon: FontAwesomeIcons.boxArchive,
+                                  title: 'Archive List',
+                                  route: '/archiveList',
+                                  isActive: _activeSubItem == '/archiveList',
+                                  onTap: () => _navigateTo('/archiveList'),
+                                )
+                              : const SizedBox.shrink(),
                           loading: () => const SizedBox.shrink(),
                           error: (error, stackTrace) => const SizedBox.shrink(),
                         ),
@@ -217,120 +217,113 @@ class _SidebarState extends ConsumerState<Sidebar> {
                           isActive: _activeSubItem == '/bookings',
                           onTap: () => _navigateTo('/bookings'),
                         ),
-                        userRoleAsyncValue.when(
-                          data: (role) => role != 'employee'
-                              ? SubSidebarItem(
-                                icon: FontAwesomeIcons.fileInvoiceDollar,
-                                title: 'Transactions',
-                                route: '/transactions',
-                                isActive: _activeSubItem == '/transactions',
-                                onTap: () => _navigateTo('/transactions'),
-                              )
-                              : const SizedBox.shrink(),
-                          loading: () => const SizedBox.shrink(),
-                          error: (error, stackTrace) => const SizedBox.shrink(),
-                        )
                       ],
-                        userRoleAsyncValue.when(
+                      userRoleAsyncValue.when(
                         data: (role) => role != 'employee'
-                          ? Column(
-                            children: [
-                              SidebarItemWithDropdown(
-                              icon: FontAwesomeIcons.truck,
-                              title: 'Suppliers',
-                              isActive: false,
-                              isExpanded: _isSuppliersExpanded,
-                              onTap: () => _toggleDropdown('suppliers'),
-                              ),
-                              if (_isSuppliersExpanded) ...[
-                              SubSidebarItem(
-                                icon: FontAwesomeIcons.table,
-                                title: 'Table List',
-                                route: '/suppliers',
-                                isActive: _activeSubItem == '/suppliers',
-                                onTap: () => _navigateTo('/suppliers'),
-                              ),
-                              SubSidebarItem(
-                                icon: FontAwesomeIcons.boxArchive,
-                                title: 'Archive List',
-                                route: '/supplierArchive',
-                                isActive: _activeSubItem == '/supplierArchive',
-                                onTap: () => _navigateTo('/supplierArchive'),
-                              ),
-                              ],
-                            ],
-                            )
-                          : const SizedBox.shrink(),
+                            ? Column(
+                                children: [
+                                  SidebarItemWithDropdown(
+                                    icon: FontAwesomeIcons.truck,
+                                    title: 'Suppliers',
+                                    isActive: false,
+                                    isExpanded: _isSuppliersExpanded,
+                                    onTap: () => _toggleDropdown('suppliers'),
+                                  ),
+                                  if (_isSuppliersExpanded) ...[
+                                    SubSidebarItem(
+                                      icon: FontAwesomeIcons.table,
+                                      title: 'Table List',
+                                      route: '/suppliers',
+                                      isActive: _activeSubItem == '/suppliers',
+                                      onTap: () => _navigateTo('/suppliers'),
+                                    ),
+                                    SubSidebarItem(
+                                      icon: FontAwesomeIcons.boxArchive,
+                                      title: 'Archive List',
+                                      route: '/supplierArchive',
+                                      isActive:
+                                          _activeSubItem == '/supplierArchive',
+                                      onTap: () =>
+                                          _navigateTo('/supplierArchive'),
+                                    ),
+                                  ],
+                                ],
+                              )
+                            : const SizedBox.shrink(),
                         loading: () => const SizedBox.shrink(),
                         error: (error, stackTrace) => const SizedBox.shrink(),
-                        ),
-                        userRoleAsyncValue.when(
+                      ),
+                      userRoleAsyncValue.when(
                         data: (role) => role != 'employee'
-                          ? Column(
-                            children: [
-                              SidebarItemWithDropdown(
-                              icon: FontAwesomeIcons.gears,
-                              title: 'Services',
-                              isActive: false,
-                              isExpanded: _isServicesExpanded,
-                              onTap: () => _toggleDropdown('services'),
-                              ),
-                              if (_isServicesExpanded) ...[
-                              SubSidebarItem(
-                                icon: FontAwesomeIcons.table,
-                                title: 'Table List',
-                                route: '/services',
-                                isActive: _activeSubItem == '/services',
-                                onTap: () => _navigateTo('/services'),
-                              ),
-                              SubSidebarItem(
-                                icon: FontAwesomeIcons.boxArchive,
-                                title: 'Archive List',
-                                route: '/servicesArchive',
-                                isActive: _activeSubItem == '/servicesArchive',
-                                onTap: () => _navigateTo('/servicesArchive'),
-                              ),
-                              ],
-                            ],
-                            )
-                          : const SizedBox.shrink(),
+                            ? Column(
+                                children: [
+                                  SidebarItemWithDropdown(
+                                    icon: FontAwesomeIcons.gears,
+                                    title: 'Services',
+                                    isActive: false,
+                                    isExpanded: _isServicesExpanded,
+                                    onTap: () => _toggleDropdown('services'),
+                                  ),
+                                  if (_isServicesExpanded) ...[
+                                    SubSidebarItem(
+                                      icon: FontAwesomeIcons.table,
+                                      title: 'Table List',
+                                      route: '/services',
+                                      isActive: _activeSubItem == '/services',
+                                      onTap: () => _navigateTo('/services'),
+                                    ),
+                                    SubSidebarItem(
+                                      icon: FontAwesomeIcons.boxArchive,
+                                      title: 'Archive List',
+                                      route: '/servicesArchive',
+                                      isActive:
+                                          _activeSubItem == '/servicesArchive',
+                                      onTap: () =>
+                                          _navigateTo('/servicesArchive'),
+                                    ),
+                                  ],
+                                ],
+                              )
+                            : const SizedBox.shrink(),
                         loading: () => const SizedBox.shrink(),
                         error: (error, stackTrace) => const SizedBox.shrink(),
-                        ),
-                        userRoleAsyncValue.when(
+                      ),
+                      userRoleAsyncValue.when(
                         data: (role) => role != 'employee'
-                          ? Column(
-                            children: [
-                              SidebarItemWithDropdown(
-                                icon: FontAwesomeIcons.solidUser,
-                                title: 'Profiling',
-                                isActive: false,
-                                isExpanded: _isProfilingExpanded,
-                                onTap: () => _toggleDropdown('profiling'),
-                              ),
-                          if (_isProfilingExpanded) ...[
-                            SubSidebarItem(
-                              icon: FontAwesomeIcons.userGroup,
-                              title: 'Accounts List',
-                              route: '/accountList',
-                              isActive: _activeSubItem == '/accountList',
-                              onTap: () => _navigateTo('/accountList'),
-                            ),
-                            SubSidebarItem(
-                              icon: FontAwesomeIcons.userGroup,
-                              title: 'Employee List',
-                              route: '/employeeList',
-                              isActive: _activeSubItem == '/employeeList',
-                              onTap: () => _navigateTo('/employeeList'),
-                            ),
-                          ],
-                        ],
-                      )
-                      : const SizedBox.shrink(),
-                  loading: () => const SizedBox.shrink(),
-                  error: (error, stackTrace) => const SizedBox.shrink(),
-                  ),
-                  ],
+                            ? Column(
+                                children: [
+                                  SidebarItemWithDropdown(
+                                    icon: FontAwesomeIcons.solidUser,
+                                    title: 'Profiling',
+                                    isActive: false,
+                                    isExpanded: _isProfilingExpanded,
+                                    onTap: () => _toggleDropdown('profiling'),
+                                  ),
+                                  if (_isProfilingExpanded) ...[
+                                    SubSidebarItem(
+                                      icon: FontAwesomeIcons.userGroup,
+                                      title: 'Accounts List',
+                                      route: '/accountList',
+                                      isActive:
+                                          _activeSubItem == '/accountList',
+                                      onTap: () => _navigateTo('/accountList'),
+                                    ),
+                                    SubSidebarItem(
+                                      icon: FontAwesomeIcons.userGroup,
+                                      title: 'Employee List',
+                                      route: '/employeeList',
+                                      isActive:
+                                          _activeSubItem == '/employeeList',
+                                      onTap: () => _navigateTo('/employeeList'),
+                                    ),
+                                  ],
+                                ],
+                              )
+                            : const SizedBox.shrink(),
+                        loading: () => const SizedBox.shrink(),
+                        error: (error, stackTrace) => const SizedBox.shrink(),
+                      ),
+                    ],
                   ),
                 ),
                 _buildLogoutButton(context),
