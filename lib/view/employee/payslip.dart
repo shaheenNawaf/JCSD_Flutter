@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:jcsd_flutter/backend/modules/payroll/payroll_data.dart';
 import 'package:jcsd_flutter/modals/request_cash_advance.dart';
 import 'package:jcsd_flutter/widgets/header.dart';
@@ -151,7 +152,9 @@ class _PayslipState extends ConsumerState<Payslip> {
         sssEmployee +
         withholdingTax +
         ((payroll!.monthlySalary / 170) *
-            ((lateMinutes / 60) + (leaveDays * 8))) +
+            ((lateMinutes / 60) +
+                (leaveDays * 8) +
+                ((20 - attendanceRecords) * 8))) +
         totalCashAdvance +
         payroll!.deductions);
   }
@@ -337,6 +340,15 @@ class _PayslipState extends ConsumerState<Payslip> {
                     pw.TableRow(children: [
                       pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
+                          child: pw.Text('Number of Days Absent:')),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text('${20 - attendanceRecords}'),
+                      ),
+                    ]),
+                    pw.TableRow(children: [
+                      pw.Padding(
+                          padding: const pw.EdgeInsets.all(2),
                           child: pw.Text('Number of Leaves:')),
                       pw.Padding(
                           padding: const pw.EdgeInsets.all(2),
@@ -388,84 +400,103 @@ class _PayslipState extends ConsumerState<Payslip> {
                                 pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                       ),
                       pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('')),
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text(''),
+                      ),
                     ]),
                     pw.TableRow(children: [
                       pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('Pagibig:')),
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text('Pagibig:'),
+                      ),
                       pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('$pagIbigEmployee')),
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text(
+                            'PHP ${NumberFormat("#,##0.00", "en_US").format(pagIbigEmployee)}'),
+                      ),
                     ]),
                     pw.TableRow(children: [
                       pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('PhilHealth:')),
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text('PhilHealth:'),
+                      ),
                       pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('$philHealthEmployee')),
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text(
+                            'PHP ${NumberFormat("#,##0.00", "en_US").format(philHealthEmployee)}'),
+                      ),
                     ]),
                     pw.TableRow(children: [
                       pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('SSS:')),
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text('SSS:'),
+                      ),
                       pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('$sssEmployee')),
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text(
+                            'PHP ${NumberFormat("#,##0.00", "en_US").format(sssEmployee)}'),
+                      ),
+                    ]),
+                    pw.TableRow(children: [
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text('Tardiness and Absences:'),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text(
+                          'PHP ${NumberFormat("#,##0.00", "en_US").format((payroll!.monthlySalary / 170) * ((lateMinutes / 60) + (leaveDays * 8) + ((20 - attendanceRecords) * 8)))}',
+                        ),
+                      ),
                     ]),
 
                     pw.TableRow(children: [
                       pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('Tardiness')),
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text('Others:'),
+                      ),
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(2),
-                        child: pw.Text(((payroll!.monthlySalary / 170) *
-                                ((lateMinutes / 60) + (leaveDays * 8)))
-                            .toStringAsFixed(2)),
-                      )
+                        child: pw.Text(
+                            'PHP ${NumberFormat("#,##0.00", "en_US").format(payroll?.deductions ?? 0)}'),
+                      ),
                     ]),
                     pw.TableRow(children: [
                       pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('Others:')),
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text('Withholding Tax:'),
+                      ),
                       pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text(
-                              '${(payroll?.deductions ?? 0).toStringAsFixed(2)}')),
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text(
+                            'PHP ${NumberFormat("#,##0.00", "en_US").format(withholdingTax)}'),
+                      ),
                     ]),
                     pw.TableRow(children: [
                       pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('Withholding Tax:')),
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text('Cash Advance:'),
+                      ),
                       pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('$withholdingTax')),
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text(
+                            'PHP ${NumberFormat("#,##0.00", "en_US").format(totalCashAdvance)}'),
+                      ),
                     ]),
                     pw.TableRow(children: [
                       pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('Cash Advance:')),
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text('Total Deductions:'),
+                      ),
                       pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text(
-                              '${totalCashAdvance.toStringAsFixed(2)}')),
-                    ]),
-                    pw.TableRow(children: [
-                      pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('Total Deductions:')),
-                      pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text(
-                              '${totaldeducations().toStringAsFixed(2)}')),
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text(
+                            'PHP ${NumberFormat("#,##0.00", "en_US").format(totaldeducations())}'),
+                      ),
                     ]),
 
                     pw.TableRow(children: [pw.SizedBox(), pw.SizedBox()]),
 
-                    // Payroll
                     pw.TableRow(children: [
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(2),
@@ -474,47 +505,56 @@ class _PayslipState extends ConsumerState<Payslip> {
                                 pw.TextStyle(fontWeight: pw.FontWeight.bold)),
                       ),
                       pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('')),
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text(''),
+                      ),
                     ]),
                     pw.TableRow(children: [
-                      pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('Total Salary:')),
-                      pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text(
-                              '${(payroll?.monthlySalary ?? 0).toStringAsFixed(2)}')),
-                    ]),
-                    pw.TableRow(children: [
-                      pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('Total Deductions:')),
-                      pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text(
-                              '${totaldeducations().toStringAsFixed(2)}')),
-                    ]),
-                    pw.TableRow(children: [
-                      pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('Bonus:')),
-                      pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text(
-                              '${(payroll?.bonus ?? 0).toStringAsFixed(2)}')),
-                    ]),
-                    pw.TableRow(children: [
-                      pw.Padding(
-                          padding: const pw.EdgeInsets.all(2),
-                          child: pw.Text('Take Home Pay:',
-                              style: pw.TextStyle(
-                                  fontWeight: pw.FontWeight.bold))),
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(2),
-                        child: pw.Text('${totalSalary().toStringAsFixed(2)}',
+                        child: pw.Text('Total Salary:'),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text(
+                            'PHP ${NumberFormat("#,##0.00", "en_US").format(payroll?.monthlySalary ?? 0)}'),
+                      ),
+                    ]),
+                    pw.TableRow(children: [
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text('Total Deductions:'),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text(
+                            'PHP ${NumberFormat("#,##0.00", "en_US").format(totaldeducations())}'),
+                      ),
+                    ]),
+                    pw.TableRow(children: [
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text('Bonus:'),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text(
+                            'PHP ${NumberFormat("#,##0.00", "en_US").format(payroll?.bonus ?? 0)}'),
+                      ),
+                    ]),
+                    pw.TableRow(children: [
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text('Take Home Pay:',
                             style:
                                 pw.TextStyle(fontWeight: pw.FontWeight.bold)),
+                      ),
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.all(2),
+                        child: pw.Text(
+                          'PHP ${NumberFormat("#,##0.00", "en_US").format(totalSalary())}',
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                        ),
                       ),
                     ]),
                   ],
@@ -721,64 +761,81 @@ class _PayslipState extends ConsumerState<Payslip> {
                   children: [
                     Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const PayslipRow(
-                              label: 'Attendance: ', value: '', isBold: true),
-                          PayslipRow(
-                            label: 'Number of Days Present: ',
-                            value: attendanceRecords.toString(),
-                          ),
-                          PayslipRow(
-                              label: 'Number of Leaves: ',
-                              value: leaveDays.toString()),
-                          PayslipRow(
-                              label: 'OT Regular Day: ',
-                              value: (overtimeMinutes / 60).toString()),
-                          PayslipRow(
-                            label: 'Tardiness (hours): ',
-                            value: (lateMinutes / 60).toStringAsFixed(2),
-                          ),
-                          PayslipRow(
-                            label: 'Month: ',
-                            value:
-                                '${payroll!.createdAt.month}/${payroll!.createdAt.year}',
-                          ),
-                          Divider(
-                              color: Colors.grey[300],
-                              indent: 40,
-                              endIndent: 40),
-                          const PayslipRow(
-                              label: 'Deductions: ', value: '', isBold: true),
-                          PayslipRow(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const PayslipRow(
+                                label: 'Attendance: ', value: '', isBold: true),
+                            PayslipRow(
+                              label: 'Number of Days Present: ',
+                              value: attendanceRecords.toString(),
+                            ),
+                            PayslipRow(
+                              label: 'Number of Days Absent ',
+                              value: (20 - attendanceRecords).toString(),
+                            ),
+                            PayslipRow(
+                                label: 'Number of Leaves: ',
+                                value: leaveDays.toString()),
+                            PayslipRow(
+                                label: 'OT Regular Day: ',
+                                value: (overtimeMinutes / 60).toString()),
+                            PayslipRow(
+                              label: 'Tardiness (hours): ',
+                              value: (lateMinutes / 60).toStringAsFixed(2),
+                            ),
+                            PayslipRow(
+                              label: 'Month: ',
+                              value:
+                                  '${payroll!.createdAt.month}/${payroll!.createdAt.year}',
+                            ),
+                            Divider(
+                                color: Colors.grey[300],
+                                indent: 40,
+                                endIndent: 40),
+                            const PayslipRow(
+                                label: 'Deductions: ', value: '', isBold: true),
+                            PayslipRow(
                               label: 'Pagibig: ',
-                              value: pagIbigEmployee.toString()),
-                          PayslipRow(
+                              value:
+                                  '₱${NumberFormat("#,##0.00", "en_US").format(pagIbigEmployee)}',
+                            ),
+                            PayslipRow(
                               label: 'PhilHealth: ',
-                              value: philHealthEmployee.toString()),
-                          PayslipRow(
-                              label: 'SSS: ', value: sssEmployee.toString()),
-                          PayslipRow(
-                            label: 'Tardiness: ',
-                            value: ((payroll!.monthlySalary / 170) *
-                                    ((lateMinutes / 60) + (leaveDays * 8)))
-                                .toStringAsFixed(2),
-                          ),
-                          PayslipRow(
+                              value:
+                                  '₱${NumberFormat("#,##0.00", "en_US").format(philHealthEmployee)}',
+                            ),
+                            PayslipRow(
+                              label: 'SSS: ',
+                              value:
+                                  '₱${NumberFormat("#,##0.00", "en_US").format(sssEmployee)}',
+                            ),
+                            PayslipRow(
+                              label: 'Tardiness and Absences: ',
+                              value:
+                                  '₱${NumberFormat("#,##0.00", "en_US").format((payroll!.monthlySalary / 170) * ((lateMinutes / 60) + (leaveDays * 8) + ((20 - attendanceRecords) * 8)))}',
+                            ),
+                            PayslipRow(
                               label: 'Others: ',
-                              value: payroll!.deductions.toString()),
-                          PayslipRow(
+                              value:
+                                  '₱${NumberFormat("#,##0.00", "en_US").format(payroll!.deductions)}',
+                            ),
+                            PayslipRow(
                               label: 'Withholding Tax: ',
-                              value: withholdingTax.toStringAsFixed(2)),
-                          PayslipRow(
+                              value:
+                                  '₱${NumberFormat("#,##0.00", "en_US").format(withholdingTax)}',
+                            ),
+                            PayslipRow(
                               label: 'Cash Advance: ',
-                              value: totalCashAdvance.toString()),
-                          PayslipRow(
+                              value:
+                                  '₱${NumberFormat("#,##0.00", "en_US").format(totalCashAdvance)}',
+                            ),
+                            PayslipRow(
                               label: 'Total Deductions: ',
-                              value: totaldeducations().toStringAsFixed(2),
-                              isBold: true),
-                        ],
-                      ),
+                              value:
+                                  '₱${NumberFormat("#,##0.00", "en_US").format(totaldeducations())}',
+                              isBold: true,
+                            ),
+                          ]),
                     ),
                     const SizedBox(width: 32),
                     Expanded(
@@ -789,18 +846,26 @@ class _PayslipState extends ConsumerState<Payslip> {
                           const PayslipRow(
                               label: 'Payroll: ', value: '', isBold: true),
                           PayslipRow(
-                              label: 'Total Salary: ',
-                              value: payroll!.monthlySalary.toStringAsFixed(2)),
+                            label: 'Total Salary: ',
+                            value:
+                                '₱${NumberFormat("#,##0.00", "en_US").format(payroll!.monthlySalary)}',
+                          ),
                           PayslipRow(
-                              label: 'Total Deductions: ',
-                              value: totaldeducations().toStringAsFixed(2)),
+                            label: 'Total Deductions: ',
+                            value:
+                                '₱${NumberFormat("#,##0.00", "en_US").format(totaldeducations())}',
+                          ),
                           PayslipRow(
-                              label: 'Bonus: ',
-                              value: payroll!.bonus.toString()),
+                            label: 'Bonus: ',
+                            value:
+                                '₱${NumberFormat("#,##0.00", "en_US").format(payroll!.bonus)}',
+                          ),
                           PayslipRow(
-                              label: 'Take Home Pay: ',
-                              value: '₱${totalSalary().toStringAsFixed(2)}',
-                              isBold: true),
+                            label: 'Take Home Pay: ',
+                            value:
+                                '₱${NumberFormat("#,##0.00", "en_US").format(totalSalary())}',
+                            isBold: true,
+                          ),
                         ],
                       ),
                     ),

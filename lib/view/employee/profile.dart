@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 import 'package:intl/intl.dart';
+import 'package:jcsd_flutter/modals/request_cash_advance.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_attendance.dart';
 import 'package:jcsd_flutter/modals/edit_employee_details.dart';
@@ -204,6 +205,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
   //     });
   //   }
   // }
+
+  void _showRequestCashAdvanceModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const CashAdvanceForm(),
+    );
+  }
 
   @override
   void initState() {
@@ -670,18 +679,59 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF00AEEF),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5),
+                        onPressed: () {
+                          context.push(
+                              '/employeeList/profile/payslip/cashAdvanceHistory',
+                              extra: {
+                                'account': user,
+                                'employee': emp,
+                              });
+                        },
+                        icon: const FaIcon(FontAwesomeIcons.clockRotateLeft,
+                            color: Colors.white, size: 16),
+                        label: const Text(
+                          'Cash Advance History',
+                          style: TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00AEEF),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton.icon(
+                        onPressed: _showRequestCashAdvanceModal,
+                        icon: const FaIcon(FontAwesomeIcons.moneyBillTransfer,
+                            color: Colors.white, size: 16),
+                        label: const Text(
+                          'Request Cash Advance',
+                          style: TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00AEEF),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      ElevatedButton.icon(
                         onPressed: () async {
-                          final result = await context
-                              .push('/payroll', extra: {
+                          final result = await context.push('/payroll', extra: {
                             'account': user,
                             'employee': emp,
                           });
@@ -696,30 +746,37 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                           FontAwesomeIcons.fileInvoiceDollar,
                           color: Colors.white,
                         ),
-                        label: const Text('Payslips'),
+                        label: const Text(
+                          'Payslips',
+                          style: TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF00AEEF),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                       ),
                       if (Supabase.instance.client.auth.currentUser?.id ==
                           user?.userID)
-                        const SizedBox(width: 20),
+                        const SizedBox(width: 12),
                       if (Supabase.instance.client.auth.currentUser?.id ==
                           user?.userID)
                         ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF00AEEF),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                          ),
                           onPressed: () async {
                             final updatedEmp = await context.push(
-                                '/employeeList/profile/leaveRequest',
-                                extra: {
-                                  'account': user,
-                                  'employee': emp,
-                                });
+                              '/employeeList/profile/leaveRequest',
+                              extra: {
+                                'account': user,
+                                'employee': emp,
+                              },
+                            );
 
                             if (updatedEmp != null &&
                                 updatedEmp is EmployeeData) {
@@ -732,7 +789,22 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                             FontAwesomeIcons.suitcaseRolling,
                             color: Colors.white,
                           ),
-                          label: const Text('Leave Requests'),
+                          label: const Text(
+                            'Leave Requests',
+                            style: TextStyle(
+                              fontFamily: 'NunitoSans',
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF00AEEF),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
                         ),
                     ],
                   ),

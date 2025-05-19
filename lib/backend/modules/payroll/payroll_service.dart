@@ -29,7 +29,8 @@ class PayrollService {
           createdAt: DateTime.parse(e['created_at']),
           employeeID: e['employeeID'] as int,
           monthlySalary: (e['monthlySalary'] as num).toDouble(),
-          calculatedMonthlySalary: (e['calculatedMonthlySalary'] as num).toDouble(),
+          calculatedMonthlySalary:
+              (e['calculatedMonthlySalary'] as num).toDouble(),
           bonus: (e['bonus'] as num).toDouble(),
           deductions: (e['deductions'] as num).toDouble(),
           pagibig: (e['pagibig'] as num).toDouble(),
@@ -46,48 +47,48 @@ class PayrollService {
   }
 
   Future<List<Map<String, dynamic>>> fetchPayrollsWithEmployeeDetails({
-  String sortBy = 'created_at',
-  bool ascending = true,
-  int page = 1,
-  int itemsPerPage = defaultItemsPerPage,
-}) async {
-  try {
-    // Fetch payroll data with employee details using Supabase join
-    final payrollResponse = await supabaseDB
-        .from('payroll')
-        .select('''
-          *,
-          payroll:employeeID (
+    String sortBy = 'created_at',
+    bool ascending = true,
+    int page = 1,
+    int itemsPerPage = defaultItemsPerPage,
+  }) async {
+    try {
+      // Fetch payroll data with employee details using Supabase join
+      final payrollResponse = await supabaseDB
+          .from('payroll')
+          .select('''
             *,
-            accounts!employee_userID_fkey1(
-              *
-              )
-          )
-        ''')
-        .order(sortBy, ascending: ascending)
-        .range((page - 1) * itemsPerPage, page * itemsPerPage - 1);
-    return payrollResponse.map<Map<String, dynamic>>((payroll) {
-      final employeeData = payroll['payroll'] as Map<String, dynamic>?;
-      final accountData = payroll['payroll']?['accounts'] as Map<String, dynamic>?;
+            payroll:employeeID (
+              *,
+              accounts!employee_userID_fkey1(
+                *
+                )
+            )
+          ''')
+          .order(sortBy, ascending: ascending)
+          .range((page - 1) * itemsPerPage, page * itemsPerPage - 1);
+      return payrollResponse.map<Map<String, dynamic>>((payroll) {
+        final employeeData = payroll['payroll'] as Map<String, dynamic>?;
+        final accountData =
+            payroll['payroll']?['accounts'] as Map<String, dynamic>?;
 
-      if (employeeData != null && employeeData['employeeID'] is int) {
+        if (employeeData != null && employeeData['employeeID'] is int) {
           employeeData['employeeID'] = employeeData['employeeID'].toString();
         }
-      return {
-        'payroll': PayrollData.fromJson(payroll),
-        'employee': employeeData != null 
-            ? EmployeeData.fromJson(employeeData) 
-            : null,
-        'account': accountData != null 
-            ? AccountsData.fromJson(accountData) 
-            : null,
-      };
-    }).toList();
-  } catch (e) {
-    print('Error fetching payrolls with employee details: $e');
-    return [];
+        return {
+          'payroll': PayrollData.fromJson(payroll),
+          'employee':
+              employeeData != null ? EmployeeData.fromJson(employeeData) : null,
+          'account':
+              accountData != null ? AccountsData.fromJson(accountData) : null,
+        };
+      }).toList();
+    } catch (e) {
+      print('Error fetching payrolls with employee details: $e');
+      return [];
+    }
   }
-}
+
   Future<int> getTotalPayrollCount() async {
     try {
       final result = await supabaseDB.from('payroll').select('id');
@@ -153,6 +154,53 @@ class PayrollService {
       return 0;
     }
   }
-}
 
-  
+  Future<List<Map<String, dynamic>>>
+      fetchPayrollsWithEmployeeDetailsForMonthYear({
+    required int month,
+    required int year,
+  }) async {
+    try {
+      // Start and end of the month
+      final DateTime start = DateTime(year, month, 1);
+      final DateTime end = (month < 12)
+          ? DateTime(year, month + 1, 1)
+          : DateTime(year + 1, 1, 1);
+
+      final payrollResponse = await supabaseDB
+          .from('payroll')
+          .select('''
+            *,
+            payroll:employeeID (
+              *,
+              accounts!employee_userID_fkey1(
+                *
+              )
+            )
+          ''')
+          .gte('created_at', start.toIso8601String())
+          .lt('created_at', end.toIso8601String())
+          .order('created_at', ascending: true);
+
+      return payrollResponse.map<Map<String, dynamic>>((payroll) {
+        final employeeData = payroll['payroll'] as Map<String, dynamic>?;
+        final accountData =
+            payroll['payroll']?['accounts'] as Map<String, dynamic>?;
+
+        if (employeeData != null && employeeData['employeeID'] is int) {
+          employeeData['employeeID'] = employeeData['employeeID'].toString();
+        }
+        return {
+          'payroll': PayrollData.fromJson(payroll),
+          'employee':
+              employeeData != null ? EmployeeData.fromJson(employeeData) : null,
+          'account':
+              accountData != null ? AccountsData.fromJson(accountData) : null,
+        };
+      }).toList();
+    } catch (e) {
+      print('Error fetching payrolls with employee details for month/year: $e');
+      return [];
+    }
+  }
+}

@@ -182,16 +182,63 @@ class _CashAdvanceListState extends ConsumerState<CashAdvanceList> {
                 : status == 'Rejected'
                     ? Colors.red
                     : Colors.grey;
+
+            // Safely get cashAdvance as a number:
+            double cashAdvanceValue = 0;
+            if (item['cashAdvance'] != null) {
+              if (item['cashAdvance'] is num) {
+                cashAdvanceValue = item['cashAdvance'].toDouble();
+              } else if (item['cashAdvance'] is String) {
+                cashAdvanceValue = double.tryParse(item['cashAdvance']
+                        .toString()
+                        .replaceAll(RegExp(r'[^0-9.]'), '')) ??
+                    0;
+              }
+            }
+
+            // Safely get monthlySalary as a number:
+            double monthlySalaryValue = 0;
+            if (item['monthlySalary'] != null) {
+              if (item['monthlySalary'] is num) {
+                monthlySalaryValue = item['monthlySalary'].toDouble();
+              } else if (item['monthlySalary'] is String) {
+                monthlySalaryValue = double.tryParse(item['monthlySalary']
+                        .toString()
+                        .replaceAll(RegExp(r'[^0-9.]'), '')) ??
+                    0;
+              }
+            }
+
             return DataRow(cells: [
               DataCell(Text(item['name'] ?? '')),
-              DataCell(Text(item['cashAdvance'].toString())),
-              DataCell(Text(item['monthlySalary'] ?? '')),
-              DataCell(Text(item['created_at'] != null
-                  ? DateFormat.yMMMMd()
-                      .format(DateTime.parse(item['created_at']))
-                  : 'N/A')),
+
+              // CASH ADVANCE FORMATTED
+              DataCell(
+                Text(
+                    '₱${NumberFormat("#,##0.00", "en_US").format(cashAdvanceValue)}'),
+              ),
+
+              // MONTHLY SALARY FORMATTED
+              DataCell(
+                Text(
+                    '₱${NumberFormat("#,##0.00", "en_US").format(monthlySalaryValue)}'),
+              ),
+
+              // CREATED AT (leave this alone)
+              DataCell(
+                Text(item['created_at'] != null
+                    ? DateFormat.yMMMMd()
+                        .format(DateTime.parse(item['created_at']))
+                    : 'N/A'),
+              ),
+
+              // REASON
               DataCell(Text(item['reason'] ?? '')),
+
+              // STATUS
               DataCell(Text(status, style: TextStyle(color: statusColor))),
+
+              // ACTIONS
               DataCell(
                 item['status'] == 'Pending'
                     ? Row(
