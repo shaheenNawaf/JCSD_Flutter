@@ -10,6 +10,7 @@ class ServicesData {
   final bool requiresAddress;
   final DateTime? createDate;
   final DateTime? updateDate;
+  final bool isShortService;
 
   ServicesData({
     required this.serviceID,
@@ -23,6 +24,7 @@ class ServicesData {
     required this.requiresAddress,
     this.createDate,
     this.updateDate,
+    required this.isShortService,
   });
 
   static double? _parseOptionalDouble(dynamic value) {
@@ -72,6 +74,7 @@ class ServicesData {
       requiresAddress: json['requiresAddress'] as bool? ?? false,
       createDate: _parseOptionalDateTime(json['createDate'] as String?),
       updateDate: _parseOptionalDateTime(json['updateDate'] as String?),
+      isShortService: json['isShortService'] as bool? ?? false,
     );
   }
 
@@ -85,6 +88,7 @@ class ServicesData {
       'estimatedDuration': estimatedDuration,
       'isWalkInOnly': isWalkInOnly,
       'requiresAddress': requiresAddress,
+      'isShortService': isShortService,
     };
   }
 }

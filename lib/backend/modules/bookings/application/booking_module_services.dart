@@ -541,4 +541,14 @@ class BookingModuleServices implements BookingRepository {
       rethrow;
     }
   }
+
+  @override
+  Future<List<Booking>> getPotentiallyOverlappingBookings(
+      String customerUserId,
+      DateTime checkStartTime,
+      DateTime checkEndTime,
+      List<BookingStatus> statuses) {
+    // TODO: implement getPotentiallyOverlappingBookings
+    throw UnimplementedError();
+  }
 }

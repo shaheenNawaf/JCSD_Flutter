@@ -2,6 +2,7 @@
 
 // Base Imports
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jcsd_flutter/api/global_variables.dart';
 import 'package:jcsd_flutter/backend/modules/bookings/booking_enums.dart';
 
 // Booking Imports
@@ -15,6 +16,7 @@ import 'package:jcsd_flutter/backend/modules/bookings/infrastructure/booking_rep
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_service.dart';
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services.dart';
 import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
+import 'package:jcsd_flutter/backend/modules/services/services_data.dart';
 import 'package:printing/printing.dart';
 
 class BookingService {
@@ -139,30 +141,30 @@ class BookingService {
     // Data Preparation: Fetch service details for estimates
     double totalEstimatedPrice = 0.0;
     int maxDurationMinutes = 0;
+    List<ServicesData> newBookingServicesDetails = [];
 
     // In this code block, bale it fetches all the active serivces na naka-indicate or ginawang active ng admin
     try {
       final allActiveServices = await ref.read(fetchAvailableServices.future);
-
-      //Mapping all services, storing their serviceIDs
       final serviceMap = {for (var s in allActiveServices) s.serviceID: s};
 
       for (int id in serviceIds) {
         final service = serviceMap[id];
         if (service != null) {
-          totalEstimatedPrice +=
-              service.minPrice ?? 0.0; // Use minPrice or default
-          int duration =
-              service.estimatedDuration ?? 60; // Use duration or default
+          newBookingServicesDetails.add(service);
+          totalEstimatedPrice += service.maxPrice ??
+              0.0; //Estimated Price is based on the max price per given service
+          int duration = service.estimatedDuration ?? 60;
           if (duration > maxDurationMinutes) maxDurationMinutes = duration;
         } else {
           print("Warning: Could not find active service details for ID $id.");
-          totalEstimatedPrice += 500.0; // Fallback estimate
+          totalEstimatedPrice += 500.0; // Fallback price
           if (60 > maxDurationMinutes) {
             maxDurationMinutes = 60; // Fallback duration
           }
         }
       }
+
       if (maxDurationMinutes == 0 && serviceIds.isNotEmpty) {
         maxDurationMinutes = 60; // Ensure minimum duration
       }
@@ -170,7 +172,22 @@ class BookingService {
       throw Exception("Failed to retrieve service details: $e");
     }
 
+    final DateTime proposedScheduledEndTime =
+        scheduledStartTime.add(Duration(minutes: maxDurationMinutes));
+
+    //For double booking validation
+    if (customerUserId != null) {
+      await _validateNoDoubleBooking(
+        customerUserId: customerUserId,
+        proposedStartTime: scheduledStartTime,
+        proposedEndTime: proposedScheduledEndTime,
+        newBookingServiceDetails: newBookingServicesDetails,
+        ref: ref, // If needed by _validateNoDoubleBooking
+      );
+    }
+
     final totalEstimatedDuration = Duration(minutes: maxDurationMinutes);
+
     final initialBookingData = Booking(
       id: 0, uuid: '', createdAt: DateTime.now(),
       updatedAt: DateTime.now(), // Placeholders
@@ -576,5 +593,106 @@ class BookingService {
       default:
         return null;
     }
+  }
+
+  //Double Booking Validation
+  Future<void> _validateNoDoubleBooking({
+    required String customerUserId,
+    required DateTime proposedStartTime,
+    required DateTime proposedEndTime,
+    required List<ServicesData>
+        newBookingServiceDetails, // Contains 'isShortService'
+    required WidgetRef ref,
+  }) async {
+    final List<BookingStatus> activeBookingStatuses = [
+      BookingStatus.pendingConfirmation,
+      BookingStatus.confirmed,
+      // Add any other statuses that should be considered 'active' for this check
+      // e.g., BookingStatus.inProgress, BookingStatus.pendingAdminApproval
+    ];
+
+    // Define the buffer for overlap check (1 hour)
+    const Duration buffer = Duration(hours: 1);
+    final DateTime checkStartTime = proposedStartTime.subtract(buffer);
+    final DateTime checkEndTime = proposedEndTime.add(buffer);
+
+    final List<Booking> potentiallyOverlappingBookings =
+        await _bookingRepository.getPotentiallyOverlappingBookings(
+            customerUserId,
+            checkStartTime,
+            checkEndTime,
+            activeBookingStatuses);
+
+    if (potentiallyOverlappingBookings.isEmpty) {
+      return; // No overlap, validation passes
+    }
+
+    for (final existingBooking in potentiallyOverlappingBookings) {
+      bool actualOverlap =
+          (proposedStartTime.isBefore(existingBooking.scheduledEndTime!) &&
+              proposedEndTime.isAfter(existingBooking.scheduledStartTime));
+
+      if (!actualOverlap) continue; // Skip if this one doesn't actually overlap
+
+      // Overlap detected, now check "isShortService"
+      print(
+          "DoubleBookingCheck: Potential overlap found with existing booking ID ${existingBooking.id}");
+
+      bool allNewServicesAreShort = newBookingServiceDetails
+          .every((service) => service.isShortService == true);
+      if (!allNewServicesAreShort) {
+        print(
+            "DoubleBookingCheck: Not all newly requested services are short services. Booking rejected.");
+        throw ArgumentError(
+            "Booking conflict: One or more selected services overlap with an existing booking and are not designated as short duration services.");
+      }
+
+      final List<BookingServiceItem> existingBookingServiceItems =
+          await _bookingRepository.getBookingServices(existingBooking.id);
+      if (existingBookingServiceItems.isEmpty &&
+          newBookingServiceDetails.isNotEmpty) {
+        print(
+            "DoubleBookingCheck: Existing overlapping booking ${existingBooking.id} has no services listed. Assuming conflict if new services are not short.");
+      }
+
+      List<ServicesData> existingServicesDetails = [];
+      final allActiveServices = await ref
+          .read(fetchAvailableServices.future); // Re-fetch or pass serviceMap
+      final serviceMap = {for (var s in allActiveServices) s.serviceID: s};
+
+      for (var bsi in existingBookingServiceItems) {
+        final serviceDetail = serviceMap[bsi.serviceId];
+        if (serviceDetail != null) {
+          existingServicesDetails.add(serviceDetail);
+        } else {
+          // If a service detail isn't found, we can't confirm it's short. Treat as not short.
+          print(
+              "DoubleBookingCheck: Could not find service details for service ID ${bsi.serviceId} in existing booking ${existingBooking.id}. Assuming not short.");
+          existingServicesDetails.add(ServicesData(
+            serviceID: bsi.serviceId,
+            serviceName: "Unknown Service",
+            isActive: false,
+            isShortService: false,
+            isWalkInOnly: false,
+            requiresAddress: false,
+          )); // Default Fallback
+        }
+      }
+
+      bool allExistingOverlappingServicesAreShort = existingServicesDetails
+          .every((service) => service.isShortService == true);
+
+      if (!allExistingOverlappingServicesAreShort) {
+        print(
+            "DoubleBookingCheck: Not all services in the existing overlapping booking ID ${existingBooking.id} are short services. Booking rejected.");
+        throw ArgumentError(
+            "Booking conflict: This booking overlaps with existing booking (ID: ${existingBooking.id}) which contains services not designated as short duration.");
+      }
+
+      // If we reach here, both all new services AND all existing overlapping services are short.
+      print(
+          "DoubleBookingCheck: Overlap with booking ID ${existingBooking.id} allowed because all involved services are short.");
+    }
+    // If all overlaps were permissible, the method completes normally.
   }
 }
