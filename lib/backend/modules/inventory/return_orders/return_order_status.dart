@@ -6,7 +6,8 @@ enum ReturnOrderStatus {
   ReplacementReceived, // Replacement items physically received by JCSD
   Completed, // RO fully processed, replacement integrated
   Cancelled, // RO cancelled by admin or user
-  Unknown // Default/Error state
+  Unknown,
+  Rejected // Default/Error state
 }
 
 extension ReturnOrderStatusExtension on ReturnOrderStatus {
