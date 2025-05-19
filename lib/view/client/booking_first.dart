@@ -567,7 +567,6 @@ class _ClientBooking1State extends ConsumerState<ClientBooking1> {
               ? BookingType.appointment
               : BookingType.homeService;
           ref.read(_selectedBookingTypeProvider.notifier).state = newType;
-          // Validation will be triggered by the listener in initState
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,

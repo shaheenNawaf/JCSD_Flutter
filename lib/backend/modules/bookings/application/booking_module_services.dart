@@ -44,6 +44,7 @@ class BookingModuleServices implements BookingRepository {
     String? customerUserId,
     int? assignedEmployeeId,
     List<BookingStatus>? statuses,
+    BookingType? bookingTypes,
     DateTime? dateFrom,
     DateTime? dateTo,
     String sortBy = 'created_at',
@@ -52,7 +53,6 @@ class BookingModuleServices implements BookingRepository {
     int itemsPerPage = 10,
   }) async {
     try {
-      // Using _baseQueryWithRelations. Change to select('*') if list view doesn't need relations.
       var fetchBookingsQuery =
           supabaseDB.from('bookings').select(_baseQueryWithRelations);
 
@@ -61,15 +61,17 @@ class BookingModuleServices implements BookingRepository {
         fetchBookingsQuery =
             fetchBookingsQuery.eq('customer_user_id', customerUserId);
       }
+      if (bookingTypes != null) {
+        fetchBookingsQuery =
+            fetchBookingsQuery.eq('booking_type', bookingTypes.name);
+      }
       if (statuses != null && statuses.isNotEmpty) {
         fetchBookingsQuery = fetchBookingsQuery.inFilter(
             'status', statuses.map((s) => s.name).toList());
       }
       if (assignedEmployeeId != null) {
-        // TODO: Implement efficient filtering by assignedEmployeeId. RPC recommended.
         print(
             "Warning: Filtering by assignedEmployeeId might be inefficient. Consider RPC.");
-        // Corrected direct filter attempt syntax (still subject to caveats):
         fetchBookingsQuery = fetchBookingsQuery.eq(
             'booking_assignments.employee_id', assignedEmployeeId);
       }
@@ -92,11 +94,9 @@ class BookingModuleServices implements BookingRepository {
 
       final finalBookingsData = await filteredBookingsQuery;
 
-      // IMPORTANT TODO: Ensure Booking.fromJson can correctly parse nested JSON from joins.
       final completeFetchedData =
           finalBookingsData.map((item) => Booking.fromJson(item)).toList();
 
-      // TODO: Implement post-fetch filtering for assignedEmployeeId if direct DB filter fails.
       return completeFetchedData;
     } catch (err, sty) {
       print('Error fetching bookings: $err \n $sty');
@@ -110,6 +110,7 @@ class BookingModuleServices implements BookingRepository {
     String? customerUserId,
     int? assignedEmployeeId,
     List<BookingStatus>? statuses,
+    BookingType? bookingTypes,
     DateTime? dateFrom,
     DateTime? dateTo,
   }) async {
@@ -121,12 +122,14 @@ class BookingModuleServices implements BookingRepository {
         bookingsCountQuery =
             bookingsCountQuery.eq('customer_user_id', customerUserId);
       }
-
+      if (bookingTypes != null) {
+        bookingsCountQuery =
+            bookingsCountQuery.eq('booking_type', bookingTypes.name);
+      }
       if (statuses != null && statuses.isNotEmpty) {
         bookingsCountQuery = bookingsCountQuery.inFilter(
             'status', statuses.map((s) => s.name).toList());
       }
-
       if (assignedEmployeeId != null) {
         print(
             "Warning: Filtering count by assignedEmployeeId not implemented efficiently here.");

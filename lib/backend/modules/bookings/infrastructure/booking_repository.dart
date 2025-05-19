@@ -17,6 +17,7 @@ abstract class BookingRepository {
     String? customerUserId,
     int? assignedEmployeeId,
     List<BookingStatus>? statuses,
+    BookingType? bookingTypes,
     DateTime? dateFrom,
     DateTime? dateTo,
     String sortBy = 'created_at',
@@ -30,6 +31,7 @@ abstract class BookingRepository {
     String? customerUserId,
     int? assignedEmployeeId,
     List<BookingStatus>? statuses,
+    BookingType? bookingTypes,
     DateTime? dateFrom,
     DateTime? dateTo,
   });
