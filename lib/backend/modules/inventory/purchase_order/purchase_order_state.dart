@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 //Backend Imports
 import 'package:jcsd_flutter/backend/modules/inventory/purchase_order/models/purchase_order_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/purchase_order/services/purchase_order_service.dart';
-import 'package:jcsd_flutter/backend/modules/inventory/purchase_order/models/purchase_order_data.dart';
 
 @immutable
 class PurchaseOrderListState {
