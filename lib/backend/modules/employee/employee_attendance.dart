@@ -80,7 +80,8 @@ Future<List<Map<String, dynamic>>> fetchUserAttendance(DateTime startDate, DateT
         .select('*')
         .eq('userID', userId)
         .gte('attendance_date', startDate.toLocal().toString().split(' ')[0])
-        .lte('attendance_date', endDate.toLocal().toString().split(' ')[0]);
+        .lte('attendance_date', endDate.toLocal().toString().split(' ')[0])
+        .order('attendance_date', ascending: false);
     print('Found ${data.length} records');
     print(userId);
     return data;
@@ -94,7 +95,6 @@ Future<bool> updateAttendanceRecord({
   required String attendanceId,
   String? newCheckInTime,
   String? newCheckOutTime,
-
   required BuildContext context,
 }) async {
   try {
@@ -106,20 +106,56 @@ Future<bool> updateAttendanceRecord({
         .eq('id', attendanceId)
         .single();
     
+    String attendanceDate = existingRecord['attendance_date'].toString().split(' ')[0];
+    DateTime? checkInTime;
+    DateTime? checkOutTime;
+
+    // Handle check-in time update
     if (newCheckInTime != null && newCheckInTime.isNotEmpty) {
-      final String checkInTimeStr = newCheckInTime.toString();
-      final existingDate = existingRecord['attendance_date'].toString().split(' ')[0];
-      updates['check_in_time'] = '$existingDate $checkInTimeStr';
+      checkInTime = DateTime.parse('$attendanceDate $newCheckInTime');
+      updates['check_in_time'] = checkInTime.toIso8601String();
+    } else {
+      if (existingRecord['check_in_time'] != null) {
+        checkInTime = DateTime.parse(existingRecord['check_in_time']);
+      }
     }
-    
-    if (newCheckOutTime != null) {
-      final String checkOutTimeStr = newCheckOutTime.toString();
-      final existingDate = existingRecord['attendance_date'].toString().split(' ')[0];
-      updates['check_out_time'] = '$existingDate $checkOutTimeStr';
+
+    // Handle check-out time update
+    if (newCheckOutTime != null && newCheckOutTime.isNotEmpty) {
+      checkOutTime = DateTime.parse('$attendanceDate $newCheckOutTime');
+      updates['check_out_time'] = checkOutTime.toIso8601String();
+    } else {
+      if (existingRecord['check_out_time'] != null) {
+        checkOutTime = DateTime.parse(existingRecord['check_out_time']);
+      }
+    }
+
+    // Only calculate late and overtime if we have both times
+    if (checkInTime != null && checkOutTime != null) {
+      // Calculate late minutes
+      final expectedCheckIn = DateTime.parse('$attendanceDate $expectedCheckInTime');
+      int lateMinutes = 0;
+      if (checkInTime.isAfter(expectedCheckIn)) {
+        lateMinutes = checkInTime.difference(expectedCheckIn).inMinutes;
+      }
+      updates['late_minutes'] = lateMinutes;
+
+      // Calculate work duration and overtime
+      final workDuration = checkOutTime.difference(checkInTime).inMinutes;
+      int overtimeMinutes = 0;
+      if (workDuration > expectedWorkDurationMinutes) {
+        overtimeMinutes = workDuration - expectedWorkDurationMinutes;
+      }
+      updates['overtime_minutes'] = overtimeMinutes;
     }
 
     if (updates.isNotEmpty) {
-      final response = await supabase.from('attendance').update(updates).eq('id', attendanceId).select();
+      final response = await supabase
+          .from('attendance')
+          .update(updates)
+          .eq('id', attendanceId)
+          .select();
+          
       if (response.isNotEmpty) {
         ToastManager().showToast(context, 'Attendance record updated successfully', Colors.green);
         return true;

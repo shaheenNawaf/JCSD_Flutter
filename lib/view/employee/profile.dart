@@ -565,111 +565,118 @@ class _ProfilePageState extends ConsumerState<ProfilePage>
                           ),
                         ],
                       ),
-                      child: FutureBuilder(
-                          future: isCurrentUserAdmin(),
-                          builder: (context, snapshot) {
-                            final isAdmin = snapshot.data ?? false;
-                            return DataTable(
-                              headingRowColor: MaterialStateProperty.all(
-                                  const Color(0xFF00AEEF)),
-                              columns: <DataColumn>[
-                                const DataColumn(
-                                  label: Text(
-                                    'Date',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'NunitoSans',
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                const DataColumn(
-                                  label: Text(
-                                    'Status',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'NunitoSans',
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                const DataColumn(
-                                  label: Text(
-                                    'Check In',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'NunitoSans',
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                const DataColumn(
-                                  label: Text(
-                                    'Check Out',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontFamily: 'NunitoSans',
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                if (isAdmin)
-                                  const DataColumn(
-                                    label: Text(
-                                      'Action',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'NunitoSans',
-                                        color: Colors.white,
+                      child: SingleChildScrollView(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minWidth: MediaQuery.of(context).size.width * 0.6,  // Adjust as needed
+                          ),
+                          child: FutureBuilder(
+                              future: isCurrentUserAdmin(),
+                              builder: (context, snapshot) {
+                                final isAdmin = snapshot.data ?? false;
+                                return DataTable(
+                                  headingRowColor: MaterialStateProperty.all(
+                                      const Color(0xFF00AEEF)),
+                                  columns: <DataColumn>[
+                                    const DataColumn(
+                                      label: Text(
+                                        'Date',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'NunitoSans',
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                              ],
-                              rows: _attendanceHistory.map((attendance) {
-                                return DataRow(
-                                  cells: <DataCell>[
-                                    DataCell(Text(
-                                        attendance['attendance_date'] ??
-                                            'N/A')),
-                                    DataCell(
-                                        Text(attendance['status'] ?? 'N/A')),
-                                    DataCell(Text(attendance['check_in_time'] !=
-                                            null
-                                        ? DateFormat('HH:mm:ss').format(
-                                            DateTime.parse(
-                                                attendance['check_in_time']))
-                                        : 'N/A')),
-                                    DataCell(Text(attendance[
-                                                'check_out_time'] !=
-                                            null
-                                        ? DateFormat('HH:mm:ss').format(
-                                            DateTime.parse(
-                                                attendance['check_out_time']))
-                                        : 'N/A')),
+                                    const DataColumn(
+                                      label: Text(
+                                        'Status',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'NunitoSans',
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    const DataColumn(
+                                      label: Text(
+                                        'Check In',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'NunitoSans',
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                    const DataColumn(
+                                      label: Text(
+                                        'Check Out',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'NunitoSans',
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
                                     if (isAdmin)
-                                      DataCell(
-                                        // Only show if admin
-                                        SizedBox(
-                                          width: 80,
-                                          child: ElevatedButton(
-                                            onPressed: () =>
-                                                _showEditAttendanceModal(
-                                                    attendance),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.green,
-                                            ),
-                                            child: const Icon(
-                                              Icons.edit,
-                                              color: Colors.white,
-                                            ),
+                                      const DataColumn(
+                                        label: Text(
+                                          'Action',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontFamily: 'NunitoSans',
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ),
                                   ],
+                                  rows: _attendanceHistory.map((attendance) {
+                                    return DataRow(
+                                      cells: <DataCell>[
+                                        DataCell(Text(
+                                            attendance['attendance_date'] ??
+                                                'N/A')),
+                                        DataCell(
+                                            Text(attendance['status'] ?? 'N/A')),
+                                        DataCell(Text(attendance['check_in_time'] !=
+                                                null
+                                            ? DateFormat('HH:mm:ss').format(
+                                                DateTime.parse(
+                                                    attendance['check_in_time']))
+                                            : 'N/A')),
+                                        DataCell(Text(attendance[
+                                                    'check_out_time'] !=
+                                                null
+                                            ? DateFormat('HH:mm:ss').format(
+                                                DateTime.parse(
+                                                    attendance['check_out_time']))
+                                            : 'N/A')),
+                                        if (isAdmin)
+                                          DataCell(
+                                            // Only show if admin
+                                            SizedBox(
+                                              width: 80,
+                                              child: ElevatedButton(
+                                                onPressed: () =>
+                                                    _showEditAttendanceModal(
+                                                        attendance),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.green,
+                                                ),
+                                                child: const Icon(
+                                                  Icons.edit,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    );
+                                  }).toList(),
                                 );
-                              }).toList(),
-                            );
-                          }),
+                              }),
+                        ),
+                      ),
                     ),
                   ),
                 ),
