@@ -13,7 +13,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 // API
 import 'package:jcsd_flutter/api/global_variables.dart'; // Your global Supabase client
 
-class BookingModuleServices implements BookingRepository {
+class BookingModuleServices {
+  final BookingRepository _bookingRepository;
+  BookingModuleServices(this._bookingRepository);
+
   /// Base Select Query
   final String _baseQueryWithRelations = '''
    *,
@@ -540,15 +543,5 @@ class BookingModuleServices implements BookingRepository {
           'Error removing booking assignment ID $bookingAssignmentId: $e \n$st');
       rethrow;
     }
-  }
-
-  @override
-  Future<List<Booking>> getPotentiallyOverlappingBookings(
-      String customerUserId,
-      DateTime checkStartTime,
-      DateTime checkEndTime,
-      List<BookingStatus> statuses) {
-    // TODO: implement getPotentiallyOverlappingBookings
-    throw UnimplementedError();
   }
 }

@@ -274,7 +274,7 @@ class _ClientBooking1State extends ConsumerState<ClientBooking1> {
         );
       }
     } catch (e, stackTrace) {
-      print('Error submitting booking: $e\n$stackTrace');
+      print('Error submitting booking: $e \n $stackTrace');
       if (mounted) {
         await showErrorDialog(
             context, 'Booking Failed', 'An error occurred: ${e.toString()}');
