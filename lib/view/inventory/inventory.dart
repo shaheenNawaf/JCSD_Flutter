@@ -68,11 +68,11 @@ class InventoryPage extends ConsumerWidget {
 
   //Navigation Buttons
   void _navigateToItemTypesPage(BuildContext context) {
-    context.push('/itemTypes');
+    context.go('/itemTypes');
   }
 
   void _navigateToManufacturersPage(BuildContext context) {
-    context.push('/manufacturers');
+    context.go('/manufacturers');
   }
 
   @override

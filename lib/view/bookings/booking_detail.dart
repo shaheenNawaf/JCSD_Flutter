@@ -33,6 +33,7 @@ import 'package:jcsd_flutter/backend/modules/services/jcsd_services_state.dart';
 //Modals
 import 'package:jcsd_flutter/modals/remove_item_list.dart';
 import 'package:jcsd_flutter/modals/add_item_list.dart'; // Serialized version
+import 'package:jcsd_flutter/view/bookings/modals/select_inventory_item_modal.dart';
 
 //Generic UI Imports
 import 'package:jcsd_flutter/widgets/header.dart';
@@ -61,7 +62,7 @@ class BookingDetailsPage extends ConsumerWidget {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (_) => AddItemListModal(bookingId: bookingId),
+      builder: (_) => SelectInventoryItemModal(bookingId: bookingId),
     );
   }
 
@@ -129,7 +130,6 @@ class BookingDetailsPage extends ConsumerWidget {
                           return const Center(
                               child: Text('Booking not found.'));
                         }
-                        // Pass the role to the main view builder
                         return _buildBookingDetailView(context, ref, booking,
                             currentUserRole.asData?.value);
                       },
@@ -162,9 +162,8 @@ class BookingDetailsPage extends ConsumerWidget {
   Widget _buildBookingDetailView(
       BuildContext context, WidgetRef ref, Booking booking, String? userRole) {
     final screenWidth = MediaQuery.of(context).size.width;
-    bool isMobile = screenWidth < 700; // Adjust breakpoint as needed
+    bool isMobile = screenWidth < 700;
 
-    // Fetch service names for display
     final allServicesAsync = ref.watch(fetchAvailableServices);
     final serviceNameMap = allServicesAsync.asData?.value
             .fold<Map<int, String>>(
@@ -173,7 +172,6 @@ class BookingDetailsPage extends ConsumerWidget {
                     map..[service.serviceID] = service.serviceName) ??
         {};
 
-    // Fetch product names for display
     final productDefinitionsState =
         ref.watch(productDefinitionNotifierProvider(true)).asData?.value;
     final productNameMap = productDefinitionsState?.productDefinitions
@@ -184,7 +182,6 @@ class BookingDetailsPage extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         if (isMobile) {
-          // --- Mobile Layout: Single column scroll view ---
           return SingleChildScrollView(
             child: Column(
               children: [
@@ -203,12 +200,11 @@ class BookingDetailsPage extends ConsumerWidget {
             ),
           );
         } else {
-          // --- Desktop Layout: Two columns ---
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                flex: 2, // Left column for details
+                flex: 2,
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.only(right: 8.0),
                   child: Column(
@@ -228,7 +224,7 @@ class BookingDetailsPage extends ConsumerWidget {
               ),
               const SizedBox(width: 16),
               Expanded(
-                flex: 1, // Right column for pricing and actions
+                flex: 1,
                 child: _buildPricingAndActionsCard(
                     context, booking, userRole, ref),
               ),
@@ -239,7 +235,6 @@ class BookingDetailsPage extends ConsumerWidget {
     );
   }
 
-  // --- Reusable Card Widgets ---
   Widget _buildCard(
       {required String title, required Widget child, List<Widget>? actions}) {
     return Card(

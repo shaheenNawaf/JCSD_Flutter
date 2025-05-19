@@ -1,4 +1,3 @@
-
 import 'package:flutter/foundation.dart';
 
 @immutable
@@ -19,34 +18,51 @@ class BookingItem {
     required this.addedAt,
   });
 
-   static DateTime _parseRequiredDateTime(String? dateString) {
-     if (dateString == null) {
-       throw const FormatException("Required DateTime field received null: added_at");
-     }
-     return DateTime.parse(dateString);
+  static DateTime _parseRequiredDateTime(String? dateString) {
+    if (dateString == null) {
+      throw const FormatException(
+          "Required DateTime field received null: added_at");
+    }
+    return DateTime.parse(dateString);
   }
 
   //Helper Methods for safe parsing - nilalagay ko na sa lahat ng code ko!
   static double _parseRequiredDouble(dynamic priceValue) {
-    if (priceValue == null) throw const FormatException("Required price field received null: price_at_addition");
+    if (priceValue == null) {
+      throw const FormatException(
+          "Required price field received null: price_at_addition");
+    }
     if (priceValue is double) return priceValue;
     if (priceValue is int) return priceValue.toDouble();
     if (priceValue is String) return double.parse(priceValue);
-    throw FormatException("Invalid type for required price field: ${priceValue.runtimeType}");
- }
+    throw FormatException(
+        "Invalid type for required price field: ${priceValue.runtimeType}");
+  }
 
   factory BookingItem.fromJson(Map<String, dynamic> json) {
-     if (json['id'] == null || json['booking_id'] == null || json['serial_number'] == null || json['added_by_employee_id'] == null || json['price_at_addition'] == null || json['added_at'] == null) {
-       print("Warning: Missing required field(s) in BookingItem JSON: $json");
-     }
+    final id = json['id'];
+    final bookingId = json['booking_id'];
+    final serialNumber = json['serial_number'];
+    final addedByEmployeeId = json['added_by_employee_id'];
+    final priceAtAddition = json['price_at_addition'];
+    final addedAt = json['added_at'];
+
+    if (id == null ||
+        bookingId == null ||
+        serialNumber == null ||
+        addedByEmployeeId == null ||
+        priceAtAddition == null ||
+        addedAt == null) {
+      print("Warning: Missing required field(s) in BookingItem JSON: $json");
+    }
 
     return BookingItem(
-      id: json['id'] as int,
-      bookingId: json['booking_id'] as int,
-      serialNumber: json['serial_number'] as String,
-      addedByEmployeeId: json['added_by_employee_id'] as int,
-      priceAtAddition: _parseRequiredDouble(json['price_at_addition']),
-      addedAt: _parseRequiredDateTime(json['added_at']),
+      id: id as int,
+      bookingId: bookingId as int,
+      serialNumber: serialNumber as String,
+      addedByEmployeeId: addedByEmployeeId as int,
+      priceAtAddition: _parseRequiredDouble(priceAtAddition),
+      addedAt: _parseRequiredDateTime(addedAt),
     );
   }
 
