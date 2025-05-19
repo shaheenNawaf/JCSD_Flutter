@@ -150,7 +150,7 @@ class BookingService {
         final service = serviceMap[id];
         if (service != null) {
           totalEstimatedPrice +=
-              service.minPrice ?? 0.0; // Use minPrice or default
+              service.maxPrice ?? 0.0; // Use minPrice or default
           int duration =
               service.estimatedDuration ?? 60; // Use duration or default
           if (duration > maxDurationMinutes) maxDurationMinutes = duration;

@@ -1,7 +1,5 @@
 // Base Imports
-import 'package:intl/intl.dart';
 import 'package:jcsd_flutter/api/global_variables.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuditItemSerial {
   final String? auditId; // UUID

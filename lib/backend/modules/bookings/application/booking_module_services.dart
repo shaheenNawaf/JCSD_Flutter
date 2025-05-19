@@ -417,7 +417,6 @@ class BookingModuleServices implements BookingRepository {
               '*, item_serials!inner(serialNumber, product_definitions!inner(prodDefName, prodDefMSRP))') // Example join
           .eq('booking_id', bookingId);
 
-      // IMPORTANT TODO: Ensure BookingItem.fromJson handles nested data from joins
       return data.map((item) => BookingItem.fromJson(item)).toList();
     } catch (e, st) {
       print('Error fetching booking items for $bookingId: $e \n$st');

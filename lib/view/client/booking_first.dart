@@ -385,14 +385,14 @@ class _ClientBooking1State extends ConsumerState<ClientBooking1> {
                                       selectedBookingType),
                                   const SizedBox(height: 20),
                                   _buildHelpSection(),
+                                  const SizedBox(height: 20),
+                                  _buildSubmitButton(isSubmitting,
+                                      context), // "Continue" button
+                                  const SizedBox(height: 20),
                                 ],
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20),
-                          _buildSubmitButton(
-                              isSubmitting, context), // "Continue" button
-                          const SizedBox(height: 20),
                         ],
                       ),
                     ),
@@ -704,7 +704,7 @@ class _ClientBooking1State extends ConsumerState<ClientBooking1> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Total',
+              const Text('Estimated Total',
                   style: TextStyle(
                       fontFamily: 'Nunito',
                       fontSize: 16,
@@ -717,6 +717,14 @@ class _ClientBooking1State extends ConsumerState<ClientBooking1> {
             ],
           ),
           const Divider(),
+          const Text(
+            'Final Price will be set after the service has been done',
+            style: TextStyle(
+                fontFamily: 'Nunito',
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey),
+          ),
         ],
       ),
     );
