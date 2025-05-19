@@ -9,6 +9,7 @@ import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_item_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_notifier.dart';
+import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_service.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_status.dart';
 import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 import 'package:jcsd_flutter/view/inventory/return_orders/modals/record_replacement_modal.dart';
@@ -320,8 +321,9 @@ class ViewReturnOrderDetailModal extends ConsumerWidget {
               child: Text("Error loading RO: $err",
                   style: const TextStyle(color: Colors.red))),
           data: (roData) {
-            if (roData == null)
+            if (roData == null) {
               return const Center(child: Text("Return Order not found."));
+            }
             final ro = roData; // Use the data directly
             final bool isProcessing =
                 ro.isLoading; // Get loading state from the data
