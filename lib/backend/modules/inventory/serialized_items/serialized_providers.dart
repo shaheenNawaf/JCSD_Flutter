@@ -18,8 +18,15 @@ final serializedItemNotifierProvider = AutoDisposeAsyncNotifierProviderFamily<
   () => SerializedItemNotifier(),
 );
 
+final serializedItemNotifierProvidersForBookingDropdown =
+    AutoDisposeAsyncNotifierProviderFamily<SerializedItemNotifier,
+        SerializedItemState, String>(
+  () => SerializedItemNotifier(),
+);
+
 /// FutureProvider specifically for fetching all available item statuses for dropdowns.
-final allItemStatusesProvider = FutureProvider.autoDispose<List<String>>((ref) async {
+final allItemStatusesProvider =
+    FutureProvider.autoDispose<List<String>>((ref) async {
   // Reads the service provider to access the service method
   final service = ref.watch(serialitemServiceProvider);
   return service.getAllItemStatuses(); // Calls the method added in Step 1

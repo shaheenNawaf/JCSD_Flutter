@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jcsd_flutter/backend/modules/employee/employee_attendance.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_data.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/product_definitions/prod_def_notifier.dart'; // To get all product defs
 import 'package:jcsd_flutter/backend/modules/inventory/serialized_items/serialized_item.dart';
@@ -20,6 +21,8 @@ final _selectedSerialNumberProvider =
     StateProvider.autoDispose<String?>((ref) => null);
 final _priceAtAdditionProvider =
     StateProvider.autoDispose<double?>((ref) => null);
+
+int? currentEmployeeID;
 
 class AddItemListModal extends ConsumerStatefulWidget {
   final int bookingId;
@@ -82,15 +85,7 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
           context, 'Error: Could not identify current user.', Colors.red);
       return;
     }
-    // You might need to fetch the employee's 'employeeID' (bigint) from the 'employee' table
-    // using the 'userID' (uuid) from auth. For simplicity, if your BookingService
-    // can accept userID and resolve it to employeeID, that's fine.
-    // Otherwise, you'd fetch it here. Let's assume for now your service handles it or you pass a placeholder.
-    // For demonstration, let's assume employeeID is 1. Replace with actual logic.
-    int placeholderEmployeeId =
-        1; // Placeholder - REPLACE WITH ACTUAL LOGIC TO GET EMPLOYEE PK
 
-    // Fetch the actual Employee Primary Key (employeeID) based on the current UserID (uuid)
     try {
       final employeeResponse = await supabaseDB
           .from('employee')
@@ -103,7 +98,7 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
             'Error: Employee record not found for current user.', Colors.red);
         return;
       }
-      placeholderEmployeeId = employeeResponse['employeeID'] as int;
+      currentEmployeeID = employeeResponse['employeeID'] as int;
     } catch (e) {
       ToastManager().showToast(
           context, 'Error fetching employee ID: ${e.toString()}', Colors.red);
@@ -118,7 +113,7 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
           .addItem(
             selectedSerialNumber,
             priceAtAddition,
-            placeholderEmployeeId, // Pass the fetched or placeholder employee ID
+            currentEmployeeID!, // Pass the fetched or placeholder employee ID
           );
       ToastManager().showToast(
           context, 'Item added to booking successfully!', Colors.green);
@@ -155,7 +150,6 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -281,7 +275,9 @@ class _AddItemListModalState extends ConsumerState<AddItemListModal> {
     return serialsAsync.when(
       data: (serialState) {
         final availableSerials = serialState.serializedItems
-            .where((item) => item.status.toLowerCase() == 'available')
+            .where((item) =>
+                item.status.toLowerCase() == 'available' ||
+                item.status.toLowerCase() == 'unused')
             .toList();
         if (availableSerials.isEmpty) {
           return const Text("No available serial numbers for this product.",

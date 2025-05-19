@@ -21,6 +21,76 @@ class SerialitemService {
     ''';
   }
 
+  //Fetch only for the Booking Module
+  Future<List<SerializedItem>> fetchSerializedItemsWithSpecificStatus({
+    String? prodDefID,
+    List<String>? statuses,
+    int? currentBookingID,
+    int? employeeID,
+    int? supplierID,
+    String? searchQuery,
+
+    //For Pagination and Sorting
+    String sortBy = 'serialNumber',
+    bool ascending = true,
+    int page = 1,
+    int itemsPerPage = defaultItemsPerPage,
+  }) async {
+    try {
+      //Defining JOINS for search can be in a way "Global"
+      String selectQuery = commonlyUsedJoin();
+
+      //Building the query here and the filters will be applied under
+      var fetchItemSerials =
+          supabaseDB.from('item_serials').select(selectQuery);
+
+      //Different Filters
+      if (prodDefID != null) {
+        fetchItemSerials = fetchItemSerials.eq('prodDefID', prodDefID);
+      }
+      if (statuses != null && statuses.isNotEmpty) {
+        fetchItemSerials = fetchItemSerials.inFilter('status', statuses);
+      }
+      if (currentBookingID != null) {
+        fetchItemSerials = fetchItemSerials.eq('bookingID', currentBookingID);
+      }
+      if (employeeID != null) {
+        fetchItemSerials = fetchItemSerials.eq('employeeID', employeeID);
+      }
+      if (supplierID != null) {
+        fetchItemSerials = fetchItemSerials.eq('supplierID', supplierID);
+      }
+      //Apply the search here
+      if (searchQuery != null && searchQuery.isNotEmpty) {
+        final searchTerm = '%$searchQuery%';
+
+        fetchItemSerials = fetchItemSerials.or('serialNumber.ilike.$searchTerm,'
+            'notes.ilike.$searchTerm,'
+            'product_definitions.prodDefName.ilike.$searchTerm,'
+            'suppliers.supplierName.ilike.$searchTerm,'
+            'booking_details.bookingID.ilike.$searchTerm');
+      }
+
+      //Sorting
+      final offset = (page - 1) * itemsPerPage;
+      final limit = offset + itemsPerPage - 1;
+
+      final fetchedResults = await fetchItemSerials
+          .order(sortBy, ascending: ascending)
+          .range(offset, limit);
+
+      //Verifying if there are any entries inside the fetched File
+      if (fetchedResults.isEmpty) return [];
+
+      return fetchedResults
+          .map((item) => SerializedItem.fromJson(item))
+          .toList();
+    } catch (err, st) {
+      print('Error fetching all serialized items. \n $err \n $st');
+      rethrow;
+    }
+  }
+
   //Fetch Functionalities
   Future<List<SerializedItem>> fetchSerializedItems({
     String? prodDefID,
