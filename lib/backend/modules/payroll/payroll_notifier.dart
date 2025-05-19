@@ -11,7 +11,7 @@ class PayrollNotifier extends StateNotifier<PayrollState> {
   final EmployeeService _employeeService;
   final AccountService _accountService;
   final PayrollService _payrollService;
-  final int _itemsPerPage = 10;
+  final int _itemsPerPage = 13;
 
   PayrollNotifier(
     this._employeeService,
@@ -24,16 +24,17 @@ class PayrollNotifier extends StateNotifier<PayrollState> {
   Future<void> fetchPayrollData() async {
     state = state.copyWith(loading: true);
     try {
-      final payrollWithDetails = await _payrollService.fetchPayrollsWithEmployeeDetails(
+      final payrollWithDetails =
+          await _payrollService.fetchPayrollsWithEmployeeDetails(
         sortBy: state.sortBy,
         ascending: state.ascending,
         page: state.currentPage,
         itemsPerPage: _itemsPerPage,
       );
-      
+
       // Get total count for proper pagination
       final totalCount = await _payrollService.getTotalPayrollCount();
-      
+
       state = state.copyWith(
         payrolls: payrollWithDetails,
         loading: false,
@@ -62,4 +63,16 @@ class PayrollNotifier extends StateNotifier<PayrollState> {
     fetchPayrollData();
   }
 
+  Future<List<Map<String, dynamic>>> fetchAllPayrollsForMonthYear({
+    required int month,
+    required int year,
+  }) async {
+    final allPayrolls =
+        await _payrollService.fetchPayrollsWithEmployeeDetailsForMonthYear(
+      month: month,
+      year: year,
+    );
+
+    return allPayrolls;
+  }
 }

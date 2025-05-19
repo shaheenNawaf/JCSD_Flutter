@@ -1,7 +1,10 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:jcsd_flutter/backend/modules/accounts/accounts_data.dart';
 import 'package:jcsd_flutter/backend/modules/employee/employee_data.dart';
 import 'package:jcsd_flutter/backend/modules/payroll/payroll_data.dart';
@@ -14,6 +17,7 @@ import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PayrollList extends ConsumerStatefulWidget {
   final AccountsData? acc;
@@ -63,6 +67,250 @@ class _PayrollListState extends ConsumerState<PayrollList> {
 
   late final PayrollData? payroll = widget.payroll;
 
+  int lateMinutes = 0;
+  int overtimeMinutes = 0;
+  int leaveDays = 0;
+  double totalCashAdvance = 0;
+
+  // SSS Table and calculation function
+  Map<int, Map<String, double>> sssTable = {
+    15000: {'ee': 750.00, 'er': 1500.00},
+    15500: {'ee': 775.00, 'er': 1550.00},
+    16000: {'ee': 800.00, 'er': 1600.00},
+    16500: {'ee': 825.00, 'er': 1650.00},
+    17000: {'ee': 850.00, 'er': 1700.00},
+    17500: {'ee': 875.00, 'er': 1750.00},
+    18000: {'ee': 900.00, 'er': 1800.00},
+    18500: {'ee': 925.00, 'er': 1850.00},
+    19000: {'ee': 950.00, 'er': 1900.00},
+    19500: {'ee': 975.00, 'er': 1950.00},
+    20000: {'ee': 1000.00, 'er': 2000.00},
+    20500: {'ee': 1025.00, 'er': 2050.00},
+    21000: {'ee': 1050.00, 'er': 2100.00},
+    21500: {'ee': 1075.00, 'er': 2150.00},
+    22000: {'ee': 1100.00, 'er': 2200.00},
+    22500: {'ee': 1125.00, 'er': 2250.00},
+    23000: {'ee': 1150.00, 'er': 2300.00},
+    23500: {'ee': 1175.00, 'er': 2350.00},
+    24000: {'ee': 1200.00, 'er': 2400.00},
+    24500: {'ee': 1225.00, 'er': 2450.00},
+    25000: {'ee': 1250.00, 'er': 2500.00},
+    25500: {'ee': 1275.00, 'er': 2550.00},
+    26000: {'ee': 1300.00, 'er': 2600.00},
+    26500: {'ee': 1325.00, 'er': 2650.00},
+    27000: {'ee': 1350.00, 'er': 2700.00},
+    27500: {'ee': 1375.00, 'er': 2750.00},
+    28000: {'ee': 1400.00, 'er': 2800.00},
+    28500: {'ee': 1425.00, 'er': 2850.00},
+    29000: {'ee': 1450.00, 'er': 2900.00},
+    29500: {'ee': 1475.00, 'er': 2950.00},
+    30000: {'ee': 1500.00, 'er': 3000.00},
+  };
+
+  double calculateSSS(double monthlySalary) {
+    double employeeShare = 0.0;
+    for (var msc in sssTable.keys) {
+      if (monthlySalary <= msc) {
+        employeeShare = sssTable[msc]!['ee']!;
+        break;
+      } else if (monthlySalary > sssTable.keys.last) {
+        employeeShare = sssTable[sssTable.keys.last]!['ee']!;
+        break;
+      }
+    }
+    return employeeShare;
+  }
+
+  double calculatePhilHealth(double monthlySalary) {
+    double premiumRate = 0.05;
+    double salaryFloor = 10000;
+    double salaryCeiling = 100000;
+    double premium;
+
+    if (monthlySalary < salaryFloor) {
+      premium = salaryFloor * premiumRate;
+    } else if (monthlySalary > salaryCeiling) {
+      premium = salaryCeiling * premiumRate;
+    } else {
+      premium = monthlySalary * premiumRate;
+    }
+
+    return premium / 2; // Employee's share is 50%
+  }
+
+  double calculatePagIBIG(double monthlySalary) {
+    double contributionRate = 0.02;
+    double maxContributionSalary = 10000;
+    double contributionBase = min(monthlySalary, maxContributionSalary);
+    return contributionBase * contributionRate; // Employee's share
+  }
+
+  double calculateWithholdingTax(double grossMonthlySalary, double sssEe,
+      double philhealthEe, double pagibigEe) {
+    double taxableIncome =
+        grossMonthlySalary - sssEe - philhealthEe - pagibigEe;
+
+    if (taxableIncome <= 20833) {
+      return 0.00;
+    } else if (taxableIncome <= 33333) {
+      return (taxableIncome - 20833) * 0.15;
+    } else if (taxableIncome <= 66667) {
+      return 1875.00 + (taxableIncome - 33333) * 0.20;
+    } else if (taxableIncome <= 166667) {
+      return 8541.67 + (taxableIncome - 66667) * 0.25;
+    } else if (taxableIncome <= 666667) {
+      return 33541.67 + (taxableIncome - 166667) * 0.30;
+    } else {
+      return 183541.67 + (taxableIncome - 666667) * 0.35;
+    }
+  }
+
+  totaldeducations() {
+    return (calculatePagIBIG(payroll!.monthlySalary) +
+        calculatePhilHealth(payroll!.monthlySalary) +
+        calculateSSS(payroll!.monthlySalary) +
+        payroll!.withholdingTax +
+        // The following lines assume lateMinutes, leaveDays, totalCashAdvance are defined elsewhere.
+        // If not, replace them with appropriate values or calculations.
+        ((payroll!.monthlySalary / 170) *
+            ((lateMinutes / 60) + (leaveDays * 8))) +
+        totalCashAdvance +
+        payroll!.deductions);
+  }
+
+  Future<void> _fetchAttendanceData() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('attendance')
+          .select()
+          .eq('userID', user!.userID)
+          .filter('attendance_date', 'gte',
+              DateTime(selectedDate.year, selectedDate.month, 1))
+          .filter('attendance_date', 'lt',
+              DateTime(selectedDate.year, selectedDate.month + 1, 1));
+
+      final count = response.length;
+      int totalLateMinutes = 0;
+      int totalOvertimeMinutes = 0;
+      for (var record in response) {
+        if (record['late_minutes'] != null) {
+          totalLateMinutes +=
+              int.tryParse(record['late_minutes'].toString()) ?? 0;
+        }
+        if (record['overtime_minutes'] != null) {
+          totalOvertimeMinutes +=
+              int.tryParse(record['overtime_minutes'].toString()) ?? 0;
+        }
+      }
+
+      setState(() {
+        attendanceRecords = count;
+        lateMinutes = totalLateMinutes;
+        overtimeMinutes = totalOvertimeMinutes;
+      });
+      print(
+          'Fetched attendance data: $count, total late minutes: $totalLateMinutes');
+    } catch (e) {
+      print('Error fetching attendance data: $e');
+    }
+  }
+
+  late double monthlySalary;
+
+  @override
+  void initState() {
+    super.initState();
+    monthlySalary = emp?.monthlySalary ?? 0.0;
+    Future.wait([
+      _fetchAttendanceData(),
+      _fetchLeavesData(),
+      _fetchCashAdvanceData(),
+    ]).then((_) {
+      setState(() {});
+    }).catchError((error) {
+      print('Error fetching data: $error');
+    });
+  }
+
+  totalSalary() {
+    return (payroll!.monthlySalary + payroll!.bonus - totaldeducations());
+  }
+
+  Future<void> _fetchLeavesData() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('leave_requests')
+          .select()
+          .eq('userID', user!.userID)
+          .eq('status', 'Approved');
+
+      for (var leave in response) {
+        DateTime start = DateTime.parse(leave['startDate']);
+        DateTime end = DateTime.parse(leave['endDate']);
+
+        DateTime monthStart =
+            DateTime(selectedDate.year, selectedDate.month, 1);
+        DateTime monthEnd =
+            DateTime(selectedDate.year, selectedDate.month + 1, 0);
+
+        DateTime effectiveStart =
+            start.isBefore(monthStart) ? monthStart : start;
+        DateTime effectiveEnd = end.isAfter(monthEnd) ? monthEnd : end;
+
+        if (effectiveStart.isAfter(effectiveEnd)) continue;
+
+        leaveDays += effectiveEnd.difference(effectiveStart).inDays + 1;
+      }
+      print('Leave days in month: $leaveDays');
+      setState(() {
+        leaveDays = leaveDays;
+      });
+      print('Fetched approved leave days: $leaveDays');
+    } catch (e) {
+      print('Error fetching leave data: $e');
+    }
+  }
+
+  Future<void> _fetchCashAdvanceData() async {
+    try {
+      final response = await Supabase.instance.client
+          .from('cash_advance')
+          .select()
+          .eq('employeeID', emp?.employeeID ?? '')
+          .eq('status', 'Approved');
+
+      double sum = 0.0;
+      for (var ca in response) {
+        if (ca['created_at'] != null && ca['cashAdvance'] != null) {
+          DateTime caDate = DateTime.parse(ca['created_at']);
+          if (caDate.year == selectedDate.year &&
+              caDate.month == selectedDate.month) {
+            sum += double.tryParse(ca['cashAdvance'].toString()) ?? 0.0;
+          }
+        }
+      }
+
+      setState(() {
+        totalCashAdvance = sum;
+      });
+    } catch (e) {
+      print('Error fetching cash advance data: $e');
+    }
+  }
+
+  Future<void> uploadCalculatedMonthlySalary() async {
+    try {
+      final double calculatedMonthlySalary = totalSalary();
+      await Supabase.instance.client
+          .from('payroll')
+          .update({'calculatedMonthlySalary': calculatedMonthlySalary}).eq(
+              'id', payroll!.id);
+      print('Calculated monthly salary uploaded: $calculatedMonthlySalary');
+    } catch (e) {
+      print('Error uploading calculated monthly salary: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final ref = this.ref;
@@ -92,75 +340,75 @@ class _PayrollListState extends ConsumerState<PayrollList> {
                     children: [
                       Row(
                         children: [
-                          ElevatedButton.icon(
-                            onPressed: _printPayslip,
-                            icon: const FaIcon(FontAwesomeIcons.print,
-                                color: Colors.white, size: 16),
-                            label: const Text(
-                              'Print Batch Payroll',
-                              style: TextStyle(
-                                fontFamily: 'NunitoSans',
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF00AEEF),
-                              minimumSize: const Size(120, 48),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          DropdownButton<int>(
-                            value: selectedMonth,
-                            dropdownColor: Colors.white,
-                            style: const TextStyle(
-                              fontFamily: 'NunitoSans',
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                selectedMonth = value!;
-                              });
-                            },
-                            items: List.generate(12, (index) => index + 1)
-                                .map((month) {
-                              return DropdownMenuItem(
-                                value: month,
-                                child: Text(
-                                  DateTime(0, month)
-                                      .month
-                                      .toString()
-                                      .padLeft(2, '0'),
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                          const SizedBox(width: 12),
-                          DropdownButton<int>(
-                            value: selectedYear,
-                            dropdownColor: Colors.white,
-                            style: const TextStyle(
-                              fontFamily: 'NunitoSans',
-                              fontWeight: FontWeight.w500,
-                              color: Colors.black,
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                selectedYear = value!;
-                              });
-                            },
-                            items: List.generate(10, (index) {
-                              final year = DateTime.now().year - 5 + index;
-                              return DropdownMenuItem(
-                                value: year,
-                                child: Text(year.toString()),
-                              );
-                            }).toList(),
-                          ),
+                          // ElevatedButton.icon(
+                          //   onPressed: _printPayslip,
+                          //   icon: const FaIcon(FontAwesomeIcons.print,
+                          //       color: Colors.white, size: 16),
+                          //   label: const Text(
+                          //     'Print Batch Payroll',
+                          //     style: TextStyle(
+                          //       fontFamily: 'NunitoSans',
+                          //       fontWeight: FontWeight.bold,
+                          //       color: Colors.white,
+                          //     ),
+                          //   ),
+                          //   style: ElevatedButton.styleFrom(
+                          //     backgroundColor: Color(0xFF00AEEF),
+                          //     minimumSize: const Size(120, 48),
+                          //     shape: RoundedRectangleBorder(
+                          //       borderRadius: BorderRadius.circular(8),
+                          //     ),
+                          //   ),
+                          // ),
+                          // const SizedBox(width: 16),
+                          // DropdownButton<int>(
+                          //   value: selectedMonth,
+                          //   dropdownColor: Colors.white,
+                          //   style: const TextStyle(
+                          //     fontFamily: 'NunitoSans',
+                          //     fontWeight: FontWeight.w500,
+                          //     color: Colors.black,
+                          //   ),
+                          //   onChanged: (value) {
+                          //     setState(() {
+                          //       selectedMonth = value!;
+                          //     });
+                          //   },
+                          //   items: List.generate(12, (index) => index + 1)
+                          //       .map((month) {
+                          //     return DropdownMenuItem(
+                          //       value: month,
+                          //       child: Text(
+                          //         DateTime(0, month)
+                          //             .month
+                          //             .toString()
+                          //             .padLeft(2, '0'),
+                          //       ),
+                          //     );
+                          //   }).toList(),
+                          // ),
+                          // const SizedBox(width: 12),
+                          // DropdownButton<int>(
+                          //   value: selectedYear,
+                          //   dropdownColor: Colors.white,
+                          //   style: const TextStyle(
+                          //     fontFamily: 'NunitoSans',
+                          //     fontWeight: FontWeight.w500,
+                          //     color: Colors.black,
+                          //   ),
+                          //   onChanged: (value) {
+                          //     setState(() {
+                          //       selectedYear = value!;
+                          //     });
+                          //   },
+                          //   items: List.generate(10, (index) {
+                          //     final year = DateTime.now().year - 5 + index;
+                          //     return DropdownMenuItem(
+                          //       value: year,
+                          //       child: Text(year.toString()),
+                          //     );
+                          //   }).toList(),
+                          // ),
                         ],
                       ),
                       Row(
@@ -298,7 +546,10 @@ class _PayrollListState extends ConsumerState<PayrollList> {
             return DataRow(cells: [
               DataCell(Text(account?.firstName ?? '')),
               DataCell(Text(_formatDate(payroll.createdAt))),
-              DataCell(Text('\$${payroll.monthlySalary.toStringAsFixed(2)}')),
+              DataCell(
+                Text(
+                    '\₱${NumberFormat("#,##0.00", "en_US").format(payroll.monthlySalary)}'),
+              ),
               DataCell(
                 ElevatedButton(
                   onPressed: () {
@@ -468,12 +719,29 @@ class _PayrollListState extends ConsumerState<PayrollList> {
                         ),
                       ]),
                       _tableRowHeader('Deductions:'),
-                      _tableRow('Pagibig:', '${payroll.pagibig}'),
-                      _tableRow('PhilHealth:', '${payroll.philhealth}'),
-                      _tableRow('SSS:', '${payroll.sss}'),
                       _tableRow(
-                          'Withholding Tax:', '${payroll.withholdingTax}'),
-                      _tableRow('Cash Advance:', '0'),
+                          'Pagibig:',
+                          calculatePagIBIG(payroll.monthlySalary)
+                              .toStringAsFixed(2)),
+                      _tableRow(
+                          'PhilHealth:',
+                          calculatePhilHealth(payroll.monthlySalary)
+                              .toStringAsFixed(2)),
+                      _tableRow(
+                          'SSS:',
+                          calculateSSS(payroll.monthlySalary)
+                              .toStringAsFixed(2)),
+                      _tableRow('Tardiness:', '0'),
+                      _tableRow('Others:', '${payroll.deductions}'),
+                      _tableRow(
+                        'Withholding Tax:',
+                        calculateWithholdingTax(
+                          payroll.monthlySalary,
+                          calculateSSS(payroll.monthlySalary),
+                          calculatePhilHealth(payroll.monthlySalary),
+                          calculatePagIBIG(payroll.monthlySalary),
+                        ).toStringAsFixed(2),
+                      ),
                       _tableRow('Total Deductions:', '0'),
                       pw.TableRow(children: [
                         pw.Padding(
