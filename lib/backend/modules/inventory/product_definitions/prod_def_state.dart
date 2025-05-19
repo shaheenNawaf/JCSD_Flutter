@@ -10,6 +10,7 @@ class ProductDefinitionState {
   final int itemsPerPage;
   final String sortBy;
   final bool ascending;
+  final bool? isLoadingMore;
 
   const ProductDefinitionState({
     this.productDefinitions = const [], // Start with empty list
@@ -19,6 +20,7 @@ class ProductDefinitionState {
     this.itemsPerPage = 10, // Or get from config
     this.sortBy = 'prodDefName', // Default sort by name now? Or prodDefID
     this.ascending = true,
+    this.isLoadingMore = false,
   });
 
   ProductDefinitionState copyWith({
@@ -29,16 +31,17 @@ class ProductDefinitionState {
     int? itemsPerPage,
     String? sortBy,
     bool? ascending,
+    bool? isLoadingMore,
   }) {
     return ProductDefinitionState(
-      productDefinitions: productDefinitions ?? this.productDefinitions,
-      searchText: searchText ?? this.searchText,
-      currentPage: currentPage ?? this.currentPage,
-      totalPages: totalPages ?? this.totalPages,
-      itemsPerPage: itemsPerPage ?? this.itemsPerPage,
-      sortBy: sortBy ?? this.sortBy,
-      ascending: ascending ?? this.ascending,
-    );
+        productDefinitions: productDefinitions ?? this.productDefinitions,
+        searchText: searchText ?? this.searchText,
+        currentPage: currentPage ?? this.currentPage,
+        totalPages: totalPages ?? this.totalPages,
+        itemsPerPage: itemsPerPage ?? this.itemsPerPage,
+        sortBy: sortBy ?? this.sortBy,
+        ascending: ascending ?? this.ascending,
+        isLoadingMore: isLoadingMore ?? this.isLoadingMore);
   }
 
   //Data Checking only

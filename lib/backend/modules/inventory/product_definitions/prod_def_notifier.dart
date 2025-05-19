@@ -111,7 +111,7 @@ class ProductDefinitionNotifier
   // --- UI Action Methods ---
 
   /// Action: Navigates to the specified page number.
-  Future<void> goToPage(int page) async {
+  Future<void> goToPage(int page, {bool forLoadMore = false}) async {
     final currentState = state.valueOrNull; // Get current state data safely
     // Prevents navigation if state is invalid or page is out of bounds
     if (currentState == null || page < 1 || page > currentState.totalPages) {
