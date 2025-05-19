@@ -9,9 +9,8 @@ import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_orde
 import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_notifier.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_state.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/return_orders/return_order_status.dart';
-import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart'; // For supplier dropdown
-// Import your ViewReturnOrderDetailModal when created
-// import 'package:jcsd_flutter/view/inventory/return_orders/modals/view_return_order_detail_modal.dart';
+import 'package:jcsd_flutter/backend/modules/suppliers/suppliers_state.dart';
+import 'package:jcsd_flutter/view/inventory/return_orders/modals/view_return_order_detail_modal.dart'; // Import the detail modal
 import 'package:jcsd_flutter/widgets/header.dart';
 import 'package:jcsd_flutter/widgets/sidebar.dart';
 import 'package:shimmer/shimmer.dart';
@@ -20,20 +19,20 @@ class ReturnOrderListPage extends ConsumerWidget {
   const ReturnOrderListPage({super.key});
 
   final String _activeSubItem =
-      '/inventory'; // Or a more specific route like '/returnOrders'
+      '/inventory'; // Or create '/returnOrders' if it's a main menu item
 
   void _showViewReturnOrderDetailModal(
       BuildContext context, WidgetRef ref, ReturnOrderData ro) {
-    // showDialog(
-    //   context: context,
-    //   barrierDismissible: false,
-    //   builder: (_) => ViewReturnOrderDetailModal(returnOrder: ro), // You'll create this
-    // ).then((updated) {
-    //   if (updated == true) {
-    //     ref.read(returnOrderListNotifierProvider.notifier).refresh();
-    //   }
-    // });
-    print("Placeholder: Would show details for RO ID ${ro.returnOrderID}");
+    showDialog(
+      context: context,
+      barrierDismissible: true, // Allow dismissing detail modal
+      builder: (_) => ViewReturnOrderDetailModal(roId: ro.returnOrderID),
+    ).then((actionTaken) {
+      if (actionTaken == true) {
+        // If modal indicates an update happened
+        ref.read(returnOrderListNotifierProvider.notifier).refresh();
+      }
+    });
   }
 
   @override
@@ -48,15 +47,30 @@ class ReturnOrderListPage extends ConsumerWidget {
           Expanded(
             child: Column(
               children: [
-                const Header(title: 'Return Orders'),
+                Header(
+                  title: 'Return Orders',
+                  leading: IconButton(
+                    icon:
+                        const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                    onPressed: () {
+                      if (context.canPop()) {
+                        context.pop();
+                      } else {
+                        context.go('/inventory'); // Fallback to inventory main
+                      }
+                    },
+                  ),
+                ),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: asyncValue.when(
-                      loading: () => _buildLoadingIndicator(),
-                      error: (error, stack) =>
-                          _buildErrorWidget(error, stack, ref),
                       data: (roState) {
+                        if (roState.errorMessage != null &&
+                            roState.returnOrders.isEmpty) {
+                          return _buildErrorWidget(
+                              roState.errorMessage!, null, ref);
+                        }
                         if (roState.returnOrders.isEmpty &&
                             roState.searchText.isEmpty &&
                             roState.statusFilter == null &&
@@ -67,6 +81,9 @@ class ReturnOrderListPage extends ConsumerWidget {
                         }
                         return _buildWebView(context, ref, roState);
                       },
+                      loading: () => _buildLoadingIndicator(),
+                      error: (error, stackTrace) =>
+                          _buildErrorWidget(error, stackTrace, ref),
                     ),
                   ),
                 ),
@@ -84,9 +101,17 @@ class ReturnOrderListPage extends ConsumerWidget {
       children: [
         _buildTopControls(context, ref, roState),
         const SizedBox(height: 16),
-        Expanded(child: _buildDataTable(context, ref, roState)),
+        if (roState.isLoading && roState.returnOrders.isEmpty)
+          Expanded(child: _buildDataTableShimmer())
+        else if (roState.errorMessage != null && roState.returnOrders.isEmpty)
+          Expanded(
+              child: Center(
+                  child: Text("Error: ${roState.errorMessage}",
+                      style: const TextStyle(color: Colors.red))))
+        else
+          Expanded(child: _buildDataTable(context, ref, roState)),
         const SizedBox(height: 16),
-        if (roState.totalPages > 1)
+        if (roState.totalPages > 1 && !roState.isLoading)
           _buildPaginationControls(context, ref, roState),
       ],
     );
@@ -95,9 +120,10 @@ class ReturnOrderListPage extends ConsumerWidget {
   Widget _buildTopControls(
       BuildContext context, WidgetRef ref, ReturnOrderListState roState) {
     final activeSuppliersAsync = ref.watch(activeSuppliersForDropdownProvider);
+    final notifier = ref.read(returnOrderListNotifierProvider.notifier);
+
     return Row(
       children: [
-        // Status Filter
         SizedBox(
           width: 180,
           height: 40,
@@ -114,9 +140,7 @@ class ReturnOrderListPage extends ConsumerWidget {
               suffixIcon: roState.statusFilter != null
                   ? IconButton(
                       icon: const Icon(Icons.clear, size: 16),
-                      onPressed: () => ref
-                          .read(returnOrderListNotifierProvider.notifier)
-                          .applyFilters(clearStatus: true))
+                      onPressed: () => notifier.applyFilters(clearStatus: true))
                   : null,
             ),
             isExpanded: true,
@@ -135,15 +159,11 @@ class ReturnOrderListPage extends ConsumerWidget {
                       ))
                   .toList(),
             ],
-            onChanged: (value) {
-              ref
-                  .read(returnOrderListNotifierProvider.notifier)
-                  .applyFilters(status: value, clearStatus: value == null);
-            },
+            onChanged: (value) => notifier.applyFilters(
+                status: value, clearStatus: value == null),
           ),
         ),
         const SizedBox(width: 10),
-        // Supplier Filter
         SizedBox(
           width: 200,
           height: 40,
@@ -161,9 +181,8 @@ class ReturnOrderListPage extends ConsumerWidget {
                 suffixIcon: roState.supplierFilter != null
                     ? IconButton(
                         icon: const Icon(Icons.clear, size: 16),
-                        onPressed: () => ref
-                            .read(returnOrderListNotifierProvider.notifier)
-                            .applyFilters(clearSupplier: true))
+                        onPressed: () =>
+                            notifier.applyFilters(clearSupplier: true))
                     : null,
               ),
               isExpanded: true,
@@ -179,17 +198,45 @@ class ReturnOrderListPage extends ConsumerWidget {
                         style: const TextStyle(fontSize: 12),
                         overflow: TextOverflow.ellipsis))),
               ],
-              onChanged: (value) {
-                ref.read(returnOrderListNotifierProvider.notifier).applyFilters(
-                    supplierId: value, clearSupplier: value == null);
-              },
+              onChanged: (value) => notifier.applyFilters(
+                  supplierId: value, clearSupplier: value == null),
             ),
             loading: () => const SizedBox(
                 height: 20,
                 width: 20,
-                child: CircularProgressIndicator(strokeWidth: 2)),
+                child:
+                    Center(child: CircularProgressIndicator(strokeWidth: 2))),
             error: (e, s) => const Text("Err Sup",
                 style: TextStyle(fontSize: 10, color: Colors.red)),
+          ),
+        ),
+        const SizedBox(width: 10),
+        SizedBox(
+          width: 150,
+          height: 40,
+          child: TextFormField(
+            // PO ID Filter
+            decoration: InputDecoration(
+              hintText: 'PO ID...',
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+              isDense: true,
+              suffixIcon: roState.purchaseOrderFilter != null
+                  ? IconButton(
+                      icon: const Icon(Icons.clear, size: 16),
+                      onPressed: () =>
+                          notifier.applyFilters(clearPurchaseOrder: true))
+                  : null,
+            ),
+            keyboardType: TextInputType.number,
+            onChanged: (value) {
+              // Debounce or submit on enter
+              final poId = int.tryParse(value);
+              notifier.applyFilters(
+                  purchaseOrderId: poId, clearPurchaseOrder: value.isEmpty);
+            },
           ),
         ),
         const Spacer(),
@@ -198,7 +245,7 @@ class ReturnOrderListPage extends ConsumerWidget {
           height: 40,
           child: TextField(
             decoration: InputDecoration(
-              hintText: 'Search RO ID, PO ID, Notes...',
+              hintText: 'Search RO ID, Notes...',
               prefixIcon: const Icon(Icons.search, size: 20),
               border:
                   OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -209,76 +256,79 @@ class ReturnOrderListPage extends ConsumerWidget {
                   color: Color(0xFFABABAB),
                   fontFamily: 'NunitoSans'),
             ),
-            onChanged: (searchText) => ref
-                .read(returnOrderListNotifierProvider.notifier)
-                .search(searchText),
+            onChanged: (searchText) => notifier.search(searchText),
           ),
         ),
-        // No "Create RO" button here, as it's initiated from POs
       ],
     );
   }
 
   Widget _buildDataTable(
       BuildContext context, WidgetRef ref, ReturnOrderListState roState) {
-    final supplierMapAsync =
-        ref.watch(supplierNameMapProvider); // For displaying supplier names
+    final supplierMapAsync = ref.watch(supplierNameMapProvider);
 
-    return Container(
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 2,
-                blurRadius: 5)
-          ]),
-      child: Column(
-        children: [
-          _buildHeaderRow(context, ref, roState),
-          const Divider(height: 1, color: Color.fromARGB(255, 224, 224, 224)),
-          Expanded(
-              child: supplierMapAsync.when(
-            // Ensure supplier names are loaded before rendering rows
-            data: (supplierMap) {
-              if (roState.returnOrders.isEmpty) {
-                return Center(
-                    child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Text(
-                    roState.searchText.isNotEmpty ||
-                            roState.statusFilter != null ||
-                            roState.supplierFilter != null
-                        ? 'No Return Orders match your current filters.'
-                        : 'No return orders found.',
-                    style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                    textAlign: TextAlign.center,
-                  ),
-                ));
-              }
-              return ListView.builder(
-                itemCount: roState.returnOrders.length,
-                itemBuilder: (BuildContext context, int index) {
-                  final item = roState.returnOrders[index];
-                  final rowColor =
-                      index % 2 == 0 ? Colors.white : const Color(0xFFF8F8F8);
-                  return _buildItemRow(context, ref, item, rowColor,
-                      supplierMap, ValueKey(item.returnOrderID));
-                },
-              );
-            },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, s) =>
-                Center(child: Text("Error loading supplier data: $e")),
-          )),
-        ],
-      ),
+    return supplierMapAsync.when(
+      data: (supplierMap) {
+        if (roState.isLoading && roState.returnOrders.isEmpty) {
+          return _buildDataTableShimmer();
+        }
+        if (roState.returnOrders.isEmpty) {
+          return Center(
+              child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Text(
+              roState.searchText.isNotEmpty ||
+                      roState.statusFilter != null ||
+                      roState.supplierFilter != null ||
+                      roState.purchaseOrderFilter != null
+                  ? 'No Return Orders match your current filters.'
+                  : 'No return orders found to display.',
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              textAlign: TextAlign.center,
+            ),
+          ));
+        }
+        return Container(
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.withOpacity(0.3),
+                    spreadRadius: 2,
+                    blurRadius: 5)
+              ]),
+          child: Column(
+            children: [
+              _buildHeaderRow(context, ref, roState),
+              const Divider(
+                  height: 1, color: Color.fromARGB(255, 224, 224, 224)),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: roState.returnOrders.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final item = roState.returnOrders[index];
+                    final rowColor =
+                        index % 2 == 0 ? Colors.white : const Color(0xFFF8F8F8);
+                    return _buildItemRow(context, ref, item, rowColor,
+                        supplierMap, ValueKey(item.returnOrderID));
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => _buildDataTableShimmer(),
+      error: (e, s) => Center(
+          child: Text("Error loading supplier data for table: $e",
+              style: const TextStyle(color: Colors.red))),
     );
   }
 
   Widget _buildHeaderRow(
       BuildContext context, WidgetRef ref, ReturnOrderListState roState) {
+    final notifier = ref.read(returnOrderListNotifierProvider.notifier);
     const headerTextStyle = TextStyle(
         fontFamily: 'NunitoSans',
         fontWeight: FontWeight.bold,
@@ -291,19 +341,19 @@ class ReturnOrderListPage extends ConsumerWidget {
         children: [
           _buildHeaderCell(
               context, ref, roState, 'RO ID', 'returnOrderID', headerTextStyle,
-              flex: 1),
+              flex: 1, notifier: notifier),
           _buildHeaderCell(context, ref, roState, 'Orig. PO ID',
               'purchaseOrderID', headerTextStyle,
-              flex: 1),
+              flex: 1, notifier: notifier),
           _buildHeaderCell(
               context, ref, roState, 'Supplier', 'supplierID', headerTextStyle,
-              flex: 3), // Sort by ID, display name
+              flex: 3, notifier: notifier),
           _buildHeaderCell(context, ref, roState, 'Return Date', 'returnDate',
               headerTextStyle,
-              flex: 2),
+              flex: 2, notifier: notifier),
           _buildHeaderCell(
               context, ref, roState, 'Status', 'status', headerTextStyle,
-              flex: 2),
+              flex: 2, notifier: notifier),
           const Expanded(
               flex: 2,
               child: Text('Actions',
@@ -320,7 +370,8 @@ class ReturnOrderListPage extends ConsumerWidget {
       String columnTitle,
       String sortByColumn,
       TextStyle textStyle,
-      {int flex = 1}) {
+      {required int flex,
+      required ReturnOrderListNotifier notifier}) {
     bool isCurrentlySorted = state.sortBy == sortByColumn;
     Icon? sortIcon = isCurrentlySorted
         ? Icon(state.ascending ? Icons.arrow_drop_up : Icons.arrow_drop_down,
@@ -329,9 +380,7 @@ class ReturnOrderListPage extends ConsumerWidget {
     return Expanded(
       flex: flex,
       child: InkWell(
-        onTap: () => ref
-            .read(returnOrderListNotifierProvider.notifier)
-            .sort(sortByColumn),
+        onTap: () => notifier.sort(sortByColumn),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4.0),
           child: Row(
@@ -428,7 +477,7 @@ class ReturnOrderListPage extends ConsumerWidget {
         chipColor = Colors.blue.shade600;
         break;
       case ReturnOrderStatus.ItemsSentToSupplier:
-        chipColor = Colors.cyan.shade600;
+        chipColor = Colors.cyan.shade700;
         break;
       case ReturnOrderStatus.AwaitingReplacement:
         chipColor = Colors.deepPurple.shade400;
@@ -462,8 +511,7 @@ class ReturnOrderListPage extends ConsumerWidget {
   Widget _buildPaginationControls(
       BuildContext context, WidgetRef ref, ReturnOrderListState roState) {
     final notifier = ref.read(returnOrderListNotifierProvider.notifier);
-    if (roState.totalPages <= 1)
-      return const SizedBox.shrink(); // Don't show if only one page
+    if (roState.totalPages <= 1) return const SizedBox.shrink();
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -510,22 +558,24 @@ class ReturnOrderListPage extends ConsumerWidget {
       child: Column(children: [
         _buildTopControlsPlaceholder(),
         const SizedBox(height: 16),
-        Expanded(
-            child: Container(
-          decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(8)),
-          child: Column(children: [
-            _buildShimmerHeader(),
-            const Divider(height: 1, color: Color.fromARGB(255, 224, 224, 224)),
-            Expanded(
-                child: ListView(
-                    children: List.generate(8, (_) => _buildShimmerRow()))),
-          ]),
-        )),
+        Expanded(child: _buildDataTableShimmer()),
         const SizedBox(height: 16),
         _buildPaginationPlaceholder(),
       ]),
     );
+  }
+
+  Widget _buildDataTableShimmer() {
+    return Container(
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(8)),
+        child: Column(children: [
+          _buildShimmerHeader(),
+          const Divider(height: 1, color: Color.fromARGB(255, 224, 224, 224)),
+          Expanded(
+              child: ListView(
+                  children: List.generate(8, (_) => _buildShimmerRow()))),
+        ]));
   }
 
   Widget _buildTopControlsPlaceholder() {
@@ -546,6 +596,12 @@ class ReturnOrderListPage extends ConsumerWidget {
               width: 200,
               decoration: BoxDecoration(
                   color: Colors.white, borderRadius: BorderRadius.circular(8))),
+          const SizedBox(width: 10),
+          Container(
+              height: 40,
+              width: 150,
+              decoration: BoxDecoration(
+                  color: Colors.white, borderRadius: BorderRadius.circular(8))),
           const Spacer(),
           Container(
               height: 40,
@@ -560,7 +616,7 @@ class ReturnOrderListPage extends ConsumerWidget {
   Widget _buildShimmerHeader() {
     const headerPlaceholderColor = Color.fromRGBO(0, 174, 239, 0.5);
     final Map<String, int> columnFlex = {
-      'ID': 1,
+      'RO ID': 1,
       'Orig. PO ID': 1,
       'Supplier': 3,
       'Return Date': 2,
@@ -575,7 +631,7 @@ class ReturnOrderListPage extends ConsumerWidget {
         highlightColor: Colors.white.withOpacity(0.6),
         child: Row(children: [
           Expanded(
-              flex: columnFlex['ID']!,
+              flex: columnFlex['RO ID']!,
               child: Container(height: 16, color: Colors.white)),
           const SizedBox(width: 8),
           Expanded(
@@ -604,7 +660,7 @@ class ReturnOrderListPage extends ConsumerWidget {
 
   Widget _buildShimmerRow() {
     final Map<String, int> columnFlex = {
-      'ID': 1,
+      'RO ID': 1,
       'Orig. PO ID': 1,
       'Supplier': 3,
       'Return Date': 2,
@@ -615,7 +671,7 @@ class ReturnOrderListPage extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       child: Row(children: [
         Expanded(
-            flex: columnFlex['ID']!,
+            flex: columnFlex['RO ID']!,
             child: Container(height: 14.0, color: Colors.white)),
         const SizedBox(width: 8),
         Expanded(
@@ -707,8 +763,7 @@ class ReturnOrderListPage extends ConsumerWidget {
   Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
     return Center(
         child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-      const Icon(FontAwesomeIcons.retweet,
-          size: 80, color: Colors.grey), // Changed icon
+      const Icon(FontAwesomeIcons.retweet, size: 80, color: Colors.grey),
       const SizedBox(height: 16),
       const Text('No Return Orders found.',
           style: TextStyle(fontSize: 18, color: Colors.grey)),
