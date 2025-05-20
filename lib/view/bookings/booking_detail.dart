@@ -365,62 +365,18 @@ class BookingDetailsPage extends ConsumerWidget {
                           fontFamily: 'NunitoSans',
                           fontWeight: FontWeight.w500)),
                   subtitle: Text(
-                      'Est. Price: ₱${serviceItem.estimatedPrice.toStringAsFixed(2)}',
+                      'Price: ₱${serviceItem.estimatedPrice.toStringAsFixed(2)}',
                       style: const TextStyle(fontFamily: 'NunitoSans')),
                   trailing: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                          'Final: ₱${(serviceItem.finalPrice ?? serviceItem.estimatedPrice).toStringAsFixed(2)}',
-                          style: const TextStyle(
-                              fontFamily: 'NunitoSans',
-                              fontWeight: FontWeight.bold)),
-                      if (canUpdatePrice)
-                        SizedBox(
-                          height: 28,
-                          child: TextButton(
-                            style: TextButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 8)),
-                            child: const Text('Update Price',
-                                style: TextStyle(fontSize: 12)),
-                            onPressed: () async {
-                              final newPriceString =
-                                  await _showUpdatePriceDialog(
-                                      context,
-                                      serviceName,
-                                      serviceItem.finalPrice ??
-                                          serviceItem.estimatedPrice);
-                              if (newPriceString != null) {
-                                final newPrice =
-                                    double.tryParse(newPriceString);
-                                if (newPrice != null && newPrice >= 0) {
-                                  try {
-                                    await ref
-                                        .read(bookingDetailNotifierProvider(
-                                                booking.id)
-                                            .notifier)
-                                        .updateServicePrice(
-                                            serviceItem.id, newPrice);
-                                    ToastManager().showToast(
-                                        context,
-                                        "Price updated for $serviceName",
-                                        Colors.green);
-                                  } catch (e) {
-                                    ToastManager().showToast(
-                                        context,
-                                        "Failed to update price: $e",
-                                        Colors.red);
-                                  }
-                                } else {
-                                  ToastManager().showToast(context,
-                                      "Invalid price entered.", Colors.orange);
-                                }
-                              }
-                            },
-                          ),
-                        )
+                        'Final: ₱${(serviceItem.finalPrice ?? serviceItem.estimatedPrice).toStringAsFixed(2)}',
+                        style: const TextStyle(
+                            fontFamily: 'NunitoSans',
+                            fontWeight: FontWeight.bold),
+                      ),
                     ],
                   ),
                 );

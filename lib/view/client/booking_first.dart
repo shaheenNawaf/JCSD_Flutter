@@ -702,7 +702,7 @@ class _ClientBooking1State extends ConsumerState<ClientBooking1> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Estimated Total',
+              const Text('Total',
                   style: TextStyle(
                       fontFamily: 'Nunito',
                       fontSize: 16,
@@ -715,14 +715,6 @@ class _ClientBooking1State extends ConsumerState<ClientBooking1> {
             ],
           ),
           const Divider(),
-          const Text(
-            'Final Price will be set after the service has been done',
-            style: TextStyle(
-                fontFamily: 'Nunito',
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey),
-          ),
         ],
       ),
     );

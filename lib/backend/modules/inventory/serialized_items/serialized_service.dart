@@ -310,20 +310,37 @@ class SerialitemService {
 
   // Specifically handling the update of the status of the item serial
   Future<void> updateSerializedItemStatus(
-      String serialNumber, String status) async {
+      String serialNumber, String newStatus) async {
+    print(
+        "[SerialitemService] Attempting to update SN: $serialNumber to Status: $newStatus");
     try {
-      final itemSerialStatusUpdate = {'status': status};
+      final updates = {
+        'status': newStatus,
+        'updateDate': returnCurrentDateTime(),
+      };
 
-      final itemSerialUpdate = await supabaseDB
+      final response = await supabaseDB
           .from('item_serials')
-          .update(itemSerialStatusUpdate)
+          .update(updates)
           .eq('serialNumber', serialNumber)
-          .single();
+          .select();
+      if (response.isEmpty) {
+        print(
+            "[SerialitemService] Update for SN: $serialNumber to Status: $newStatus affected 0 rows. Item might not exist or RLS issue.");
+        throw Exception(
+            'Item with serial number "$serialNumber" not found or update was not permitted.');
+      }
+
+      if (response.length > 1) {
+        print(
+            "[SerialitemService] Warning: Update for SN: $serialNumber affected multiple rows: ${response.length}");
+      }
 
       print(
-          'Successfully updated the status of this item serial: $serialNumber');
-    } catch (err, st) {
-      print('Error updating serialized item count. \n $err \n $st');
+          "[SerialitemService] Successfully updated status for SN: $serialNumber to $newStatus. Response: $response");
+    } catch (error, stackTrace) {
+      print(
+          "[SerialitemService] Supabase Error updating status for SN: $serialNumber to $newStatus: $error\n$stackTrace");
       rethrow;
     }
   }
