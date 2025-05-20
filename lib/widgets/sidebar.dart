@@ -175,19 +175,13 @@ class _SidebarState extends ConsumerState<Sidebar> {
                           loading: () => const SizedBox.shrink(),
                           error: (error, stackTrace) => const SizedBox.shrink(),
                         ),
-                        userRoleAsyncValue.when(
-                          data: (role) => role != 'employee'
-                              ? SubSidebarItem(
+                        SubSidebarItem(
                                   icon: FontAwesomeIcons.fileImport,
                                   title: 'Purchase Order',
                                   route: '/orderList',
                                   isActive: _activeSubItem == '/orderList',
                                   onTap: () => _navigateTo('/orderList'),
-                                )
-                              : const SizedBox.shrink(),
-                          loading: () => const SizedBox.shrink(),
-                          error: (error, stackTrace) => const SizedBox.shrink(),
-                        )
+                        ),
                       ],
                       SidebarItemWithDropdown(
                         icon: FontAwesomeIcons.calendarDays,
