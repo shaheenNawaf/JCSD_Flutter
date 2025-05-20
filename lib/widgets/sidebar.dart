@@ -393,10 +393,9 @@ class _SidebarState extends ConsumerState<Sidebar> {
                     onTap: () => _navigateTo('/orderList'),
                   ),
                   SubSidebarItem(
-                    icon: FontAwesomeIcons
-                        .undoAlt, // Or a more fitting icon like faTruckRampBox or faReceipt
+                    icon: FontAwesomeIcons.undoAlt,
                     title: 'Return Orders',
-                    route: '/returnOrders', // Matches the GoRouter path
+                    route: '/returnOrders',
                     isActive: _activeSubItem == '/returnOrders',
                     onTap: () => _navigateTo('/returnOrders'),
                   ),
@@ -415,20 +414,6 @@ class _SidebarState extends ConsumerState<Sidebar> {
                     route: '/bookings',
                     isActive: _activeSubItem == '/bookings',
                     onTap: () => _navigateTo('/bookings'),
-                  ),
-                  SubSidebarItem(
-                    icon: FontAwesomeIcons.calendar,
-                    title: 'Calendar',
-                    route: '/bookingsCalendar',
-                    isActive: _activeSubItem == '/bookingsCalendar',
-                    onTap: () => _navigateTo('/bookingsCalendar'),
-                  ),
-                  SubSidebarItem(
-                    icon: FontAwesomeIcons.fileInvoiceDollar,
-                    title: 'Transactions',
-                    route: '/transactions',
-                    isActive: _activeSubItem == '/transactions',
-                    onTap: () => _navigateTo('/transactions'),
                   ),
                 ],
                 SidebarItemWithDropdown(

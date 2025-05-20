@@ -18,9 +18,7 @@ import 'package:shimmer/shimmer.dart';
 class ReturnOrderListPage extends ConsumerWidget {
   const ReturnOrderListPage({super.key});
 
-  final String _activeSubItem =
-      '/inventory'; // Or create '/returnOrders' if it's a main menu item
-
+  final String _activeSubItem = '/returnOrders';
   void _showViewReturnOrderDetailModal(
       BuildContext context, WidgetRef ref, ReturnOrderData ro) {
     showDialog(

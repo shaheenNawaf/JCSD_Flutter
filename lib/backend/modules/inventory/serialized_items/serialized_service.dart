@@ -283,7 +283,7 @@ class SerialitemService {
       final dataToUpdate = {
         'status': updatedItem.status,
         'notes': updatedItem.notes,
-        //'bookingID': updatedItem.currentBookingID,
+        'bookingID': updatedItem.bookingID,
         'employeeID': updatedItem.employeeID,
         'costPrice': updatedItem.costPrice,
         'purchaseDate': updatedItem.purchaseDate?.toIso8601String(),

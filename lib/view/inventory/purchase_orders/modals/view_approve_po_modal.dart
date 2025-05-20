@@ -635,31 +635,7 @@ class _ViewApprovePurchaseOrderModalState
                                 style: const TextStyle(fontSize: 11)),
                             subtitle: Text("Status: ${serial.status}",
                                 style: const TextStyle(fontSize: 10)),
-                            trailing: canInitiateReturn
-                                ? SizedBox(
-                                    height: 28, // Ensure button is not too tall
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              Colors.orange.shade300,
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 8, vertical: 4),
-                                          textStyle:
-                                              const TextStyle(fontSize: 10)),
-                                      child: const Text("Return This",
-                                          style:
-                                              TextStyle(color: Colors.black87)),
-                                      onPressed: () {
-                                        _showCreateReturnOrderModal(
-                                            context,
-                                            currentPO,
-                                            poItem,
-                                            serial.serialNumber,
-                                            productName);
-                                      },
-                                    ),
-                                  )
-                                : null,
+                            trailing: null,
                           );
                         }).toList(),
                       );
