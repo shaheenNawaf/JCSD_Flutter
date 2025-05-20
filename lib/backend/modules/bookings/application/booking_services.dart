@@ -477,7 +477,6 @@ class BookingService {
 
       print(
           "BookingService: Payment confirmed for booking $bookingId. Inventory updated (with ${failedInventoryUpdates.length} failures).");
-      // TODO: Trigger final receipt notification to customer
       return booking;
     } catch (e) {
       print(
