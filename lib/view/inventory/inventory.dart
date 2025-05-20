@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jcsd_flutter/backend/modules/accounts/role_state.dart';
 import 'package:jcsd_flutter/view/manufacturers/manufacturers.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -77,6 +78,7 @@ class InventoryPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final userRoleAsyncValue = ref.watch(userRoleProvider);
     final asyncValue =
         ref.watch(productDefinitionNotifierProvider(isVisibleFilter));
 
@@ -127,78 +129,97 @@ class InventoryPage extends ConsumerWidget {
   }
 
   Widget _buildTopControls(BuildContext context, WidgetRef ref) {
+    final userRoleAsyncValue = ref.watch(userRoleProvider);
     return Row(
       children: [
-        ElevatedButton.icon(
-          onPressed: () => _navigateToItemTypesPage(context),
-          icon: const Icon(
-            Icons.category,
-            color: Colors.white,
-            size: 16,
-          ),
-          label: const Text(
-            'Item Types',
-            style: TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF00AEEF),
-            minimumSize: const Size(0, 48),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
+        userRoleAsyncValue.when(
+          data: (role) => role != 'employee'
+              ? ElevatedButton.icon(
+                  onPressed: () => _navigateToItemTypesPage(context),
+                  icon: const Icon(
+                    Icons.category,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                  label: const Text(
+                    'Item Types',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00AEEF),
+                    minimumSize: const Size(0, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink(),
+          loading: () => const SizedBox.shrink(),
+          error: (error, stackTrace) => const SizedBox.shrink(),
         ),
         const SizedBox(width: 10),
-        ElevatedButton.icon(
-          onPressed: () => context.push('/manufacturers'),
-          icon: const Icon(
-            Icons.precision_manufacturing,
-            color: Colors.white,
-            size: 16,
-          ),
-          label: const Text(
-            'Manufacturers',
-            style: TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF00AEEF),
-            minimumSize: const Size(0, 48),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
+        userRoleAsyncValue.when(
+          data: (role) => role != 'employee'
+              ? ElevatedButton.icon(
+                  onPressed: () => context.push('/manufacturers'),
+                  icon: const Icon(
+                    Icons.precision_manufacturing,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                  label: const Text(
+                    'Manufacturers',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00AEEF),
+                    minimumSize: const Size(0, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink(),
+          loading: () => const SizedBox.shrink(),
+          error: (error, stackTrace) => const SizedBox.shrink(),
         ),
         const SizedBox(width: 10),
-        ElevatedButton.icon(
-          onPressed: () => context.go('/suppliers'),
-          icon: const Icon(
-            Icons.local_shipping,
-            color: Colors.white,
-            size: 16,
-          ),
-          label: const Text(
-            'Suppliers',
-            style: TextStyle(
-              fontFamily: 'NunitoSans',
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF00AEEF),
-            minimumSize: const Size(0, 48),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
+        userRoleAsyncValue.when(
+          data: (role) => role != 'employee'
+              ? ElevatedButton.icon(
+                  onPressed: () => context.go('/suppliers'),
+                  icon: const Icon(
+                    Icons.local_shipping,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                  label: const Text(
+                    'Suppliers',
+                    style: TextStyle(
+                      fontFamily: 'NunitoSans',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF00AEEF),
+                    minimumSize: const Size(0, 48),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink(),
+          loading: () => const SizedBox.shrink(),
+          error: (error, stackTrace) => const SizedBox.shrink(),
         ),
         const Spacer(),
         SizedBox(
@@ -530,9 +551,9 @@ class InventoryPage extends ConsumerWidget {
               style: TextStyle(color: textColor, fontSize: 11),
             ),
             backgroundColor: chipColor,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0.0),
+            // padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0.0),
             labelPadding: const EdgeInsets.symmetric(horizontal: 2.0),
-            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            // materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
         ),
       );

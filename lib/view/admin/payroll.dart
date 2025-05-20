@@ -60,6 +60,8 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
     );
   }
 
+  final String _activeSubItem = '/employeeList';
+
   String _display(dynamic v) =>
       (v == null || (v is String && v.trim().isEmpty)) ? 'N/A' : v.toString();
 
@@ -100,7 +102,10 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
       drawer: isMobile
           ? Drawer(
               backgroundColor: const Color(0xFF00AEEF),
-              child: Sidebar(onClose: () => _toggleDrawer(false)),
+              child: Sidebar(
+                activePage: _activeSubItem,
+                onClose: () => _toggleDrawer(false),
+              ),
             )
           : null,
       onDrawerChanged: _toggleDrawer,
@@ -108,7 +113,7 @@ class _PayrollState extends State<Payroll> with SingleTickerProviderStateMixin {
         children: [
           Row(
             children: [
-              if (!isMobile) const Sidebar(),
+              if (!isMobile) Sidebar(activePage: _activeSubItem),
               Expanded(
                 child: Column(
                   children: [

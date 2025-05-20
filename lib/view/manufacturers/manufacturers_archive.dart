@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, avoid_print
 
 //Base Imports
+import 'package:go_router/go_router.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -47,7 +48,13 @@ class ManufacturersArchivePage extends ConsumerWidget {
           Expanded(
               child: Column(
             children: [
-              const Header(title: 'Inventory - Archived Manufacturers'),
+              Header(
+                title: 'Inventory - Archived Manufacturers',
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                  onPressed: () => context.pop(),
+                ),
+              ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(16),

@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 //Default Web Packages
+import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/backend/modules/inventory/item_types/itemtypes_data.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/material.dart';
@@ -79,7 +80,7 @@ class _ItemTypesPageState extends ConsumerState<ItemTypesPage> {
                   leading: IconButton(
                     icon:
                         const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => context.go('/inventory'),
                   ),
                 ),
                 Padding(

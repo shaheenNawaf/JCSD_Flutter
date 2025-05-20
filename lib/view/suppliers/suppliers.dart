@@ -32,6 +32,7 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
   // Keep AnimationController if needed for other animations, otherwise remove
   late AnimationController _animationController;
   final bool isVisibleFilter = true; // Filter for active suppliers
+  final String _activeSubItem = '/suppliers';
 
   @override
   void initState() {
@@ -84,7 +85,7 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
       backgroundColor: const Color(0xFFF8F8F8),
       body: Row(
         children: [
-          const Sidebar(activePage: '/suppliers'), // Keep sidebar
+          Sidebar(activePage: _activeSubItem),
           Expanded(
             child: Column(
               children: [
@@ -144,16 +145,17 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
           width: 250, height: 40, // Search Field
           child: TextField(
             decoration: InputDecoration(
-                hintText: 'Search Name/Email/Contact...',
-                
-                prefixIcon: const Icon(Icons.search, size: 20),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-                hintStyle: const TextStyle(
-                    color: Color(0xFFABABAB),
-                    fontFamily: 'NunitoSans',),),
+              hintText: 'Search Name/Email/Contact...',
+              prefixIcon: const Icon(Icons.search, size: 20),
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+              hintStyle: const TextStyle(
+                color: Color(0xFFABABAB),
+                fontFamily: 'NunitoSans',
+              ),
+            ),
             onChanged: (searchText) => ref
                 .read(suppliersNotifierProvider(isVisibleFilter).notifier)
                 .search(searchText), // Connect to notifier search
@@ -337,8 +339,7 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
                 children: [
                   Tooltip(
                     message: 'Edit Supplier',
-                    child: 
-                    ElevatedButton(
+                    child: ElevatedButton(
                       onPressed: () => _showEditSupplierModal(supplier),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
@@ -354,8 +355,7 @@ class _SupplierPageState extends ConsumerState<SupplierPage>
                   const SizedBox(width: 4),
                   Tooltip(
                     message: 'Archive Supplier',
-                    child: 
-                    ElevatedButton(
+                    child: ElevatedButton(
                       onPressed: () => _showArchiveSupplierModal(supplier),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.redAccent,

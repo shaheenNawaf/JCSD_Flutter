@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:jcsd_flutter/view/inventory/inventory.dart';
 import 'package:jcsd_flutter/view/manufacturers/manufacturers_archive.dart';
 import 'package:shimmer/shimmer.dart';
@@ -28,7 +29,7 @@ import 'package:jcsd_flutter/widgets/header.dart';
 class ManufacturersPage extends ConsumerWidget {
   const ManufacturersPage({super.key});
 
-  final String _activeSubItem = '/manufacturers';
+  final String _activeSubItem = '/inventory';
   final bool isVisibleFilter = true;
 
   void _showAddManufacturerModal(BuildContext context, WidgetRef ref) {
@@ -84,7 +85,13 @@ class ManufacturersPage extends ConsumerWidget {
           Expanded(
               child: Column(
             children: [
-              const Header(title: 'Inventory - Manufacturers'),
+              Header(
+                title: 'Inventory - Manufacturers',
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Color(0xFF00AEEF)),
+                  onPressed: () => context.go('/inventory'),
+                ),
+              ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(16),

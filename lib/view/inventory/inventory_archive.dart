@@ -22,7 +22,7 @@ import 'package:jcsd_flutter/view/generic/dialogs/notification.dart';
 class ArchiveListPage extends ConsumerWidget {
   const ArchiveListPage({super.key});
 
-  final String _activeSubItem = '/inventory-archive';
+  final String _activeSubItem = '/archiveList';
   final bool isVisibleFilter = false;
 
   void _showUnarchiveProductDefinitionModal(BuildContext context, WidgetRef ref,

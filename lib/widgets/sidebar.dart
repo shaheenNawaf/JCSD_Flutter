@@ -176,11 +176,11 @@ class _SidebarState extends ConsumerState<Sidebar> {
                           error: (error, stackTrace) => const SizedBox.shrink(),
                         ),
                         SubSidebarItem(
-                                  icon: FontAwesomeIcons.fileImport,
-                                  title: 'Purchase Order',
-                                  route: '/orderList',
-                                  isActive: _activeSubItem == '/orderList',
-                                  onTap: () => _navigateTo('/orderList'),
+                          icon: FontAwesomeIcons.fileImport,
+                          title: 'Purchase Order',
+                          route: '/orderList',
+                          isActive: _activeSubItem == '/orderList',
+                          onTap: () => _navigateTo('/orderList'),
                         ),
                       ],
                       SidebarItemWithDropdown(
