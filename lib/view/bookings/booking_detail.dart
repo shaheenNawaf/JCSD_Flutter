@@ -365,7 +365,7 @@ class BookingDetailsPage extends ConsumerWidget {
                           fontFamily: 'NunitoSans',
                           fontWeight: FontWeight.w500)),
                   subtitle: Text(
-                      'Est. Price: ₱${serviceItem.estimatedPrice.toStringAsFixed(2)}',
+                      'Price: ₱${serviceItem.estimatedPrice.toStringAsFixed(2)}',
                       style: const TextStyle(fontFamily: 'NunitoSans')),
                   trailing: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
