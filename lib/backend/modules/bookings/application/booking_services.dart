@@ -73,6 +73,7 @@ class BookingService {
     };
     bool isAllowed =
         allowedTransitions[currentStatus]?.contains(newStatus) ?? false;
+    // If userRole is null or an empty string, it's treated as a non-admin role.
     if (userRole != 'admin') {
       // Role-based restrictions
       if ([
